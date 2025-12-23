@@ -633,6 +633,64 @@ export class OCXPClient {
       count: number;
     }>(response);
   }
+
+  /**
+   * Delete a repository and all associated data
+   * Removes S3 files, job records, and project references
+   */
+  async deleteRepository(repoId: string) {
+    const headers = await this.getHeaders();
+
+    // Direct fetch since SDK may not have this endpoint generated yet
+    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ repo_id: repoId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to delete repository: ${error}`);
+    }
+
+    const result = await response.json();
+    return result.data as {
+      repo_id: string;
+      success: boolean;
+      s3_files_deleted: number;
+      projects_updated: number;
+      error?: string;
+    };
+  }
+
+  /**
+   * Check if a repository already exists in the system
+   */
+  async checkRepoExists(repoId: string) {
+    const headers = await this.getHeaders();
+
+    // Direct fetch since SDK may not have this endpoint generated yet
+    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to check repository exists: ${error}`);
+    }
+
+    const result = await response.json();
+    return result.data as {
+      repo_id: string;
+      exists: boolean;
+      indexed_at: string | null;
+      files_count: number;
+    };
+  }
 }
 
 /**
