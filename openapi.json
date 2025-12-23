@@ -1,0 +1,2466 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "OCXP - Open Context Exchange Protocol",
+    "description": "\nOCXP provides a unified interface for accessing context across multiple backends.\n\n## Content Types\n- **mission** - Mission documents and tracking\n- **project** - Project context and files\n- **context** - General context information\n- **sop** - Standard Operating Procedures\n- **repo** - Repository references\n- **artifact** - Binary content and artifacts\n- **kb** - Knowledge Base queries (Bedrock)\n- **docs** - Documentation snapshots\n\n## Authentication\nAll endpoints require JWT Bearer token from Cognito.\n",
+    "version": "1.2.0",
+    "contact": {
+      "name": "ContextHub",
+      "url": "https://github.com/contexthub"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com",
+      "description": "OCXP API"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Cognito JWT token"
+      }
+    },
+    "parameters": {
+      "workspace": {
+        "name": "workspace",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "default": "prod"
+        },
+        "description": "Workspace ID"
+      },
+      "contentType": {
+        "name": "type",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "mission",
+            "project",
+            "context",
+            "sop",
+            "repo",
+            "artifact",
+            "kb",
+            "docs"
+          ]
+        },
+        "description": "Content type"
+      },
+      "contentId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Content identifier"
+      }
+    },
+    "schemas": {
+      "WriteRequestBody": {
+        "description": "Request body for POST /ocxp/{type}/{id}.\n\nPath parameters (type, id) come from URL, not body.",
+        "properties": {
+          "content": {
+            "description": "Content to write",
+            "title": "Content",
+            "type": "string"
+          },
+          "encoding": {
+            "default": "utf-8",
+            "description": "Content encoding",
+            "title": "Encoding",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "description": "Optional metadata key-value pairs",
+            "title": "Metadata",
+            "type": "object"
+          },
+          "ifNotExists": {
+            "default": false,
+            "description": "Only create if not exists",
+            "title": "Ifnotexists",
+            "type": "boolean"
+          },
+          "etag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "ETag for optimistic locking",
+            "title": "Etag"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "WriteRequestBody",
+        "type": "object"
+      },
+      "BulkReadRequestBody": {
+        "description": "Request body for POST /ocxp/{type}/bulk/read.\n\nPath parameter (type) comes from URL, not body.",
+        "properties": {
+          "ids": {
+            "description": "List of content IDs to read (1-100 items)",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Ids",
+            "type": "array"
+          },
+          "options": {
+            "additionalProperties": true,
+            "description": "Bulk operation options (concurrency, continueOnError)",
+            "title": "Options",
+            "type": "object"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "title": "BulkReadRequestBody",
+        "type": "object"
+      },
+      "BulkWriteRequestBody": {
+        "description": "Request body for POST /ocxp/{type}/bulk/write.\n\nPath parameter (type) comes from URL, not body.",
+        "properties": {
+          "items": {
+            "description": "List of items to write (1-100 items)",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "options": {
+            "additionalProperties": true,
+            "description": "Bulk operation options (concurrency, continueOnError)",
+            "title": "Options",
+            "type": "object"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "BulkWriteRequestBody",
+        "type": "object"
+      },
+      "BulkDeleteRequestBody": {
+        "description": "Request body for POST /ocxp/{type}/bulk/delete.\n\nPath parameter (type) comes from URL, not body.",
+        "properties": {
+          "ids": {
+            "description": "List of content IDs to delete (1-100 items)",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Ids",
+            "type": "array"
+          },
+          "options": {
+            "additionalProperties": true,
+            "description": "Bulk operation options (concurrency, continueOnError)",
+            "title": "Options",
+            "type": "object"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "title": "BulkDeleteRequestBody",
+        "type": "object"
+      },
+      "TypedListRequest": {
+        "description": "Request for typed list operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "path": {
+            "default": "",
+            "description": "Subpath to list",
+            "title": "Path",
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "description": "Maximum entries to return",
+            "title": "Limit",
+            "type": "integer"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Pagination cursor",
+            "title": "Cursor"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "TypedListRequest",
+        "type": "object"
+      },
+      "TypedQueryRequest": {
+        "description": "Request for typed query operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "filters": {
+            "description": "Query filters",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Filters",
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "description": "Maximum entries to return",
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "TypedQueryRequest",
+        "type": "object"
+      },
+      "TypedSearchRequest": {
+        "description": "Request for typed search operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "q": {
+            "description": "Search query",
+            "title": "Q",
+            "type": "string"
+          },
+          "fuzzy": {
+            "default": "false",
+            "description": "Enable fuzzy matching",
+            "title": "Fuzzy",
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "description": "Maximum entries to return",
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "q"
+        ],
+        "title": "TypedSearchRequest",
+        "type": "object"
+      },
+      "TypedFindByRequest": {
+        "description": "Request for typed findBy operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "field": {
+            "description": "Field to search",
+            "title": "Field",
+            "type": "string"
+          },
+          "value": {
+            "description": "Value to match",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "field",
+          "value"
+        ],
+        "title": "TypedFindByRequest",
+        "type": "object"
+      },
+      "TypedTreeRequest": {
+        "description": "Request for tree operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "path": {
+            "default": "",
+            "description": "Root path for tree",
+            "title": "Path",
+            "type": "string"
+          },
+          "depth": {
+            "default": 3,
+            "description": "Maximum tree depth",
+            "title": "Depth",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "TypedTreeRequest",
+        "type": "object"
+      },
+      "TypedStatsRequest": {
+        "description": "Request for stats operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "path": {
+            "default": "",
+            "description": "Path to calculate stats for",
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "TypedStatsRequest",
+        "type": "object"
+      },
+      "TypedDeleteRequest": {
+        "description": "Request for typed delete operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "id": {
+            "description": "Content identifier",
+            "title": "Id",
+            "type": "string"
+          },
+          "recursive": {
+            "default": "false",
+            "description": "Delete recursively",
+            "title": "Recursive",
+            "type": "string"
+          },
+          "confirm": {
+            "default": "false",
+            "description": "Confirm recursive delete",
+            "title": "Confirm",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "title": "TypedDeleteRequest",
+        "type": "object"
+      },
+      "DownloadRequest": {
+        "description": "Request for bulk download operations.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "id": {
+            "description": "Content identifier",
+            "title": "Id",
+            "type": "string"
+          },
+          "options": {
+            "additionalProperties": true,
+            "description": "Download options (skipPatterns, maxFiles, maxSize)",
+            "title": "Options",
+            "type": "object"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "title": "DownloadRequest",
+        "type": "object"
+      },
+      "PresignedUrlRequest": {
+        "description": "Request for presigned URL generation.",
+        "properties": {
+          "type": {
+            "description": "Content type (mission, project, context, sop, repo, artifact)",
+            "title": "Type",
+            "type": "string"
+          },
+          "id": {
+            "description": "Content identifier",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation": {
+            "default": "get",
+            "description": "Operation type (get or put)",
+            "title": "Operation",
+            "type": "string"
+          },
+          "expiresIn": {
+            "default": 3600,
+            "description": "URL expiry in seconds",
+            "title": "Expiresin",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "title": "PresignedUrlRequest",
+        "type": "object"
+      },
+      "RepoDownloadRequest": {
+        "description": "Request model for repository download operation.\n\nSupports both full repo and docs-only download modes with\nconfigurable file filtering and visibility routing.",
+        "properties": {
+          "github_url": {
+            "description": "GitHub repository URL (https://github.com/org/repo)",
+            "title": "Github Url",
+            "type": "string"
+          },
+          "branch": {
+            "default": "main",
+            "description": "Branch to download",
+            "title": "Branch",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Subdirectory path to filter (e.g., 'src/components'). If set, only files under this path are indexed.",
+            "title": "Path"
+          },
+          "repo_id": {
+            "description": "Repository identifier (lowercase alphanumeric with hyphens)",
+            "maxLength": 100,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$",
+            "title": "Repo Id",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/DownloadMode",
+            "default": "full",
+            "description": "Download mode: full (all files) or docs_only (just documentation)"
+          },
+          "include_extensions": {
+            "default": [
+              ".py",
+              ".ts",
+              ".tsx",
+              ".js",
+              ".jsx",
+              ".go",
+              ".rs",
+              ".java",
+              ".md",
+              ".yaml",
+              ".yml",
+              ".json",
+              ".sql",
+              ".tf",
+              ".toml"
+            ],
+            "description": "File extensions to include",
+            "items": {
+              "type": "string"
+            },
+            "title": "Include Extensions",
+            "type": "array"
+          },
+          "exclude_patterns": {
+            "default": [
+              ".git/",
+              "node_modules/",
+              "__pycache__/",
+              ".venv/",
+              "venv/",
+              ".pytest_cache/",
+              ".mypy_cache/",
+              "dist/",
+              "build/",
+              ".terraform/",
+              ".next/",
+              "coverage/",
+              ".eggs/",
+              ".tox/",
+              "htmlcov/"
+            ],
+            "description": "Patterns to exclude",
+            "items": {
+              "type": "string"
+            },
+            "title": "Exclude Patterns",
+            "type": "array"
+          },
+          "max_file_size_kb": {
+            "default": 500,
+            "description": "Maximum file size in KB to process",
+            "maximum": 5000,
+            "minimum": 1,
+            "title": "Max File Size Kb",
+            "type": "integer"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/RepoVisibility",
+            "default": "private",
+            "description": "Storage visibility (private=workspace-isolated, public=shared)"
+          },
+          "trigger_vectorization": {
+            "default": true,
+            "description": "Trigger Bedrock KB sync after upload",
+            "title": "Trigger Vectorization",
+            "type": "boolean"
+          },
+          "generate_metadata": {
+            "default": true,
+            "description": "Generate Bedrock-compatible metadata.json sidecars",
+            "title": "Generate Metadata",
+            "type": "boolean"
+          },
+          "is_private": {
+            "default": false,
+            "description": "Private repo requiring GitHub token",
+            "title": "Is Private",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "github_url",
+          "repo_id"
+        ],
+        "title": "RepoDownloadRequest",
+        "type": "object"
+      },
+      "DownloadMode": {
+        "description": "Repository download mode.",
+        "enum": [
+          "full",
+          "docs_only"
+        ],
+        "title": "DownloadMode",
+        "type": "string"
+      },
+      "RepoVisibility": {
+        "description": "Repository visibility for storage routing.",
+        "enum": [
+          "private",
+          "public"
+        ],
+        "title": "RepoVisibility",
+        "type": "string"
+      },
+      "RepoStatusRequest": {
+        "description": "Request model for checking repo download status.",
+        "properties": {
+          "job_id": {
+            "description": "Job ID from download response",
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "RepoStatusRequest",
+        "type": "object"
+      },
+      "RepoListRequest": {
+        "description": "Request model for listing downloaded repos.",
+        "properties": {
+          "repo_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Filter by repo ID",
+            "title": "Repo Id"
+          },
+          "visibility": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RepoVisibility"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Filter by visibility"
+          },
+          "limit": {
+            "default": 50,
+            "description": "Maximum results",
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "RepoListRequest",
+        "type": "object"
+      },
+      "GitHubCheckAccessRequest": {
+        "description": "Request to check repository access.\n\nUsed to verify if the user can access a repository\nbefore attempting to download it.",
+        "properties": {
+          "owner": {
+            "description": "Repository owner (user or org)",
+            "title": "Owner",
+            "type": "string"
+          },
+          "repo": {
+            "description": "Repository name",
+            "title": "Repo",
+            "type": "string"
+          },
+          "github_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Personal Access Token for private repos",
+            "title": "Github Token"
+          }
+        },
+        "required": [
+          "owner",
+          "repo"
+        ],
+        "title": "GitHubCheckAccessRequest",
+        "type": "object"
+      },
+      "GitHubCheckAccessResponse": {
+        "description": "Response from repository access check.",
+        "properties": {
+          "accessible": {
+            "description": "Whether the repo is accessible",
+            "title": "Accessible",
+            "type": "boolean"
+          },
+          "private": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Whether the repo is private",
+            "title": "Private"
+          },
+          "default_branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Default branch name",
+            "title": "Default Branch"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Error type: not_found, invalid_token, access_denied, rate_limited, unknown",
+            "title": "Error"
+          },
+          "rate_limit": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Rate limit info when rate_limited",
+            "title": "Rate Limit"
+          }
+        },
+        "required": [
+          "accessible"
+        ],
+        "title": "GitHubCheckAccessResponse",
+        "type": "object"
+      },
+      "GitHubListBranchesRequest": {
+        "description": "Request to list repository branches.\n\nUsed to populate branch dropdown in the UI.",
+        "properties": {
+          "owner": {
+            "description": "Repository owner (user or org)",
+            "title": "Owner",
+            "type": "string"
+          },
+          "repo": {
+            "description": "Repository name",
+            "title": "Repo",
+            "type": "string"
+          },
+          "github_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Personal Access Token for private repos",
+            "title": "Github Token"
+          }
+        },
+        "required": [
+          "owner",
+          "repo"
+        ],
+        "title": "GitHubListBranchesRequest",
+        "type": "object"
+      },
+      "GitHubListBranchesResponse": {
+        "description": "Response from branch listing.",
+        "properties": {
+          "branches": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "List of branch names",
+            "title": "Branches"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Error details if failed",
+            "title": "Error"
+          }
+        },
+        "title": "GitHubListBranchesResponse",
+        "type": "object"
+      },
+      "GitHubGetContentsRequest": {
+        "description": "Request to get repository contents.\n\nUsed to browse repository files and folders.",
+        "properties": {
+          "owner": {
+            "description": "Repository owner (user or org)",
+            "title": "Owner",
+            "type": "string"
+          },
+          "repo": {
+            "description": "Repository name",
+            "title": "Repo",
+            "type": "string"
+          },
+          "path": {
+            "default": "",
+            "description": "Path within repository",
+            "title": "Path",
+            "type": "string"
+          },
+          "ref": {
+            "default": "main",
+            "description": "Branch, tag, or commit SHA",
+            "title": "Ref",
+            "type": "string"
+          },
+          "github_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Personal Access Token for private repos",
+            "title": "Github Token"
+          }
+        },
+        "required": [
+          "owner",
+          "repo"
+        ],
+        "title": "GitHubGetContentsRequest",
+        "type": "object"
+      },
+      "GitHubGetContentsResponse": {
+        "description": "Response from contents request.",
+        "properties": {
+          "contents": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "File content or directory listing",
+            "title": "Contents"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Error details if failed",
+            "title": "Error"
+          }
+        },
+        "title": "GitHubGetContentsResponse",
+        "type": "object"
+      },
+      "OCXPResponse": {
+        "type": "object",
+        "description": "Standard OCXP response wrapper",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "error": {
+            "type": "object",
+            "nullable": true
+          },
+          "notifications": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "durationMs": {
+                "type": "integer"
+              },
+              "operation": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ContentType": {
+        "type": "object",
+        "description": "Content type metadata from /ocxp/types",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string",
+            "nullable": true
+          },
+          "isVirtual": {
+            "type": "boolean"
+          },
+          "isGlobal": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer",
+            "nullable": true
+          },
+          "endpoints": {
+            "type": "object"
+          }
+        }
+      },
+      "ListEntry": {
+        "type": "object",
+        "description": "Entry from list operations",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "file",
+              "directory"
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "mtime": {
+            "type": "string"
+          }
+        }
+      },
+      "QueryFilter": {
+        "type": "object",
+        "description": "Filter for query operations",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "ne",
+              "gt",
+              "lt",
+              "gte",
+              "lte",
+              "contains",
+              "startsWith"
+            ]
+          },
+          "value": {}
+        }
+      },
+      "KBQueryRequest": {
+        "type": "object",
+        "description": "Knowledge Base query request",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "searchType": {
+            "type": "string",
+            "enum": [
+              "SEMANTIC",
+              "HYBRID"
+            ],
+            "default": "HYBRID"
+          },
+          "maxResults": {
+            "type": "integer",
+            "default": 10
+          },
+          "filters": {
+            "type": "object"
+          }
+        }
+      },
+      "DiscoverRequest": {
+        "type": "object",
+        "description": "Discovery request for finding similar content",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "include_related": {
+            "type": "boolean",
+            "default": true
+          },
+          "max_results": {
+            "type": "integer",
+            "default": 10
+          }
+        }
+      },
+      "MissionCreateRequest": {
+        "type": "object",
+        "description": "Create mission from Jira ticket",
+        "required": [
+          "ticket_id"
+        ],
+        "properties": {
+          "ticket_id": {
+            "type": "string"
+          },
+          "ticket_summary": {
+            "type": "string"
+          },
+          "ticket_description": {
+            "type": "string"
+          },
+          "workspace": {
+            "type": "string",
+            "default": "prod"
+          }
+        }
+      },
+      "RepoDownloadResponse": {
+        "type": "object",
+        "description": "Response from repo download operation",
+        "properties": {
+          "repo_id": {
+            "type": "string"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "s3_path": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "processing",
+              "uploading",
+              "vectorizing",
+              "complete",
+              "failed"
+            ]
+          },
+          "files_processed": {
+            "type": "integer",
+            "default": 0
+          },
+          "metadata_files_created": {
+            "type": "integer",
+            "default": 0
+          },
+          "ingestion_job_id": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RepoStatusResponse": {
+        "type": "object",
+        "description": "Response from repo status check",
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "processing",
+              "uploading",
+              "vectorizing",
+              "complete",
+              "failed"
+            ]
+          },
+          "progress": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "files_processed": {
+            "type": "integer"
+          },
+          "total_files": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "RepoListItem": {
+        "type": "object",
+        "description": "Repository list entry",
+        "properties": {
+          "repo_id": {
+            "type": "string"
+          },
+          "github_url": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "private",
+              "public"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "full",
+              "docs_only"
+            ]
+          },
+          "files_count": {
+            "type": "integer"
+          },
+          "last_synced": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "s3_path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/ocxp/types": {
+      "get": {
+        "operationId": "getContentTypes",
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "List available content types",
+        "description": "Returns all content types with metadata, endpoints, and optional counts.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "counts",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of content types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "properties": {
+                            "types": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ContentType"
+                              }
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/list": {
+      "get": {
+        "operationId": "listContent",
+        "tags": [
+          "List"
+        ],
+        "summary": "List content of a type",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/{id}": {
+      "get": {
+        "operationId": "readContent",
+        "tags": [
+          "CRUD"
+        ],
+        "summary": "Read content by ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/contentId"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "writeContent",
+        "tags": [
+          "CRUD"
+        ],
+        "summary": "Create or update content",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/contentId"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Write result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteContent",
+        "tags": [
+          "CRUD"
+        ],
+        "summary": "Delete content",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/contentId"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "recursive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "confirm",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/query": {
+      "post": {
+        "operationId": "queryContent",
+        "tags": [
+          "List"
+        ],
+        "summary": "Query content with filters",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/QueryFilter"
+                    }
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "default": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/search": {
+      "get": {
+        "operationId": "searchContent",
+        "tags": [
+          "List"
+        ],
+        "summary": "Full-text search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/tree": {
+      "get": {
+        "operationId": "getContentTree",
+        "tags": [
+          "List"
+        ],
+        "summary": "Get hierarchical tree structure",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tree structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/stats": {
+      "get": {
+        "operationId": "getContentStats",
+        "tags": [
+          "List"
+        ],
+        "summary": "Get content statistics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/bulk/read": {
+      "post": {
+        "operationId": "bulkReadContent",
+        "tags": [
+          "Bulk"
+        ],
+        "summary": "Read multiple items",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkReadRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk read results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/bulk/write": {
+      "post": {
+        "operationId": "bulkWriteContent",
+        "tags": [
+          "Bulk"
+        ],
+        "summary": "Write multiple items",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkWriteRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk write results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/{type}/bulk/delete": {
+      "post": {
+        "operationId": "bulkDeleteContent",
+        "tags": [
+          "Bulk"
+        ],
+        "summary": "Delete multiple items",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk delete results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/kb/query": {
+      "post": {
+        "operationId": "queryKnowledgeBase",
+        "tags": [
+          "KB"
+        ],
+        "summary": "Semantic search in Knowledge Base",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KBQueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "KB query results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/kb/rag": {
+      "post": {
+        "operationId": "ragKnowledgeBase",
+        "tags": [
+          "KB"
+        ],
+        "summary": "RAG with citations",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "sessionId": {
+                    "type": "string"
+                  },
+                  "systemPrompt": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "RAG response with citations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/repo/download": {
+      "post": {
+        "operationId": "downloadRepository",
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Download GitHub repo and vectorize",
+        "description": "Download repo from GitHub, upload to S3 with metadata sidecars, and trigger Bedrock KB vectorization.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepoDownloadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Download job started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/RepoDownloadResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/repo/status": {
+      "get": {
+        "operationId": "getRepoDownloadStatus",
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Check repo download job status",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "job_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID from download request"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/RepoStatusResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/repo/list": {
+      "get": {
+        "operationId": "listDownloadedRepos",
+        "tags": [
+          "Repo"
+        ],
+        "summary": "List downloaded repositories",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          },
+          {
+            "name": "repo_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by repo ID"
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "private",
+                "public"
+              ]
+            },
+            "description": "Filter by visibility"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of repos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "properties": {
+                            "repos": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/RepoListItem"
+                              }
+                            },
+                            "count": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/github/check_access": {
+      "post": {
+        "operationId": "githubCheckAccess",
+        "tags": [
+          "GitHub"
+        ],
+        "summary": "Check repository access",
+        "description": "Verify if the user can access a GitHub repository before downloading.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubCheckAccessRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Access check result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/GitHubCheckAccessResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/github/list_branches": {
+      "post": {
+        "operationId": "githubListBranches",
+        "tags": [
+          "GitHub"
+        ],
+        "summary": "List repository branches",
+        "description": "Get list of branches for a GitHub repository.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubListBranchesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Branch list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/GitHubListBranchesResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/github/get_contents": {
+      "post": {
+        "operationId": "githubGetContents",
+        "tags": [
+          "GitHub"
+        ],
+        "summary": "Get repository contents",
+        "description": "Browse repository files and folders.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubGetContentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Repository contents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/OCXPResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/GitHubGetContentsResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mission/create": {
+      "post": {
+        "operationId": "createMission",
+        "tags": [
+          "Tools"
+        ],
+        "summary": "Create a new mission from ticket",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MissionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created mission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mission/{id}/update": {
+      "post": {
+        "operationId": "updateMission",
+        "tags": [
+          "Tools"
+        ],
+        "summary": "Update mission progress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated mission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/mission/{id}/context": {
+      "get": {
+        "operationId": "getMissionContext",
+        "tags": [
+          "Tools"
+        ],
+        "summary": "Get mission context for agents",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/discover": {
+      "post": {
+        "operationId": "discoverSimilar",
+        "tags": [
+          "Tools"
+        ],
+        "summary": "Discover similar content across types",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoverRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Discovery results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/discover/ticket": {
+      "post": {
+        "operationId": "findByTicket",
+        "tags": [
+          "Tools"
+        ],
+        "summary": "Find content by Jira ticket ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/workspace"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ticket_id"
+                ],
+                "properties": {
+                  "ticket_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket-related content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/lock": {
+      "post": {
+        "operationId": "lockContent",
+        "tags": [
+          "Utility"
+        ],
+        "summary": "Acquire exclusive lock",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "ttl": {
+                    "type": "integer",
+                    "default": 300
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lock acquired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ocxp/unlock": {
+      "post": {
+        "operationId": "unlockContent",
+        "tags": [
+          "Utility"
+        ],
+        "summary": "Release exclusive lock",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "lockToken"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "lockToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lock released",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Discovery",
+      "description": "Type discovery and metadata"
+    },
+    {
+      "name": "CRUD",
+      "description": "Create, Read, Update, Delete operations"
+    },
+    {
+      "name": "List",
+      "description": "List and query operations"
+    },
+    {
+      "name": "Bulk",
+      "description": "Bulk operations"
+    },
+    {
+      "name": "KB",
+      "description": "Knowledge Base operations"
+    },
+    {
+      "name": "Docs",
+      "description": "Documentation operations"
+    },
+    {
+      "name": "Repo",
+      "description": "Repository download and vectorization"
+    },
+    {
+      "name": "GitHub",
+      "description": "GitHub API proxy for CORS bypass"
+    },
+    {
+      "name": "Tools",
+      "description": "Mission and discovery tools"
+    },
+    {
+      "name": "Utility",
+      "description": "Lock, presigned URLs, etc."
+    }
+  ]
+}
