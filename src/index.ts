@@ -150,3 +150,18 @@ export {
   type ClientOptions,
   type Config,
 } from './generated/client';
+
+// WebSocket service for real-time updates
+export {
+  WebSocketService,
+  createWebSocketService,
+  type WebSocketServiceOptions,
+  type WebSocketMessage,
+  type WebSocketMessageType,
+  type WebSocketEventHandler,
+  type ConnectionState,
+  type JobProgressMessage,
+  type RepoStatusMessage,
+  type NotificationMessage,
+  type SyncEventMessage,
+} from './websocket';

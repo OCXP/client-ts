@@ -1297,6 +1297,26 @@ declare class OCXPClient {
         }>;
         count: number;
     }>;
+    /**
+     * Delete a repository and all associated data
+     * Removes S3 files, job records, and project references
+     */
+    deleteRepository(repoId: string): Promise<{
+        repo_id: string;
+        success: boolean;
+        s3_files_deleted: number;
+        projects_updated: number;
+        error?: string;
+    }>;
+    /**
+     * Check if a repository already exists in the system
+     */
+    checkRepoExists(repoId: string): Promise<{
+        repo_id: string;
+        exists: boolean;
+        indexed_at: string | null;
+        files_count: number;
+    }>;
 }
 /**
  * Create a new OCXP client instance
@@ -2032,4 +2052,146 @@ declare const lockContent: <ThrowOnError extends boolean = false>(options?: Opti
  */
 declare const unlockContent: <ThrowOnError extends boolean = false>(options?: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, unknown, ThrowOnError, "fields">;
 
-export { type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type Client, type ClientOptions, type Config, type ContentType, type ContentType2, type ContentTypeValue, type ContentTypesResult, type CreateMissionData, type CreateMissionResponse, type DeleteContentData, type DeleteContentResponse, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DownloadRequest, type FindByTicketData, type FindByTicketResponse, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetMissionContextData, type GetMissionContextResponse, type KbQueryRequest, type ListContentData, type ListContentResponse, type ListEntry, type ListResult, type LockContentData, type LockContentResponse, type MissionCreateRequest, OCXPClient, type OCXPClientOptions, OCXPPathService, type OCXPPathServiceOptions, type OcxpResponse, type Options, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlRequest, type QueryContentData, type QueryContentResponse, type QueryFilter, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadResult, type SearchContentData, type SearchContentResponse, type TokenProvider, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, VALID_CONTENT_TYPES, type WriteContentData, type WriteContentResponse, type WriteRequestBody, type WriteResult, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, deleteContent, discoverSimilar, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, isValidContentType, listContent, lockContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, searchContent, unlockContent, updateMission, writeContent };
+/**
+ * WebSocket service for OCXP real-time communication
+ * Provides push notifications for job progress, sync events, etc.
+ */
+type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event';
+interface WebSocketMessage {
+    type: WebSocketMessageType;
+    [key: string]: unknown;
+}
+interface JobProgressMessage extends WebSocketMessage {
+    type: 'job_progress';
+    job_id: string;
+    status: string;
+    progress: number;
+    files_processed: number;
+    total_files: number;
+    error?: string;
+}
+interface RepoStatusMessage extends WebSocketMessage {
+    type: 'repo_status';
+    repo_id: string;
+    status: string;
+    kb_synced: boolean;
+    s3_path?: string;
+    files_count?: number;
+}
+interface NotificationMessage extends WebSocketMessage {
+    type: 'notification';
+    title: string;
+    message: string;
+    level: 'info' | 'warning' | 'error' | 'success';
+    action?: {
+        label: string;
+        url: string;
+    };
+}
+interface SyncEventMessage extends WebSocketMessage {
+    type: 'sync_event';
+    event: string;
+    path?: string;
+    content_type?: string;
+}
+interface WebSocketServiceOptions {
+    /** WebSocket endpoint (wss://...) */
+    endpoint: string;
+    /** Workspace for scoping */
+    workspace: string;
+    /** Optional user ID */
+    userId?: string;
+    /** Token provider (same as OCXPClient) */
+    token?: string | (() => Promise<string>);
+    /** Max reconnection attempts (default: 5) */
+    maxReconnectAttempts?: number;
+    /** Reconnection delay base in ms (default: 1000) */
+    reconnectDelayMs?: number;
+    /** Connection timeout in ms (default: 10000) */
+    connectionTimeoutMs?: number;
+}
+type WebSocketEventHandler<T extends WebSocketMessage = WebSocketMessage> = (message: T) => void;
+type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
+declare class WebSocketService {
+    private options;
+    private ws;
+    private reconnectAttempts;
+    private reconnectTimeout;
+    private eventHandlers;
+    private connectionStateHandlers;
+    private connectionPromise;
+    private _connectionState;
+    private shouldReconnect;
+    constructor(options: WebSocketServiceOptions);
+    /**
+     * Get current connection state
+     */
+    get connectionState(): ConnectionState;
+    /**
+     * Check if connected
+     */
+    get connected(): boolean;
+    /**
+     * Connect to WebSocket server
+     */
+    connect(): Promise<void>;
+    private setConnectionState;
+    private doConnect;
+    private handleReconnect;
+    private dispatchMessage;
+    /**
+     * Subscribe to message types
+     * @returns Unsubscribe function
+     */
+    on<T extends WebSocketMessage = WebSocketMessage>(type: WebSocketMessageType | '*', handler: WebSocketEventHandler<T>): () => void;
+    /**
+     * Subscribe to job progress updates
+     */
+    onJobProgress(handler: WebSocketEventHandler<JobProgressMessage>): () => void;
+    /**
+     * Subscribe to repository status updates
+     */
+    onRepoStatus(handler: WebSocketEventHandler<RepoStatusMessage>): () => void;
+    /**
+     * Subscribe to notifications
+     */
+    onNotification(handler: WebSocketEventHandler<NotificationMessage>): () => void;
+    /**
+     * Subscribe to sync events
+     */
+    onSyncEvent(handler: WebSocketEventHandler<SyncEventMessage>): () => void;
+    /**
+     * Subscribe to connection state changes
+     */
+    onConnectionStateChange(handler: (state: ConnectionState) => void): () => void;
+    /**
+     * Subscribe to specific job updates
+     */
+    subscribeToJob(jobId: string): void;
+    /**
+     * Subscribe to repository updates
+     */
+    subscribeToRepo(repoId: string): void;
+    /**
+     * Send message to server
+     */
+    send(data: object): void;
+    /**
+     * Send ping to keep connection alive
+     */
+    ping(): void;
+    /**
+     * Disconnect and cleanup
+     */
+    disconnect(): void;
+    /**
+     * Clear all event handlers
+     */
+    clearHandlers(): void;
+}
+/**
+ * Create WebSocket service with same options pattern as OCXPClient
+ */
+declare function createWebSocketService(options: WebSocketServiceOptions): WebSocketService;
+
+export { type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentType2, type ContentTypeValue, type ContentTypesResult, type CreateMissionData, type CreateMissionResponse, type DeleteContentData, type DeleteContentResponse, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DownloadRequest, type FindByTicketData, type FindByTicketResponse, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetMissionContextData, type GetMissionContextResponse, type JobProgressMessage, type KbQueryRequest, type ListContentData, type ListContentResponse, type ListEntry, type ListResult, type LockContentData, type LockContentResponse, type MissionCreateRequest, type NotificationMessage, OCXPClient, type OCXPClientOptions, OCXPPathService, type OCXPPathServiceOptions, type OcxpResponse, type Options, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlRequest, type QueryContentData, type QueryContentResponse, type QueryFilter, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadResult, type RepoStatusMessage, type SearchContentData, type SearchContentResponse, type SyncEventMessage, type TokenProvider, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, VALID_CONTENT_TYPES, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponse, type WriteRequestBody, type WriteResult, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createWebSocketService, deleteContent, discoverSimilar, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, isValidContentType, listContent, lockContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, searchContent, unlockContent, updateMission, writeContent };

@@ -1470,6 +1470,43 @@ var OCXPClient = class {
     });
     return extractData(response);
   }
+  /**
+   * Delete a repository and all associated data
+   * Removes S3 files, job records, and project references
+   */
+  async deleteRepository(repoId) {
+    const headers = await this.getHeaders();
+    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`, {
+      method: "POST",
+      headers: {
+        ...headers,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ repo_id: repoId })
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to delete repository: ${error}`);
+    }
+    const result = await response.json();
+    return result.data;
+  }
+  /**
+   * Check if a repository already exists in the system
+   */
+  async checkRepoExists(repoId) {
+    const headers = await this.getHeaders();
+    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`, {
+      method: "GET",
+      headers
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to check repository exists: ${error}`);
+    }
+    const result = await response.json();
+    return result.data;
+  }
 };
 function createOCXPClient(options) {
   return new OCXPClient(options);
@@ -1738,6 +1775,219 @@ function createPathService(options) {
   return new OCXPPathService(options);
 }
 
-export { OCXPClient, OCXPPathService, VALID_CONTENT_TYPES, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, deleteContent, discoverSimilar, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, isValidContentType, listContent, lockContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, searchContent, unlockContent, updateMission, writeContent };
+// src/websocket.ts
+var WebSocketService = class {
+  constructor(options) {
+    this.options = options;
+  }
+  ws = null;
+  reconnectAttempts = 0;
+  reconnectTimeout = null;
+  eventHandlers = /* @__PURE__ */ new Map();
+  connectionStateHandlers = /* @__PURE__ */ new Set();
+  connectionPromise = null;
+  _connectionState = "disconnected";
+  shouldReconnect = true;
+  /**
+   * Get current connection state
+   */
+  get connectionState() {
+    return this._connectionState;
+  }
+  /**
+   * Check if connected
+   */
+  get connected() {
+    return this.ws?.readyState === WebSocket.OPEN;
+  }
+  /**
+   * Connect to WebSocket server
+   */
+  async connect() {
+    if (this.connectionPromise) return this.connectionPromise;
+    if (this.connected) return Promise.resolve();
+    this.shouldReconnect = true;
+    this.connectionPromise = this.doConnect();
+    return this.connectionPromise;
+  }
+  setConnectionState(state) {
+    this._connectionState = state;
+    this.connectionStateHandlers.forEach((handler) => handler(state));
+  }
+  async doConnect() {
+    this.setConnectionState("connecting");
+    const token = typeof this.options.token === "function" ? await this.options.token() : this.options.token;
+    const params = new URLSearchParams({
+      workspace: this.options.workspace
+    });
+    if (this.options.userId) {
+      params.set("user_id", this.options.userId);
+    }
+    if (token) {
+      params.set("token", token);
+    }
+    const url = `${this.options.endpoint}?${params}`;
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.ws?.close();
+        reject(new Error("WebSocket connection timeout"));
+      }, this.options.connectionTimeoutMs ?? 1e4);
+      try {
+        this.ws = new WebSocket(url);
+      } catch (error) {
+        clearTimeout(timeout);
+        this.connectionPromise = null;
+        this.setConnectionState("disconnected");
+        reject(error);
+        return;
+      }
+      this.ws.onopen = () => {
+        clearTimeout(timeout);
+        this.reconnectAttempts = 0;
+        this.setConnectionState("connected");
+        resolve();
+      };
+      this.ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          this.dispatchMessage(message);
+        } catch {
+        }
+      };
+      this.ws.onclose = (event) => {
+        clearTimeout(timeout);
+        this.connectionPromise = null;
+        if (this.shouldReconnect && event.code !== 1e3) {
+          this.setConnectionState("reconnecting");
+          this.handleReconnect();
+        } else {
+          this.setConnectionState("disconnected");
+        }
+      };
+      this.ws.onerror = () => {
+        clearTimeout(timeout);
+        this.connectionPromise = null;
+        reject(new Error("WebSocket connection failed"));
+      };
+    });
+  }
+  handleReconnect() {
+    if (!this.shouldReconnect) return;
+    const maxAttempts = this.options.maxReconnectAttempts ?? 5;
+    if (this.reconnectAttempts >= maxAttempts) {
+      this.setConnectionState("disconnected");
+      return;
+    }
+    const delay = (this.options.reconnectDelayMs ?? 1e3) * Math.pow(2, this.reconnectAttempts);
+    this.reconnectAttempts++;
+    this.reconnectTimeout = setTimeout(() => {
+      this.connect().catch(() => {
+      });
+    }, delay);
+  }
+  dispatchMessage(message) {
+    const handlers = this.eventHandlers.get(message.type);
+    handlers?.forEach((handler) => handler(message));
+    const wildcardHandlers = this.eventHandlers.get("*");
+    wildcardHandlers?.forEach((handler) => handler(message));
+  }
+  /**
+   * Subscribe to message types
+   * @returns Unsubscribe function
+   */
+  on(type, handler) {
+    if (!this.eventHandlers.has(type)) {
+      this.eventHandlers.set(type, /* @__PURE__ */ new Set());
+    }
+    this.eventHandlers.get(type).add(handler);
+    return () => this.eventHandlers.get(type)?.delete(handler);
+  }
+  /**
+   * Subscribe to job progress updates
+   */
+  onJobProgress(handler) {
+    return this.on("job_progress", handler);
+  }
+  /**
+   * Subscribe to repository status updates
+   */
+  onRepoStatus(handler) {
+    return this.on("repo_status", handler);
+  }
+  /**
+   * Subscribe to notifications
+   */
+  onNotification(handler) {
+    return this.on("notification", handler);
+  }
+  /**
+   * Subscribe to sync events
+   */
+  onSyncEvent(handler) {
+    return this.on("sync_event", handler);
+  }
+  /**
+   * Subscribe to connection state changes
+   */
+  onConnectionStateChange(handler) {
+    this.connectionStateHandlers.add(handler);
+    return () => this.connectionStateHandlers.delete(handler);
+  }
+  /**
+   * Subscribe to specific job updates
+   */
+  subscribeToJob(jobId) {
+    this.send({ action: "subscribe", type: "job", id: jobId });
+  }
+  /**
+   * Subscribe to repository updates
+   */
+  subscribeToRepo(repoId) {
+    this.send({ action: "subscribe", type: "repo", id: repoId });
+  }
+  /**
+   * Send message to server
+   */
+  send(data) {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(data));
+    }
+  }
+  /**
+   * Send ping to keep connection alive
+   */
+  ping() {
+    this.send({ action: "ping" });
+  }
+  /**
+   * Disconnect and cleanup
+   */
+  disconnect() {
+    this.shouldReconnect = false;
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+    if (this.ws) {
+      this.ws.close(1e3, "Client disconnect");
+      this.ws = null;
+    }
+    this.connectionPromise = null;
+    this.reconnectAttempts = 0;
+    this.setConnectionState("disconnected");
+  }
+  /**
+   * Clear all event handlers
+   */
+  clearHandlers() {
+    this.eventHandlers.clear();
+    this.connectionStateHandlers.clear();
+  }
+};
+function createWebSocketService(options) {
+  return new WebSocketService(options);
+}
+
+export { OCXPClient, OCXPPathService, VALID_CONTENT_TYPES, WebSocketService, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createWebSocketService, deleteContent, discoverSimilar, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, isValidContentType, listContent, lockContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, searchContent, unlockContent, updateMission, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
