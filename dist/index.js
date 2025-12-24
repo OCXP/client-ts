@@ -1000,6 +1000,29 @@ var findByTicket = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var deleteRepository = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/repo/delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var checkRepoExists = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/repo/exists",
+  ...options
+});
+var moveContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/move",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var lockContent = (options) => (options?.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/lock",
@@ -1016,6 +1039,219 @@ var unlockContent = (options) => (options?.client ?? client).post({
   headers: {
     "Content-Type": "application/json",
     ...options?.headers
+  }
+});
+var checkConflicts = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/conflicts",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getPresignedUrl = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{type}/{id}/url",
+  ...options
+});
+var downloadContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{type}/download",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var findContentBy = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{type}/find",
+  ...options
+});
+var authLogin = (options) => (options.client ?? client).post({
+  url: "/auth/login",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var authRefresh = (options) => (options.client ?? client).post({
+  url: "/auth/refresh",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var authGetConfig = (options) => (options?.client ?? client).get({ url: "/auth/config", ...options });
+var authListWorkspaces = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/workspaces",
+  ...options
+});
+var listSessions = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session",
+  ...options
+});
+var createSession = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var getSessionMessages = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{id}/messages",
+  ...options
+});
+var updateSessionMetadata = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{id}/metadata",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var forkSession = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{id}/fork",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var listMissionSessions = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{id}/session",
+  ...options
+});
+var createMissionSession = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{id}/session",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var listProjects = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project",
+  ...options
+});
+var createProject = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteProject = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}",
+  ...options
+});
+var getProject = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}",
+  ...options
+});
+var updateProject = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var addProjectRepo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}/repos",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var removeProjectRepo = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}/repos/{repo_id}",
+  ...options
+});
+var setProjectDefaultRepo = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}/default-repo",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getProjectContextRepos = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}/context-repos",
+  ...options
+});
+var addProjectMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}/missions",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var removeProjectMission = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{id}/missions/{mission_id}",
+  ...options
+});
+var createDocsSnapshot = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/docs/snapshot",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var listDocsSnapshots = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/docs/list",
+  ...options
+});
+var getDocsSnapshotStatus = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/docs/status",
+  ...options
+});
+var refreshIndex = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/index/refresh",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var learnFromMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/tools/mission/{id}/learn",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
   }
 });
 
@@ -1988,6 +2224,6 @@ function createWebSocketService(options) {
   return new WebSocketService(options);
 }
 
-export { OCXPClient, OCXPPathService, VALID_CONTENT_TYPES, WebSocketService, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createWebSocketService, deleteContent, discoverSimilar, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, isValidContentType, listContent, lockContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, searchContent, unlockContent, updateMission, writeContent };
+export { OCXPClient, OCXPPathService, VALID_CONTENT_TYPES, WebSocketService, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, moveContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

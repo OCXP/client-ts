@@ -44,6 +44,7 @@ export {
 
 // Re-export generated SDK functions for direct use
 export {
+  // Content CRUD (11)
   getContentTypes,
   listContent,
   readContent,
@@ -51,20 +52,83 @@ export {
   deleteContent,
   queryContent,
   searchContent,
+  findContentBy,
   getContentTree,
   getContentStats,
+  getPresignedUrl,
+
+  // Bulk Operations (4)
   bulkReadContent,
   bulkWriteContent,
   bulkDeleteContent,
+  downloadContent,
+
+  // Auth (4)
+  authLogin,
+  authRefresh,
+  authGetConfig,
+  authListWorkspaces,
+
+  // Session (7)
+  listSessions,
+  createSession,
+  getSessionMessages,
+  updateSessionMetadata,
+  forkSession,
+  listMissionSessions,
+  createMissionSession,
+
+  // Project (11)
+  listProjects,
+  createProject,
+  getProject,
+  updateProject,
+  deleteProject,
+  addProjectRepo,
+  removeProjectRepo,
+  setProjectDefaultRepo,
+  getProjectContextRepos,
+  addProjectMission,
+  removeProjectMission,
+
+  // Repository (5)
+  downloadRepository,
+  getRepoDownloadStatus,
+  listDownloadedRepos,
+  deleteRepository,
+  checkRepoExists,
+
+  // Knowledge Base (2)
   queryKnowledgeBase,
   ragKnowledgeBase,
+
+  // Documentation (3)
+  createDocsSnapshot,
+  listDocsSnapshots,
+  getDocsSnapshotStatus,
+
+  // GitHub (3)
+  githubCheckAccess,
+  githubListBranches,
+  githubGetContents,
+
+  // Tools (6)
   createMission,
   updateMission,
   getMissionContext,
+  learnFromMission,
   discoverSimilar,
   findByTicket,
+
+  // Utility (4)
   lockContent,
   unlockContent,
+  checkConflicts,
+  moveContent,
+
+  // Index (1)
+  refreshIndex,
+
   type Options,
 } from './generated';
 
@@ -97,7 +161,7 @@ export type {
   DiscoverRequest,
   MissionCreateRequest,
 
-  // Data types for SDK functions
+  // Data types for SDK functions - Content CRUD
   GetContentTypesData,
   GetContentTypesResponse,
   ListContentData,
@@ -112,34 +176,136 @@ export type {
   QueryContentResponse,
   SearchContentData,
   SearchContentResponse,
+  FindContentByData,
+  FindContentByResponse,
   GetContentTreeData,
   GetContentTreeResponse,
   GetContentStatsData,
   GetContentStatsResponse,
+  GetPresignedUrlData,
+  GetPresignedUrlResponse,
+
+  // Bulk operations
   BulkReadContentData,
   BulkReadContentResponse,
   BulkWriteContentData,
   BulkWriteContentResponse,
   BulkDeleteContentData,
   BulkDeleteContentResponse,
+  DownloadContentData,
+  DownloadContentResponse,
+
+  // Auth
+  AuthLoginData,
+  AuthLoginResponse,
+  AuthRefreshData,
+  AuthRefreshResponse,
+  AuthGetConfigData,
+  AuthGetConfigResponse,
+  AuthListWorkspacesData,
+  AuthListWorkspacesResponse,
+
+  // Session
+  ListSessionsData,
+  ListSessionsResponse,
+  CreateSessionData,
+  CreateSessionResponse,
+  GetSessionMessagesData,
+  GetSessionMessagesResponse,
+  UpdateSessionMetadataData,
+  UpdateSessionMetadataResponse,
+  ForkSessionData,
+  ForkSessionResponse,
+  ListMissionSessionsData,
+  ListMissionSessionsResponse,
+  CreateMissionSessionData,
+  CreateMissionSessionResponse,
+
+  // Project
+  ListProjectsData,
+  ListProjectsResponse,
+  CreateProjectData,
+  CreateProjectResponse,
+  GetProjectData,
+  GetProjectResponse,
+  UpdateProjectData,
+  UpdateProjectResponse,
+  DeleteProjectData,
+  DeleteProjectResponse,
+  AddProjectRepoData,
+  AddProjectRepoResponse,
+  RemoveProjectRepoData,
+  RemoveProjectRepoResponse,
+  SetProjectDefaultRepoData,
+  SetProjectDefaultRepoResponse,
+  GetProjectContextReposData,
+  GetProjectContextReposResponse,
+  AddProjectMissionData,
+  AddProjectMissionResponse,
+  RemoveProjectMissionData,
+  RemoveProjectMissionResponse,
+
+  // Repository
+  DownloadRepositoryData,
+  DownloadRepositoryResponse,
+  GetRepoDownloadStatusData,
+  GetRepoDownloadStatusResponse,
+  ListDownloadedReposData,
+  ListDownloadedReposResponse,
+  DeleteRepositoryData,
+  DeleteRepositoryResponse,
+  CheckRepoExistsData,
+  CheckRepoExistsResponse,
+
+  // Knowledge Base
   QueryKnowledgeBaseData,
   QueryKnowledgeBaseResponse,
   RagKnowledgeBaseData,
   RagKnowledgeBaseResponse,
+
+  // Documentation
+  CreateDocsSnapshotData,
+  CreateDocsSnapshotResponse,
+  ListDocsSnapshotsData,
+  ListDocsSnapshotsResponse,
+  GetDocsSnapshotStatusData,
+  GetDocsSnapshotStatusResponse,
+
+  // GitHub
+  GithubCheckAccessData,
+  GithubCheckAccessResponse,
+  GithubListBranchesData,
+  GithubListBranchesResponse,
+  GithubGetContentsData,
+  GithubGetContentsResponse,
+
+  // Tools
   CreateMissionData,
   CreateMissionResponse,
   UpdateMissionData,
   UpdateMissionResponse,
   GetMissionContextData,
   GetMissionContextResponse,
+  LearnFromMissionData,
+  LearnFromMissionResponse,
   DiscoverSimilarData,
   DiscoverSimilarResponse,
   FindByTicketData,
   FindByTicketResponse,
+
+  // Utility
   LockContentData,
   LockContentResponse,
   UnlockContentData,
   UnlockContentResponse,
+  CheckConflictsData,
+  CheckConflictsResponse,
+  MoveContentData,
+  MoveContentResponse,
+
+  // Index
+  RefreshIndexData,
+  RefreshIndexResponse,
 } from './generated';
 
 // Re-export client utilities for advanced use
