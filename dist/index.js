@@ -788,69 +788,12 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(
-  createConfig({
-    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-  })
-);
+var client = createClient(createConfig());
 
 // src/generated/sdk.gen.ts
-var getContentTypes = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/types",
-  ...options
-});
-var listContent = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/list",
-  ...options
-});
-var deleteContent = (options) => (options.client ?? client).delete({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/{id}",
-  ...options
-});
-var readContent = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/{id}",
-  ...options
-});
-var writeContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/{id}",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var queryContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/query",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var searchContent = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/search",
-  ...options
-});
-var getContentTree = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/tree",
-  ...options
-});
-var getContentStats = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/stats",
-  ...options
-});
 var bulkReadContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/bulk/read",
+  url: "/ocxp/{content_type}/bulk/read",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -859,7 +802,7 @@ var bulkReadContent = (options) => (options.client ?? client).post({
 });
 var bulkWriteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/bulk/write",
+  url: "/ocxp/{content_type}/bulk/write",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -868,7 +811,78 @@ var bulkWriteContent = (options) => (options.client ?? client).post({
 });
 var bulkDeleteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/bulk/delete",
+  url: "/ocxp/{content_type}/bulk/delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getContentTypes = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/types",
+  ...options
+});
+var listContent = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/list",
+  ...options
+});
+var queryContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/query",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var searchContent = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/search",
+  ...options
+});
+var getContentTree = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/tree",
+  ...options
+});
+var getContentStats = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/stats",
+  ...options
+});
+var deleteContent = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/{content_id}",
+  ...options
+});
+var readContent = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/{content_id}",
+  ...options
+});
+var writeContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/{content_id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var lockContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/lock",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var unlockContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/unlock",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -904,7 +918,7 @@ var downloadRepository = (options) => (options.client ?? client).post({
 });
 var getRepoDownloadStatus = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/repo/status",
+  url: "/ocxp/repo/status/{job_id}",
   ...options
 });
 var listDownloadedRepos = (options) => (options?.client ?? client).get({
@@ -914,7 +928,7 @@ var listDownloadedRepos = (options) => (options?.client ?? client).get({
 });
 var githubCheckAccess = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/github/check_access",
+  url: "/ocxp/github/check-access",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -923,7 +937,7 @@ var githubCheckAccess = (options) => (options.client ?? client).post({
 });
 var githubListBranches = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/github/list_branches",
+  url: "/ocxp/github/branches",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -932,7 +946,7 @@ var githubListBranches = (options) => (options.client ?? client).post({
 });
 var githubGetContents = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/github/get_contents",
+  url: "/ocxp/github/contents",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -950,18 +964,20 @@ var createMission = (options) => (options.client ?? client).post({
 });
 var updateMission = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/mission/{id}/update",
+  url: "/tools/mission/{mission_id}/update",
   ...options,
   headers: {
     "Content-Type": "application/json",
     ...options.headers
   }
 });
-var getMissionContext = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/mission/{id}/context",
-  ...options
-});
+var getMissionContext = (options) => (options.client ?? client).get(
+  {
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/tools/mission/{mission_id}/context",
+    ...options
+  }
+);
 var discoverSimilar = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/tools/discover",
@@ -978,24 +994,6 @@ var findByTicket = (options) => (options.client ?? client).post({
   headers: {
     "Content-Type": "application/json",
     ...options.headers
-  }
-});
-var lockContent = (options) => (options?.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/lock",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options?.headers
-  }
-});
-var unlockContent = (options) => (options?.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/unlock",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options?.headers
   }
 });
 
@@ -1078,7 +1076,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     const response = await listContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { path, limit },
       headers
     });
@@ -1097,7 +1095,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     const response = await readContent({
       client: this.client,
-      path: { type, id },
+      path: { content_type: type, content_id: id },
       headers
     });
     const data = extractData(response);
@@ -1122,7 +1120,7 @@ var OCXPClient = class {
     };
     const response = await writeContent({
       client: this.client,
-      path: { type, id },
+      path: { content_type: type, content_id: id },
       body,
       headers
     });
@@ -1139,7 +1137,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     const response = await deleteContent({
       client: this.client,
-      path: { type, id },
+      path: { content_type: type, content_id: id },
       query: { recursive, confirm },
       headers
     });
@@ -1157,7 +1155,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return queryContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { filters: filters || [], limit: limit || 100 },
       headers
     });
@@ -1169,7 +1167,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return searchContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { q, limit },
       headers
     });
@@ -1182,7 +1180,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return getContentTree({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { path, depth },
       headers
     });
@@ -1194,7 +1192,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return getContentStats({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { path },
       headers
     });
@@ -1207,7 +1205,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return bulkReadContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { ids },
       headers
     });
@@ -1219,7 +1217,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return bulkWriteContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { items },
       headers
     });
@@ -1231,7 +1229,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return bulkDeleteContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { ids },
       headers
     });
@@ -1244,8 +1242,8 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     const body = {
       query,
-      searchType,
-      maxResults: maxResults || 5
+      search_type: searchType,
+      max_results: maxResults || 5
     };
     return queryKnowledgeBase({
       client: this.client,
@@ -1260,20 +1258,21 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return ragKnowledgeBase({
       client: this.client,
-      body: { query, sessionId },
+      body: { query, session_id: sessionId },
       headers
     });
   }
   // ============== Tools ==============
   /**
-   * Create a new mission from Jira ticket
+   * Create a new mission
    */
-  async createMission(ticketId, ticketSummary, ticketDescription) {
+  async createMission(name, description, projectId, goals) {
     const headers = await this.getHeaders();
     const body = {
-      ticket_id: ticketId,
-      ticket_summary: ticketSummary,
-      ticket_description: ticketDescription
+      name,
+      description,
+      project_id: projectId,
+      goals
     };
     return createMission({
       client: this.client,
@@ -1288,7 +1287,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return updateMission({
       client: this.client,
-      path: { id: missionId },
+      path: { mission_id: missionId },
       body: updates,
       headers
     });
@@ -1300,19 +1299,19 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return getMissionContext({
       client: this.client,
-      path: { id: missionId },
+      path: { mission_id: missionId },
       headers
     });
   }
   /**
    * Discover similar content across types
    */
-  async discover(query, contentType, includeRelated) {
+  async discover(query, contentTypes, limit) {
     const headers = await this.getHeaders();
     const body = {
       query,
-      content_type: contentType,
-      include_related: includeRelated
+      content_types: contentTypes,
+      limit
     };
     return discoverSimilar({
       client: this.client,
@@ -1334,15 +1333,17 @@ var OCXPClient = class {
   // ============== Locking ==============
   /**
    * Acquire exclusive lock on content
-   * @param path - Content path (e.g., "mission/my-mission")
+   * @param contentType - Content type (e.g., "mission")
+   * @param contentId - Content ID (e.g., "my-mission")
    * @param ttl - Lock time-to-live in seconds
    */
-  async lock(path, ttl) {
+  async lock(contentType, contentId, ttl) {
     const headers = await this.getHeaders();
     return lockContent({
       client: this.client,
       body: {
-        path,
+        content_type: contentType,
+        content_id: contentId,
         ttl
       },
       headers
@@ -1350,16 +1351,16 @@ var OCXPClient = class {
   }
   /**
    * Release exclusive lock
-   * @param path - Content path
-   * @param lockToken - Token from lock acquisition
+   * @param contentType - Content type
+   * @param contentId - Content ID
    */
-  async unlock(path, lockToken) {
+  async unlock(contentType, contentId) {
     const headers = await this.getHeaders();
     return unlockContent({
       client: this.client,
       body: {
-        path,
-        lockToken
+        content_type: contentType,
+        content_id: contentId
       },
       headers
     });
@@ -1367,46 +1368,54 @@ var OCXPClient = class {
   // ============== GitHub API Proxy ==============
   /**
    * Check if a repository is accessible
+   * @param repoUrl - Full GitHub repository URL
    */
-  async githubCheckAccess(owner, repo, token) {
+  async githubCheckAccess(repoUrl) {
     const headers = await this.getHeaders();
     return githubCheckAccess({
       client: this.client,
-      body: { owner, repo, github_token: token },
+      body: { repo_url: repoUrl },
       headers
     });
   }
   /**
    * List branches for a repository
+   * @param repoUrl - Full GitHub repository URL
    */
-  async githubListBranches(owner, repo, token) {
+  async githubListBranches(repoUrl) {
     const headers = await this.getHeaders();
     return githubListBranches({
       client: this.client,
-      body: { owner, repo, github_token: token },
+      body: { repo_url: repoUrl },
       headers
     });
   }
   /**
    * Get repository contents at a path
+   * @param repoUrl - Full GitHub repository URL
+   * @param path - Path within the repository
+   * @param ref - Git ref (branch, tag, or commit)
    */
-  async githubGetContents(owner, repo, path = "", ref, token) {
+  async githubGetContents(repoUrl, path = "", ref) {
     const headers = await this.getHeaders();
     return githubGetContents({
       client: this.client,
-      body: { owner, repo, path, ref, github_token: token },
+      body: { repo_url: repoUrl, path, ref },
       headers
     });
   }
   // ============== Repository Management ==============
   /**
    * Download repository and trigger vectorization
+   * @param repoUrl - Full GitHub repository URL
+   * @param branch - Optional branch (default: main)
+   * @param mode - Download mode: full or docs_only
    */
-  async downloadRepository(request) {
+  async downloadRepository(repoUrl, branch, mode) {
     const headers = await this.getHeaders();
     return downloadRepository({
       client: this.client,
-      body: request,
+      body: { repo_url: repoUrl, branch, mode },
       headers
     });
   }
@@ -1417,7 +1426,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return getRepoDownloadStatus({
       client: this.client,
-      query: { job_id: jobId },
+      path: { job_id: jobId },
       headers
     });
   }

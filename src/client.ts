@@ -6,7 +6,7 @@
 import { createClient, createConfig, type Client, type ClientOptions } from './generated/client';
 import * as sdk from './generated/sdk.gen';
 import type {
-  WriteRequestBody,
+  WriteRequest,
   QueryFilter,
   KbQueryRequest,
   DiscoverRequest,
@@ -166,7 +166,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     const response = await sdk.listContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { path, limit },
       headers,
     });
@@ -186,7 +186,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     const response = await sdk.readContent({
       client: this.client,
-      path: { type, id },
+      path: { content_type: type, content_id: id },
       headers,
     });
     const data = extractData(response) as { content: string; size?: number; mtime?: string; encoding?: string; metadata?: Record<string, unknown> };
@@ -213,7 +213,7 @@ export class OCXPClient {
     }
   ): Promise<WriteResult> {
     const headers = await this.getHeaders();
-    const body: WriteRequestBody = {
+    const body: WriteRequest = {
       content,
       encoding: options?.encoding || 'utf-8',
       etag: options?.etag,
@@ -222,7 +222,7 @@ export class OCXPClient {
 
     const response = await sdk.writeContent({
       client: this.client,
-      path: { type, id },
+      path: { content_type: type, content_id: id },
       body,
       headers,
     });
@@ -245,7 +245,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     const response = await sdk.deleteContent({
       client: this.client,
-      path: { type, id },
+      path: { content_type: type, content_id: id },
       query: { recursive, confirm },
       headers,
     });
@@ -265,7 +265,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.queryContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { filters: filters || [], limit: limit || 100 },
       headers,
     });
@@ -278,7 +278,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.searchContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { q, limit },
       headers,
     });
@@ -293,7 +293,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.getContentTree({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { path, depth },
       headers,
     });
@@ -306,7 +306,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.getContentStats({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       query: { path },
       headers,
     });
@@ -321,7 +321,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.bulkReadContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { ids },
       headers,
     });
@@ -334,7 +334,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.bulkWriteContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { items },
       headers,
     });
@@ -347,7 +347,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.bulkDeleteContent({
       client: this.client,
-      path: { type },
+      path: { content_type: type },
       body: { ids },
       headers,
     });
@@ -366,8 +366,8 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     const body: KbQueryRequest = {
       query,
-      searchType,
-      maxResults: maxResults || 5,
+      search_type: searchType,
+      max_results: maxResults || 5,
     };
 
     return sdk.queryKnowledgeBase({
@@ -384,7 +384,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.ragKnowledgeBase({
       client: this.client,
-      body: { query, sessionId },
+      body: { query, session_id: sessionId },
       headers,
     });
   }
@@ -392,14 +392,15 @@ export class OCXPClient {
   // ============== Tools ==============
 
   /**
-   * Create a new mission from Jira ticket
+   * Create a new mission
    */
-  async createMission(ticketId: string, ticketSummary?: string, ticketDescription?: string) {
+  async createMission(name: string, description?: string, projectId?: string, goals?: string[]) {
     const headers = await this.getHeaders();
     const body: MissionCreateRequest = {
-      ticket_id: ticketId,
-      ticket_summary: ticketSummary,
-      ticket_description: ticketDescription,
+      name,
+      description,
+      project_id: projectId,
+      goals,
     };
 
     return sdk.createMission({
@@ -416,7 +417,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.updateMission({
       client: this.client,
-      path: { id: missionId },
+      path: { mission_id: missionId },
       body: updates as { status?: string; progress?: number; context?: Record<string, unknown> },
       headers,
     });
@@ -429,7 +430,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.getMissionContext({
       client: this.client,
-      path: { id: missionId },
+      path: { mission_id: missionId },
       headers,
     });
   }
@@ -437,12 +438,12 @@ export class OCXPClient {
   /**
    * Discover similar content across types
    */
-  async discover(query: string, contentType?: string, includeRelated?: boolean) {
+  async discover(query: string, contentTypes?: string[], limit?: number) {
     const headers = await this.getHeaders();
     const body: DiscoverRequest = {
       query,
-      content_type: contentType,
-      include_related: includeRelated,
+      content_types: contentTypes,
+      limit,
     };
 
     return sdk.discoverSimilar({
@@ -468,15 +469,17 @@ export class OCXPClient {
 
   /**
    * Acquire exclusive lock on content
-   * @param path - Content path (e.g., "mission/my-mission")
+   * @param contentType - Content type (e.g., "mission")
+   * @param contentId - Content ID (e.g., "my-mission")
    * @param ttl - Lock time-to-live in seconds
    */
-  async lock(path: string, ttl?: number) {
+  async lock(contentType: string, contentId: string, ttl?: number) {
     const headers = await this.getHeaders();
     return sdk.lockContent({
       client: this.client,
       body: {
-        path,
+        content_type: contentType,
+        content_id: contentId,
         ttl,
       },
       headers,
@@ -485,16 +488,16 @@ export class OCXPClient {
 
   /**
    * Release exclusive lock
-   * @param path - Content path
-   * @param lockToken - Token from lock acquisition
+   * @param contentType - Content type
+   * @param contentId - Content ID
    */
-  async unlock(path: string, lockToken: string) {
+  async unlock(contentType: string, contentId: string) {
     const headers = await this.getHeaders();
     return sdk.unlockContent({
       client: this.client,
       body: {
-        path,
-        lockToken,
+        content_type: contentType,
+        content_id: contentId,
       },
       headers,
     });
@@ -504,36 +507,41 @@ export class OCXPClient {
 
   /**
    * Check if a repository is accessible
+   * @param repoUrl - Full GitHub repository URL
    */
-  async githubCheckAccess(owner: string, repo: string, token?: string) {
+  async githubCheckAccess(repoUrl: string) {
     const headers = await this.getHeaders();
     return sdk.githubCheckAccess({
       client: this.client,
-      body: { owner, repo, github_token: token },
+      body: { repo_url: repoUrl },
       headers,
     });
   }
 
   /**
    * List branches for a repository
+   * @param repoUrl - Full GitHub repository URL
    */
-  async githubListBranches(owner: string, repo: string, token?: string) {
+  async githubListBranches(repoUrl: string) {
     const headers = await this.getHeaders();
     return sdk.githubListBranches({
       client: this.client,
-      body: { owner, repo, github_token: token },
+      body: { repo_url: repoUrl },
       headers,
     });
   }
 
   /**
    * Get repository contents at a path
+   * @param repoUrl - Full GitHub repository URL
+   * @param path - Path within the repository
+   * @param ref - Git ref (branch, tag, or commit)
    */
-  async githubGetContents(owner: string, repo: string, path = '', ref?: string, token?: string) {
+  async githubGetContents(repoUrl: string, path = '', ref?: string) {
     const headers = await this.getHeaders();
     return sdk.githubGetContents({
       client: this.client,
-      body: { owner, repo, path, ref, github_token: token },
+      body: { repo_url: repoUrl, path, ref },
       headers,
     });
   }
@@ -542,20 +550,15 @@ export class OCXPClient {
 
   /**
    * Download repository and trigger vectorization
+   * @param repoUrl - Full GitHub repository URL
+   * @param branch - Optional branch (default: main)
+   * @param mode - Download mode: full or docs_only
    */
-  async downloadRepository(request: {
-    github_url: string;
-    repo_id: string;
-    branch?: string;
-    path?: string;
-    mode?: 'full' | 'docs_only';
-    visibility?: 'private' | 'public';
-    github_token?: string;
-  }) {
+  async downloadRepository(repoUrl: string, branch?: string, mode?: string) {
     const headers = await this.getHeaders();
     return sdk.downloadRepository({
       client: this.client,
-      body: request,
+      body: { repo_url: repoUrl, branch, mode },
       headers,
     });
   }
@@ -567,7 +570,7 @@ export class OCXPClient {
     const headers = await this.getHeaders();
     return sdk.getRepoDownloadStatus({
       client: this.client,
-      query: { job_id: jobId },
+      path: { job_id: jobId },
       headers,
     });
   }

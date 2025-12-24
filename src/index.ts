@@ -91,11 +91,11 @@ export {
 // Re-export types - using new naming from openapi-ts
 export type {
   // Request body types
-  WriteRequestBody,
+  WriteRequest,
   QueryFilter,
-  BulkReadRequestBody,
-  BulkWriteRequestBody,
-  BulkDeleteRequestBody,
+  BulkReadRequest,
+  BulkWriteRequest,
+  BulkDeleteRequest,
   DownloadRequest,
   KbQueryRequest,
   DiscoverRequest,

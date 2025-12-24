@@ -311,1092 +311,1692 @@ type Options$1<TData extends TDataShape = TDataShape, ThrowOnError extends boole
 declare const createClient: (config?: Config) => Client;
 
 /**
- * WriteRequestBody
- *
- * Request body for POST /ocxp/{type}/{id}.
- *
- * Path parameters (type, id) come from URL, not body.
+ * BulkDeleteRequest
  */
-type WriteRequestBody = {
+type BulkDeleteRequest = {
+    /**
+     * Ids
+     */
+    ids: Array<string>;
+};
+/**
+ * BulkDeleteResponse
+ *
+ * Response for POST /ocxp/{type}/bulk/delete.
+ */
+type BulkDeleteResponse = {
+    /**
+     * Results
+     */
+    results: Array<BulkItemResult>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * BulkItemResult
+ *
+ * Result for a single item in bulk operation.
+ */
+type BulkItemResult = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Success
+     */
+    success: boolean;
     /**
      * Content
+     */
+    content?: string | null;
+    /**
+     * Error
+     */
+    error?: string | null;
+};
+/**
+ * BulkReadRequest
+ */
+type BulkReadRequest = {
+    /**
+     * Ids
+     */
+    ids: Array<string>;
+};
+/**
+ * BulkReadResponse
+ *
+ * Response for POST /ocxp/{type}/bulk/read.
+ */
+type BulkReadResponse = {
+    /**
+     * Results
+     */
+    results: Array<BulkItemResult>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * BulkWriteItem
+ */
+type BulkWriteItem = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Content
+     */
+    content: string;
+};
+/**
+ * BulkWriteRequest
+ */
+type BulkWriteRequest = {
+    /**
+     * Items
+     */
+    items: Array<BulkWriteItem>;
+};
+/**
+ * BulkWriteResponse
+ *
+ * Response for POST /ocxp/{type}/bulk/write.
+ */
+type BulkWriteResponse = {
+    /**
+     * Results
+     */
+    results: Array<BulkItemResult>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * CheckAccessRequest
+ */
+type CheckAccessRequest = {
+    /**
+     * Repo Url
+     */
+    repo_url: string;
+};
+/**
+ * ContentDeleteResponse
+ *
+ * Response for DELETE /ocxp/{type}/{id}.
+ */
+type ContentDeleteResponse = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Deleted
+     */
+    deleted?: boolean;
+    /**
+     * Files Count
+     */
+    files_count?: number | null;
+};
+/**
+ * ContentEntry
+ *
+ * Single entry in a content listing.
+ */
+type ContentEntry = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Type
      *
-     * Content to write
+     * file or directory
+     */
+    type: string;
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Size
+     */
+    size?: number | null;
+    /**
+     * Mtime
+     */
+    mtime?: string | null;
+};
+/**
+ * ContentListResponse
+ *
+ * Response for GET /ocxp/{type}/list.
+ */
+type ContentListResponse = {
+    /**
+     * Entries
+     */
+    entries: Array<ContentEntry>;
+    /**
+     * Cursor
+     */
+    cursor?: string | null;
+    /**
+     * Has More
+     */
+    has_more?: boolean;
+    /**
+     * Total
+     */
+    total: number;
+};
+/**
+ * ContentReadResponse
+ *
+ * Response for GET /ocxp/{type}/{id}.
+ */
+type ContentReadResponse = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Content
      */
     content: string;
     /**
      * Encoding
-     *
-     * Content encoding
      */
     encoding?: string;
     /**
+     * Size
+     */
+    size?: number | null;
+    /**
+     * Mtime
+     */
+    mtime?: string | null;
+    /**
      * Metadata
-     *
-     * Optional metadata key-value pairs
      */
     metadata?: {
         [key: string]: unknown;
-    };
-    /**
-     * Ifnotexists
-     *
-     * Only create if not exists
-     */
-    ifNotExists?: boolean;
-    /**
-     * Etag
-     *
-     * ETag for optimistic locking
-     */
-    etag?: string | unknown;
+    } | null;
 };
 /**
- * BulkReadRequestBody
+ * ContentStatsResponse
  *
- * Request body for POST /ocxp/{type}/bulk/read.
- *
- * Path parameter (type) comes from URL, not body.
+ * Response for GET /ocxp/{type}/stats.
  */
-type BulkReadRequestBody = {
+type ContentStatsResponse = {
     /**
-     * Ids
-     *
-     * List of content IDs to read (1-100 items)
+     * Total Files
      */
-    ids: Array<string>;
+    total_files: number;
     /**
-     * Options
-     *
-     * Bulk operation options (concurrency, continueOnError)
+     * Total Size
      */
-    options?: {
-        [key: string]: unknown;
+    total_size: number;
+    /**
+     * By Extension
+     */
+    by_extension: {
+        [key: string]: {
+            [key: string]: number;
+        };
     };
 };
 /**
- * BulkWriteRequestBody
+ * ContentTreeNode
  *
- * Request body for POST /ocxp/{type}/bulk/write.
- *
- * Path parameter (type) comes from URL, not body.
+ * Tree node for hierarchical content view.
  */
-type BulkWriteRequestBody = {
+type ContentTreeNode = {
     /**
-     * Items
-     *
-     * List of items to write (1-100 items)
+     * Name
      */
-    items: Array<{
-        [key: string]: unknown;
-    }>;
-    /**
-     * Options
-     *
-     * Bulk operation options (concurrency, continueOnError)
-     */
-    options?: {
-        [key: string]: unknown;
-    };
-};
-/**
- * BulkDeleteRequestBody
- *
- * Request body for POST /ocxp/{type}/bulk/delete.
- *
- * Path parameter (type) comes from URL, not body.
- */
-type BulkDeleteRequestBody = {
-    /**
-     * Ids
-     *
-     * List of content IDs to delete (1-100 items)
-     */
-    ids: Array<string>;
-    /**
-     * Options
-     *
-     * Bulk operation options (concurrency, continueOnError)
-     */
-    options?: {
-        [key: string]: unknown;
-    };
-};
-/**
- * DownloadRequest
- *
- * Request for bulk download operations.
- */
-type DownloadRequest = {
+    name: string;
     /**
      * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
      */
     type: string;
     /**
-     * Id
-     *
-     * Content identifier
+     * Size
      */
-    id: string;
+    size?: number | null;
     /**
-     * Options
-     *
-     * Download options (skipPatterns, maxFiles, maxSize)
+     * Children
      */
-    options?: {
-        [key: string]: unknown;
-    };
+    children?: Array<ContentTreeNode> | null;
+    /**
+     * Truncated
+     */
+    truncated?: boolean;
 };
 /**
- * RepoDownloadRequest
+ * ContentTreeResponse
  *
- * Request model for repository download operation.
- *
- * Supports both full repo and docs-only download modes with
- * configurable file filtering and visibility routing.
+ * Response for GET /ocxp/{type}/tree.
  */
-type RepoDownloadRequest$1 = {
+type ContentTreeResponse = {
+    tree: ContentTreeNode;
+};
+/**
+ * ContentTypeInfo
+ *
+ * Content type metadata.
+ */
+type ContentTypeInfo$1 = {
     /**
-     * Github Url
-     *
-     * GitHub repository URL (https://github.com/org/repo)
+     * Name
      */
-    github_url: string;
+    name: string;
+    /**
+     * Description
+     */
+    description: string;
+};
+/**
+ * ContentTypesResponse
+ *
+ * Response for GET /ocxp/types.
+ */
+type ContentTypesResponse$1 = {
+    /**
+     * Types
+     */
+    types: Array<ContentTypeInfo$1>;
+    /**
+     * Total
+     */
+    total: number;
+};
+/**
+ * ContentWriteResponse
+ *
+ * Response for POST /ocxp/{type}/{id}.
+ */
+type ContentWriteResponse = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Size
+     */
+    size?: number | null;
+    /**
+     * Etag
+     */
+    etag?: string | null;
+};
+/**
+ * DiscoverRequest
+ */
+type DiscoverRequest = {
+    /**
+     * Query
+     */
+    query: string;
+    /**
+     * Content Types
+     */
+    content_types?: Array<string> | null;
+    /**
+     * Limit
+     */
+    limit?: number;
+};
+/**
+ * DiscoverResponse
+ *
+ * Response for POST /tools/discover.
+ */
+type DiscoverResponse = {
+    /**
+     * Results
+     */
+    results: Array<DiscoverResult>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * DiscoverResult
+ *
+ * Single discovery result.
+ */
+type DiscoverResult = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * Score
+     */
+    score: number;
+    /**
+     * Snippet
+     */
+    snippet?: string | null;
+};
+/**
+ * DownloadRequest
+ */
+type DownloadRequest = {
+    /**
+     * Repo Url
+     */
+    repo_url: string;
     /**
      * Branch
-     *
-     * Branch to download
      */
-    branch?: string;
+    branch?: string | null;
+    /**
+     * Mode
+     */
+    mode?: string;
+};
+/**
+ * FindByTicketRequest
+ */
+type FindByTicketRequest = {
+    /**
+     * Ticket Id
+     */
+    ticket_id: string;
+};
+/**
+ * GetContentsRequest
+ */
+type GetContentsRequest = {
+    /**
+     * Repo Url
+     */
+    repo_url: string;
     /**
      * Path
-     *
-     * Subdirectory path to filter (e.g., 'src/components'). If set, only files under this path are indexed.
-     */
-    path?: string | unknown;
-    /**
-     * Repo Id
-     *
-     * Repository identifier (lowercase alphanumeric with hyphens)
-     */
-    repo_id: string;
-    mode?: DownloadMode;
-    /**
-     * Include Extensions
-     *
-     * File extensions to include
-     */
-    include_extensions?: Array<string>;
-    /**
-     * Exclude Patterns
-     *
-     * Patterns to exclude
-     */
-    exclude_patterns?: Array<string>;
-    /**
-     * Max File Size Kb
-     *
-     * Maximum file size in KB to process
-     */
-    max_file_size_kb?: number;
-    visibility?: RepoVisibility;
-    /**
-     * Trigger Vectorization
-     *
-     * Trigger Bedrock KB sync after upload
-     */
-    trigger_vectorization?: boolean;
-    /**
-     * Generate Metadata
-     *
-     * Generate Bedrock-compatible metadata.json sidecars
-     */
-    generate_metadata?: boolean;
-    /**
-     * Is Private
-     *
-     * Private repo requiring GitHub token
-     */
-    is_private?: boolean;
-};
-/**
- * DownloadMode
- *
- * Repository download mode.
- */
-type DownloadMode = 'full' | 'docs_only';
-/**
- * RepoVisibility
- *
- * Repository visibility for storage routing.
- */
-type RepoVisibility = 'private' | 'public';
-/**
- * GitHubCheckAccessRequest
- *
- * Request to check repository access.
- *
- * Used to verify if the user can access a repository
- * before attempting to download it.
- */
-type GitHubCheckAccessRequest = {
-    /**
-     * Owner
-     *
-     * Repository owner (user or org)
-     */
-    owner: string;
-    /**
-     * Repo
-     *
-     * Repository name
-     */
-    repo: string;
-    /**
-     * Github Token
-     *
-     * Personal Access Token for private repos
-     */
-    github_token?: string | unknown;
-};
-/**
- * GitHubCheckAccessResponse
- *
- * Response from repository access check.
- */
-type GitHubCheckAccessResponse = {
-    /**
-     * Accessible
-     *
-     * Whether the repo is accessible
-     */
-    accessible: boolean;
-    /**
-     * Private
-     *
-     * Whether the repo is private
-     */
-    private?: boolean | unknown;
-    /**
-     * Default Branch
-     *
-     * Default branch name
-     */
-    default_branch?: string | unknown;
-    /**
-     * Error
-     *
-     * Error type: not_found, invalid_token, access_denied, rate_limited, unknown
-     */
-    error?: string | unknown;
-    /**
-     * Rate Limit
-     *
-     * Rate limit info when rate_limited
-     */
-    rate_limit?: {
-        [key: string]: unknown;
-    } | unknown;
-};
-/**
- * GitHubListBranchesRequest
- *
- * Request to list repository branches.
- *
- * Used to populate branch dropdown in the UI.
- */
-type GitHubListBranchesRequest = {
-    /**
-     * Owner
-     *
-     * Repository owner (user or org)
-     */
-    owner: string;
-    /**
-     * Repo
-     *
-     * Repository name
-     */
-    repo: string;
-    /**
-     * Github Token
-     *
-     * Personal Access Token for private repos
-     */
-    github_token?: string | unknown;
-};
-/**
- * GitHubListBranchesResponse
- *
- * Response from branch listing.
- */
-type GitHubListBranchesResponse = {
-    /**
-     * Branches
-     *
-     * List of branch names
-     */
-    branches?: Array<string> | unknown;
-    /**
-     * Error
-     *
-     * Error details if failed
-     */
-    error?: {
-        [key: string]: unknown;
-    } | unknown;
-};
-/**
- * GitHubGetContentsRequest
- *
- * Request to get repository contents.
- *
- * Used to browse repository files and folders.
- */
-type GitHubGetContentsRequest = {
-    /**
-     * Owner
-     *
-     * Repository owner (user or org)
-     */
-    owner: string;
-    /**
-     * Repo
-     *
-     * Repository name
-     */
-    repo: string;
-    /**
-     * Path
-     *
-     * Path within repository
      */
     path?: string;
     /**
      * Ref
-     *
-     * Branch, tag, or commit SHA
      */
-    ref?: string;
+    ref?: string | null;
+};
+/**
+ * HTTPValidationError
+ */
+type HttpValidationError = {
     /**
-     * Github Token
-     *
-     * Personal Access Token for private repos
+     * Detail
      */
-    github_token?: string | unknown;
+    detail?: Array<ValidationError>;
 };
 /**
- * GitHubGetContentsResponse
- *
- * Response from contents request.
- */
-type GitHubGetContentsResponse = {
-    /**
-     * Contents
-     *
-     * File content or directory listing
-     */
-    contents?: unknown;
-    /**
-     * Error
-     *
-     * Error details if failed
-     */
-    error?: {
-        [key: string]: unknown;
-    } | unknown;
-};
-/**
- * Standard OCXP response wrapper
- */
-type OcxpResponse = {
-    success?: boolean;
-    data?: {
-        [key: string]: unknown;
-    };
-    error?: {
-        [key: string]: unknown;
-    } | null;
-    notifications?: Array<{
-        [key: string]: unknown;
-    }>;
-    meta?: {
-        requestId?: string;
-        timestamp?: string;
-        durationMs?: number;
-        operation?: string;
-    };
-};
-/**
- * Content type metadata from /ocxp/types
- */
-type ContentType$1 = {
-    name?: string;
-    description?: string;
-    prefix?: string | null;
-    isVirtual?: boolean;
-    isGlobal?: boolean;
-    count?: number | null;
-    endpoints?: {
-        [key: string]: unknown;
-    };
-};
-/**
- * Filter for query operations
- */
-type QueryFilter = {
-    field?: string;
-    operator?: 'eq' | 'ne' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' | 'startsWith';
-    value?: unknown;
-};
-/**
- * Knowledge Base query request
+ * KBQueryRequest
  */
 type KbQueryRequest = {
+    /**
+     * Query
+     */
     query: string;
-    searchType?: 'SEMANTIC' | 'HYBRID';
-    maxResults?: number;
-    filters?: {
+    /**
+     * Max Results
+     */
+    max_results?: number;
+    /**
+     * Search Type
+     */
+    search_type?: string;
+    /**
+     * Project Id
+     *
+     * Project ID for scoped queries
+     */
+    project_id?: string | null;
+    /**
+     * Doc Id
+     *
+     * Filter to specific doc_id
+     */
+    doc_id?: string | null;
+    /**
+     * Fallback Enabled
+     */
+    fallback_enabled?: boolean;
+    /**
+     * Score Threshold
+     */
+    score_threshold?: number;
+};
+/**
+ * KBQueryResponse
+ *
+ * Response for POST /ocxp/kb/query.
+ */
+type KbQueryResponse = {
+    /**
+     * Results
+     */
+    results: Array<KbResultItem>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * KBRagResponse
+ *
+ * Response for POST /ocxp/kb/rag.
+ */
+type KbRagResponse = {
+    /**
+     * Answer
+     */
+    answer: string;
+    /**
+     * Citations
+     */
+    citations?: Array<{
+        [key: string]: unknown;
+    }>;
+    /**
+     * Session Id
+     */
+    session_id?: string | null;
+};
+/**
+ * KBResultItem
+ *
+ * Single KB search result.
+ */
+type KbResultItem = {
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Score
+     */
+    score: number;
+    /**
+     * Source
+     */
+    source?: string | null;
+    /**
+     * Metadata
+     */
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+};
+/**
+ * ListBranchesRequest
+ */
+type ListBranchesRequest = {
+    /**
+     * Repo Url
+     */
+    repo_url: string;
+};
+/**
+ * LockRequest
+ */
+type LockRequest = {
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * Content Id
+     */
+    content_id: string;
+    /**
+     * Ttl
+     */
+    ttl?: number;
+};
+/**
+ * MissionContextResponse
+ *
+ * Response for GET /tools/mission/{id}/context.
+ */
+type MissionContextResponse = {
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Context
+     */
+    context: {
         [key: string]: unknown;
     };
 };
 /**
- * Discovery request for finding similar content
- */
-type DiscoverRequest = {
-    query: string;
-    content_type?: string;
-    include_related?: boolean;
-    max_results?: number;
-};
-/**
- * Create mission from Jira ticket
+ * MissionCreateRequest
  */
 type MissionCreateRequest = {
-    ticket_id: string;
-    ticket_summary?: string;
-    ticket_description?: string;
-    workspace?: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Goals
+     */
+    goals?: Array<string> | null;
 };
 /**
- * Response from repo download operation
+ * MissionCreateResponse
+ *
+ * Response for POST /tools/mission/create.
+ */
+type MissionCreateResponse = {
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Path
+     */
+    path: string;
+};
+/**
+ * MissionUpdateRequest
+ */
+type MissionUpdateRequest = {
+    /**
+     * Status
+     */
+    status?: string | null;
+    /**
+     * Progress
+     */
+    progress?: number | null;
+    /**
+     * Notes
+     */
+    notes?: string | null;
+};
+/**
+ * MissionUpdateResponse
+ *
+ * Response for POST /tools/mission/{id}/update.
+ */
+type MissionUpdateResponse = {
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Status
+     */
+    status?: string | null;
+    /**
+     * Progress
+     */
+    progress?: number | null;
+};
+/**
+ * QueryFilter
+ */
+type QueryFilter = {
+    /**
+     * Field
+     */
+    field: string;
+    /**
+     * Operator
+     */
+    operator?: string;
+    /**
+     * Value
+     */
+    value: unknown;
+};
+/**
+ * QueryRequest
+ */
+type QueryRequest = {
+    /**
+     * Filters
+     */
+    filters?: Array<QueryFilter>;
+    /**
+     * Limit
+     */
+    limit?: number;
+};
+/**
+ * RAGRequest
+ */
+type RagRequest = {
+    /**
+     * Query
+     */
+    query: string;
+    /**
+     * Session Id
+     *
+     * Session ID for conversation
+     */
+    session_id?: string | null;
+    /**
+     * Project Id
+     *
+     * Project ID for scoped queries
+     */
+    project_id?: string | null;
+    /**
+     * Fallback Enabled
+     */
+    fallback_enabled?: boolean;
+};
+/**
+ * RepoDownloadResponse
+ *
+ * Response for POST /ocxp/repo/download.
  */
 type RepoDownloadResponse$1 = {
-    repo_id?: string;
-    job_id?: string;
-    s3_path?: string;
-    status?: 'queued' | 'processing' | 'uploading' | 'vectorizing' | 'complete' | 'failed';
-    files_processed?: number;
-    metadata_files_created?: number;
-    ingestion_job_id?: string | null;
+    /**
+     * Job Id
+     */
+    job_id: string;
+    /**
+     * Status
+     *
+     * started|downloading|indexing|complete|failed
+     */
+    status: string;
+    /**
+     * Message
+     */
+    message?: string | null;
 };
 /**
- * Response from repo status check
+ * RepoInfo
+ *
+ * Repository information.
+ */
+type RepoInfo = {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * Branch
+     */
+    branch?: string | null;
+    /**
+     * Status
+     *
+     * pending|downloading|indexed|failed
+     */
+    status?: string | null;
+    /**
+     * Last Synced
+     */
+    last_synced?: string | null;
+};
+/**
+ * RepoListResponse
+ *
+ * Response for GET /ocxp/repo/list.
+ */
+type RepoListResponse$1 = {
+    /**
+     * Repos
+     */
+    repos: Array<RepoInfo>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * RepoStatusResponse
+ *
+ * Response for GET /ocxp/repo/status/{job_id}.
  */
 type RepoStatusResponse$1 = {
-    job_id?: string;
-    status?: 'queued' | 'processing' | 'uploading' | 'vectorizing' | 'complete' | 'failed';
-    progress?: number;
-    files_processed?: number;
-    total_files?: number;
-    error?: string | null;
-    started_at?: string | null;
-    completed_at?: string | null;
+    /**
+     * Job Id
+     */
+    job_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Progress
+     */
+    progress?: number | null;
+    /**
+     * Message
+     */
+    message?: string | null;
+    /**
+     * Repo Id
+     */
+    repo_id?: string | null;
 };
 /**
- * Repository list entry
+ * TicketDiscoverResponse
+ *
+ * Response for POST /tools/discover/ticket.
  */
-type RepoListItem$1 = {
-    repo_id?: string;
-    github_url?: string;
-    branch?: string;
-    visibility?: 'private' | 'public';
-    mode?: 'full' | 'docs_only';
-    files_count?: number;
-    last_synced?: string;
-    s3_path?: string;
+type TicketDiscoverResponse = {
+    /**
+     * Results
+     */
+    results: Array<DiscoverResult>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * ValidationError
+ */
+type ValidationError = {
+    /**
+     * Location
+     */
+    loc: Array<string | number>;
+    /**
+     * Message
+     */
+    msg: string;
+    /**
+     * Error Type
+     */
+    type: string;
+};
+/**
+ * WriteRequest
+ */
+type WriteRequest = {
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Encoding
+     */
+    encoding?: string;
+    /**
+     * Etag
+     */
+    etag?: string | null;
+    /**
+     * Ifnotexists
+     */
+    ifNotExists?: boolean;
+};
+type BulkReadContentData = {
+    body: BulkReadRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/bulk/read';
+};
+type BulkReadContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type BulkReadContentResponses = {
+    /**
+     * Successful Response
+     */
+    200: BulkReadResponse;
+};
+type BulkWriteContentData = {
+    body: BulkWriteRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/bulk/write';
+};
+type BulkWriteContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type BulkWriteContentResponses = {
+    /**
+     * Successful Response
+     */
+    200: BulkWriteResponse;
+};
+type BulkDeleteContentData = {
+    body: BulkDeleteRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/bulk/delete';
+};
+type BulkDeleteContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type BulkDeleteContentResponses = {
+    /**
+     * Successful Response
+     */
+    200: BulkDeleteResponse;
 };
 type GetContentTypesData = {
     body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
     path?: never;
     query?: {
         /**
-         * Workspace ID
+         * Counts
+         *
+         * Include item counts per type
          */
-        workspace?: string;
         counts?: boolean;
     };
     url: '/ocxp/types';
 };
+type GetContentTypesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
 type GetContentTypesResponses = {
     /**
-     * List of content types
+     * List of content types returned
      */
-    200: OcxpResponse & {
-        data?: {
-            types?: Array<ContentType$1>;
-            total?: number;
-        };
-    };
+    200: ContentTypesResponse$1;
 };
 type ListContentData = {
     body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
     path: {
         /**
-         * Content type
+         * Content Type
          */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+        content_type: string;
     };
     query?: {
         /**
-         * Workspace ID
+         * Path
+         *
+         * Filter by path prefix
          */
-        workspace?: string;
-        path?: string;
+        path?: string | null;
+        /**
+         * Limit
+         *
+         * Maximum items to return
+         */
         limit?: number;
     };
-    url: '/ocxp/{type}/list';
+    url: '/ocxp/{content_type}/list';
+};
+type ListContentErrors = {
+    /**
+     * Invalid content type
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
 type ListContentResponses = {
     /**
-     * List of entries
+     * Content list returned
      */
-    200: OcxpResponse;
-};
-type DeleteContentData = {
-    body?: never;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-        /**
-         * Content identifier
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        recursive?: boolean;
-        confirm?: boolean;
-    };
-    url: '/ocxp/{type}/{id}';
-};
-type DeleteContentResponses = {
-    /**
-     * Delete result
-     */
-    200: OcxpResponse;
-};
-type ReadContentData = {
-    body?: never;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-        /**
-         * Content identifier
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/{id}';
-};
-type ReadContentResponses = {
-    /**
-     * Content data
-     */
-    200: OcxpResponse;
-};
-type WriteContentData = {
-    body: WriteRequestBody;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-        /**
-         * Content identifier
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/{id}';
-};
-type WriteContentResponses = {
-    /**
-     * Write result
-     */
-    200: OcxpResponse;
+    200: ContentListResponse;
 };
 type QueryContentData = {
-    body?: {
-        filters?: Array<QueryFilter>;
-        limit?: number;
+    body: QueryRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
     };
     path: {
         /**
-         * Content type
+         * Content Type
          */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+        content_type: string;
     };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/query';
+    query?: never;
+    url: '/ocxp/{content_type}/query';
+};
+type QueryContentErrors = {
+    /**
+     * Invalid filter or content type
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
 type QueryContentResponses = {
     /**
-     * Query results
+     * Query results returned
      */
-    200: OcxpResponse;
+    200: ContentListResponse;
 };
 type SearchContentData = {
     body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
     path: {
         /**
-         * Content type
+         * Content Type
          */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+        content_type: string;
     };
     query: {
         /**
-         * Workspace ID
+         * Q
+         *
+         * Search query string
          */
-        workspace?: string;
         q: string;
-        fuzzy?: boolean;
+        /**
+         * Limit
+         *
+         * Maximum results to return
+         */
         limit?: number;
     };
-    url: '/ocxp/{type}/search';
+    url: '/ocxp/{content_type}/search';
+};
+type SearchContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
 type SearchContentResponses = {
     /**
-     * Search results
+     * Search results returned
      */
-    200: OcxpResponse;
+    200: ContentListResponse;
 };
 type GetContentTreeData = {
     body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
     path: {
         /**
-         * Content type
+         * Content Type
          */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+        content_type: string;
     };
     query?: {
         /**
-         * Workspace ID
+         * Path
+         *
+         * Root path for tree
          */
-        workspace?: string;
-        path?: string;
+        path?: string | null;
+        /**
+         * Depth
+         *
+         * Maximum tree depth
+         */
         depth?: number;
     };
-    url: '/ocxp/{type}/tree';
+    url: '/ocxp/{content_type}/tree';
+};
+type GetContentTreeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
 type GetContentTreeResponses = {
     /**
-     * Tree structure
+     * Tree structure returned
      */
-    200: OcxpResponse;
+    200: ContentTreeResponse;
 };
 type GetContentStatsData = {
     body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
     path: {
         /**
-         * Content type
+         * Content Type
          */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+        content_type: string;
     };
     query?: {
         /**
-         * Workspace ID
+         * Path
+         *
+         * Path to analyze
          */
-        workspace?: string;
-        path?: string;
+        path?: string | null;
     };
-    url: '/ocxp/{type}/stats';
+    url: '/ocxp/{content_type}/stats';
+};
+type GetContentStatsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
 type GetContentStatsResponses = {
     /**
-     * Statistics
+     * Statistics returned
      */
-    200: OcxpResponse;
+    200: ContentStatsResponse;
 };
-type BulkReadContentData = {
-    body: BulkReadRequestBody;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/bulk/read';
-};
-type BulkReadContentResponses = {
-    /**
-     * Bulk read results
-     */
-    200: OcxpResponse;
-};
-type BulkWriteContentData = {
-    body: BulkWriteRequestBody;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/bulk/write';
-};
-type BulkWriteContentResponses = {
-    /**
-     * Bulk write results
-     */
-    200: OcxpResponse;
-};
-type BulkDeleteContentData = {
-    body: BulkDeleteRequestBody;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/bulk/delete';
-};
-type BulkDeleteContentResponses = {
-    /**
-     * Bulk delete results
-     */
-    200: OcxpResponse;
-};
-type QueryKnowledgeBaseData = {
-    body: KbQueryRequest;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/kb/query';
-};
-type QueryKnowledgeBaseResponses = {
-    /**
-     * KB query results
-     */
-    200: OcxpResponse;
-};
-type RagKnowledgeBaseData = {
-    body: {
-        query: string;
-        sessionId?: string;
-        systemPrompt?: string;
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/kb/rag';
-};
-type RagKnowledgeBaseResponses = {
-    /**
-     * RAG response with citations
-     */
-    200: OcxpResponse;
-};
-type DownloadRepositoryData = {
-    body: RepoDownloadRequest$1;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/repo/download';
-};
-type DownloadRepositoryResponses = {
-    /**
-     * Download job started
-     */
-    200: OcxpResponse & {
-        data?: RepoDownloadResponse$1;
-    };
-};
-type GetRepoDownloadStatusData = {
+type DeleteContentData = {
     body?: never;
-    path?: never;
-    query: {
+    headers?: {
         /**
-         * Workspace ID
+         * X-Workspace
          */
-        workspace?: string;
-        /**
-         * Job ID from download request
-         */
-        job_id: string;
-    };
-    url: '/ocxp/repo/status';
-};
-type GetRepoDownloadStatusResponses = {
-    /**
-     * Job status
-     */
-    200: OcxpResponse & {
-        data?: RepoStatusResponse$1;
-    };
-};
-type ListDownloadedReposData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Filter by repo ID
-         */
-        repo_id?: string;
-        /**
-         * Filter by visibility
-         */
-        visibility?: 'private' | 'public';
-    };
-    url: '/ocxp/repo/list';
-};
-type ListDownloadedReposResponses = {
-    /**
-     * List of repos
-     */
-    200: OcxpResponse & {
-        data?: {
-            repos?: Array<RepoListItem$1>;
-            count?: number;
-        };
-    };
-};
-type GithubCheckAccessData = {
-    body: GitHubCheckAccessRequest;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/github/check_access';
-};
-type GithubCheckAccessResponses = {
-    /**
-     * Access check result
-     */
-    200: OcxpResponse & {
-        data?: GitHubCheckAccessResponse;
-    };
-};
-type GithubListBranchesData = {
-    body: GitHubListBranchesRequest;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/github/list_branches';
-};
-type GithubListBranchesResponses = {
-    /**
-     * Branch list
-     */
-    200: OcxpResponse & {
-        data?: GitHubListBranchesResponse;
-    };
-};
-type GithubGetContentsData = {
-    body: GitHubGetContentsRequest;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/github/get_contents';
-};
-type GithubGetContentsResponses = {
-    /**
-     * Repository contents
-     */
-    200: OcxpResponse & {
-        data?: GitHubGetContentsResponse;
-    };
-};
-type CreateMissionData = {
-    body: MissionCreateRequest;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/tools/mission/create';
-};
-type CreateMissionResponses = {
-    /**
-     * Created mission
-     */
-    200: OcxpResponse;
-};
-type UpdateMissionData = {
-    body?: {
-        [key: string]: unknown;
+        'X-Workspace'?: string;
     };
     path: {
-        id: string;
+        /**
+         * Content Type
+         */
+        content_type: string;
+        /**
+         * Content Id
+         */
+        content_id: string;
     };
     query?: {
         /**
-         * Workspace ID
+         * Recursive
+         *
+         * Delete directory recursively
          */
-        workspace?: string;
+        recursive?: boolean;
+        /**
+         * Confirm
+         *
+         * Confirm recursive deletion
+         */
+        confirm?: boolean;
     };
-    url: '/tools/mission/{id}/update';
+    url: '/ocxp/{content_type}/{content_id}';
 };
-type UpdateMissionResponses = {
+type DeleteContentErrors = {
     /**
-     * Updated mission
+     * Recursive delete requires confirmation
      */
-    200: OcxpResponse;
+    400: unknown;
+    /**
+     * Content not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
-type GetMissionContextData = {
+type DeleteContentResponses = {
+    /**
+     * Content deleted
+     */
+    200: ContentDeleteResponse;
+};
+type ReadContentData = {
     body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
     path: {
-        id: string;
-    };
-    query?: {
         /**
-         * Workspace ID
+         * Content Type
          */
-        workspace?: string;
-    };
-    url: '/tools/mission/{id}/context';
-};
-type GetMissionContextResponses = {
-    /**
-     * Mission context
-     */
-    200: OcxpResponse;
-};
-type DiscoverSimilarData = {
-    body: DiscoverRequest;
-    path?: never;
-    query?: {
+        content_type: string;
         /**
-         * Workspace ID
+         * Content Id
          */
-        workspace?: string;
+        content_id: string;
     };
-    url: '/tools/discover';
+    query?: never;
+    url: '/ocxp/{content_type}/{content_id}';
 };
-type DiscoverSimilarResponses = {
+type ReadContentErrors = {
     /**
-     * Discovery results
+     * Content not found
      */
-    200: OcxpResponse;
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
 };
-type FindByTicketData = {
-    body: {
-        ticket_id: string;
-    };
-    path?: never;
-    query?: {
+type ReadContentResponses = {
+    /**
+     * Content returned
+     */
+    200: ContentReadResponse;
+};
+type WriteContentData = {
+    body: WriteRequest;
+    headers?: {
         /**
-         * Workspace ID
+         * X-Workspace
          */
-        workspace?: string;
+        'X-Workspace'?: string;
     };
-    url: '/tools/discover/ticket';
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+        /**
+         * Content Id
+         */
+        content_id: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/{content_id}';
 };
-type FindByTicketResponses = {
+type WriteContentErrors = {
     /**
-     * Ticket-related content
+     * Content already exists or ETag mismatch
      */
-    200: OcxpResponse;
+    409: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type WriteContentResponses = {
+    /**
+     * Content written successfully
+     */
+    201: ContentWriteResponse;
 };
 type LockContentData = {
-    body?: {
-        path: string;
-        ttl?: number;
+    body: LockRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
     };
     path?: never;
     query?: never;
     url: '/ocxp/lock';
 };
+type LockContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
 type LockContentResponses = {
     /**
      * Lock acquired
      */
-    200: OcxpResponse;
+    200: unknown;
 };
 type UnlockContentData = {
-    body?: {
-        path: string;
-        lockToken: string;
+    body: LockRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
     };
     path?: never;
     query?: never;
     url: '/ocxp/unlock';
 };
+type UnlockContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
 type UnlockContentResponses = {
     /**
      * Lock released
      */
-    200: OcxpResponse;
+    200: unknown;
+};
+type QueryKnowledgeBaseData = {
+    body: KbQueryRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/kb/query';
+};
+type QueryKnowledgeBaseErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type QueryKnowledgeBaseResponses = {
+    /**
+     * Successful Response
+     */
+    200: KbQueryResponse;
+};
+type RagKnowledgeBaseData = {
+    body: RagRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/kb/rag';
+};
+type RagKnowledgeBaseErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type RagKnowledgeBaseResponses = {
+    /**
+     * Successful Response
+     */
+    200: KbRagResponse;
+};
+type DownloadRepositoryData = {
+    body: DownloadRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/repo/download';
+};
+type DownloadRepositoryErrors = {
+    /**
+     * Invalid repository URL
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DownloadRepositoryResponses = {
+    /**
+     * Download job started
+     */
+    202: RepoDownloadResponse$1;
+};
+type GetRepoDownloadStatusData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: never;
+    url: '/ocxp/repo/status/{job_id}';
+};
+type GetRepoDownloadStatusErrors = {
+    /**
+     * Job not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetRepoDownloadStatusResponses = {
+    /**
+     * Job status returned
+     */
+    200: RepoStatusResponse$1;
+};
+type ListDownloadedReposData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/repo/list';
+};
+type ListDownloadedReposErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListDownloadedReposResponses = {
+    /**
+     * List of repositories returned
+     */
+    200: RepoListResponse$1;
+};
+type GithubCheckAccessData = {
+    body: CheckAccessRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/github/check-access';
+};
+type GithubCheckAccessErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GithubCheckAccessResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+type GithubListBranchesData = {
+    body: ListBranchesRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/github/branches';
+};
+type GithubListBranchesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GithubListBranchesResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+type GithubGetContentsData = {
+    body: GetContentsRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/github/contents';
+};
+type GithubGetContentsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GithubGetContentsResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+type CreateMissionData = {
+    body: MissionCreateRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/tools/mission/create';
+};
+type CreateMissionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type CreateMissionResponses = {
+    /**
+     * Mission created successfully
+     */
+    201: MissionCreateResponse;
+};
+type UpdateMissionData = {
+    body: MissionUpdateRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Mission Id
+         */
+        mission_id: string;
+    };
+    query?: never;
+    url: '/tools/mission/{mission_id}/update';
+};
+type UpdateMissionErrors = {
+    /**
+     * Mission not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type UpdateMissionResponses = {
+    /**
+     * Mission updated successfully
+     */
+    200: MissionUpdateResponse;
+};
+type GetMissionContextData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Mission Id
+         */
+        mission_id: string;
+    };
+    query?: never;
+    url: '/tools/mission/{mission_id}/context';
+};
+type GetMissionContextErrors = {
+    /**
+     * Mission not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetMissionContextResponses = {
+    /**
+     * Context returned successfully
+     */
+    200: MissionContextResponse;
+};
+type DiscoverSimilarData = {
+    body: DiscoverRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/tools/discover';
+};
+type DiscoverSimilarErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DiscoverSimilarResponses = {
+    /**
+     * Discovery results returned
+     */
+    200: DiscoverResponse;
+};
+type FindByTicketData = {
+    body: FindByTicketRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/tools/discover/ticket';
+};
+type FindByTicketErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type FindByTicketResponses = {
+    /**
+     * Related content returned
+     */
+    200: TicketDiscoverResponse;
 };
 
 type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options$1<TData, ThrowOnError> & {
@@ -1413,123 +2013,167 @@ type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean
     meta?: Record<string, unknown>;
 };
 /**
- * List available content types
+ * Bulk Read Content
  *
- * Returns all content types with metadata, endpoints, and optional counts.
+ * Bulk read content.
  */
-declare const getContentTypes: <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => RequestResult<GetContentTypesResponses, unknown, ThrowOnError, "fields">;
+declare const bulkReadContent: <ThrowOnError extends boolean = false>(options: Options<BulkReadContentData, ThrowOnError>) => RequestResult<BulkReadContentResponses, BulkReadContentErrors, ThrowOnError, "fields">;
 /**
- * List content of a type
+ * Bulk Write Content
+ *
+ * Bulk write content.
  */
-declare const listContent: <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => RequestResult<ListContentResponses, unknown, ThrowOnError, "fields">;
+declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: Options<BulkWriteContentData, ThrowOnError>) => RequestResult<BulkWriteContentResponses, BulkWriteContentErrors, ThrowOnError, "fields">;
 /**
- * Delete content
+ * Bulk Delete Content
+ *
+ * Bulk delete content.
  */
-declare const deleteContent: <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => RequestResult<DeleteContentResponses, unknown, ThrowOnError, "fields">;
+declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, BulkDeleteContentErrors, ThrowOnError, "fields">;
 /**
- * Read content by ID
+ * Get content types
+ *
+ * Returns all available content types (mission, context, repo, etc.) with optional item counts.
  */
-declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, unknown, ThrowOnError, "fields">;
+declare const getContentTypes: <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => RequestResult<GetContentTypesResponses, GetContentTypesErrors, ThrowOnError, "fields">;
 /**
- * Create or update content
+ * List content
+ *
+ * Lists all content items of a specific type, optionally filtered by path.
  */
-declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, unknown, ThrowOnError, "fields">;
+declare const listContent: <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => RequestResult<ListContentResponses, ListContentErrors, ThrowOnError, "fields">;
 /**
- * Query content with filters
+ * Query content
+ *
+ * Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.
  */
-declare const queryContent: <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => RequestResult<QueryContentResponses, unknown, ThrowOnError, "fields">;
+declare const queryContent: <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => RequestResult<QueryContentResponses, QueryContentErrors, ThrowOnError, "fields">;
 /**
- * Full-text search
+ * Search content
+ *
+ * Full-text search in content names and paths. Case-insensitive.
  */
-declare const searchContent: <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => RequestResult<SearchContentResponses, unknown, ThrowOnError, "fields">;
+declare const searchContent: <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => RequestResult<SearchContentResponses, SearchContentErrors, ThrowOnError, "fields">;
 /**
- * Get hierarchical tree structure
+ * Get content tree
+ *
+ * Returns hierarchical tree structure of content with configurable depth.
  */
-declare const getContentTree: <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => RequestResult<GetContentTreeResponses, unknown, ThrowOnError, "fields">;
+declare const getContentTree: <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => RequestResult<GetContentTreeResponses, GetContentTreeErrors, ThrowOnError, "fields">;
 /**
  * Get content statistics
- */
-declare const getContentStats: <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => RequestResult<GetContentStatsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Read multiple items
- */
-declare const bulkReadContent: <ThrowOnError extends boolean = false>(options: Options<BulkReadContentData, ThrowOnError>) => RequestResult<BulkReadContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Write multiple items
- */
-declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: Options<BulkWriteContentData, ThrowOnError>) => RequestResult<BulkWriteContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Delete multiple items
- */
-declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Semantic search in Knowledge Base
- */
-declare const queryKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<QueryKnowledgeBaseData, ThrowOnError>) => RequestResult<QueryKnowledgeBaseResponses, unknown, ThrowOnError, "fields">;
-/**
- * RAG with citations
- */
-declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<RagKnowledgeBaseData, ThrowOnError>) => RequestResult<RagKnowledgeBaseResponses, unknown, ThrowOnError, "fields">;
-/**
- * Download GitHub repo and vectorize
  *
- * Download repo from GitHub, upload to S3 with metadata sidecars, and trigger Bedrock KB vectorization.
+ * Returns file counts and sizes grouped by extension for a content path.
  */
-declare const downloadRepository: <ThrowOnError extends boolean = false>(options: Options<DownloadRepositoryData, ThrowOnError>) => RequestResult<DownloadRepositoryResponses, unknown, ThrowOnError, "fields">;
+declare const getContentStats: <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => RequestResult<GetContentStatsResponses, GetContentStatsErrors, ThrowOnError, "fields">;
 /**
- * Check repo download job status
+ * Delete content
+ *
+ * Deletes content. Use recursive=true with confirm=true to delete directories.
  */
-declare const getRepoDownloadStatus: <ThrowOnError extends boolean = false>(options: Options<GetRepoDownloadStatusData, ThrowOnError>) => RequestResult<GetRepoDownloadStatusResponses, unknown, ThrowOnError, "fields">;
+declare const deleteContent: <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => RequestResult<DeleteContentResponses, DeleteContentErrors, ThrowOnError, "fields">;
+/**
+ * Read content
+ *
+ * Reads content by type and path. Binary files are base64-encoded.
+ */
+declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, ReadContentErrors, ThrowOnError, "fields">;
+/**
+ * Write content
+ *
+ * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
+ */
+declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, WriteContentErrors, ThrowOnError, "fields">;
+/**
+ * Lock content
+ *
+ * Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.
+ */
+declare const lockContent: <ThrowOnError extends boolean = false>(options: Options<LockContentData, ThrowOnError>) => RequestResult<LockContentResponses, LockContentErrors, ThrowOnError, "fields">;
+/**
+ * Unlock content
+ *
+ * Releases an exclusive lock on content. Stub endpoint for SDK compatibility.
+ */
+declare const unlockContent: <ThrowOnError extends boolean = false>(options: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, UnlockContentErrors, ThrowOnError, "fields">;
+/**
+ * Query Knowledge Base
+ *
+ * Semantic search with optional project scoping and fallback.
+ */
+declare const queryKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<QueryKnowledgeBaseData, ThrowOnError>) => RequestResult<QueryKnowledgeBaseResponses, QueryKnowledgeBaseErrors, ThrowOnError, "fields">;
+/**
+ * Rag Knowledge Base
+ *
+ * RAG query with LLM response and citations.
+ */
+declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<RagKnowledgeBaseData, ThrowOnError>) => RequestResult<RagKnowledgeBaseResponses, RagKnowledgeBaseErrors, ThrowOnError, "fields">;
+/**
+ * Start repository download
+ *
+ * Initiates an async download of a Git repository. Returns a job ID for status tracking.
+ */
+declare const downloadRepository: <ThrowOnError extends boolean = false>(options: Options<DownloadRepositoryData, ThrowOnError>) => RequestResult<DownloadRepositoryResponses, DownloadRepositoryErrors, ThrowOnError, "fields">;
+/**
+ * Get download status
+ *
+ * Returns the current status and progress of a repository download job.
+ */
+declare const getRepoDownloadStatus: <ThrowOnError extends boolean = false>(options: Options<GetRepoDownloadStatusData, ThrowOnError>) => RequestResult<GetRepoDownloadStatusResponses, GetRepoDownloadStatusErrors, ThrowOnError, "fields">;
 /**
  * List downloaded repositories
- */
-declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => RequestResult<ListDownloadedReposResponses, unknown, ThrowOnError, "fields">;
-/**
- * Check repository access
  *
- * Verify if the user can access a GitHub repository before downloading.
+ * Returns all repositories that have been downloaded for the workspace.
  */
-declare const githubCheckAccess: <ThrowOnError extends boolean = false>(options: Options<GithubCheckAccessData, ThrowOnError>) => RequestResult<GithubCheckAccessResponses, unknown, ThrowOnError, "fields">;
+declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => RequestResult<ListDownloadedReposResponses, ListDownloadedReposErrors, ThrowOnError, "fields">;
 /**
- * List repository branches
+ * Github Check Access
  *
- * Get list of branches for a GitHub repository.
+ * Check GitHub repository access.
  */
-declare const githubListBranches: <ThrowOnError extends boolean = false>(options: Options<GithubListBranchesData, ThrowOnError>) => RequestResult<GithubListBranchesResponses, unknown, ThrowOnError, "fields">;
+declare const githubCheckAccess: <ThrowOnError extends boolean = false>(options: Options<GithubCheckAccessData, ThrowOnError>) => RequestResult<GithubCheckAccessResponses, GithubCheckAccessErrors, ThrowOnError, "fields">;
 /**
- * Get repository contents
+ * Github List Branches
  *
- * Browse repository files and folders.
+ * List repository branches.
  */
-declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, unknown, ThrowOnError, "fields">;
+declare const githubListBranches: <ThrowOnError extends boolean = false>(options: Options<GithubListBranchesData, ThrowOnError>) => RequestResult<GithubListBranchesResponses, GithubListBranchesErrors, ThrowOnError, "fields">;
 /**
- * Create a new mission from ticket
+ * Github Get Contents
+ *
+ * Get repository contents.
  */
-declare const createMission: <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => RequestResult<CreateMissionResponses, unknown, ThrowOnError, "fields">;
+declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, GithubGetContentsErrors, ThrowOnError, "fields">;
 /**
- * Update mission progress
+ * Create a new mission
+ *
+ * Creates a mission with optional project association and goals list.
  */
-declare const updateMission: <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => RequestResult<UpdateMissionResponses, unknown, ThrowOnError, "fields">;
+declare const createMission: <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => RequestResult<CreateMissionResponses, CreateMissionErrors, ThrowOnError, "fields">;
 /**
- * Get mission context for agents
+ * Update mission status
+ *
+ * Updates mission status, progress percentage, and/or notes.
  */
-declare const getMissionContext: <ThrowOnError extends boolean = false>(options: Options<GetMissionContextData, ThrowOnError>) => RequestResult<GetMissionContextResponses, unknown, ThrowOnError, "fields">;
+declare const updateMission: <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => RequestResult<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError, "fields">;
 /**
- * Discover similar content across types
+ * Get mission context
+ *
+ * Returns mission context data optimized for AI consumption.
  */
-declare const discoverSimilar: <ThrowOnError extends boolean = false>(options: Options<DiscoverSimilarData, ThrowOnError>) => RequestResult<DiscoverSimilarResponses, unknown, ThrowOnError, "fields">;
+declare const getMissionContext: <ThrowOnError extends boolean = false>(options: Options<GetMissionContextData, ThrowOnError>) => RequestResult<GetMissionContextResponses, GetMissionContextErrors, ThrowOnError, "fields">;
 /**
- * Find content by Jira ticket ID
+ * Discover similar content
+ *
+ * Searches the knowledge base for content semantically similar to the query.
  */
-declare const findByTicket: <ThrowOnError extends boolean = false>(options: Options<FindByTicketData, ThrowOnError>) => RequestResult<FindByTicketResponses, unknown, ThrowOnError, "fields">;
+declare const discoverSimilar: <ThrowOnError extends boolean = false>(options: Options<DiscoverSimilarData, ThrowOnError>) => RequestResult<DiscoverSimilarResponses, DiscoverSimilarErrors, ThrowOnError, "fields">;
 /**
- * Acquire exclusive lock
+ * Find content by Jira ticket
+ *
+ * Searches the knowledge base for content associated with a Jira ticket ID.
  */
-declare const lockContent: <ThrowOnError extends boolean = false>(options?: Options<LockContentData, ThrowOnError>) => RequestResult<LockContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Release exclusive lock
- */
-declare const unlockContent: <ThrowOnError extends boolean = false>(options?: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, unknown, ThrowOnError, "fields">;
+declare const findByTicket: <ThrowOnError extends boolean = false>(options: Options<FindByTicketData, ThrowOnError>) => RequestResult<FindByTicketResponses, FindByTicketErrors, ThrowOnError, "fields">;
 
 interface ListEntry$1 {
     name: string;
@@ -1627,11 +2271,11 @@ declare class OCXPClient {
      * Query content with filters
      */
     query(type: ContentTypeValue, filters?: QueryFilter[], limit?: number): Promise<({
+        data: ContentListResponse;
+        error: undefined;
+    } | {
         data: undefined;
         error: unknown;
-    } | {
-        data: OcxpResponse;
-        error: undefined;
     }) & {
         request: Request;
         response: Response;
@@ -1640,11 +2284,11 @@ declare class OCXPClient {
      * Full-text search
      */
     search(type: ContentTypeValue, q: string, limit?: number): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: ContentListResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1653,11 +2297,11 @@ declare class OCXPClient {
      * Get hierarchical tree structure
      */
     tree(type: ContentTypeValue, path?: string, depth?: number): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: ContentTreeResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1666,11 +2310,11 @@ declare class OCXPClient {
      * Get content statistics
      */
     stats(type: ContentTypeValue, path?: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: ContentStatsResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1679,11 +2323,11 @@ declare class OCXPClient {
      * Read multiple items at once
      */
     bulkRead(type: ContentTypeValue, ids: string[]): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: BulkReadResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1695,11 +2339,11 @@ declare class OCXPClient {
         id: string;
         content: string;
     }>): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: BulkWriteResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1708,11 +2352,11 @@ declare class OCXPClient {
      * Delete multiple items at once
      */
     bulkDelete(type: ContentTypeValue, ids: string[]): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: BulkDeleteResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1721,11 +2365,11 @@ declare class OCXPClient {
      * Semantic search in Knowledge Base
      */
     kbQuery(query: string, searchType?: 'SEMANTIC' | 'HYBRID', maxResults?: number): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: KbQueryResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1734,24 +2378,24 @@ declare class OCXPClient {
      * RAG with citations
      */
     kbRag(query: string, sessionId?: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: KbRagResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
-     * Create a new mission from Jira ticket
+     * Create a new mission
      */
-    createMission(ticketId: string, ticketSummary?: string, ticketDescription?: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+    createMission(name: string, description?: string, projectId?: string, goals?: string[]): Promise<({
+        data: MissionCreateResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1760,11 +2404,11 @@ declare class OCXPClient {
      * Update mission progress
      */
     updateMission(missionId: string, updates: Record<string, unknown>): Promise<({
+        data: MissionUpdateResponse;
+        error: undefined;
+    } | {
         data: undefined;
         error: unknown;
-    } | {
-        data: OcxpResponse;
-        error: undefined;
     }) & {
         request: Request;
         response: Response;
@@ -1773,11 +2417,11 @@ declare class OCXPClient {
      * Get mission context for agents
      */
     getMissionContext(missionId: string): Promise<({
+        data: MissionContextResponse;
+        error: undefined;
+    } | {
         data: undefined;
         error: unknown;
-    } | {
-        data: OcxpResponse;
-        error: undefined;
     }) & {
         request: Request;
         response: Response;
@@ -1785,12 +2429,12 @@ declare class OCXPClient {
     /**
      * Discover similar content across types
      */
-    discover(query: string, contentType?: string, includeRelated?: boolean): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+    discover(query: string, contentTypes?: string[], limit?: number): Promise<({
+        data: DiscoverResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -1799,109 +2443,102 @@ declare class OCXPClient {
      * Find content by Jira ticket ID
      */
     findByTicket(ticketId: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+        data: TicketDiscoverResponse;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
      * Acquire exclusive lock on content
-     * @param path - Content path (e.g., "mission/my-mission")
+     * @param contentType - Content type (e.g., "mission")
+     * @param contentId - Content ID (e.g., "my-mission")
      * @param ttl - Lock time-to-live in seconds
      */
-    lock(path: string, ttl?: number): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+    lock(contentType: string, contentId: string, ttl?: number): Promise<({
+        data: unknown;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
      * Release exclusive lock
-     * @param path - Content path
-     * @param lockToken - Token from lock acquisition
+     * @param contentType - Content type
+     * @param contentId - Content ID
      */
-    unlock(path: string, lockToken: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse;
+    unlock(contentType: string, contentId: string): Promise<({
+        data: unknown;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
      * Check if a repository is accessible
+     * @param repoUrl - Full GitHub repository URL
      */
-    githubCheckAccess(owner: string, repo: string, token?: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse & {
-            data?: GitHubCheckAccessResponse;
-        };
+    githubCheckAccess(repoUrl: string): Promise<({
+        data: unknown;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
      * List branches for a repository
+     * @param repoUrl - Full GitHub repository URL
      */
-    githubListBranches(owner: string, repo: string, token?: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse & {
-            data?: GitHubListBranchesResponse;
-        };
+    githubListBranches(repoUrl: string): Promise<({
+        data: unknown;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
      * Get repository contents at a path
+     * @param repoUrl - Full GitHub repository URL
+     * @param path - Path within the repository
+     * @param ref - Git ref (branch, tag, or commit)
      */
-    githubGetContents(owner: string, repo: string, path?: string, ref?: string, token?: string): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse & {
-            data?: GitHubGetContentsResponse;
-        };
+    githubGetContents(repoUrl: string, path?: string, ref?: string): Promise<({
+        data: unknown;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
     }>;
     /**
      * Download repository and trigger vectorization
+     * @param repoUrl - Full GitHub repository URL
+     * @param branch - Optional branch (default: main)
+     * @param mode - Download mode: full or docs_only
      */
-    downloadRepository(request: {
-        github_url: string;
-        repo_id: string;
-        branch?: string;
-        path?: string;
-        mode?: 'full' | 'docs_only';
-        visibility?: 'private' | 'public';
-        github_token?: string;
-    }): Promise<({
+    downloadRepository(repoUrl: string, branch?: string, mode?: string): Promise<({
+        data: RepoDownloadResponse$1;
+        error: undefined;
+    } | {
         data: undefined;
         error: unknown;
-    } | {
-        data: OcxpResponse & {
-            data?: RepoDownloadResponse$1;
-        };
-        error: undefined;
     }) & {
         request: Request;
         response: Response;
@@ -1910,13 +2547,11 @@ declare class OCXPClient {
      * Get repository download status
      */
     getRepoStatus(jobId: string): Promise<({
+        data: RepoStatusResponse$1;
+        error: undefined;
+    } | {
         data: undefined;
         error: unknown;
-    } | {
-        data: OcxpResponse & {
-            data?: RepoStatusResponse$1;
-        };
-        error: undefined;
     }) & {
         request: Request;
         response: Response;
@@ -1925,16 +2560,11 @@ declare class OCXPClient {
      * List all downloaded repositories in workspace
      */
     listRepos(): Promise<({
-        data: undefined;
-        error: unknown;
-    } | {
-        data: OcxpResponse & {
-            data?: {
-                repos?: Array<RepoListItem$1>;
-                count?: number;
-            };
-        };
+        data: RepoListResponse$1;
         error: undefined;
+    } | {
+        data: undefined;
+        error: HttpValidationError;
     }) & {
         request: Request;
         response: Response;
@@ -5146,4 +5776,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequestBody, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type LockContentData, type LockContentResponses, type Meta, MetaSchema, type MissionCreateRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, ProjectSchema, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionMessage, SessionMessageSchema, SessionSchema, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequestBody, type WriteResponse, WriteResponseSchema, type WriteResult, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createResponseSchema, createWebSocketService, deleteContent, discoverSimilar, downloadRepository, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, getRepoDownloadStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDownloadedRepos, lockContent, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, safeParseWSMessage, searchContent, unlockContent, updateMission, writeContent };
+export { type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type LockContentData, type LockContentResponses, type Meta, MetaSchema, type MissionCreateRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, ProjectSchema, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionMessage, SessionMessageSchema, SessionSchema, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createResponseSchema, createWebSocketService, deleteContent, discoverSimilar, downloadRepository, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, getRepoDownloadStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDownloadedRepos, lockContent, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, safeParseWSMessage, searchContent, unlockContent, updateMission, writeContent };
