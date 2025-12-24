@@ -194,7 +194,7 @@ export class OCXPPathService {
         (entry): PathEntry => ({
           name: entry.name ?? '',
           path: normalizePath(entry.path ?? ''),
-          type: entry.type ?? 'file',
+          type: (entry.type ?? 'file') as 'file' | 'directory',
           size: entry.size,
           mtime: entry.mtime,
         })
@@ -306,7 +306,6 @@ export class OCXPPathService {
 
     await this.client.write(type, id, content, {
       encoding: options?.encoding,
-      metadata: options?.metadata,
       ifNotExists: options?.ifNotExists,
       etag: options?.etag,
     });
