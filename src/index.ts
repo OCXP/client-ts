@@ -64,6 +64,7 @@ export {
   downloadRepository,
   getRepoDownloadStatus,
   listDownloadedRepos,
+  deleteRepo,
 
   // Knowledge Base
   queryKnowledgeBase,
@@ -74,12 +75,43 @@ export {
   githubListBranches,
   githubGetContents,
 
+  // Projects
+  listProjects,
+  createProject,
+  getProject,
+  updateProject,
+  deleteProject,
+  addLinkedRepo,
+  removeLinkedRepo,
+  setDefaultRepo,
+  getContextRepos,
+  addMission,
+  removeMission,
+
+  // Sessions
+  listSessions,
+  getSessionMessages,
+  updateSessionMetadata,
+  forkSession,
+  archiveSession,
+
+  // Docs
+  createSnapshot,
+  listDocs,
+  getSnapshotStatus,
+
   // Tools
   createMission,
   updateMission,
   getMissionContext,
   discoverSimilar,
   findByTicket,
+
+  // Auth
+  loginForAccessToken,
+  getAuthConfig,
+  getCurrentUser,
+  listWorkspaces,
 
   // Utility
   lockContent,
@@ -100,6 +132,36 @@ export type {
   KbQueryRequest,
   DiscoverRequest,
   MissionCreateRequest,
+  ProjectCreate,
+  ProjectUpdate,
+  AddRepoRequest,
+  AddMissionRequest,
+  SetDefaultRepoRequest,
+  SessionMetadataUpdate,
+  ForkRequest,
+  SnapshotRequest,
+  CheckAccessRequest,
+  ListBranchesRequest,
+  GetContentsRequest,
+
+  // Response types
+  ProjectListResponse,
+  ProjectResponse,
+  LinkedRepoResponse,
+  SessionListResponse,
+  SessionResponse,
+  SessionMessagesResponse,
+  SessionForkResponse,
+  MessageResponse,
+  RepoListResponse,
+  RepoInfo,
+  RepoStatusResponse,
+  RepoDownloadResponse,
+  RepoDeleteResponse,
+  AuthConfig,
+  UserResponse,
+  WorkspacesResponse,
+  TokenResponse,
 
   // Data types for SDK functions - Content CRUD
   GetContentTypesData,
@@ -136,6 +198,8 @@ export type {
   GetRepoDownloadStatusResponses,
   ListDownloadedReposData,
   ListDownloadedReposResponses,
+  DeleteRepoData,
+  DeleteRepoResponses,
 
   // Knowledge Base
   QueryKnowledgeBaseData,
@@ -151,6 +215,50 @@ export type {
   GithubGetContentsData,
   GithubGetContentsResponses,
 
+  // Projects
+  ListProjectsData,
+  ListProjectsResponses,
+  CreateProjectData,
+  CreateProjectResponses,
+  GetProjectData,
+  GetProjectResponses,
+  UpdateProjectData,
+  UpdateProjectResponses,
+  DeleteProjectData,
+  DeleteProjectResponses,
+  AddLinkedRepoData,
+  AddLinkedRepoResponses,
+  RemoveLinkedRepoData,
+  RemoveLinkedRepoResponses,
+  SetDefaultRepoData,
+  SetDefaultRepoResponses,
+  GetContextReposData,
+  GetContextReposResponses,
+  AddMissionData,
+  AddMissionResponses,
+  RemoveMissionData,
+  RemoveMissionResponses,
+
+  // Sessions
+  ListSessionsData,
+  ListSessionsResponses,
+  GetSessionMessagesData,
+  GetSessionMessagesResponses,
+  UpdateSessionMetadataData,
+  UpdateSessionMetadataResponses,
+  ForkSessionData,
+  ForkSessionResponses,
+  ArchiveSessionData,
+  ArchiveSessionResponses,
+
+  // Docs
+  CreateSnapshotData,
+  CreateSnapshotResponses,
+  ListDocsData,
+  ListDocsResponses,
+  GetSnapshotStatusData,
+  GetSnapshotStatusResponses,
+
   // Tools
   CreateMissionData,
   CreateMissionResponses,
@@ -162,6 +270,16 @@ export type {
   DiscoverSimilarResponses,
   FindByTicketData,
   FindByTicketResponses,
+
+  // Auth
+  LoginForAccessTokenData,
+  LoginForAccessTokenResponses,
+  GetAuthConfigData,
+  GetAuthConfigResponses,
+  GetCurrentUserData,
+  GetCurrentUserResponses,
+  ListWorkspacesData,
+  ListWorkspacesResponses,
 
   // Utility
   LockContentData,

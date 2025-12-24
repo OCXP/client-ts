@@ -3,8 +3,31 @@
 var zod = require('zod');
 
 // src/generated/core/bodySerializer.gen.ts
+var serializeUrlSearchParamsPair = (data, key, value) => {
+  if (typeof value === "string") {
+    data.append(key, value);
+  } else {
+    data.append(key, JSON.stringify(value));
+  }
+};
 var jsonBodySerializer = {
   bodySerializer: (body) => JSON.stringify(body, (_key, value) => typeof value === "bigint" ? value.toString() : value)
+};
+var urlSearchParamsBodySerializer = {
+  bodySerializer: (body) => {
+    const data = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      if (value === void 0 || value === null) {
+        return;
+      }
+      if (Array.isArray(value)) {
+        value.forEach((v) => serializeUrlSearchParamsPair(data, key, v));
+      } else {
+        serializeUrlSearchParamsPair(data, key, value);
+      }
+    });
+    return data.toString();
+  }
 };
 
 // src/generated/core/serverSentEvents.gen.ts
@@ -891,6 +914,114 @@ var unlockContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var listSessions = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session",
+  ...options
+});
+var getSessionMessages = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{session_id}/messages",
+  ...options
+});
+var updateSessionMetadata = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{session_id}/metadata",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var forkSession = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{session_id}/fork",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var archiveSession = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/session/{session_id}/archive",
+  ...options
+});
+var listProjects = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project",
+  ...options
+});
+var createProject = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteProject = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}",
+  ...options
+});
+var getProject = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}",
+  ...options
+});
+var updateProject = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var addLinkedRepo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/repos",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var removeLinkedRepo = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/repos/{repo_id}",
+  ...options
+});
+var setDefaultRepo = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/default-repo",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getContextRepos = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/context-repos",
+  ...options
+});
+var addMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/missions",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var removeMission = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/missions/{mission_id}",
+  ...options
+});
 var queryKnowledgeBase = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/kb/query",
@@ -928,6 +1059,32 @@ var listDownloadedRepos = (options) => (options?.client ?? client).get({
   url: "/ocxp/repo/list",
   ...options
 });
+var deleteRepo = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/repo/{repo_id}",
+  ...options
+});
+var createSnapshot = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/docs/snapshot",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var listDocs = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/docs/list",
+  ...options
+});
+var getSnapshotStatus = (options) => (options.client ?? client).get(
+  {
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/ocxp/docs/status/{job_id}",
+    ...options
+  }
+);
 var githubCheckAccess = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/github/check-access",
@@ -997,6 +1154,29 @@ var findByTicket = (options) => (options.client ?? client).post({
     "Content-Type": "application/json",
     ...options.headers
   }
+});
+var loginForAccessToken = (options) => (options.client ?? client).post({
+  ...urlSearchParamsBodySerializer,
+  url: "/auth/token",
+  ...options,
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+    ...options.headers
+  }
+});
+var getAuthConfig = (options) => (options?.client ?? client).get({
+  url: "/auth/config",
+  ...options
+});
+var getCurrentUser = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/me",
+  ...options
+});
+var listWorkspaces = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/workspaces",
+  ...options
 });
 
 // src/client.ts
@@ -1443,11 +1623,299 @@ var OCXPClient = class {
     });
   }
   /**
-   * Delete a repository
-   * Note: This endpoint is not yet implemented in the API
+   * Delete a downloaded repository
    */
-  async deleteRepository(_repoId) {
-    throw new Error("deleteRepository is not yet implemented in the OCXP API");
+  async deleteRepo(repoId) {
+    const headers = await this.getHeaders();
+    const response = await deleteRepo({
+      client: this.client,
+      path: { repo_id: repoId },
+      headers
+    });
+    return extractData(response);
+  }
+  // ============== Project Operations ==============
+  /**
+   * List all projects in workspace
+   */
+  async listProjects(limit) {
+    const headers = await this.getHeaders();
+    const response = await listProjects({
+      client: this.client,
+      query: { limit },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Create a new project
+   */
+  async createProject(projectId, name, description) {
+    const headers = await this.getHeaders();
+    const body = {
+      project_id: projectId,
+      name,
+      description
+    };
+    const response = await createProject({
+      client: this.client,
+      body,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get project by ID
+   */
+  async getProject(projectId) {
+    const headers = await this.getHeaders();
+    const response = await getProject({
+      client: this.client,
+      path: { project_id: projectId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Update project
+   */
+  async updateProject(projectId, updates) {
+    const headers = await this.getHeaders();
+    const response = await updateProject({
+      client: this.client,
+      path: { project_id: projectId },
+      body: updates,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Delete project
+   */
+  async deleteProject(projectId) {
+    const headers = await this.getHeaders();
+    await deleteProject({
+      client: this.client,
+      path: { project_id: projectId },
+      headers
+    });
+  }
+  /**
+   * Add repository to project
+   */
+  async addProjectRepo(projectId, repoId, options) {
+    const headers = await this.getHeaders();
+    const body = {
+      repo_id: repoId,
+      category: options?.category,
+      priority: options?.priority,
+      auto_include: options?.autoInclude,
+      branch: options?.branch
+    };
+    const response = await addLinkedRepo({
+      client: this.client,
+      path: { project_id: projectId },
+      body,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Remove repository from project
+   */
+  async removeProjectRepo(projectId, repoId) {
+    const headers = await this.getHeaders();
+    const response = await removeLinkedRepo({
+      client: this.client,
+      path: { project_id: projectId, repo_id: repoId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Set default repository for project
+   */
+  async setDefaultRepo(projectId, repoId) {
+    const headers = await this.getHeaders();
+    const body = { repo_id: repoId };
+    const response = await setDefaultRepo({
+      client: this.client,
+      path: { project_id: projectId },
+      body,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get context repositories for project (auto-include enabled)
+   */
+  async getContextRepos(projectId) {
+    const headers = await this.getHeaders();
+    const response = await getContextRepos({
+      client: this.client,
+      path: { project_id: projectId },
+      headers
+    });
+    const data = extractData(response);
+    return data.repos || [];
+  }
+  /**
+   * Add mission to project
+   */
+  async addProjectMission(projectId, missionId) {
+    const headers = await this.getHeaders();
+    const body = { mission_id: missionId };
+    const response = await addMission({
+      client: this.client,
+      path: { project_id: projectId },
+      body,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Remove mission from project
+   */
+  async removeProjectMission(projectId, missionId) {
+    const headers = await this.getHeaders();
+    const response = await removeMission({
+      client: this.client,
+      path: { project_id: projectId, mission_id: missionId },
+      headers
+    });
+    return extractData(response);
+  }
+  // ============== Session Operations ==============
+  /**
+   * List all sessions in workspace
+   */
+  async listSessions(limit, status) {
+    const headers = await this.getHeaders();
+    const response = await listSessions({
+      client: this.client,
+      query: { limit, status },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get session messages
+   */
+  async getSessionMessages(sessionId, limit) {
+    const headers = await this.getHeaders();
+    const response = await getSessionMessages({
+      client: this.client,
+      path: { session_id: sessionId },
+      query: { limit },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Update session metadata
+   */
+  async updateSessionMetadata(sessionId, updates) {
+    const headers = await this.getHeaders();
+    const response = await updateSessionMetadata({
+      client: this.client,
+      path: { session_id: sessionId },
+      body: updates,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Fork session
+   */
+  async forkSession(sessionId, missionId, forkPoint) {
+    const headers = await this.getHeaders();
+    const body = { mission_id: missionId, fork_point: forkPoint };
+    const response = await forkSession({
+      client: this.client,
+      path: { session_id: sessionId },
+      body,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Archive session
+   */
+  async archiveSession(sessionId) {
+    const headers = await this.getHeaders();
+    await archiveSession({
+      client: this.client,
+      path: { session_id: sessionId },
+      headers
+    });
+  }
+  // ============== Documentation Snapshots ==============
+  /**
+   * Create documentation snapshot
+   */
+  async createSnapshot(sourceUrl, targetPath) {
+    const headers = await this.getHeaders();
+    const response = await createSnapshot({
+      client: this.client,
+      body: { source_url: sourceUrl, target_path: targetPath },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * List documentation snapshots
+   */
+  async listDocs() {
+    const headers = await this.getHeaders();
+    const response = await listDocs({
+      client: this.client,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get snapshot status
+   */
+  async getSnapshotStatus(jobId) {
+    const headers = await this.getHeaders();
+    const response = await getSnapshotStatus({
+      client: this.client,
+      path: { job_id: jobId },
+      headers
+    });
+    return extractData(response);
+  }
+  // ============== Auth Operations ==============
+  /**
+   * Get auth configuration (public endpoint)
+   */
+  async getAuthConfig() {
+    const response = await getAuthConfig({
+      client: this.client
+    });
+    return extractData(response);
+  }
+  /**
+   * Get current authenticated user
+   */
+  async getCurrentUser() {
+    const headers = await this.getHeaders();
+    const response = await getCurrentUser({
+      client: this.client,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * List workspaces for authenticated user
+   */
+  async listWorkspaces() {
+    const headers = await this.getHeaders();
+    const response = await listWorkspaces({
+      client: this.client,
+      headers
+    });
+    return extractData(response);
   }
 };
 function createOCXPClient(options) {
@@ -2845,6 +3313,9 @@ exports.WSStreamStartSchema = WSStreamStartSchema;
 exports.WebSocketService = WebSocketService;
 exports.WriteDataSchema = WriteDataSchema;
 exports.WriteResponseSchema = WriteResponseSchema;
+exports.addLinkedRepo = addLinkedRepo;
+exports.addMission = addMission;
+exports.archiveSession = archiveSession;
 exports.buildPath = buildPath;
 exports.bulkDeleteContent = bulkDeleteContent;
 exports.bulkReadContent = bulkReadContent;
@@ -2854,18 +3325,29 @@ exports.createConfig = createConfig;
 exports.createMission = createMission;
 exports.createOCXPClient = createOCXPClient;
 exports.createPathService = createPathService;
+exports.createProject = createProject;
 exports.createResponseSchema = createResponseSchema;
+exports.createSnapshot = createSnapshot;
 exports.createWebSocketService = createWebSocketService;
 exports.deleteContent = deleteContent;
+exports.deleteProject = deleteProject;
+exports.deleteRepo = deleteRepo;
 exports.discoverSimilar = discoverSimilar;
 exports.downloadRepository = downloadRepository;
 exports.findByTicket = findByTicket;
+exports.forkSession = forkSession;
+exports.getAuthConfig = getAuthConfig;
 exports.getCanonicalType = getCanonicalType;
 exports.getContentStats = getContentStats;
 exports.getContentTree = getContentTree;
 exports.getContentTypes = getContentTypes;
+exports.getContextRepos = getContextRepos;
+exports.getCurrentUser = getCurrentUser;
 exports.getMissionContext = getMissionContext;
+exports.getProject = getProject;
 exports.getRepoDownloadStatus = getRepoDownloadStatus;
+exports.getSessionMessages = getSessionMessages;
+exports.getSnapshotStatus = getSnapshotStatus;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;
 exports.githubListBranches = githubListBranches;
@@ -2879,8 +3361,13 @@ exports.isOCXPTimeoutError = isOCXPTimeoutError;
 exports.isOCXPValidationError = isOCXPValidationError;
 exports.isValidContentType = isValidContentType;
 exports.listContent = listContent;
+exports.listDocs = listDocs;
 exports.listDownloadedRepos = listDownloadedRepos;
+exports.listProjects = listProjects;
+exports.listSessions = listSessions;
+exports.listWorkspaces = listWorkspaces;
 exports.lockContent = lockContent;
+exports.loginForAccessToken = loginForAccessToken;
 exports.mapHttpError = mapHttpError;
 exports.normalizePath = normalizePath;
 exports.parsePath = parsePath;
@@ -2889,10 +3376,15 @@ exports.queryContent = queryContent;
 exports.queryKnowledgeBase = queryKnowledgeBase;
 exports.ragKnowledgeBase = ragKnowledgeBase;
 exports.readContent = readContent;
+exports.removeLinkedRepo = removeLinkedRepo;
+exports.removeMission = removeMission;
 exports.safeParseWSMessage = safeParseWSMessage;
 exports.searchContent = searchContent;
+exports.setDefaultRepo = setDefaultRepo;
 exports.unlockContent = unlockContent;
 exports.updateMission = updateMission;
+exports.updateProject = updateProject;
+exports.updateSessionMetadata = updateSessionMetadata;
 exports.writeContent = writeContent;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

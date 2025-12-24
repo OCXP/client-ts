@@ -311,6 +311,88 @@ type Options$1<TData extends TDataShape = TDataShape, ThrowOnError extends boole
 declare const createClient: (config?: Config) => Client;
 
 /**
+ * AddMissionRequest
+ */
+type AddMissionRequest = {
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+};
+/**
+ * AddRepoRequest
+ */
+type AddRepoRequest = {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+    /**
+     * Category
+     *
+     * project|framework|tool|reference
+     */
+    category?: string;
+    /**
+     * Priority
+     */
+    priority?: number;
+    /**
+     * Auto Include
+     */
+    auto_include?: boolean;
+    /**
+     * Branch
+     */
+    branch?: string;
+};
+/**
+ * AuthConfig
+ */
+type AuthConfig = {
+    /**
+     * Region
+     */
+    region: string;
+    /**
+     * User Pool Id
+     */
+    user_pool_id: string;
+    /**
+     * Client Id
+     */
+    client_id: string;
+};
+/**
+ * Body_loginForAccessToken
+ */
+type BodyLoginForAccessToken = {
+    /**
+     * Grant Type
+     */
+    grant_type?: string | null;
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * Password
+     */
+    password: string;
+    /**
+     * Scope
+     */
+    scope?: string;
+    /**
+     * Client Id
+     */
+    client_id?: string | null;
+    /**
+     * Client Secret
+     */
+    client_secret?: string | null;
+};
+/**
  * BulkDeleteRequest
  */
 type BulkDeleteRequest = {
@@ -720,6 +802,19 @@ type FindByTicketRequest = {
     ticket_id: string;
 };
 /**
+ * ForkRequest
+ */
+type ForkRequest = {
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Fork Point
+     */
+    fork_point?: number | null;
+};
+/**
  * GetContentsRequest
  */
 type GetContentsRequest = {
@@ -844,6 +939,35 @@ type KbResultItem = {
     } | null;
 };
 /**
+ * LinkedRepoResponse
+ *
+ * Linked repository in a project.
+ */
+type LinkedRepoResponse = {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+    /**
+     * Category
+     *
+     * project|framework|tool|reference
+     */
+    category: string;
+    /**
+     * Priority
+     */
+    priority: number;
+    /**
+     * Auto Include
+     */
+    auto_include: boolean;
+    /**
+     * Branch
+     */
+    branch: string;
+};
+/**
  * ListBranchesRequest
  */
 type ListBranchesRequest = {
@@ -868,6 +992,31 @@ type LockRequest = {
      * Ttl
      */
     ttl?: number;
+};
+/**
+ * MessageResponse
+ *
+ * Single message in a session.
+ */
+type MessageResponse = {
+    /**
+     * Message Id
+     */
+    message_id: number;
+    /**
+     * Role
+     *
+     * user|assistant|system
+     */
+    role: string;
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
 };
 /**
  * MissionContextResponse
@@ -959,6 +1108,98 @@ type MissionUpdateResponse = {
     progress?: number | null;
 };
 /**
+ * ProjectCreate
+ */
+type ProjectCreate = {
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string;
+};
+/**
+ * ProjectListResponse
+ *
+ * Response for GET /ocxp/project.
+ */
+type ProjectListResponse = {
+    /**
+     * Projects
+     */
+    projects: Array<ProjectResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * ProjectResponse
+ *
+ * Full project response.
+ */
+type ProjectResponse = {
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Workspace
+     */
+    workspace: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description: string;
+    /**
+     * Linked Repos
+     */
+    linked_repos?: Array<LinkedRepoResponse>;
+    /**
+     * Mission Ids
+     */
+    mission_ids?: Array<string>;
+    /**
+     * Default Repo Id
+     */
+    default_repo_id?: string | null;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    /**
+     * Created By
+     */
+    created_by?: string | null;
+};
+/**
+ * ProjectUpdate
+ */
+type ProjectUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+};
+/**
  * QueryFilter
  */
 type QueryFilter = {
@@ -1014,11 +1255,26 @@ type RagRequest = {
     fallback_enabled?: boolean;
 };
 /**
+ * RepoDeleteResponse
+ *
+ * Response for DELETE /ocxp/repo/{repo_id}.
+ */
+type RepoDeleteResponse = {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+    /**
+     * Deleted
+     */
+    deleted?: boolean;
+};
+/**
  * RepoDownloadResponse
  *
  * Response for POST /ocxp/repo/download.
  */
-type RepoDownloadResponse$1 = {
+type RepoDownloadResponse = {
     /**
      * Job Id
      */
@@ -1072,7 +1328,7 @@ type RepoInfo = {
  *
  * Response for GET /ocxp/repo/list.
  */
-type RepoListResponse$1 = {
+type RepoListResponse = {
     /**
      * Repos
      */
@@ -1087,7 +1343,7 @@ type RepoListResponse$1 = {
  *
  * Response for GET /ocxp/repo/status/{job_id}.
  */
-type RepoStatusResponse$1 = {
+type RepoStatusResponse = {
     /**
      * Job Id
      */
@@ -1110,6 +1366,151 @@ type RepoStatusResponse$1 = {
     repo_id?: string | null;
 };
 /**
+ * SessionForkResponse
+ *
+ * Response for POST /ocxp/session/{id}/fork.
+ */
+type SessionForkResponse = {
+    /**
+     * Session Id
+     */
+    session_id: string;
+    /**
+     * Parent Session Id
+     */
+    parent_session_id: string;
+    /**
+     * Fork Depth
+     */
+    fork_depth: number;
+    /**
+     * Message Count
+     */
+    message_count: number;
+};
+/**
+ * SessionListResponse
+ *
+ * Response for GET /ocxp/session.
+ */
+type SessionListResponse = {
+    /**
+     * Sessions
+     */
+    sessions: Array<SessionResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * SessionMessagesResponse
+ *
+ * Response for GET /ocxp/session/{id}/messages.
+ */
+type SessionMessagesResponse = {
+    /**
+     * Session Id
+     */
+    session_id: string;
+    /**
+     * Messages
+     */
+    messages: Array<MessageResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * SessionMetadataUpdate
+ */
+type SessionMetadataUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Message Count
+     */
+    message_count?: number | null;
+};
+/**
+ * SessionResponse
+ *
+ * Session metadata response.
+ */
+type SessionResponse = {
+    /**
+     * Session Id
+     */
+    session_id: string;
+    /**
+     * Workspace
+     */
+    workspace: string;
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Message Count
+     */
+    message_count?: number;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    /**
+     * Created By
+     */
+    created_by?: string | null;
+    /**
+     * Status
+     *
+     * active|archived
+     */
+    status?: string;
+    /**
+     * Mission Id
+     */
+    mission_id?: string | null;
+    /**
+     * Parent Session Id
+     */
+    parent_session_id?: string | null;
+    /**
+     * Fork Depth
+     */
+    fork_depth?: number;
+};
+/**
+ * SetDefaultRepoRequest
+ */
+type SetDefaultRepoRequest = {
+    /**
+     * Repo Id
+     */
+    repo_id?: string | null;
+};
+/**
+ * SnapshotRequest
+ */
+type SnapshotRequest = {
+    /**
+     * Source Url
+     */
+    source_url: string;
+    /**
+     * Target Path
+     */
+    target_path?: string | null;
+};
+/**
  * TicketDiscoverResponse
  *
  * Response for POST /tools/discover/ticket.
@@ -1123,6 +1524,52 @@ type TicketDiscoverResponse = {
      * Count
      */
     count: number;
+};
+/**
+ * TokenResponse
+ *
+ * OAuth2 token response.
+ */
+type TokenResponse = {
+    /**
+     * Access Token
+     */
+    access_token: string;
+    /**
+     * Token Type
+     */
+    token_type?: string;
+    /**
+     * Expires In
+     */
+    expires_in?: number;
+    /**
+     * Id Token
+     */
+    id_token: string;
+    /**
+     * Refresh Token
+     */
+    refresh_token: string;
+};
+/**
+ * UserResponse
+ *
+ * User info response.
+ */
+type UserResponse = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Username
+     */
+    username: string;
 };
 /**
  * ValidationError
@@ -1140,6 +1587,32 @@ type ValidationError = {
      * Error Type
      */
     type: string;
+};
+/**
+ * WorkspaceItem
+ *
+ * Workspace item.
+ */
+type WorkspaceItem = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+};
+/**
+ * WorkspacesResponse
+ *
+ * Workspaces list response.
+ */
+type WorkspacesResponse = {
+    /**
+     * Workspaces
+     */
+    workspaces: Array<WorkspaceItem>;
 };
 /**
  * WriteRequest
@@ -1655,6 +2128,560 @@ type UnlockContentResponses = {
      */
     200: unknown;
 };
+type ListSessionsData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Limit
+         *
+         * Maximum number of sessions to return
+         */
+        limit?: number;
+        /**
+         * Status
+         *
+         * Filter by status: active, archived
+         */
+        status?: string;
+    };
+    url: '/ocxp/session';
+};
+type ListSessionsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListSessionsResponses = {
+    /**
+     * List of sessions returned successfully
+     */
+    200: SessionListResponse;
+};
+type GetSessionMessagesData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Session Id
+         */
+        session_id: string;
+    };
+    query?: {
+        /**
+         * Limit
+         *
+         * Maximum number of messages to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/session/{session_id}/messages';
+};
+type GetSessionMessagesErrors = {
+    /**
+     * Session not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetSessionMessagesResponses = {
+    /**
+     * Messages returned successfully
+     */
+    200: SessionMessagesResponse;
+};
+type UpdateSessionMetadataData = {
+    body: SessionMetadataUpdate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Session Id
+         */
+        session_id: string;
+    };
+    query?: never;
+    url: '/ocxp/session/{session_id}/metadata';
+};
+type UpdateSessionMetadataErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type UpdateSessionMetadataResponses = {
+    /**
+     * Session metadata updated successfully
+     */
+    200: SessionResponse;
+};
+type ForkSessionData = {
+    body: ForkRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Session Id
+         */
+        session_id: string;
+    };
+    query?: never;
+    url: '/ocxp/session/{session_id}/fork';
+};
+type ForkSessionErrors = {
+    /**
+     * Parent session not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ForkSessionResponses = {
+    /**
+     * Session forked successfully
+     */
+    201: SessionForkResponse;
+};
+type ArchiveSessionData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Session Id
+         */
+        session_id: string;
+    };
+    query?: never;
+    url: '/ocxp/session/{session_id}/archive';
+};
+type ArchiveSessionErrors = {
+    /**
+     * Session not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ArchiveSessionResponses = {
+    /**
+     * Session archived successfully
+     */
+    200: unknown;
+};
+type ListProjectsData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Limit
+         *
+         * Maximum number of projects to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/project';
+};
+type ListProjectsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListProjectsResponses = {
+    /**
+     * List of projects returned successfully
+     */
+    200: ProjectListResponse;
+};
+type CreateProjectData = {
+    body: ProjectCreate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/project';
+};
+type CreateProjectErrors = {
+    /**
+     * Project with this ID already exists
+     */
+    409: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type CreateProjectResponses = {
+    /**
+     * Project created successfully
+     */
+    201: ProjectResponse;
+};
+type DeleteProjectData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}';
+};
+type DeleteProjectErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DeleteProjectResponses = {
+    /**
+     * Project deleted successfully
+     */
+    200: unknown;
+};
+type GetProjectData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}';
+};
+type GetProjectErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetProjectResponses = {
+    /**
+     * Project found and returned
+     */
+    200: ProjectResponse;
+};
+type UpdateProjectData = {
+    body: ProjectUpdate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}';
+};
+type UpdateProjectErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type UpdateProjectResponses = {
+    /**
+     * Project updated successfully
+     */
+    200: ProjectResponse;
+};
+type AddLinkedRepoData = {
+    body: AddRepoRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/repos';
+};
+type AddLinkedRepoErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type AddLinkedRepoResponses = {
+    /**
+     * Repository linked successfully
+     */
+    200: ProjectResponse;
+};
+type RemoveLinkedRepoData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Repo Id
+         */
+        repo_id: string;
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/repos/{repo_id}';
+};
+type RemoveLinkedRepoErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type RemoveLinkedRepoResponses = {
+    /**
+     * Repository unlinked successfully
+     */
+    200: ProjectResponse;
+};
+type SetDefaultRepoData = {
+    body: SetDefaultRepoRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/default-repo';
+};
+type SetDefaultRepoErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type SetDefaultRepoResponses = {
+    /**
+     * Default repository set successfully
+     */
+    200: ProjectResponse;
+};
+type GetContextReposData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/context-repos';
+};
+type GetContextReposErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetContextReposResponses = {
+    /**
+     * Context repositories returned
+     */
+    200: unknown;
+};
+type AddMissionData = {
+    body: AddMissionRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/missions';
+};
+type AddMissionErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type AddMissionResponses = {
+    /**
+     * Mission added successfully
+     */
+    200: ProjectResponse;
+};
+type RemoveMissionData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Mission Id
+         */
+        mission_id: string;
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/missions/{mission_id}';
+};
+type RemoveMissionErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type RemoveMissionResponses = {
+    /**
+     * Mission removed successfully
+     */
+    200: ProjectResponse;
+};
 type QueryKnowledgeBaseData = {
     body: KbQueryRequest;
     headers?: {
@@ -1729,7 +2756,7 @@ type DownloadRepositoryResponses = {
     /**
      * Download job started
      */
-    202: RepoDownloadResponse$1;
+    202: RepoDownloadResponse;
 };
 type GetRepoDownloadStatusData = {
     body?: never;
@@ -1762,7 +2789,7 @@ type GetRepoDownloadStatusResponses = {
     /**
      * Job status returned
      */
-    200: RepoStatusResponse$1;
+    200: RepoStatusResponse;
 };
 type ListDownloadedReposData = {
     body?: never;
@@ -1786,7 +2813,117 @@ type ListDownloadedReposResponses = {
     /**
      * List of repositories returned
      */
-    200: RepoListResponse$1;
+    200: RepoListResponse;
+};
+type DeleteRepoData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Repo Id
+         */
+        repo_id: string;
+    };
+    query?: never;
+    url: '/ocxp/repo/{repo_id}';
+};
+type DeleteRepoErrors = {
+    /**
+     * Repository not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DeleteRepoResponses = {
+    /**
+     * Repository deleted successfully
+     */
+    200: RepoDeleteResponse;
+};
+type CreateSnapshotData = {
+    body: SnapshotRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/docs/snapshot';
+};
+type CreateSnapshotErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type CreateSnapshotResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+type ListDocsData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/docs/list';
+};
+type ListDocsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListDocsResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+type GetSnapshotStatusData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: never;
+    url: '/ocxp/docs/status/{job_id}';
+};
+type GetSnapshotStatusErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetSnapshotStatusResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
 };
 type GithubCheckAccessData = {
     body: CheckAccessRequest;
@@ -1998,6 +3135,60 @@ type FindByTicketResponses = {
      */
     200: TicketDiscoverResponse;
 };
+type LoginForAccessTokenData = {
+    body: BodyLoginForAccessToken;
+    path?: never;
+    query?: never;
+    url: '/auth/token';
+};
+type LoginForAccessTokenErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type LoginForAccessTokenResponses = {
+    /**
+     * Successful Response
+     */
+    200: TokenResponse;
+};
+type GetAuthConfigData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/config';
+};
+type GetAuthConfigResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuthConfig;
+};
+type GetCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/me';
+};
+type GetCurrentUserResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserResponse;
+};
+type ListWorkspacesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/workspaces';
+};
+type ListWorkspacesResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspacesResponse;
+};
 
 type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options$1<TData, ThrowOnError> & {
     /**
@@ -2097,6 +3288,102 @@ declare const lockContent: <ThrowOnError extends boolean = false>(options: Optio
  */
 declare const unlockContent: <ThrowOnError extends boolean = false>(options: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, UnlockContentErrors, ThrowOnError, "fields">;
 /**
+ * List all sessions
+ *
+ * Returns sessions for the workspace filtered by status. Ordered by most recently updated.
+ */
+declare const listSessions: <ThrowOnError extends boolean = false>(options?: Options<ListSessionsData, ThrowOnError>) => RequestResult<ListSessionsResponses, ListSessionsErrors, ThrowOnError, "fields">;
+/**
+ * Get session messages
+ *
+ * Loads message history for a session from S3 storage.
+ */
+declare const getSessionMessages: <ThrowOnError extends boolean = false>(options: Options<GetSessionMessagesData, ThrowOnError>) => RequestResult<GetSessionMessagesResponses, GetSessionMessagesErrors, ThrowOnError, "fields">;
+/**
+ * Update session metadata
+ *
+ * Updates session title and message count. Creates session if it does not exist.
+ */
+declare const updateSessionMetadata: <ThrowOnError extends boolean = false>(options: Options<UpdateSessionMetadataData, ThrowOnError>) => RequestResult<UpdateSessionMetadataResponses, UpdateSessionMetadataErrors, ThrowOnError, "fields">;
+/**
+ * Fork session
+ *
+ * Creates a new session branched from an existing one at a specified message point.
+ */
+declare const forkSession: <ThrowOnError extends boolean = false>(options: Options<ForkSessionData, ThrowOnError>) => RequestResult<ForkSessionResponses, ForkSessionErrors, ThrowOnError, "fields">;
+/**
+ * Archive session
+ *
+ * Soft deletes a session by changing its status to archived.
+ */
+declare const archiveSession: <ThrowOnError extends boolean = false>(options: Options<ArchiveSessionData, ThrowOnError>) => RequestResult<ArchiveSessionResponses, ArchiveSessionErrors, ThrowOnError, "fields">;
+/**
+ * List all projects
+ *
+ * Returns all projects in the workspace with their linked repos and missions.
+ */
+declare const listProjects: <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>) => RequestResult<ListProjectsResponses, ListProjectsErrors, ThrowOnError, "fields">;
+/**
+ * Create a new project
+ *
+ * Creates a project with the given ID and name. Projects link repos, missions, and sessions for context scoping.
+ */
+declare const createProject: <ThrowOnError extends boolean = false>(options: Options<CreateProjectData, ThrowOnError>) => RequestResult<CreateProjectResponses, CreateProjectErrors, ThrowOnError, "fields">;
+/**
+ * Delete project
+ *
+ * Permanently deletes a project and its metadata. Linked repos are not deleted.
+ */
+declare const deleteProject: <ThrowOnError extends boolean = false>(options: Options<DeleteProjectData, ThrowOnError>) => RequestResult<DeleteProjectResponses, DeleteProjectErrors, ThrowOnError, "fields">;
+/**
+ * Get project details
+ *
+ * Returns full project details including linked repos, missions, and metadata.
+ */
+declare const getProject: <ThrowOnError extends boolean = false>(options: Options<GetProjectData, ThrowOnError>) => RequestResult<GetProjectResponses, GetProjectErrors, ThrowOnError, "fields">;
+/**
+ * Update project
+ *
+ * Updates project name and/or description. Only provided fields are updated.
+ */
+declare const updateProject: <ThrowOnError extends boolean = false>(options: Options<UpdateProjectData, ThrowOnError>) => RequestResult<UpdateProjectResponses, UpdateProjectErrors, ThrowOnError, "fields">;
+/**
+ * Link repository to project
+ *
+ * Links a repository to the project with category, priority, and auto-include settings for KB queries.
+ */
+declare const addLinkedRepo: <ThrowOnError extends boolean = false>(options: Options<AddLinkedRepoData, ThrowOnError>) => RequestResult<AddLinkedRepoResponses, AddLinkedRepoErrors, ThrowOnError, "fields">;
+/**
+ * Unlink repository from project
+ *
+ * Removes a repository link from the project. The repository itself is not deleted.
+ */
+declare const removeLinkedRepo: <ThrowOnError extends boolean = false>(options: Options<RemoveLinkedRepoData, ThrowOnError>) => RequestResult<RemoveLinkedRepoResponses, RemoveLinkedRepoErrors, ThrowOnError, "fields">;
+/**
+ * Set default repository
+ *
+ * Sets the default repository for the project. Used for integration and primary context.
+ */
+declare const setDefaultRepo: <ThrowOnError extends boolean = false>(options: Options<SetDefaultRepoData, ThrowOnError>) => RequestResult<SetDefaultRepoResponses, SetDefaultRepoErrors, ThrowOnError, "fields">;
+/**
+ * Get context repositories
+ *
+ * Returns all repositories marked for auto-include in KB queries.
+ */
+declare const getContextRepos: <ThrowOnError extends boolean = false>(options: Options<GetContextReposData, ThrowOnError>) => RequestResult<GetContextReposResponses, GetContextReposErrors, ThrowOnError, "fields">;
+/**
+ * Add mission to project
+ *
+ * Associates a mission with the project for context grouping.
+ */
+declare const addMission: <ThrowOnError extends boolean = false>(options: Options<AddMissionData, ThrowOnError>) => RequestResult<AddMissionResponses, AddMissionErrors, ThrowOnError, "fields">;
+/**
+ * Remove mission from project
+ *
+ * Removes the mission association from the project. The mission itself is not deleted.
+ */
+declare const removeMission: <ThrowOnError extends boolean = false>(options: Options<RemoveMissionData, ThrowOnError>) => RequestResult<RemoveMissionResponses, RemoveMissionErrors, ThrowOnError, "fields">;
+/**
  * Query Knowledge Base
  *
  * Semantic search with optional project scoping and fallback.
@@ -2126,6 +3413,30 @@ declare const getRepoDownloadStatus: <ThrowOnError extends boolean = false>(opti
  * Returns all repositories that have been downloaded for the workspace.
  */
 declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => RequestResult<ListDownloadedReposResponses, ListDownloadedReposErrors, ThrowOnError, "fields">;
+/**
+ * Delete repository
+ *
+ * Permanently deletes a downloaded repository and its indexed content.
+ */
+declare const deleteRepo: <ThrowOnError extends boolean = false>(options: Options<DeleteRepoData, ThrowOnError>) => RequestResult<DeleteRepoResponses, DeleteRepoErrors, ThrowOnError, "fields">;
+/**
+ * Create Snapshot
+ *
+ * Create a documentation snapshot.
+ */
+declare const createSnapshot: <ThrowOnError extends boolean = false>(options: Options<CreateSnapshotData, ThrowOnError>) => RequestResult<CreateSnapshotResponses, CreateSnapshotErrors, ThrowOnError, "fields">;
+/**
+ * List Docs
+ *
+ * List documentation snapshots.
+ */
+declare const listDocs: <ThrowOnError extends boolean = false>(options?: Options<ListDocsData, ThrowOnError>) => RequestResult<ListDocsResponses, ListDocsErrors, ThrowOnError, "fields">;
+/**
+ * Get Snapshot Status
+ *
+ * Get snapshot job status.
+ */
+declare const getSnapshotStatus: <ThrowOnError extends boolean = false>(options: Options<GetSnapshotStatusData, ThrowOnError>) => RequestResult<GetSnapshotStatusResponses, GetSnapshotStatusErrors, ThrowOnError, "fields">;
 /**
  * Github Check Access
  *
@@ -2174,6 +3485,33 @@ declare const discoverSimilar: <ThrowOnError extends boolean = false>(options: O
  * Searches the knowledge base for content associated with a Jira ticket ID.
  */
 declare const findByTicket: <ThrowOnError extends boolean = false>(options: Options<FindByTicketData, ThrowOnError>) => RequestResult<FindByTicketResponses, FindByTicketErrors, ThrowOnError, "fields">;
+/**
+ * Login For Access Token
+ *
+ * OAuth2 compatible login endpoint for Swagger UI.
+ *
+ * Authenticates with Cognito using username/password and returns JWT tokens.
+ * Use this endpoint to get a token for testing other endpoints in Swagger.
+ */
+declare const loginForAccessToken: <ThrowOnError extends boolean = false>(options: Options<LoginForAccessTokenData, ThrowOnError>) => RequestResult<LoginForAccessTokenResponses, LoginForAccessTokenErrors, ThrowOnError, "fields">;
+/**
+ * Get Auth Config
+ *
+ * Get Cognito configuration for frontend.
+ */
+declare const getAuthConfig: <ThrowOnError extends boolean = false>(options?: Options<GetAuthConfigData, ThrowOnError>) => RequestResult<GetAuthConfigResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Get Current User
+ *
+ * Get current authenticated user info.
+ */
+declare const getCurrentUser: <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => RequestResult<GetCurrentUserResponses, unknown, ThrowOnError, "fields">;
+/**
+ * List Workspaces
+ *
+ * List workspaces for authenticated user.
+ */
+declare const listWorkspaces: <ThrowOnError extends boolean = false>(options?: Options<ListWorkspacesData, ThrowOnError>) => RequestResult<ListWorkspacesResponses, unknown, ThrowOnError, "fields">;
 
 interface ListEntry$1 {
     name: string;
@@ -2534,7 +3872,7 @@ declare class OCXPClient {
      * @param mode - Download mode: full or docs_only
      */
     downloadRepository(repoUrl: string, branch?: string, mode?: string): Promise<({
-        data: RepoDownloadResponse$1;
+        data: RepoDownloadResponse;
         error: undefined;
     } | {
         data: undefined;
@@ -2547,7 +3885,7 @@ declare class OCXPClient {
      * Get repository download status
      */
     getRepoStatus(jobId: string): Promise<({
-        data: RepoStatusResponse$1;
+        data: RepoStatusResponse;
         error: undefined;
     } | {
         data: undefined;
@@ -2560,7 +3898,7 @@ declare class OCXPClient {
      * List all downloaded repositories in workspace
      */
     listRepos(): Promise<({
-        data: RepoListResponse$1;
+        data: RepoListResponse;
         error: undefined;
     } | {
         data: undefined;
@@ -2570,10 +3908,102 @@ declare class OCXPClient {
         response: Response;
     }>;
     /**
-     * Delete a repository
-     * Note: This endpoint is not yet implemented in the API
+     * Delete a downloaded repository
      */
-    deleteRepository(_repoId: string): Promise<never>;
+    deleteRepo(repoId: string): Promise<RepoDeleteResponse>;
+    /**
+     * List all projects in workspace
+     */
+    listProjects(limit?: number): Promise<ProjectListResponse>;
+    /**
+     * Create a new project
+     */
+    createProject(projectId: string, name: string, description?: string): Promise<ProjectResponse>;
+    /**
+     * Get project by ID
+     */
+    getProject(projectId: string): Promise<ProjectResponse>;
+    /**
+     * Update project
+     */
+    updateProject(projectId: string, updates: ProjectUpdate): Promise<ProjectResponse>;
+    /**
+     * Delete project
+     */
+    deleteProject(projectId: string): Promise<void>;
+    /**
+     * Add repository to project
+     */
+    addProjectRepo(projectId: string, repoId: string, options?: {
+        category?: string;
+        priority?: number;
+        autoInclude?: boolean;
+        branch?: string;
+    }): Promise<ProjectResponse>;
+    /**
+     * Remove repository from project
+     */
+    removeProjectRepo(projectId: string, repoId: string): Promise<ProjectResponse>;
+    /**
+     * Set default repository for project
+     */
+    setDefaultRepo(projectId: string, repoId: string | null): Promise<ProjectResponse>;
+    /**
+     * Get context repositories for project (auto-include enabled)
+     */
+    getContextRepos(projectId: string): Promise<LinkedRepoResponse[]>;
+    /**
+     * Add mission to project
+     */
+    addProjectMission(projectId: string, missionId: string): Promise<ProjectResponse>;
+    /**
+     * Remove mission from project
+     */
+    removeProjectMission(projectId: string, missionId: string): Promise<ProjectResponse>;
+    /**
+     * List all sessions in workspace
+     */
+    listSessions(limit?: number, status?: string): Promise<SessionListResponse>;
+    /**
+     * Get session messages
+     */
+    getSessionMessages(sessionId: string, limit?: number): Promise<SessionMessagesResponse>;
+    /**
+     * Update session metadata
+     */
+    updateSessionMetadata(sessionId: string, updates: SessionMetadataUpdate): Promise<SessionResponse>;
+    /**
+     * Fork session
+     */
+    forkSession(sessionId: string, missionId: string, forkPoint?: number): Promise<SessionForkResponse>;
+    /**
+     * Archive session
+     */
+    archiveSession(sessionId: string): Promise<void>;
+    /**
+     * Create documentation snapshot
+     */
+    createSnapshot(sourceUrl: string, targetPath?: string): Promise<unknown>;
+    /**
+     * List documentation snapshots
+     */
+    listDocs(): Promise<unknown>;
+    /**
+     * Get snapshot status
+     */
+    getSnapshotStatus(jobId: string): Promise<unknown>;
+    /**
+     * Get auth configuration (public endpoint)
+     */
+    getAuthConfig(): Promise<AuthConfig>;
+    /**
+     * Get current authenticated user
+     */
+    getCurrentUser(): Promise<UserResponse>;
+    /**
+     * List workspaces for authenticated user
+     */
+    listWorkspaces(): Promise<WorkspacesResponse>;
 }
 /**
  * Create a new OCXP client instance
@@ -3784,7 +5214,6 @@ declare const ListSessionsDataSchema: z.ZodObject<{
     }, z.core.$strip>>;
     total: z.ZodOptional<z.ZodNumber>;
 }, z.core.$strip>;
-type ListSessionsData = z.infer<typeof ListSessionsDataSchema>;
 /**
  * List sessions response schema
  */
@@ -3864,7 +5293,6 @@ declare const GetSessionMessagesDataSchema: z.ZodObject<{
     }, z.core.$strip>>;
     sessionId: z.ZodString;
 }, z.core.$strip>;
-type GetSessionMessagesData = z.infer<typeof GetSessionMessagesDataSchema>;
 /**
  * Get session messages response schema
  */
@@ -3905,7 +5333,6 @@ declare const UpdateSessionMetadataDataSchema: z.ZodObject<{
     sessionId: z.ZodString;
     metadata: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, z.core.$strip>;
-type UpdateSessionMetadataData = z.infer<typeof UpdateSessionMetadataDataSchema>;
 /**
  * Update session metadata response schema
  */
@@ -3936,7 +5363,6 @@ declare const ForkSessionDataSchema: z.ZodObject<{
     sessionId: z.ZodString;
     forkedFromId: z.ZodString;
 }, z.core.$strip>;
-type ForkSessionData = z.infer<typeof ForkSessionDataSchema>;
 /**
  * Fork session response schema
  */
@@ -4030,7 +5456,6 @@ declare const ListProjectsDataSchema: z.ZodObject<{
     }, z.core.$strip>>;
     total: z.ZodOptional<z.ZodNumber>;
 }, z.core.$strip>;
-type ListProjectsData = z.infer<typeof ListProjectsDataSchema>;
 /**
  * List projects response schema
  */
@@ -4095,7 +5520,6 @@ declare const CreateProjectDataSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     }, z.core.$strip>>;
 }, z.core.$strip>;
-type CreateProjectData = z.infer<typeof CreateProjectDataSchema>;
 /**
  * Create project response schema
  */
@@ -4157,7 +5581,6 @@ declare const GetProjectDataSchema: z.ZodObject<{
     defaultRepoId: z.ZodOptional<z.ZodString>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, z.core.$strip>;
-type GetProjectData = z.infer<typeof GetProjectDataSchema>;
 /**
  * Get project response schema
  */
@@ -4219,7 +5642,6 @@ declare const UpdateProjectDataSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     }, z.core.$strip>>;
 }, z.core.$strip>;
-type UpdateProjectData = z.infer<typeof UpdateProjectDataSchema>;
 /**
  * Update project response schema
  */
@@ -4267,7 +5689,6 @@ declare const DeleteProjectDataSchema: z.ZodObject<{
     projectId: z.ZodString;
     deleted: z.ZodBoolean;
 }, z.core.$strip>;
-type DeleteProjectData = z.infer<typeof DeleteProjectDataSchema>;
 /**
  * Delete project response schema
  */
@@ -4456,7 +5877,6 @@ declare const RepoDownloadResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
-type RepoDownloadResponse = z.infer<typeof RepoDownloadResponseSchema>;
 /**
  * Repository status response data schema
  */
@@ -4513,7 +5933,6 @@ declare const RepoStatusResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
-type RepoStatusResponse = z.infer<typeof RepoStatusResponseSchema>;
 /**
  * Repository list item schema
  */
@@ -4594,7 +6013,6 @@ declare const RepoListResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
-type RepoListResponse = z.infer<typeof RepoListResponseSchema>;
 /**
  * Repository exists response data schema
  */
@@ -4666,7 +6084,6 @@ declare const RepoDeleteResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
-type RepoDeleteResponse = z.infer<typeof RepoDeleteResponseSchema>;
 
 /**
  * Auth Zod Schemas
@@ -5776,4 +7193,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type LockContentData, type LockContentResponses, type Meta, MetaSchema, type MissionCreateRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, ProjectSchema, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionMessage, SessionMessageSchema, SessionSchema, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createResponseSchema, createWebSocketService, deleteContent, discoverSimilar, downloadRepository, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, getRepoDownloadStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDownloadedRepos, lockContent, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, safeParseWSMessage, searchContent, unlockContent, updateMission, writeContent };
+export { type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateSnapshotData, type CreateSnapshotResponses, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetSnapshotStatusData, type GetSnapshotStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDocsData, type ListDocsResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, type SessionResponse, SessionSchema, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SnapshotRequest, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TokenResponse, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, loginForAccessToken, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };

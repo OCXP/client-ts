@@ -11,6 +11,24 @@ import type {
   KbQueryRequest,
   DiscoverRequest,
   MissionCreateRequest,
+  ProjectListResponse,
+  ProjectResponse,
+  ProjectCreate,
+  ProjectUpdate,
+  AddRepoRequest,
+  AddMissionRequest,
+  SetDefaultRepoRequest,
+  SessionListResponse,
+  SessionResponse,
+  SessionMessagesResponse,
+  SessionMetadataUpdate,
+  SessionForkResponse,
+  ForkRequest,
+  RepoDeleteResponse,
+  AuthConfig,
+  UserResponse,
+  WorkspacesResponse,
+  LinkedRepoResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -587,11 +605,329 @@ export class OCXPClient {
   }
 
   /**
-   * Delete a repository
-   * Note: This endpoint is not yet implemented in the API
+   * Delete a downloaded repository
    */
-  async deleteRepository(_repoId: string): Promise<never> {
-    throw new Error('deleteRepository is not yet implemented in the OCXP API');
+  async deleteRepo(repoId: string): Promise<RepoDeleteResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.deleteRepo({
+      client: this.client,
+      path: { repo_id: repoId },
+      headers,
+    });
+    return extractData(response) as RepoDeleteResponse;
+  }
+
+  // ============== Project Operations ==============
+
+  /**
+   * List all projects in workspace
+   */
+  async listProjects(limit?: number): Promise<ProjectListResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listProjects({
+      client: this.client,
+      query: { limit },
+      headers,
+    });
+    return extractData(response) as ProjectListResponse;
+  }
+
+  /**
+   * Create a new project
+   */
+  async createProject(projectId: string, name: string, description?: string): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const body: ProjectCreate = {
+      project_id: projectId,
+      name,
+      description,
+    };
+    const response = await sdk.createProject({
+      client: this.client,
+      body,
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Get project by ID
+   */
+  async getProject(projectId: string): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getProject({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Update project
+   */
+  async updateProject(projectId: string, updates: ProjectUpdate): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.updateProject({
+      client: this.client,
+      path: { project_id: projectId },
+      body: updates,
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Delete project
+   */
+  async deleteProject(projectId: string): Promise<void> {
+    const headers = await this.getHeaders();
+    await sdk.deleteProject({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+    });
+  }
+
+  /**
+   * Add repository to project
+   */
+  async addProjectRepo(
+    projectId: string,
+    repoId: string,
+    options?: { category?: string; priority?: number; autoInclude?: boolean; branch?: string }
+  ): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const body: AddRepoRequest = {
+      repo_id: repoId,
+      category: options?.category,
+      priority: options?.priority,
+      auto_include: options?.autoInclude,
+      branch: options?.branch,
+    };
+    const response = await sdk.addLinkedRepo({
+      client: this.client,
+      path: { project_id: projectId },
+      body,
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Remove repository from project
+   */
+  async removeProjectRepo(projectId: string, repoId: string): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.removeLinkedRepo({
+      client: this.client,
+      path: { project_id: projectId, repo_id: repoId },
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Set default repository for project
+   */
+  async setDefaultRepo(projectId: string, repoId: string | null): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const body: SetDefaultRepoRequest = { repo_id: repoId };
+    const response = await sdk.setDefaultRepo({
+      client: this.client,
+      path: { project_id: projectId },
+      body,
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Get context repositories for project (auto-include enabled)
+   */
+  async getContextRepos(projectId: string): Promise<LinkedRepoResponse[]> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getContextRepos({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+    });
+    const data = extractData(response) as { repos?: LinkedRepoResponse[] };
+    return data.repos || [];
+  }
+
+  /**
+   * Add mission to project
+   */
+  async addProjectMission(projectId: string, missionId: string): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const body: AddMissionRequest = { mission_id: missionId };
+    const response = await sdk.addMission({
+      client: this.client,
+      path: { project_id: projectId },
+      body,
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  /**
+   * Remove mission from project
+   */
+  async removeProjectMission(projectId: string, missionId: string): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.removeMission({
+      client: this.client,
+      path: { project_id: projectId, mission_id: missionId },
+      headers,
+    });
+    return extractData(response) as ProjectResponse;
+  }
+
+  // ============== Session Operations ==============
+
+  /**
+   * List all sessions in workspace
+   */
+  async listSessions(limit?: number, status?: string): Promise<SessionListResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listSessions({
+      client: this.client,
+      query: { limit, status },
+      headers,
+    });
+    return extractData(response) as SessionListResponse;
+  }
+
+  /**
+   * Get session messages
+   */
+  async getSessionMessages(sessionId: string, limit?: number): Promise<SessionMessagesResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getSessionMessages({
+      client: this.client,
+      path: { session_id: sessionId },
+      query: { limit },
+      headers,
+    });
+    return extractData(response) as SessionMessagesResponse;
+  }
+
+  /**
+   * Update session metadata
+   */
+  async updateSessionMetadata(sessionId: string, updates: SessionMetadataUpdate): Promise<SessionResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.updateSessionMetadata({
+      client: this.client,
+      path: { session_id: sessionId },
+      body: updates,
+      headers,
+    });
+    return extractData(response) as SessionResponse;
+  }
+
+  /**
+   * Fork session
+   */
+  async forkSession(sessionId: string, missionId: string, forkPoint?: number): Promise<SessionForkResponse> {
+    const headers = await this.getHeaders();
+    const body: ForkRequest = { mission_id: missionId, fork_point: forkPoint };
+    const response = await sdk.forkSession({
+      client: this.client,
+      path: { session_id: sessionId },
+      body,
+      headers,
+    });
+    return extractData(response) as SessionForkResponse;
+  }
+
+  /**
+   * Archive session
+   */
+  async archiveSession(sessionId: string): Promise<void> {
+    const headers = await this.getHeaders();
+    await sdk.archiveSession({
+      client: this.client,
+      path: { session_id: sessionId },
+      headers,
+    });
+  }
+
+  // ============== Documentation Snapshots ==============
+
+  /**
+   * Create documentation snapshot
+   */
+  async createSnapshot(sourceUrl: string, targetPath?: string): Promise<unknown> {
+    const headers = await this.getHeaders();
+    const response = await sdk.createSnapshot({
+      client: this.client,
+      body: { source_url: sourceUrl, target_path: targetPath },
+      headers,
+    });
+    return extractData(response);
+  }
+
+  /**
+   * List documentation snapshots
+   */
+  async listDocs(): Promise<unknown> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listDocs({
+      client: this.client,
+      headers,
+    });
+    return extractData(response);
+  }
+
+  /**
+   * Get snapshot status
+   */
+  async getSnapshotStatus(jobId: string): Promise<unknown> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getSnapshotStatus({
+      client: this.client,
+      path: { job_id: jobId },
+      headers,
+    });
+    return extractData(response);
+  }
+
+  // ============== Auth Operations ==============
+
+  /**
+   * Get auth configuration (public endpoint)
+   */
+  async getAuthConfig(): Promise<AuthConfig> {
+    const response = await sdk.getAuthConfig({
+      client: this.client,
+    });
+    return extractData(response) as AuthConfig;
+  }
+
+  /**
+   * Get current authenticated user
+   */
+  async getCurrentUser(): Promise<UserResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getCurrentUser({
+      client: this.client,
+      headers,
+    });
+    return extractData(response) as UserResponse;
+  }
+
+  /**
+   * List workspaces for authenticated user
+   */
+  async listWorkspaces(): Promise<WorkspacesResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listWorkspaces({
+      client: this.client,
+      headers,
+    });
+    return extractData(response) as WorkspacesResponse;
   }
 }
 
