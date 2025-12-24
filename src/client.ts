@@ -3,7 +3,7 @@
  * Provides workspace injection and auth token management
  */
 
-import { createClient, createConfig, type Client, type Config, type ClientOptions } from './generated/client';
+import { createClient, createConfig, type Client, type ClientOptions } from './generated/client';
 import * as sdk from './generated/sdk.gen';
 import type {
   ContentType2,
@@ -54,16 +54,20 @@ type SdkResponse<T> = { data: T; error: undefined } | { data: undefined; error: 
 // Helper to extract data from SDK response wrapper
 function extractData<T, D>(response: SdkResponse<T>): D {
   if (response.error) {
-    throw new Error(typeof response.error === 'object' && response.error !== null
-      ? (response.error as { message?: string }).message || JSON.stringify(response.error)
-      : String(response.error));
+    throw new Error(
+      typeof response.error === 'object' && response.error !== null
+        ? (response.error as { message?: string }).message || JSON.stringify(response.error)
+        : String(response.error)
+    );
   }
   // Response.data is the OcxpResponse, which contains .data with actual payload
   const ocxpResponse = response.data as OcxpResponse;
   if (ocxpResponse?.error) {
-    throw new Error(typeof ocxpResponse.error === 'object' && ocxpResponse.error !== null
-      ? (ocxpResponse.error as { message?: string }).message || JSON.stringify(ocxpResponse.error)
-      : String(ocxpResponse.error));
+    throw new Error(
+      typeof ocxpResponse.error === 'object' && ocxpResponse.error !== null
+        ? (ocxpResponse.error as { message?: string }).message || JSON.stringify(ocxpResponse.error)
+        : String(ocxpResponse.error)
+    );
   }
   return (ocxpResponse?.data || {}) as D;
 }
@@ -105,9 +109,8 @@ export class OCXPClient {
     const headers: Record<string, string> = {};
 
     if (this.tokenProvider) {
-      const token = typeof this.tokenProvider === 'function'
-        ? await this.tokenProvider()
-        : this.tokenProvider;
+      const token =
+        typeof this.tokenProvider === 'function' ? await this.tokenProvider() : this.tokenProvider;
 
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -170,7 +173,10 @@ export class OCXPClient {
       query: { workspace: this.workspace, path, limit },
       headers,
     });
-    const data = extractData<unknown, { entries?: ListEntry[]; cursor?: string | null; hasMore?: boolean; total?: number }>(response);
+    const data = extractData<
+      unknown,
+      { entries?: ListEntry[]; cursor?: string | null; hasMore?: boolean; total?: number }
+    >(response);
     return {
       entries: data.entries || [],
       cursor: data.cursor,
@@ -237,7 +243,12 @@ export class OCXPClient {
   /**
    * Delete content
    */
-  async delete(type: ContentTypeValue, id: string, recursive = false, confirm = false): Promise<DeleteResult> {
+  async delete(
+    type: ContentTypeValue,
+    id: string,
+    recursive = false,
+    confirm = false
+  ): Promise<DeleteResult> {
     const headers = await this.getHeaders();
     const response = await sdk.deleteContent({
       client: this.client,
@@ -314,7 +325,11 @@ export class OCXPClient {
   /**
    * Read multiple items at once
    */
-  async bulkRead(type: ContentTypeValue, ids: string[], options?: { concurrency?: number; continueOnError?: boolean }) {
+  async bulkRead(
+    type: ContentTypeValue,
+    ids: string[],
+    options?: { concurrency?: number; continueOnError?: boolean }
+  ) {
     const headers = await this.getHeaders();
     return sdk.bulkReadContent({
       client: this.client,
@@ -346,7 +361,11 @@ export class OCXPClient {
   /**
    * Delete multiple items at once
    */
-  async bulkDelete(type: ContentTypeValue, ids: string[], options?: { concurrency?: number; continueOnError?: boolean }) {
+  async bulkDelete(
+    type: ContentTypeValue,
+    ids: string[],
+    options?: { concurrency?: number; continueOnError?: boolean }
+  ) {
     const headers = await this.getHeaders();
     return sdk.bulkDeleteContent({
       client: this.client,
@@ -362,7 +381,11 @@ export class OCXPClient {
   /**
    * Semantic search in Knowledge Base
    */
-  async kbQuery(query: string, searchType: 'SEMANTIC' | 'HYBRID' = 'SEMANTIC', maxResults?: number) {
+  async kbQuery(
+    query: string,
+    searchType: 'SEMANTIC' | 'HYBRID' = 'SEMANTIC',
+    maxResults?: number
+  ) {
     const headers = await this.getHeaders();
     const body: KbQueryRequest = {
       query,
@@ -512,13 +535,16 @@ export class OCXPClient {
       body: { owner, repo, github_token: githubToken },
       headers,
     });
-    return extractData<unknown, {
-      accessible: boolean;
-      private?: boolean;
-      default_branch?: string;
-      error?: string;
-      rate_limit?: Record<string, unknown>;
-    }>(response);
+    return extractData<
+      unknown,
+      {
+        accessible: boolean;
+        private?: boolean;
+        default_branch?: string;
+        error?: string;
+        rate_limit?: Record<string, unknown>;
+      }
+    >(response);
   }
 
   /**
@@ -532,16 +558,25 @@ export class OCXPClient {
       body: { owner, repo, github_token: githubToken },
       headers,
     });
-    return extractData<unknown, {
-      branches?: string[];
-      error?: Record<string, unknown>;
-    }>(response);
+    return extractData<
+      unknown,
+      {
+        branches?: string[];
+        error?: Record<string, unknown>;
+      }
+    >(response);
   }
 
   /**
    * Get repository contents at a path
    */
-  async githubGetContents(owner: string, repo: string, path = '', ref = 'main', githubToken?: string) {
+  async githubGetContents(
+    owner: string,
+    repo: string,
+    path = '',
+    ref = 'main',
+    githubToken?: string
+  ) {
     const headers = await this.getHeaders();
     const response = await sdk.githubGetContents({
       client: this.client,
@@ -549,10 +584,13 @@ export class OCXPClient {
       body: { owner, repo, path, ref, github_token: githubToken },
       headers,
     });
-    return extractData<unknown, {
-      contents?: unknown;
-      error?: Record<string, unknown>;
-    }>(response);
+    return extractData<
+      unknown,
+      {
+        contents?: unknown;
+        error?: Record<string, unknown>;
+      }
+    >(response);
   }
 
   // ============== Repository Management ==============
@@ -577,11 +615,14 @@ export class OCXPClient {
       body: request,
       headers,
     });
-    return extractData<unknown, {
-      job_id: string;
-      status: string;
-      repo_id: string;
-    }>(response);
+    return extractData<
+      unknown,
+      {
+        job_id: string;
+        status: string;
+        repo_id: string;
+      }
+    >(response);
   }
 
   /**
@@ -594,14 +635,17 @@ export class OCXPClient {
       query: { workspace: this.workspace, job_id: jobId },
       headers,
     });
-    return extractData<unknown, {
-      job_id: string;
-      status: string;
-      progress?: number;
-      files_processed?: number;
-      total_files?: number;
-      error?: string;
-    }>(response);
+    return extractData<
+      unknown,
+      {
+        job_id: string;
+        status: string;
+        progress?: number;
+        files_processed?: number;
+        total_files?: number;
+        error?: string;
+      }
+    >(response);
   }
 
   /**
@@ -618,20 +662,23 @@ export class OCXPClient {
       },
       headers,
     });
-    return extractData<unknown, {
-      repos: Array<{
-        repo_id: string;
-        github_url: string;
-        branch: string;
-        visibility: 'public' | 'private';
-        s3_path: string;
-        files_count: number;
-        total_size_bytes: number;
-        indexed_at: string;
-        kb_synced: boolean;
-      }>;
-      count: number;
-    }>(response);
+    return extractData<
+      unknown,
+      {
+        repos: Array<{
+          repo_id: string;
+          github_url: string;
+          branch: string;
+          visibility: 'public' | 'private';
+          s3_path: string;
+          files_count: number;
+          total_size_bytes: number;
+          indexed_at: string;
+          kb_synced: boolean;
+        }>;
+        count: number;
+      }
+    >(response);
   }
 
   /**
@@ -642,28 +689,34 @@ export class OCXPClient {
     const headers = await this.getHeaders();
 
     // Direct fetch since SDK may not have this endpoint generated yet
-    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`, {
-      method: 'POST',
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ repo_id: repoId }),
-    });
+    const response = await fetch(
+      `${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`,
+      {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ repo_id: repoId }),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`Failed to delete repository: ${error}`);
     }
 
-    const result = await response.json();
-    return result.data as {
-      repo_id: string;
-      success: boolean;
-      s3_files_deleted: number;
-      projects_updated: number;
-      error?: string;
-    };
+    interface DeleteRepoResponse {
+      data: {
+        repo_id: string;
+        success: boolean;
+        s3_files_deleted: number;
+        projects_updated: number;
+        error?: string;
+      };
+    }
+    const result = (await response.json()) as DeleteRepoResponse;
+    return result.data;
   }
 
   /**
@@ -673,23 +726,29 @@ export class OCXPClient {
     const headers = await this.getHeaders();
 
     // Direct fetch since SDK may not have this endpoint generated yet
-    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`, {
-      method: 'GET',
-      headers,
-    });
+    const response = await fetch(
+      `${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`,
+      {
+        method: 'GET',
+        headers,
+      }
+    );
 
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`Failed to check repository exists: ${error}`);
     }
 
-    const result = await response.json();
-    return result.data as {
-      repo_id: string;
-      exists: boolean;
-      indexed_at: string | null;
-      files_count: number;
-    };
+    interface RepoExistsResponse {
+      data: {
+        repo_id: string;
+        exists: boolean;
+        indexed_at: string | null;
+        files_count: number;
+      };
+    }
+    const result = (await response.json()) as RepoExistsResponse;
+    return result.data;
   }
 }
 

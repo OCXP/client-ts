@@ -2,10 +2,7 @@
 
 // src/generated/core/bodySerializer.gen.ts
 var jsonBodySerializer = {
-  bodySerializer: (body) => JSON.stringify(
-    body,
-    (_key, value) => typeof value === "bigint" ? value.toString() : value
-  )
+  bodySerializer: (body) => JSON.stringify(body, (_key, value) => typeof value === "bigint" ? value.toString() : value)
 };
 
 // src/generated/core/serverSentEvents.gen.ts
@@ -49,10 +46,7 @@ var createSseClient = ({
         }
         const _fetch = options.fetch ?? globalThis.fetch;
         const response = await _fetch(request);
-        if (!response.ok)
-          throw new Error(
-            `SSE failed: ${response.status} ${response.statusText}`
-          );
+        if (!response.ok) throw new Error(`SSE failed: ${response.status} ${response.statusText}`);
         if (!response.body) throw new Error("No body in SSE response");
         const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
         let buffer = "";
@@ -83,10 +77,7 @@ var createSseClient = ({
                 } else if (line.startsWith("id:")) {
                   lastEventId = line.replace(/^id:\s*/, "");
                 } else if (line.startsWith("retry:")) {
-                  const parsed = Number.parseInt(
-                    line.replace(/^retry:\s*/, ""),
-                    10
-                  );
+                  const parsed = Number.parseInt(line.replace(/^retry:\s*/, ""), 10);
                   if (!Number.isNaN(parsed)) {
                     retryDelay = parsed;
                   }
@@ -132,10 +123,7 @@ var createSseClient = ({
         if (sseMaxRetryAttempts !== void 0 && attempt >= sseMaxRetryAttempts) {
           break;
         }
-        const backoff = Math.min(
-          retryDelay * 2 ** (attempt - 1),
-          sseMaxRetryDelay ?? 3e4
-        );
+        const backoff = Math.min(retryDelay * 2 ** (attempt - 1), sseMaxRetryDelay ?? 3e4);
         await sleep(backoff);
       }
     }
@@ -243,11 +231,7 @@ var serializeObjectParam = ({
   if (style !== "deepObject" && !explode) {
     let values = [];
     Object.entries(value).forEach(([key, v]) => {
-      values = [
-        ...values,
-        key,
-        allowReserved ? v : encodeURIComponent(v)
-      ];
+      values = [...values, key, allowReserved ? v : encodeURIComponent(v)];
     });
     const joinedValues2 = values.join(",");
     switch (style) {
@@ -298,10 +282,7 @@ var defaultPathSerializer = ({ path, url: _url }) => {
         continue;
       }
       if (Array.isArray(value)) {
-        url = url.replace(
-          match,
-          serializeArrayParam({ explode, name, style, value })
-        );
+        url = url.replace(match, serializeArrayParam({ explode, name, style, value }));
         continue;
       }
       if (typeof value === "object") {
@@ -449,9 +430,7 @@ var getParseAs = (contentType) => {
   if (cleanContent === "multipart/form-data") {
     return "formData";
   }
-  if (["application/", "audio/", "image/", "video/"].some(
-    (type) => cleanContent.startsWith(type)
-  )) {
+  if (["application/", "audio/", "image/", "video/"].some((type) => cleanContent.startsWith(type))) {
     return "blob";
   }
   if (cleanContent.startsWith("text/")) {
@@ -661,12 +640,7 @@ var createClient = (config = {}) => {
       let finalError2 = error2;
       for (const fn of interceptors.error.fns) {
         if (fn) {
-          finalError2 = await fn(
-            error2,
-            void 0,
-            request2,
-            opts
-          );
+          finalError2 = await fn(error2, void 0, request2, opts);
         }
       }
       finalError2 = finalError2 || {};
@@ -814,7 +788,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig({ baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com" }));
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var getContentTypes = (options) => (options?.client ?? client).get({
@@ -1087,7 +1065,10 @@ var authRefresh = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
-var authGetConfig = (options) => (options?.client ?? client).get({ url: "/auth/config", ...options });
+var authGetConfig = (options) => (options?.client ?? client).get({
+  url: "/auth/config",
+  ...options
+});
 var authListWorkspaces = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/auth/workspaces",
@@ -1260,11 +1241,15 @@ var learnFromMission = (options) => (options.client ?? client).post({
 // src/client.ts
 function extractData(response) {
   if (response.error) {
-    throw new Error(typeof response.error === "object" && response.error !== null ? response.error.message || JSON.stringify(response.error) : String(response.error));
+    throw new Error(
+      typeof response.error === "object" && response.error !== null ? response.error.message || JSON.stringify(response.error) : String(response.error)
+    );
   }
   const ocxpResponse = response.data;
   if (ocxpResponse?.error) {
-    throw new Error(typeof ocxpResponse.error === "object" && ocxpResponse.error !== null ? ocxpResponse.error.message || JSON.stringify(ocxpResponse.error) : String(ocxpResponse.error));
+    throw new Error(
+      typeof ocxpResponse.error === "object" && ocxpResponse.error !== null ? ocxpResponse.error.message || JSON.stringify(ocxpResponse.error) : String(ocxpResponse.error)
+    );
   }
   return ocxpResponse?.data || {};
 }
@@ -1714,14 +1699,17 @@ var OCXPClient = class {
    */
   async deleteRepository(repoId) {
     const headers = await this.getHeaders();
-    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`, {
-      method: "POST",
-      headers: {
-        ...headers,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ repo_id: repoId })
-    });
+    const response = await fetch(
+      `${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`,
+      {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ repo_id: repoId })
+      }
+    );
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`Failed to delete repository: ${error}`);
@@ -1734,10 +1722,13 @@ var OCXPClient = class {
    */
   async checkRepoExists(repoId) {
     const headers = await this.getHeaders();
-    const response = await fetch(`${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`, {
-      method: "GET",
-      headers
-    });
+    const response = await fetch(
+      `${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`,
+      {
+        method: "GET",
+        headers
+      }
+    );
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`Failed to check repository exists: ${error}`);
@@ -1839,13 +1830,15 @@ var OCXPPathService = class {
     const result = await this.client.list(type, id, limit);
     return {
       path,
-      entries: result.entries.map((entry) => ({
-        name: entry.name ?? "",
-        path: normalizePath(entry.path ?? ""),
-        type: entry.type ?? "file",
-        size: entry.size,
-        mtime: entry.mtime
-      })),
+      entries: result.entries.map(
+        (entry) => ({
+          name: entry.name ?? "",
+          path: normalizePath(entry.path ?? ""),
+          type: entry.type ?? "file",
+          size: entry.size,
+          mtime: entry.mtime
+        })
+      ),
       cursor: result.cursor,
       hasMore: result.hasMore,
       total: result.total
@@ -2076,7 +2069,7 @@ var WebSocketService = class {
         clearTimeout(timeout);
         this.connectionPromise = null;
         this.setConnectionState("disconnected");
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
         return;
       }
       this.ws.onopen = () => {

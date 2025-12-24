@@ -4,16 +4,40 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    // Strict Type Checking
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+
+    // Additional Strict Checks
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // "exactOptionalPropertyTypes": true, // Too strict for current codebase
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    // "noPropertyAccessFromIndexSignature": true, // Too strict for current codebase
+
+    // Module Resolution
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    // Output
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": true
   },
   "include": ["src/**/*"],

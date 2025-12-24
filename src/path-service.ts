@@ -24,7 +24,7 @@
  * ```
  */
 
-import { OCXPClient, type OCXPClientOptions, type ListResult, type ReadResult, type WriteResult, type DeleteResult } from './client';
+import { OCXPClient, type OCXPClientOptions } from './client';
 import { parsePath, normalizePath } from './path';
 
 /**
@@ -190,13 +190,15 @@ export class OCXPPathService {
 
     return {
       path,
-      entries: result.entries.map((entry): PathEntry => ({
-        name: entry.name ?? '',
-        path: normalizePath(entry.path ?? ''),
-        type: entry.type ?? 'file',
-        size: entry.size,
-        mtime: entry.mtime,
-      })),
+      entries: result.entries.map(
+        (entry): PathEntry => ({
+          name: entry.name ?? '',
+          path: normalizePath(entry.path ?? ''),
+          type: entry.type ?? 'file',
+          size: entry.size,
+          mtime: entry.mtime,
+        })
+      ),
       cursor: result.cursor,
       hasMore: result.hasMore,
       total: result.total,
@@ -263,7 +265,7 @@ export class OCXPPathService {
   async info(path: string): Promise<PathFileInfo> {
     const { type, id } = parsePath(path);
 
-    const result = await this.client.stats(type, id) as unknown as {
+    const result = (await this.client.stats(type, id)) as unknown as {
       data?: {
         size?: number;
         mtime?: string;
@@ -295,11 +297,7 @@ export class OCXPPathService {
    * @param options - Write options
    * @returns Write result
    */
-  async write(
-    path: string,
-    content: string,
-    options?: PathWriteOptions
-  ): Promise<PathWriteResult> {
+  async write(path: string, content: string, options?: PathWriteOptions): Promise<PathWriteResult> {
     const { type, id } = parsePath(path);
 
     if (!id) {

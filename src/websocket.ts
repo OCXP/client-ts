@@ -3,11 +3,7 @@
  * Provides push notifications for job progress, sync events, etc.
  */
 
-export type WebSocketMessageType =
-  | 'job_progress'
-  | 'repo_status'
-  | 'notification'
-  | 'sync_event';
+export type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event';
 
 export interface WebSocketMessage {
   type: WebSocketMessageType;
@@ -121,9 +117,7 @@ export class WebSocketService {
     this.setConnectionState('connecting');
 
     const token =
-      typeof this.options.token === 'function'
-        ? await this.options.token()
-        : this.options.token;
+      typeof this.options.token === 'function' ? await this.options.token() : this.options.token;
 
     const params = new URLSearchParams({
       workspace: this.options.workspace,
@@ -151,7 +145,7 @@ export class WebSocketService {
         clearTimeout(timeout);
         this.connectionPromise = null;
         this.setConnectionState('disconnected');
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
         return;
       }
 
@@ -162,7 +156,7 @@ export class WebSocketService {
         resolve();
       };
 
-      this.ws.onmessage = (event) => {
+      this.ws.onmessage = (event: MessageEvent<string>) => {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
           this.dispatchMessage(message);
@@ -200,8 +194,7 @@ export class WebSocketService {
       return;
     }
 
-    const delay =
-      (this.options.reconnectDelayMs ?? 1000) * Math.pow(2, this.reconnectAttempts);
+    const delay = (this.options.reconnectDelayMs ?? 1000) * Math.pow(2, this.reconnectAttempts);
     this.reconnectAttempts++;
 
     this.reconnectTimeout = setTimeout(() => {
@@ -336,8 +329,6 @@ export class WebSocketService {
 /**
  * Create WebSocket service with same options pattern as OCXPClient
  */
-export function createWebSocketService(
-  options: WebSocketServiceOptions
-): WebSocketService {
+export function createWebSocketService(options: WebSocketServiceOptions): WebSocketService {
   return new WebSocketService(options);
 }
