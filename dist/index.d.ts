@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * WriteRequestBody
  *
@@ -365,7 +367,7 @@ type PresignedUrlRequest = {
  * Supports both full repo and docs-only download modes with
  * configurable file filtering and visibility routing.
  */
-type RepoDownloadRequest = {
+type RepoDownloadRequest$1 = {
     /**
      * Github Url
      *
@@ -701,7 +703,7 @@ type MissionCreateRequest = {
 /**
  * Response from repo download operation
  */
-type RepoDownloadResponse = {
+type RepoDownloadResponse$1 = {
     repo_id?: string;
     job_id?: string;
     s3_path?: string;
@@ -713,7 +715,7 @@ type RepoDownloadResponse = {
 /**
  * Response from repo status check
  */
-type RepoStatusResponse = {
+type RepoStatusResponse$1 = {
     job_id?: string;
     status?: 'queued' | 'processing' | 'uploading' | 'vectorizing' | 'complete' | 'failed';
     progress?: number;
@@ -726,7 +728,7 @@ type RepoStatusResponse = {
 /**
  * Repository list entry
  */
-type RepoListItem = {
+type RepoListItem$1 = {
     repo_id?: string;
     github_url?: string;
     branch?: string;
@@ -1083,7 +1085,7 @@ type RagKnowledgeBaseResponses = {
 };
 type RagKnowledgeBaseResponse = RagKnowledgeBaseResponses[keyof RagKnowledgeBaseResponses];
 type DownloadRepositoryData = {
-    body: RepoDownloadRequest;
+    body: RepoDownloadRequest$1;
     path?: never;
     query?: {
         /**
@@ -1098,7 +1100,7 @@ type DownloadRepositoryResponses = {
      * Download job started
      */
     200: OcxpResponse & {
-        data?: RepoDownloadResponse;
+        data?: RepoDownloadResponse$1;
     };
 };
 type DownloadRepositoryResponse = DownloadRepositoryResponses[keyof DownloadRepositoryResponses];
@@ -1122,7 +1124,7 @@ type GetRepoDownloadStatusResponses = {
      * Job status
      */
     200: OcxpResponse & {
-        data?: RepoStatusResponse;
+        data?: RepoStatusResponse$1;
     };
 };
 type GetRepoDownloadStatusResponse = GetRepoDownloadStatusResponses[keyof GetRepoDownloadStatusResponses];
@@ -1151,7 +1153,7 @@ type ListDownloadedReposResponses = {
      */
     200: OcxpResponse & {
         data?: {
-            repos?: Array<RepoListItem>;
+            repos?: Array<RepoListItem$1>;
             count?: number;
         };
     };
@@ -3931,4 +3933,2554 @@ declare function mapHttpError(statusCode: number, message: string, options?: {
     retryAfter?: number;
 }): OCXPError;
 
-export { type AddProjectMissionData, type AddProjectMissionResponse, type AddProjectRepoData, type AddProjectRepoResponse, type AuthGetConfigData, type AuthGetConfigResponse, type AuthListWorkspacesData, type AuthListWorkspacesResponse, type AuthLoginData, type AuthLoginResponse, type AuthRefreshData, type AuthRefreshResponse, type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type CheckConflictsData, type CheckConflictsResponse, type CheckRepoExistsData, type CheckRepoExistsResponse, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentType2, type ContentTypeValue, type ContentTypesResult, type CreateDocsSnapshotData, type CreateDocsSnapshotResponse, type CreateMissionData, type CreateMissionResponse, type CreateMissionSessionData, type CreateMissionSessionResponse, type CreateProjectData, type CreateProjectResponse, type CreateSessionData, type CreateSessionResponse, type DeleteContentData, type DeleteContentResponse, type DeleteProjectData, type DeleteProjectResponse, type DeleteRepositoryData, type DeleteRepositoryResponse, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DownloadContentData, type DownloadContentResponse, type DownloadRepositoryData, type DownloadRepositoryResponse, type DownloadRequest, type FindByTicketData, type FindByTicketResponse, type FindContentByData, type FindContentByResponse, type ForkSessionData, type ForkSessionResponse, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetDocsSnapshotStatusData, type GetDocsSnapshotStatusResponse, type GetMissionContextData, type GetMissionContextResponse, type GetPresignedUrlData, type GetPresignedUrlResponse, type GetProjectContextReposData, type GetProjectContextReposResponse, type GetProjectData, type GetProjectResponse, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponse, type GetSessionMessagesData, type GetSessionMessagesResponse, type GithubCheckAccessData, type GithubCheckAccessResponse, type GithubGetContentsData, type GithubGetContentsResponse, type GithubListBranchesData, type GithubListBranchesResponse, type JobProgressMessage, type KbQueryRequest, type LearnFromMissionData, type LearnFromMissionResponse, type ListContentData, type ListContentResponse, type ListDocsSnapshotsData, type ListDocsSnapshotsResponse, type ListDownloadedReposData, type ListDownloadedReposResponse, type ListEntry, type ListMissionSessionsData, type ListMissionSessionsResponse, type ListProjectsData, type ListProjectsResponse, type ListResult, type ListSessionsData, type ListSessionsResponse, type LockContentData, type LockContentResponse, type MissionCreateRequest, type MoveContentData, type MoveContentResponse, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, OCXPTimeoutError, OCXPValidationError, type OcxpResponse, type Options, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlRequest, type QueryContentData, type QueryContentResponse, type QueryFilter, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadResult, type RefreshIndexData, type RefreshIndexResponse, type RemoveProjectMissionData, type RemoveProjectMissionResponse, type RemoveProjectRepoData, type RemoveProjectRepoResponse, type RepoStatusMessage, type SearchContentData, type SearchContentResponse, type SetProjectDefaultRepoData, type SetProjectDefaultRepoResponse, type SyncEventMessage, type TokenProvider, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, type UpdateProjectData, type UpdateProjectResponse, type UpdateSessionMetadataData, type UpdateSessionMetadataResponse, VALID_CONTENT_TYPES, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponse, type WriteRequestBody, type WriteResult, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+/**
+ * Common Zod Schemas for OCXP API
+ *
+ * Shared schemas used across all API responses.
+ */
+
+/**
+ * Response metadata schema
+ */
+declare const MetaSchema: z.ZodObject<{
+    requestId: z.ZodString;
+    timestamp: z.ZodString;
+    durationMs: z.ZodNumber;
+    operation: z.ZodString;
+}, z.core.$strip>;
+type Meta = z.infer<typeof MetaSchema>;
+/**
+ * Error response schema
+ */
+declare const ErrorResponseSchema: z.ZodObject<{
+    code: z.ZodString;
+    message: z.ZodString;
+    details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+/**
+ * Base OCXP Response wrapper schema
+ * All API responses follow this structure
+ */
+declare const OCXPResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodUnknown>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type OCXPResponse = z.infer<typeof OCXPResponseSchema>;
+/**
+ * Pagination schema for list responses
+ */
+declare const PaginationSchema: z.ZodObject<{
+    cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    hasMore: z.ZodBoolean;
+    total: z.ZodNumber;
+}, z.core.$strip>;
+type Pagination = z.infer<typeof PaginationSchema>;
+/**
+ * Content type enum - the 8 valid content types
+ */
+declare const ContentTypeSchema: z.ZodEnum<{
+    mission: "mission";
+    project: "project";
+    context: "context";
+    sop: "sop";
+    repo: "repo";
+    artifact: "artifact";
+    kb: "kb";
+    docs: "docs";
+}>;
+/**
+ * Helper to create typed OCXP response schema
+ */
+declare function createResponseSchema<T extends z.ZodTypeAny>(dataSchema: T): z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<T>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+
+/**
+ * Content CRUD Zod Schemas
+ *
+ * Schemas for content operations: list, read, write, delete, query, search, etc.
+ */
+
+/**
+ * List entry schema - represents a file or directory in a list response
+ */
+declare const ListEntrySchema: z.ZodObject<{
+    name: z.ZodString;
+    type: z.ZodEnum<{
+        file: "file";
+        directory: "directory";
+    }>;
+    path: z.ZodString;
+    size: z.ZodOptional<z.ZodNumber>;
+    mtime: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+/**
+ * List response data schema
+ */
+declare const ListDataSchema: z.ZodObject<{
+    entries: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        type: z.ZodEnum<{
+            file: "file";
+            directory: "directory";
+        }>;
+        path: z.ZodString;
+        size: z.ZodOptional<z.ZodNumber>;
+        mtime: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    hasMore: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    total: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+}, z.core.$strip>;
+type ListData = z.infer<typeof ListDataSchema>;
+/**
+ * List response schema
+ */
+declare const ListResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        entries: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            type: z.ZodEnum<{
+                file: "file";
+                directory: "directory";
+            }>;
+            path: z.ZodString;
+            size: z.ZodOptional<z.ZodNumber>;
+            mtime: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        hasMore: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+        total: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type ListResponse = z.infer<typeof ListResponseSchema>;
+/**
+ * Read response data schema
+ */
+declare const ReadDataSchema: z.ZodObject<{
+    content: z.ZodString;
+    size: z.ZodOptional<z.ZodNumber>;
+    mtime: z.ZodOptional<z.ZodString>;
+    encoding: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    etag: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type ReadData = z.infer<typeof ReadDataSchema>;
+/**
+ * Read response schema
+ */
+declare const ReadResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        content: z.ZodString;
+        size: z.ZodOptional<z.ZodNumber>;
+        mtime: z.ZodOptional<z.ZodString>;
+        encoding: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        etag: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type ReadResponse = z.infer<typeof ReadResponseSchema>;
+/**
+ * Write response data schema
+ */
+declare const WriteDataSchema: z.ZodObject<{
+    path: z.ZodString;
+    etag: z.ZodOptional<z.ZodString>;
+    size: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type WriteData = z.infer<typeof WriteDataSchema>;
+/**
+ * Write response schema
+ */
+declare const WriteResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        path: z.ZodString;
+        etag: z.ZodOptional<z.ZodString>;
+        size: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type WriteResponse = z.infer<typeof WriteResponseSchema>;
+/**
+ * Delete response data schema
+ */
+declare const DeleteDataSchema: z.ZodObject<{
+    path: z.ZodString;
+    deleted: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+}, z.core.$strip>;
+type DeleteData = z.infer<typeof DeleteDataSchema>;
+/**
+ * Delete response schema
+ */
+declare const DeleteResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        path: z.ZodString;
+        deleted: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type DeleteResponse = z.infer<typeof DeleteResponseSchema>;
+/**
+ * Query filter schema
+ */
+declare const QueryFilterSchema: z.ZodObject<{
+    field: z.ZodString;
+    operator: z.ZodEnum<{
+        startsWith: "startsWith";
+        eq: "eq";
+        ne: "ne";
+        gt: "gt";
+        lt: "lt";
+        gte: "gte";
+        lte: "lte";
+        contains: "contains";
+    }>;
+    value: z.ZodUnknown;
+}, z.core.$strip>;
+/**
+ * Query response data schema
+ */
+declare const QueryDataSchema: z.ZodObject<{
+    items: z.ZodArray<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    hasMore: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    total: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+}, z.core.$strip>;
+type QueryData = z.infer<typeof QueryDataSchema>;
+/**
+ * Query response schema
+ */
+declare const QueryResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        items: z.ZodArray<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        hasMore: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+        total: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type QueryResponse = z.infer<typeof QueryResponseSchema>;
+/**
+ * Search response data schema
+ */
+declare const SearchDataSchema: z.ZodObject<{
+    results: z.ZodArray<z.ZodObject<{
+        path: z.ZodString;
+        score: z.ZodOptional<z.ZodNumber>;
+        highlights: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        content: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    total: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+}, z.core.$strip>;
+type SearchData = z.infer<typeof SearchDataSchema>;
+/**
+ * Search response schema
+ */
+declare const SearchResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        results: z.ZodArray<z.ZodObject<{
+            path: z.ZodString;
+            score: z.ZodOptional<z.ZodNumber>;
+            highlights: z.ZodOptional<z.ZodArray<z.ZodString>>;
+            content: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        total: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type SearchResponse = z.infer<typeof SearchResponseSchema>;
+/**
+ * Tree node schema
+ */
+declare const TreeNodeSchema: z.ZodType<TreeNode>;
+interface TreeNode {
+    name: string;
+    path: string;
+    type: 'file' | 'directory';
+    size?: number;
+    children?: TreeNode[];
+}
+/**
+ * Tree response data schema
+ */
+declare const TreeDataSchema: z.ZodObject<{
+    root: z.ZodType<TreeNode, unknown, z.core.$ZodTypeInternals<TreeNode, unknown>>;
+    depth: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type TreeData = z.infer<typeof TreeDataSchema>;
+/**
+ * Tree response schema
+ */
+declare const TreeResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        root: z.ZodType<TreeNode, unknown, z.core.$ZodTypeInternals<TreeNode, unknown>>;
+        depth: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type TreeResponse = z.infer<typeof TreeResponseSchema>;
+/**
+ * Stats response data schema
+ */
+declare const StatsDataSchema: z.ZodObject<{
+    totalFiles: z.ZodNumber;
+    totalSize: z.ZodNumber;
+    lastModified: z.ZodOptional<z.ZodString>;
+    fileTypes: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodNumber>>;
+}, z.core.$strip>;
+type StatsData = z.infer<typeof StatsDataSchema>;
+/**
+ * Stats response schema
+ */
+declare const StatsResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        totalFiles: z.ZodNumber;
+        totalSize: z.ZodNumber;
+        lastModified: z.ZodOptional<z.ZodString>;
+        fileTypes: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodNumber>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type StatsResponse = z.infer<typeof StatsResponseSchema>;
+/**
+ * Content type info schema
+ */
+declare const ContentTypeInfoSchema: z.ZodObject<{
+    name: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    prefix: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    isVirtual: z.ZodOptional<z.ZodBoolean>;
+    isGlobal: z.ZodOptional<z.ZodBoolean>;
+    count: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+    endpoints: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
+}, z.core.$strip>;
+type ContentTypeInfo = z.infer<typeof ContentTypeInfoSchema>;
+/**
+ * Get content types response data schema
+ */
+declare const ContentTypesDataSchema: z.ZodObject<{
+    types: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        prefix: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        isVirtual: z.ZodOptional<z.ZodBoolean>;
+        isGlobal: z.ZodOptional<z.ZodBoolean>;
+        count: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+        endpoints: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type ContentTypesData = z.infer<typeof ContentTypesDataSchema>;
+/**
+ * Content types response schema
+ */
+declare const ContentTypesResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        types: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            description: z.ZodOptional<z.ZodString>;
+            prefix: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+            isVirtual: z.ZodOptional<z.ZodBoolean>;
+            isGlobal: z.ZodOptional<z.ZodBoolean>;
+            count: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+            endpoints: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type ContentTypesResponse = z.infer<typeof ContentTypesResponseSchema>;
+/**
+ * Presigned URL response data schema
+ */
+declare const PresignedUrlDataSchema: z.ZodObject<{
+    url: z.ZodString;
+    expiresAt: z.ZodOptional<z.ZodString>;
+    method: z.ZodOptional<z.ZodEnum<{
+        GET: "GET";
+        PUT: "PUT";
+    }>>;
+}, z.core.$strip>;
+type PresignedUrlData = z.infer<typeof PresignedUrlDataSchema>;
+/**
+ * Presigned URL response schema
+ */
+declare const PresignedUrlResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        url: z.ZodString;
+        expiresAt: z.ZodOptional<z.ZodString>;
+        method: z.ZodOptional<z.ZodEnum<{
+            GET: "GET";
+            PUT: "PUT";
+        }>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type PresignedUrlResponse = z.infer<typeof PresignedUrlResponseSchema>;
+
+/**
+ * Session Zod Schemas
+ *
+ * Schemas for session management operations.
+ */
+
+/**
+ * Session message schema
+ */
+declare const SessionMessageSchema: z.ZodObject<{
+    id: z.ZodString;
+    role: z.ZodEnum<{
+        user: "user";
+        assistant: "assistant";
+        system: "system";
+    }>;
+    content: z.ZodString;
+    timestamp: z.ZodString;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+type SessionMessage = z.infer<typeof SessionMessageSchema>;
+/**
+ * Session schema
+ */
+declare const SessionSchema: z.ZodObject<{
+    id: z.ZodString;
+    missionId: z.ZodOptional<z.ZodString>;
+    title: z.ZodOptional<z.ZodString>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    messageCount: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type Session = z.infer<typeof SessionSchema>;
+/**
+ * List sessions response data schema
+ */
+declare const ListSessionsDataSchema: z.ZodObject<{
+    sessions: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        missionId: z.ZodOptional<z.ZodString>;
+        title: z.ZodOptional<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        messageCount: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    total: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+/**
+ * List sessions response schema
+ */
+declare const ListSessionsResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        sessions: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            missionId: z.ZodOptional<z.ZodString>;
+            title: z.ZodOptional<z.ZodString>;
+            createdAt: z.ZodString;
+            updatedAt: z.ZodOptional<z.ZodString>;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+            messageCount: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
+        total: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Create session response data schema
+ */
+declare const CreateSessionDataSchema: z.ZodObject<{
+    sessionId: z.ZodString;
+    missionId: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+/**
+ * Create session response schema
+ */
+declare const CreateSessionResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        sessionId: z.ZodString;
+        missionId: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Get session messages response data schema
+ */
+declare const GetSessionMessagesDataSchema: z.ZodObject<{
+    messages: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        role: z.ZodEnum<{
+            user: "user";
+            assistant: "assistant";
+            system: "system";
+        }>;
+        content: z.ZodString;
+        timestamp: z.ZodString;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>;
+    sessionId: z.ZodString;
+}, z.core.$strip>;
+/**
+ * Get session messages response schema
+ */
+declare const GetSessionMessagesResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        messages: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            role: z.ZodEnum<{
+                user: "user";
+                assistant: "assistant";
+                system: "system";
+            }>;
+            content: z.ZodString;
+            timestamp: z.ZodString;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        }, z.core.$strip>>;
+        sessionId: z.ZodString;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Update session metadata response data schema
+ */
+declare const UpdateSessionMetadataDataSchema: z.ZodObject<{
+    sessionId: z.ZodString;
+    metadata: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+}, z.core.$strip>;
+/**
+ * Update session metadata response schema
+ */
+declare const UpdateSessionMetadataResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        sessionId: z.ZodString;
+        metadata: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Fork session response data schema
+ */
+declare const ForkSessionDataSchema: z.ZodObject<{
+    sessionId: z.ZodString;
+    forkedFromId: z.ZodString;
+}, z.core.$strip>;
+/**
+ * Fork session response schema
+ */
+declare const ForkSessionResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        sessionId: z.ZodString;
+        forkedFromId: z.ZodString;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+
+/**
+ * Project Zod Schemas
+ *
+ * Schemas for project management operations.
+ */
+
+/**
+ * Project repo reference schema
+ */
+declare const ProjectRepoSchema: z.ZodObject<{
+    repoId: z.ZodString;
+    isDefault: z.ZodOptional<z.ZodBoolean>;
+    addedAt: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type ProjectRepo = z.infer<typeof ProjectRepoSchema>;
+/**
+ * Project mission reference schema
+ */
+declare const ProjectMissionSchema: z.ZodObject<{
+    missionId: z.ZodString;
+    addedAt: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type ProjectMission = z.infer<typeof ProjectMissionSchema>;
+/**
+ * Project schema
+ */
+declare const ProjectSchema: z.ZodObject<{
+    id: z.ZodString;
+    name: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodOptional<z.ZodString>;
+    repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        repoId: z.ZodString;
+        isDefault: z.ZodOptional<z.ZodBoolean>;
+        addedAt: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>>;
+    missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        missionId: z.ZodString;
+        addedAt: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>>;
+    defaultRepoId: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+type Project = z.infer<typeof ProjectSchema>;
+/**
+ * List projects response data schema
+ */
+declare const ListProjectsDataSchema: z.ZodObject<{
+    projects: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        name: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodOptional<z.ZodString>;
+        repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            repoId: z.ZodString;
+            isDefault: z.ZodOptional<z.ZodBoolean>;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            missionId: z.ZodString;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        defaultRepoId: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>;
+    total: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+/**
+ * List projects response schema
+ */
+declare const ListProjectsResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        projects: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            name: z.ZodString;
+            description: z.ZodOptional<z.ZodString>;
+            createdAt: z.ZodString;
+            updatedAt: z.ZodOptional<z.ZodString>;
+            repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                repoId: z.ZodString;
+                isDefault: z.ZodOptional<z.ZodBoolean>;
+                addedAt: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>>;
+            missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                missionId: z.ZodString;
+                addedAt: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>>;
+            defaultRepoId: z.ZodOptional<z.ZodString>;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        }, z.core.$strip>>;
+        total: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Create project response data schema
+ */
+declare const CreateProjectDataSchema: z.ZodObject<{
+    projectId: z.ZodString;
+    project: z.ZodOptional<z.ZodObject<{
+        id: z.ZodString;
+        name: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodOptional<z.ZodString>;
+        repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            repoId: z.ZodString;
+            isDefault: z.ZodOptional<z.ZodBoolean>;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            missionId: z.ZodString;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        defaultRepoId: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Create project response schema
+ */
+declare const CreateProjectResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        projectId: z.ZodString;
+        project: z.ZodOptional<z.ZodObject<{
+            id: z.ZodString;
+            name: z.ZodString;
+            description: z.ZodOptional<z.ZodString>;
+            createdAt: z.ZodString;
+            updatedAt: z.ZodOptional<z.ZodString>;
+            repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                repoId: z.ZodString;
+                isDefault: z.ZodOptional<z.ZodBoolean>;
+                addedAt: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>>;
+            missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                missionId: z.ZodString;
+                addedAt: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>>;
+            defaultRepoId: z.ZodOptional<z.ZodString>;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Get project response data schema
+ */
+declare const GetProjectDataSchema: z.ZodObject<{
+    id: z.ZodString;
+    name: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodOptional<z.ZodString>;
+    repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        repoId: z.ZodString;
+        isDefault: z.ZodOptional<z.ZodBoolean>;
+        addedAt: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>>;
+    missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        missionId: z.ZodString;
+        addedAt: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>>;
+    defaultRepoId: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+/**
+ * Get project response schema
+ */
+declare const GetProjectResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        id: z.ZodString;
+        name: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodOptional<z.ZodString>;
+        repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            repoId: z.ZodString;
+            isDefault: z.ZodOptional<z.ZodBoolean>;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            missionId: z.ZodString;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        defaultRepoId: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Update project response data schema
+ */
+declare const UpdateProjectDataSchema: z.ZodObject<{
+    projectId: z.ZodString;
+    project: z.ZodOptional<z.ZodObject<{
+        id: z.ZodString;
+        name: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodOptional<z.ZodString>;
+        repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            repoId: z.ZodString;
+            isDefault: z.ZodOptional<z.ZodBoolean>;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            missionId: z.ZodString;
+            addedAt: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>>;
+        defaultRepoId: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Update project response schema
+ */
+declare const UpdateProjectResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        projectId: z.ZodString;
+        project: z.ZodOptional<z.ZodObject<{
+            id: z.ZodString;
+            name: z.ZodString;
+            description: z.ZodOptional<z.ZodString>;
+            createdAt: z.ZodString;
+            updatedAt: z.ZodOptional<z.ZodString>;
+            repos: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                repoId: z.ZodString;
+                isDefault: z.ZodOptional<z.ZodBoolean>;
+                addedAt: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>>;
+            missions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                missionId: z.ZodString;
+                addedAt: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>>;
+            defaultRepoId: z.ZodOptional<z.ZodString>;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Delete project response data schema
+ */
+declare const DeleteProjectDataSchema: z.ZodObject<{
+    projectId: z.ZodString;
+    deleted: z.ZodBoolean;
+}, z.core.$strip>;
+/**
+ * Delete project response schema
+ */
+declare const DeleteProjectResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        projectId: z.ZodString;
+        deleted: z.ZodBoolean;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Add project repo response data schema
+ */
+declare const AddProjectRepoDataSchema: z.ZodObject<{
+    projectId: z.ZodString;
+    repoId: z.ZodString;
+}, z.core.$strip>;
+/**
+ * Add project repo response schema
+ */
+declare const AddProjectRepoResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        projectId: z.ZodString;
+        repoId: z.ZodString;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+/**
+ * Context repos response data schema
+ */
+declare const ContextReposDataSchema: z.ZodObject<{
+    repos: z.ZodArray<z.ZodObject<{
+        repoId: z.ZodString;
+        name: z.ZodOptional<z.ZodString>;
+        isDefault: z.ZodOptional<z.ZodBoolean>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type ContextReposData = z.infer<typeof ContextReposDataSchema>;
+/**
+ * Context repos response schema
+ */
+declare const ContextReposResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        repos: z.ZodArray<z.ZodObject<{
+            repoId: z.ZodString;
+            name: z.ZodOptional<z.ZodString>;
+            isDefault: z.ZodOptional<z.ZodBoolean>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type ContextReposResponse = z.infer<typeof ContextReposResponseSchema>;
+
+/**
+ * Repository Zod Schemas
+ *
+ * Schemas for repository management operations.
+ */
+
+/**
+ * Repository download status enum
+ */
+declare const RepoStatusEnum: z.ZodEnum<{
+    queued: "queued";
+    processing: "processing";
+    uploading: "uploading";
+    vectorizing: "vectorizing";
+    complete: "complete";
+    failed: "failed";
+}>;
+type RepoStatus = z.infer<typeof RepoStatusEnum>;
+/**
+ * Repository download request schema
+ */
+declare const RepoDownloadRequestSchema: z.ZodObject<{
+    github_url: z.ZodString;
+    repo_id: z.ZodString;
+    branch: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+    path: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    mode: z.ZodDefault<z.ZodOptional<z.ZodEnum<{
+        full: "full";
+        docs_only: "docs_only";
+    }>>>;
+    include_extensions: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    exclude_patterns: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    max_file_size_kb: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    visibility: z.ZodDefault<z.ZodOptional<z.ZodEnum<{
+        private: "private";
+        public: "public";
+    }>>>;
+    trigger_vectorization: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    generate_metadata: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    is_private: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+}, z.core.$strip>;
+type RepoDownloadRequest = z.infer<typeof RepoDownloadRequestSchema>;
+/**
+ * Repository download response data schema
+ */
+declare const RepoDownloadDataSchema: z.ZodObject<{
+    repo_id: z.ZodString;
+    job_id: z.ZodString;
+    s3_path: z.ZodOptional<z.ZodString>;
+    status: z.ZodEnum<{
+        queued: "queued";
+        processing: "processing";
+        uploading: "uploading";
+        vectorizing: "vectorizing";
+        complete: "complete";
+        failed: "failed";
+    }>;
+    files_processed: z.ZodOptional<z.ZodNumber>;
+    metadata_files_created: z.ZodOptional<z.ZodNumber>;
+    ingestion_job_id: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, z.core.$strip>;
+type RepoDownloadData = z.infer<typeof RepoDownloadDataSchema>;
+/**
+ * Repository download response schema
+ */
+declare const RepoDownloadResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        repo_id: z.ZodString;
+        job_id: z.ZodString;
+        s3_path: z.ZodOptional<z.ZodString>;
+        status: z.ZodEnum<{
+            queued: "queued";
+            processing: "processing";
+            uploading: "uploading";
+            vectorizing: "vectorizing";
+            complete: "complete";
+            failed: "failed";
+        }>;
+        files_processed: z.ZodOptional<z.ZodNumber>;
+        metadata_files_created: z.ZodOptional<z.ZodNumber>;
+        ingestion_job_id: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type RepoDownloadResponse = z.infer<typeof RepoDownloadResponseSchema>;
+/**
+ * Repository status response data schema
+ */
+declare const RepoStatusDataSchema: z.ZodObject<{
+    job_id: z.ZodString;
+    status: z.ZodEnum<{
+        queued: "queued";
+        processing: "processing";
+        uploading: "uploading";
+        vectorizing: "vectorizing";
+        complete: "complete";
+        failed: "failed";
+    }>;
+    progress: z.ZodOptional<z.ZodNumber>;
+    files_processed: z.ZodOptional<z.ZodNumber>;
+    total_files: z.ZodOptional<z.ZodNumber>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    started_at: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    completed_at: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, z.core.$strip>;
+type RepoStatusData = z.infer<typeof RepoStatusDataSchema>;
+/**
+ * Repository status response schema
+ */
+declare const RepoStatusResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        job_id: z.ZodString;
+        status: z.ZodEnum<{
+            queued: "queued";
+            processing: "processing";
+            uploading: "uploading";
+            vectorizing: "vectorizing";
+            complete: "complete";
+            failed: "failed";
+        }>;
+        progress: z.ZodOptional<z.ZodNumber>;
+        files_processed: z.ZodOptional<z.ZodNumber>;
+        total_files: z.ZodOptional<z.ZodNumber>;
+        error: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        started_at: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        completed_at: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type RepoStatusResponse = z.infer<typeof RepoStatusResponseSchema>;
+/**
+ * Repository list item schema
+ */
+declare const RepoListItemSchema: z.ZodObject<{
+    repo_id: z.ZodString;
+    github_url: z.ZodOptional<z.ZodString>;
+    branch: z.ZodOptional<z.ZodString>;
+    visibility: z.ZodOptional<z.ZodEnum<{
+        private: "private";
+        public: "public";
+    }>>;
+    mode: z.ZodOptional<z.ZodEnum<{
+        full: "full";
+        docs_only: "docs_only";
+    }>>;
+    files_count: z.ZodOptional<z.ZodNumber>;
+    last_synced: z.ZodOptional<z.ZodString>;
+    s3_path: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type RepoListItem = z.infer<typeof RepoListItemSchema>;
+/**
+ * Repository list response data schema
+ */
+declare const RepoListDataSchema: z.ZodObject<{
+    repos: z.ZodArray<z.ZodObject<{
+        repo_id: z.ZodString;
+        github_url: z.ZodOptional<z.ZodString>;
+        branch: z.ZodOptional<z.ZodString>;
+        visibility: z.ZodOptional<z.ZodEnum<{
+            private: "private";
+            public: "public";
+        }>>;
+        mode: z.ZodOptional<z.ZodEnum<{
+            full: "full";
+            docs_only: "docs_only";
+        }>>;
+        files_count: z.ZodOptional<z.ZodNumber>;
+        last_synced: z.ZodOptional<z.ZodString>;
+        s3_path: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    total: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type RepoListData = z.infer<typeof RepoListDataSchema>;
+/**
+ * Repository list response schema
+ */
+declare const RepoListResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        repos: z.ZodArray<z.ZodObject<{
+            repo_id: z.ZodString;
+            github_url: z.ZodOptional<z.ZodString>;
+            branch: z.ZodOptional<z.ZodString>;
+            visibility: z.ZodOptional<z.ZodEnum<{
+                private: "private";
+                public: "public";
+            }>>;
+            mode: z.ZodOptional<z.ZodEnum<{
+                full: "full";
+                docs_only: "docs_only";
+            }>>;
+            files_count: z.ZodOptional<z.ZodNumber>;
+            last_synced: z.ZodOptional<z.ZodString>;
+            s3_path: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        total: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type RepoListResponse = z.infer<typeof RepoListResponseSchema>;
+/**
+ * Repository exists response data schema
+ */
+declare const RepoExistsDataSchema: z.ZodObject<{
+    repo_id: z.ZodString;
+    exists: z.ZodBoolean;
+    indexed_at: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    files_count: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type RepoExistsData = z.infer<typeof RepoExistsDataSchema>;
+/**
+ * Repository exists response schema
+ */
+declare const RepoExistsResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        repo_id: z.ZodString;
+        exists: z.ZodBoolean;
+        indexed_at: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        files_count: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type RepoExistsResponse = z.infer<typeof RepoExistsResponseSchema>;
+/**
+ * Repository delete response data schema
+ */
+declare const RepoDeleteDataSchema: z.ZodObject<{
+    repo_id: z.ZodString;
+    success: z.ZodBoolean;
+    s3_files_deleted: z.ZodOptional<z.ZodNumber>;
+    projects_updated: z.ZodOptional<z.ZodNumber>;
+    error: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type RepoDeleteData = z.infer<typeof RepoDeleteDataSchema>;
+/**
+ * Repository delete response schema
+ */
+declare const RepoDeleteResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        repo_id: z.ZodString;
+        success: z.ZodBoolean;
+        s3_files_deleted: z.ZodOptional<z.ZodNumber>;
+        projects_updated: z.ZodOptional<z.ZodNumber>;
+        error: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type RepoDeleteResponse = z.infer<typeof RepoDeleteResponseSchema>;
+
+/**
+ * Auth Zod Schemas
+ *
+ * Schemas for authentication and authorization operations.
+ */
+
+/**
+ * Auth token response data schema
+ */
+declare const AuthTokenDataSchema: z.ZodObject<{
+    accessToken: z.ZodString;
+    tokenType: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+    expiresIn: z.ZodOptional<z.ZodNumber>;
+    expiresAt: z.ZodOptional<z.ZodString>;
+    refreshToken: z.ZodOptional<z.ZodString>;
+    scope: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type AuthTokenData = z.infer<typeof AuthTokenDataSchema>;
+/**
+ * Auth token response schema
+ */
+declare const AuthTokenResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        accessToken: z.ZodString;
+        tokenType: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+        expiresIn: z.ZodOptional<z.ZodNumber>;
+        expiresAt: z.ZodOptional<z.ZodString>;
+        refreshToken: z.ZodOptional<z.ZodString>;
+        scope: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type AuthTokenResponse = z.infer<typeof AuthTokenResponseSchema>;
+/**
+ * Auth user info schema
+ */
+declare const AuthUserInfoSchema: z.ZodObject<{
+    userId: z.ZodString;
+    email: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
+    roles: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    permissions: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+type AuthUserInfo = z.infer<typeof AuthUserInfoSchema>;
+/**
+ * Auth user info response schema
+ */
+declare const AuthUserInfoResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        userId: z.ZodString;
+        email: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        roles: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        permissions: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type AuthUserInfoResponse = z.infer<typeof AuthUserInfoResponseSchema>;
+/**
+ * Auth validate response data schema
+ */
+declare const AuthValidateDataSchema: z.ZodObject<{
+    valid: z.ZodBoolean;
+    userId: z.ZodOptional<z.ZodString>;
+    expiresAt: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type AuthValidateData = z.infer<typeof AuthValidateDataSchema>;
+/**
+ * Auth validate response schema
+ */
+declare const AuthValidateResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        valid: z.ZodBoolean;
+        userId: z.ZodOptional<z.ZodString>;
+        expiresAt: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type AuthValidateResponse = z.infer<typeof AuthValidateResponseSchema>;
+
+/**
+ * Discovery & Knowledge Base Zod Schemas
+ *
+ * Schemas for discovery, search, and knowledge base operations.
+ */
+
+/**
+ * Search result item schema
+ */
+declare const SearchResultItemSchema: z.ZodObject<{
+    id: z.ZodString;
+    path: z.ZodOptional<z.ZodString>;
+    content: z.ZodOptional<z.ZodString>;
+    score: z.ZodOptional<z.ZodNumber>;
+    highlights: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    source: z.ZodOptional<z.ZodString>;
+    type: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type SearchResultItem = z.infer<typeof SearchResultItemSchema>;
+/**
+ * Vector search response data schema
+ */
+declare const VectorSearchDataSchema: z.ZodObject<{
+    results: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        path: z.ZodOptional<z.ZodString>;
+        content: z.ZodOptional<z.ZodString>;
+        score: z.ZodOptional<z.ZodNumber>;
+        highlights: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        source: z.ZodOptional<z.ZodString>;
+        type: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    total: z.ZodOptional<z.ZodNumber>;
+    query: z.ZodOptional<z.ZodString>;
+    processingTimeMs: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type VectorSearchData = z.infer<typeof VectorSearchDataSchema>;
+/**
+ * Vector search response schema
+ */
+declare const VectorSearchResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        results: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            path: z.ZodOptional<z.ZodString>;
+            content: z.ZodOptional<z.ZodString>;
+            score: z.ZodOptional<z.ZodNumber>;
+            highlights: z.ZodOptional<z.ZodArray<z.ZodString>>;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+            source: z.ZodOptional<z.ZodString>;
+            type: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        total: z.ZodOptional<z.ZodNumber>;
+        query: z.ZodOptional<z.ZodString>;
+        processingTimeMs: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type VectorSearchResponse = z.infer<typeof VectorSearchResponseSchema>;
+/**
+ * KB document schema
+ */
+declare const KBDocumentSchema: z.ZodObject<{
+    id: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+    content: z.ZodString;
+    path: z.ZodOptional<z.ZodString>;
+    source: z.ZodOptional<z.ZodString>;
+    createdAt: z.ZodOptional<z.ZodString>;
+    updatedAt: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    vectorId: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type KBDocument = z.infer<typeof KBDocumentSchema>;
+/**
+ * KB list response data schema
+ */
+declare const KBListDataSchema: z.ZodObject<{
+    documents: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        title: z.ZodOptional<z.ZodString>;
+        content: z.ZodString;
+        path: z.ZodOptional<z.ZodString>;
+        source: z.ZodOptional<z.ZodString>;
+        createdAt: z.ZodOptional<z.ZodString>;
+        updatedAt: z.ZodOptional<z.ZodString>;
+        metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        vectorId: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    total: z.ZodOptional<z.ZodNumber>;
+    cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    hasMore: z.ZodOptional<z.ZodBoolean>;
+}, z.core.$strip>;
+type KBListData = z.infer<typeof KBListDataSchema>;
+/**
+ * KB list response schema
+ */
+declare const KBListResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        documents: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            title: z.ZodOptional<z.ZodString>;
+            content: z.ZodString;
+            path: z.ZodOptional<z.ZodString>;
+            source: z.ZodOptional<z.ZodString>;
+            createdAt: z.ZodOptional<z.ZodString>;
+            updatedAt: z.ZodOptional<z.ZodString>;
+            metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+            vectorId: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        total: z.ZodOptional<z.ZodNumber>;
+        cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        hasMore: z.ZodOptional<z.ZodBoolean>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type KBListResponse = z.infer<typeof KBListResponseSchema>;
+/**
+ * KB ingest response data schema
+ */
+declare const KBIngestDataSchema: z.ZodObject<{
+    documentId: z.ZodString;
+    vectorId: z.ZodOptional<z.ZodString>;
+    chunksCreated: z.ZodOptional<z.ZodNumber>;
+    status: z.ZodOptional<z.ZodEnum<{
+        processing: "processing";
+        complete: "complete";
+        failed: "failed";
+        pending: "pending";
+    }>>;
+}, z.core.$strip>;
+type KBIngestData = z.infer<typeof KBIngestDataSchema>;
+/**
+ * KB ingest response schema
+ */
+declare const KBIngestResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        documentId: z.ZodString;
+        vectorId: z.ZodOptional<z.ZodString>;
+        chunksCreated: z.ZodOptional<z.ZodNumber>;
+        status: z.ZodOptional<z.ZodEnum<{
+            processing: "processing";
+            complete: "complete";
+            failed: "failed";
+            pending: "pending";
+        }>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type KBIngestResponse = z.infer<typeof KBIngestResponseSchema>;
+/**
+ * Discovery endpoint schema
+ */
+declare const DiscoveryEndpointSchema: z.ZodObject<{
+    name: z.ZodString;
+    path: z.ZodString;
+    methods: z.ZodArray<z.ZodString>;
+    description: z.ZodOptional<z.ZodString>;
+    parameters: z.ZodOptional<z.ZodArray<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+}, z.core.$strip>;
+type DiscoveryEndpoint = z.infer<typeof DiscoveryEndpointSchema>;
+/**
+ * Discovery response data schema
+ */
+declare const DiscoveryDataSchema: z.ZodObject<{
+    version: z.ZodOptional<z.ZodString>;
+    endpoints: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        path: z.ZodString;
+        methods: z.ZodArray<z.ZodString>;
+        description: z.ZodOptional<z.ZodString>;
+        parameters: z.ZodOptional<z.ZodArray<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+    }, z.core.$strip>>;
+    contentTypes: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    capabilities: z.ZodOptional<z.ZodArray<z.ZodString>>;
+}, z.core.$strip>;
+type DiscoveryData = z.infer<typeof DiscoveryDataSchema>;
+/**
+ * Discovery response schema
+ */
+declare const DiscoveryResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        version: z.ZodOptional<z.ZodString>;
+        endpoints: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            path: z.ZodString;
+            methods: z.ZodArray<z.ZodString>;
+            description: z.ZodOptional<z.ZodString>;
+            parameters: z.ZodOptional<z.ZodArray<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+        }, z.core.$strip>>;
+        contentTypes: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        capabilities: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type DiscoveryResponse = z.infer<typeof DiscoveryResponseSchema>;
+/**
+ * Ingestion job schema
+ */
+declare const IngestionJobSchema: z.ZodObject<{
+    jobId: z.ZodString;
+    status: z.ZodEnum<{
+        queued: "queued";
+        processing: "processing";
+        complete: "complete";
+        failed: "failed";
+    }>;
+    progress: z.ZodOptional<z.ZodNumber>;
+    documentsProcessed: z.ZodOptional<z.ZodNumber>;
+    totalDocuments: z.ZodOptional<z.ZodNumber>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    startedAt: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    completedAt: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, z.core.$strip>;
+type IngestionJob = z.infer<typeof IngestionJobSchema>;
+/**
+ * Ingestion job response schema
+ */
+declare const IngestionJobResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        jobId: z.ZodString;
+        status: z.ZodEnum<{
+            queued: "queued";
+            processing: "processing";
+            complete: "complete";
+            failed: "failed";
+        }>;
+        progress: z.ZodOptional<z.ZodNumber>;
+        documentsProcessed: z.ZodOptional<z.ZodNumber>;
+        totalDocuments: z.ZodOptional<z.ZodNumber>;
+        error: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        startedAt: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        completedAt: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type IngestionJobResponse = z.infer<typeof IngestionJobResponseSchema>;
+
+/**
+ * WebSocket Message Zod Schemas
+ *
+ * Schemas for WebSocket communication messages.
+ */
+
+/**
+ * WebSocket message types
+ */
+declare const WSMessageTypeSchema: z.ZodEnum<{
+    error: "error";
+    status: "status";
+    disconnected: "disconnected";
+    connected: "connected";
+    ping: "ping";
+    chat: "chat";
+    chat_response: "chat_response";
+    stream_start: "stream_start";
+    stream_chunk: "stream_chunk";
+    stream_end: "stream_end";
+    pong: "pong";
+    session_start: "session_start";
+    session_end: "session_end";
+    typing: "typing";
+}>;
+type WSMessageType = z.infer<typeof WSMessageTypeSchema>;
+/**
+ * Base WebSocket message schema
+ */
+declare const WSBaseMessageSchema: z.ZodObject<{
+    type: z.ZodEnum<{
+        error: "error";
+        status: "status";
+        disconnected: "disconnected";
+        connected: "connected";
+        ping: "ping";
+        chat: "chat";
+        chat_response: "chat_response";
+        stream_start: "stream_start";
+        stream_chunk: "stream_chunk";
+        stream_end: "stream_end";
+        pong: "pong";
+        session_start: "session_start";
+        session_end: "session_end";
+        typing: "typing";
+    }>;
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type WSBaseMessage = z.infer<typeof WSBaseMessageSchema>;
+/**
+ * Chat message schema (user -> server)
+ */
+declare const WSChatMessageSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"chat">;
+    content: z.ZodString;
+    missionId: z.ZodOptional<z.ZodString>;
+    projectId: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+type WSChatMessage = z.infer<typeof WSChatMessageSchema>;
+/**
+ * Chat response schema (server -> client)
+ */
+declare const WSChatResponseSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"chat_response">;
+    content: z.ZodString;
+    role: z.ZodOptional<z.ZodEnum<{
+        assistant: "assistant";
+        system: "system";
+    }>>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    usage: z.ZodOptional<z.ZodObject<{
+        promptTokens: z.ZodOptional<z.ZodNumber>;
+        completionTokens: z.ZodOptional<z.ZodNumber>;
+        totalTokens: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type WSChatResponse = z.infer<typeof WSChatResponseSchema>;
+/**
+ * Stream start message schema
+ */
+declare const WSStreamStartSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"stream_start">;
+    streamId: z.ZodString;
+}, z.core.$strip>;
+type WSStreamStart = z.infer<typeof WSStreamStartSchema>;
+/**
+ * Stream chunk message schema
+ */
+declare const WSStreamChunkSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"stream_chunk">;
+    streamId: z.ZodString;
+    content: z.ZodString;
+    index: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>;
+type WSStreamChunk = z.infer<typeof WSStreamChunkSchema>;
+/**
+ * Stream end message schema
+ */
+declare const WSStreamEndSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"stream_end">;
+    streamId: z.ZodString;
+    usage: z.ZodOptional<z.ZodObject<{
+        promptTokens: z.ZodOptional<z.ZodNumber>;
+        completionTokens: z.ZodOptional<z.ZodNumber>;
+        totalTokens: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type WSStreamEnd = z.infer<typeof WSStreamEndSchema>;
+/**
+ * Error message schema
+ */
+declare const WSErrorMessageSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"error">;
+    code: z.ZodString;
+    message: z.ZodString;
+    details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+type WSErrorMessage = z.infer<typeof WSErrorMessageSchema>;
+/**
+ * Ping/Pong message schema
+ */
+declare const WSPingPongSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodEnum<{
+        ping: "ping";
+        pong: "pong";
+    }>;
+}, z.core.$strip>;
+type WSPingPong = z.infer<typeof WSPingPongSchema>;
+/**
+ * Connected message schema
+ */
+declare const WSConnectedSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"connected">;
+    connectionId: z.ZodOptional<z.ZodString>;
+    serverVersion: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type WSConnected = z.infer<typeof WSConnectedSchema>;
+/**
+ * Status message schema
+ */
+declare const WSStatusSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"status">;
+    status: z.ZodEnum<{
+        processing: "processing";
+        ready: "ready";
+        busy: "busy";
+        idle: "idle";
+    }>;
+    message: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type WSStatus = z.infer<typeof WSStatusSchema>;
+/**
+ * Union of all WebSocket message types
+ */
+declare const WSMessageSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"chat">;
+    content: z.ZodString;
+    missionId: z.ZodOptional<z.ZodString>;
+    projectId: z.ZodOptional<z.ZodString>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"chat_response">;
+    content: z.ZodString;
+    role: z.ZodOptional<z.ZodEnum<{
+        assistant: "assistant";
+        system: "system";
+    }>>;
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    usage: z.ZodOptional<z.ZodObject<{
+        promptTokens: z.ZodOptional<z.ZodNumber>;
+        completionTokens: z.ZodOptional<z.ZodNumber>;
+        totalTokens: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"stream_start">;
+    streamId: z.ZodString;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"stream_chunk">;
+    streamId: z.ZodString;
+    content: z.ZodString;
+    index: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"stream_end">;
+    streamId: z.ZodString;
+    usage: z.ZodOptional<z.ZodObject<{
+        promptTokens: z.ZodOptional<z.ZodNumber>;
+        completionTokens: z.ZodOptional<z.ZodNumber>;
+        totalTokens: z.ZodOptional<z.ZodNumber>;
+    }, z.core.$strip>>;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"error">;
+    code: z.ZodString;
+    message: z.ZodString;
+    details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"ping">;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"pong">;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"connected">;
+    connectionId: z.ZodOptional<z.ZodString>;
+    serverVersion: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>, z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
+    timestamp: z.ZodOptional<z.ZodString>;
+    sessionId: z.ZodOptional<z.ZodString>;
+    type: z.ZodLiteral<"status">;
+    status: z.ZodEnum<{
+        processing: "processing";
+        ready: "ready";
+        busy: "busy";
+        idle: "idle";
+    }>;
+    message: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>], "type">;
+type WSMessage = z.infer<typeof WSMessageSchema>;
+/**
+ * Safe parse result type
+ */
+type WSParseResult = {
+    success: true;
+    data: WSMessage;
+} | {
+    success: false;
+    error: z.ZodError;
+};
+/**
+ * Parse and validate a WebSocket message
+ */
+declare function parseWSMessage(data: string): WSMessage;
+/**
+ * Safe parse for WebSocket messages (returns result object)
+ */
+declare function safeParseWSMessage(data: string): WSParseResult;
+
+/**
+ * GitHub Proxy Zod Schemas
+ *
+ * Schemas for GitHub proxy operations.
+ */
+
+/**
+ * GitHub file info schema
+ */
+declare const GithubFileInfoSchema: z.ZodObject<{
+    name: z.ZodString;
+    path: z.ZodString;
+    sha: z.ZodString;
+    size: z.ZodNumber;
+    type: z.ZodEnum<{
+        file: "file";
+        dir: "dir";
+        symlink: "symlink";
+        submodule: "submodule";
+    }>;
+    url: z.ZodOptional<z.ZodString>;
+    html_url: z.ZodOptional<z.ZodString>;
+    git_url: z.ZodOptional<z.ZodString>;
+    download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    content: z.ZodOptional<z.ZodString>;
+    encoding: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type GithubFileInfo = z.infer<typeof GithubFileInfoSchema>;
+/**
+ * GitHub repository info schema
+ */
+declare const GithubRepoInfoSchema: z.ZodObject<{
+    id: z.ZodNumber;
+    name: z.ZodString;
+    full_name: z.ZodString;
+    private: z.ZodBoolean;
+    owner: z.ZodObject<{
+        login: z.ZodString;
+        id: z.ZodNumber;
+        avatar_url: z.ZodOptional<z.ZodString>;
+        type: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>;
+    html_url: z.ZodString;
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    fork: z.ZodOptional<z.ZodBoolean>;
+    created_at: z.ZodOptional<z.ZodString>;
+    updated_at: z.ZodOptional<z.ZodString>;
+    pushed_at: z.ZodOptional<z.ZodString>;
+    size: z.ZodOptional<z.ZodNumber>;
+    stargazers_count: z.ZodOptional<z.ZodNumber>;
+    watchers_count: z.ZodOptional<z.ZodNumber>;
+    language: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    default_branch: z.ZodOptional<z.ZodString>;
+    visibility: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type GithubRepoInfo = z.infer<typeof GithubRepoInfoSchema>;
+/**
+ * GitHub branch info schema
+ */
+declare const GithubBranchInfoSchema: z.ZodObject<{
+    name: z.ZodString;
+    commit: z.ZodObject<{
+        sha: z.ZodString;
+        url: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>;
+    protected: z.ZodOptional<z.ZodBoolean>;
+}, z.core.$strip>;
+type GithubBranchInfo = z.infer<typeof GithubBranchInfoSchema>;
+/**
+ * GitHub commit info schema
+ */
+declare const GithubCommitInfoSchema: z.ZodObject<{
+    sha: z.ZodString;
+    message: z.ZodOptional<z.ZodString>;
+    author: z.ZodOptional<z.ZodObject<{
+        name: z.ZodOptional<z.ZodString>;
+        email: z.ZodOptional<z.ZodString>;
+        date: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    committer: z.ZodOptional<z.ZodObject<{
+        name: z.ZodOptional<z.ZodString>;
+        email: z.ZodOptional<z.ZodString>;
+        date: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    url: z.ZodOptional<z.ZodString>;
+    html_url: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type GithubCommitInfo = z.infer<typeof GithubCommitInfoSchema>;
+/**
+ * GitHub proxy file response data schema
+ */
+declare const GithubFileDataSchema: z.ZodObject<{
+    file: z.ZodObject<{
+        name: z.ZodString;
+        path: z.ZodString;
+        sha: z.ZodString;
+        size: z.ZodNumber;
+        type: z.ZodEnum<{
+            file: "file";
+            dir: "dir";
+            symlink: "symlink";
+            submodule: "submodule";
+        }>;
+        url: z.ZodOptional<z.ZodString>;
+        html_url: z.ZodOptional<z.ZodString>;
+        git_url: z.ZodOptional<z.ZodString>;
+        download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        content: z.ZodOptional<z.ZodString>;
+        encoding: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>;
+    content: z.ZodOptional<z.ZodString>;
+    encoding: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+type GithubFileData = z.infer<typeof GithubFileDataSchema>;
+/**
+ * GitHub proxy file response schema
+ */
+declare const GithubFileResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        file: z.ZodObject<{
+            name: z.ZodString;
+            path: z.ZodString;
+            sha: z.ZodString;
+            size: z.ZodNumber;
+            type: z.ZodEnum<{
+                file: "file";
+                dir: "dir";
+                symlink: "symlink";
+                submodule: "submodule";
+            }>;
+            url: z.ZodOptional<z.ZodString>;
+            html_url: z.ZodOptional<z.ZodString>;
+            git_url: z.ZodOptional<z.ZodString>;
+            download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+            content: z.ZodOptional<z.ZodString>;
+            encoding: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+        content: z.ZodOptional<z.ZodString>;
+        encoding: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubFileResponse = z.infer<typeof GithubFileResponseSchema>;
+/**
+ * GitHub proxy directory response data schema
+ */
+declare const GithubDirectoryDataSchema: z.ZodObject<{
+    entries: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        path: z.ZodString;
+        sha: z.ZodString;
+        size: z.ZodNumber;
+        type: z.ZodEnum<{
+            file: "file";
+            dir: "dir";
+            symlink: "symlink";
+            submodule: "submodule";
+        }>;
+        url: z.ZodOptional<z.ZodString>;
+        html_url: z.ZodOptional<z.ZodString>;
+        git_url: z.ZodOptional<z.ZodString>;
+        download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        content: z.ZodOptional<z.ZodString>;
+        encoding: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+    path: z.ZodString;
+}, z.core.$strip>;
+type GithubDirectoryData = z.infer<typeof GithubDirectoryDataSchema>;
+/**
+ * GitHub proxy directory response schema
+ */
+declare const GithubDirectoryResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        entries: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            path: z.ZodString;
+            sha: z.ZodString;
+            size: z.ZodNumber;
+            type: z.ZodEnum<{
+                file: "file";
+                dir: "dir";
+                symlink: "symlink";
+                submodule: "submodule";
+            }>;
+            url: z.ZodOptional<z.ZodString>;
+            html_url: z.ZodOptional<z.ZodString>;
+            git_url: z.ZodOptional<z.ZodString>;
+            download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+            content: z.ZodOptional<z.ZodString>;
+            encoding: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        path: z.ZodString;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubDirectoryResponse = z.infer<typeof GithubDirectoryResponseSchema>;
+/**
+ * GitHub proxy repo info response data schema
+ */
+declare const GithubRepoDataSchema: z.ZodObject<{
+    repository: z.ZodObject<{
+        id: z.ZodNumber;
+        name: z.ZodString;
+        full_name: z.ZodString;
+        private: z.ZodBoolean;
+        owner: z.ZodObject<{
+            login: z.ZodString;
+            id: z.ZodNumber;
+            avatar_url: z.ZodOptional<z.ZodString>;
+            type: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+        html_url: z.ZodString;
+        description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        fork: z.ZodOptional<z.ZodBoolean>;
+        created_at: z.ZodOptional<z.ZodString>;
+        updated_at: z.ZodOptional<z.ZodString>;
+        pushed_at: z.ZodOptional<z.ZodString>;
+        size: z.ZodOptional<z.ZodNumber>;
+        stargazers_count: z.ZodOptional<z.ZodNumber>;
+        watchers_count: z.ZodOptional<z.ZodNumber>;
+        language: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        default_branch: z.ZodOptional<z.ZodString>;
+        visibility: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>;
+}, z.core.$strip>;
+type GithubRepoData = z.infer<typeof GithubRepoDataSchema>;
+/**
+ * GitHub proxy repo info response schema
+ */
+declare const GithubRepoResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        repository: z.ZodObject<{
+            id: z.ZodNumber;
+            name: z.ZodString;
+            full_name: z.ZodString;
+            private: z.ZodBoolean;
+            owner: z.ZodObject<{
+                login: z.ZodString;
+                id: z.ZodNumber;
+                avatar_url: z.ZodOptional<z.ZodString>;
+                type: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+            html_url: z.ZodString;
+            description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+            fork: z.ZodOptional<z.ZodBoolean>;
+            created_at: z.ZodOptional<z.ZodString>;
+            updated_at: z.ZodOptional<z.ZodString>;
+            pushed_at: z.ZodOptional<z.ZodString>;
+            size: z.ZodOptional<z.ZodNumber>;
+            stargazers_count: z.ZodOptional<z.ZodNumber>;
+            watchers_count: z.ZodOptional<z.ZodNumber>;
+            language: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+            default_branch: z.ZodOptional<z.ZodString>;
+            visibility: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubRepoResponse = z.infer<typeof GithubRepoResponseSchema>;
+/**
+ * GitHub proxy branches response data schema
+ */
+declare const GithubBranchesDataSchema: z.ZodObject<{
+    branches: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        commit: z.ZodObject<{
+            sha: z.ZodString;
+            url: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+        protected: z.ZodOptional<z.ZodBoolean>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubBranchesData = z.infer<typeof GithubBranchesDataSchema>;
+/**
+ * GitHub proxy branches response schema
+ */
+declare const GithubBranchesResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        branches: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            commit: z.ZodObject<{
+                sha: z.ZodString;
+                url: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+            protected: z.ZodOptional<z.ZodBoolean>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubBranchesResponse = z.infer<typeof GithubBranchesResponseSchema>;
+/**
+ * GitHub proxy commits response data schema
+ */
+declare const GithubCommitsDataSchema: z.ZodObject<{
+    commits: z.ZodArray<z.ZodObject<{
+        sha: z.ZodString;
+        message: z.ZodOptional<z.ZodString>;
+        author: z.ZodOptional<z.ZodObject<{
+            name: z.ZodOptional<z.ZodString>;
+            email: z.ZodOptional<z.ZodString>;
+            date: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        committer: z.ZodOptional<z.ZodObject<{
+            name: z.ZodOptional<z.ZodString>;
+            email: z.ZodOptional<z.ZodString>;
+            date: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+        url: z.ZodOptional<z.ZodString>;
+        html_url: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubCommitsData = z.infer<typeof GithubCommitsDataSchema>;
+/**
+ * GitHub proxy commits response schema
+ */
+declare const GithubCommitsResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<z.ZodObject<{
+        commits: z.ZodArray<z.ZodObject<{
+            sha: z.ZodString;
+            message: z.ZodOptional<z.ZodString>;
+            author: z.ZodOptional<z.ZodObject<{
+                name: z.ZodOptional<z.ZodString>;
+                email: z.ZodOptional<z.ZodString>;
+                date: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>;
+            committer: z.ZodOptional<z.ZodObject<{
+                name: z.ZodOptional<z.ZodString>;
+                email: z.ZodOptional<z.ZodString>;
+                date: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>;
+            url: z.ZodOptional<z.ZodString>;
+            html_url: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+    error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        code: z.ZodString;
+        message: z.ZodString;
+        details: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    }, z.core.$strip>>>;
+    notifications: z.ZodOptional<z.ZodArray<z.ZodUnknown>>;
+    meta: z.ZodOptional<z.ZodObject<{
+        requestId: z.ZodString;
+        timestamp: z.ZodString;
+        durationMs: z.ZodNumber;
+        operation: z.ZodString;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
+
+export { type AddProjectMissionData, type AddProjectMissionResponse, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AuthGetConfigData, type AuthGetConfigResponse, type AuthListWorkspacesData, type AuthListWorkspacesResponse, type AuthLoginData, type AuthLoginResponse, type AuthRefreshData, type AuthRefreshResponse, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type CheckConflictsData, type CheckConflictsResponse, type CheckRepoExistsData, type CheckRepoExistsResponse, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentType2, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDocsSnapshotData, type CreateDocsSnapshotResponse, type CreateMissionData, type CreateMissionResponse, type CreateMissionSessionData, type CreateMissionSessionResponse, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DeleteContentData, type DeleteContentResponse, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteRepositoryData, type DeleteRepositoryResponse, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadContentData, type DownloadContentResponse, type DownloadRepositoryData, type DownloadRepositoryResponse, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponse, type FindContentByData, type FindContentByResponse, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetDocsSnapshotStatusData, type GetDocsSnapshotStatusResponse, type GetMissionContextData, type GetMissionContextResponse, type GetPresignedUrlData, type GetPresignedUrlResponse, type GetProjectContextReposData, type GetProjectContextReposResponse, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponse, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponse, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponse, type GithubListBranchesData, type GithubListBranchesResponse, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type LearnFromMissionData, type LearnFromMissionResponse, type ListContentData, type ListContentResponse, type ListData, ListDataSchema, type ListDocsSnapshotsData, type ListDocsSnapshotsResponse, type ListDownloadedReposData, type ListDownloadedReposResponse, type ListEntry, ListEntrySchema, type ListMissionSessionsData, type ListMissionSessionsResponse, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type LockContentData, type LockContentResponse, type Meta, MetaSchema, type MissionCreateRequest, type MoveContentData, type MoveContentResponse, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type OcxpResponse, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlRequest, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, ProjectSchema, type QueryContentData, type QueryContentResponse, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshIndexData, type RefreshIndexResponse, type RemoveProjectMissionData, type RemoveProjectMissionResponse, type RemoveProjectRepoData, type RemoveProjectRepoResponse, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponse, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionMessage, SessionMessageSchema, SessionSchema, type SetProjectDefaultRepoData, type SetProjectDefaultRepoResponse, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponse, type WriteData, WriteDataSchema, type WriteRequestBody, type WriteResponse, WriteResponseSchema, type WriteResult, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createResponseSchema, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, safeParseWSMessage, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };

@@ -352,3 +352,6 @@ export {
   isOCXPTimeoutError,
   mapHttpError,
 } from './types';
+
+// Zod validation schemas
+export * from './schemas';

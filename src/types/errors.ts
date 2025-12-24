@@ -64,7 +64,14 @@ export class OCXPError extends Error {
 
     // Maintains proper stack trace for where error was thrown (V8 engines)
     if ('captureStackTrace' in Error && typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, this.constructor);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      (
+        Error.captureStackTrace as (
+          targetObject: object,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+          constructorOpt?: Function
+        ) => void
+      )(this, this.constructor);
     }
   }
 

@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 // src/generated/core/bodySerializer.gen.ts
 var jsonBodySerializer = {
   bodySerializer: (body) => JSON.stringify(body, (_key, value) => typeof value === "bigint" ? value.toString() : value)
@@ -2398,7 +2400,610 @@ function mapHttpError(statusCode, message, options) {
       return new OCXPError(message, "UNKNOWN" /* UNKNOWN */, statusCode, baseOptions);
   }
 }
+var MetaSchema = z.object({
+  requestId: z.string(),
+  timestamp: z.string(),
+  durationMs: z.number(),
+  operation: z.string()
+});
+var ErrorResponseSchema = z.object({
+  code: z.string(),
+  message: z.string(),
+  details: z.record(z.string(), z.unknown()).optional()
+});
+var OCXPResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.unknown().optional(),
+  error: ErrorResponseSchema.nullable().optional(),
+  notifications: z.array(z.unknown()).optional(),
+  meta: MetaSchema.optional()
+});
+var PaginationSchema = z.object({
+  cursor: z.string().nullable().optional(),
+  hasMore: z.boolean(),
+  total: z.number()
+});
+var ContentTypeSchema = z.enum([
+  "mission",
+  "project",
+  "context",
+  "sop",
+  "repo",
+  "artifact",
+  "kb",
+  "docs"
+]);
+function createResponseSchema(dataSchema) {
+  return z.object({
+    success: z.boolean(),
+    data: dataSchema.optional(),
+    error: ErrorResponseSchema.nullable().optional(),
+    notifications: z.array(z.unknown()).optional(),
+    meta: MetaSchema.optional()
+  });
+}
+var ListEntrySchema = z.object({
+  name: z.string(),
+  type: z.enum(["file", "directory"]),
+  path: z.string(),
+  size: z.number().optional(),
+  mtime: z.string().optional()
+});
+var ListDataSchema = z.object({
+  entries: z.array(ListEntrySchema),
+  cursor: z.string().nullable().optional(),
+  hasMore: z.boolean().optional().default(false),
+  total: z.number().optional().default(0)
+});
+var ListResponseSchema = createResponseSchema(ListDataSchema);
+var ReadDataSchema = z.object({
+  content: z.string(),
+  size: z.number().optional(),
+  mtime: z.string().optional(),
+  encoding: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  etag: z.string().optional()
+});
+var ReadResponseSchema = createResponseSchema(ReadDataSchema);
+var WriteDataSchema = z.object({
+  path: z.string(),
+  etag: z.string().optional(),
+  size: z.number().optional()
+});
+var WriteResponseSchema = createResponseSchema(WriteDataSchema);
+var DeleteDataSchema = z.object({
+  path: z.string(),
+  deleted: z.boolean().optional().default(true)
+});
+var DeleteResponseSchema = createResponseSchema(DeleteDataSchema);
+var QueryFilterSchema = z.object({
+  field: z.string(),
+  operator: z.enum(["eq", "ne", "gt", "lt", "gte", "lte", "contains", "startsWith"]),
+  value: z.unknown()
+});
+var QueryDataSchema = z.object({
+  items: z.array(z.record(z.string(), z.unknown())),
+  cursor: z.string().nullable().optional(),
+  hasMore: z.boolean().optional().default(false),
+  total: z.number().optional().default(0)
+});
+var QueryResponseSchema = createResponseSchema(QueryDataSchema);
+var SearchDataSchema = z.object({
+  results: z.array(
+    z.object({
+      path: z.string(),
+      score: z.number().optional(),
+      highlights: z.array(z.string()).optional(),
+      content: z.string().optional()
+    })
+  ),
+  total: z.number().optional().default(0)
+});
+var SearchResponseSchema = createResponseSchema(SearchDataSchema);
+var TreeNodeSchema = z.lazy(
+  () => z.object({
+    name: z.string(),
+    path: z.string(),
+    type: z.enum(["file", "directory"]),
+    size: z.number().optional(),
+    children: z.array(TreeNodeSchema).optional()
+  })
+);
+var TreeDataSchema = z.object({
+  root: TreeNodeSchema,
+  depth: z.number().optional()
+});
+var TreeResponseSchema = createResponseSchema(TreeDataSchema);
+var StatsDataSchema = z.object({
+  totalFiles: z.number(),
+  totalSize: z.number(),
+  lastModified: z.string().optional(),
+  fileTypes: z.record(z.string(), z.number()).optional()
+});
+var StatsResponseSchema = createResponseSchema(StatsDataSchema);
+var ContentTypeInfoSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  prefix: z.string().nullable().optional(),
+  isVirtual: z.boolean().optional(),
+  isGlobal: z.boolean().optional(),
+  count: z.number().nullable().optional(),
+  endpoints: z.record(z.string(), z.string()).optional()
+});
+var ContentTypesDataSchema = z.object({
+  types: z.array(ContentTypeInfoSchema)
+});
+var ContentTypesResponseSchema = createResponseSchema(ContentTypesDataSchema);
+var PresignedUrlDataSchema = z.object({
+  url: z.string(),
+  expiresAt: z.string().optional(),
+  method: z.enum(["GET", "PUT"]).optional()
+});
+var PresignedUrlResponseSchema = createResponseSchema(PresignedUrlDataSchema);
+var SessionMessageSchema = z.object({
+  id: z.string(),
+  role: z.enum(["user", "assistant", "system"]),
+  content: z.string(),
+  timestamp: z.string(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+var SessionSchema = z.object({
+  id: z.string(),
+  missionId: z.string().optional(),
+  title: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  messageCount: z.number().optional()
+});
+var ListSessionsDataSchema = z.object({
+  sessions: z.array(SessionSchema),
+  total: z.number().optional()
+});
+var ListSessionsResponseSchema = createResponseSchema(ListSessionsDataSchema);
+var CreateSessionDataSchema = z.object({
+  sessionId: z.string(),
+  missionId: z.string().optional()
+});
+var CreateSessionResponseSchema = createResponseSchema(CreateSessionDataSchema);
+var GetSessionMessagesDataSchema = z.object({
+  messages: z.array(SessionMessageSchema),
+  sessionId: z.string()
+});
+var GetSessionMessagesResponseSchema = createResponseSchema(GetSessionMessagesDataSchema);
+var UpdateSessionMetadataDataSchema = z.object({
+  sessionId: z.string(),
+  metadata: z.record(z.string(), z.unknown())
+});
+var UpdateSessionMetadataResponseSchema = createResponseSchema(
+  UpdateSessionMetadataDataSchema
+);
+var ForkSessionDataSchema = z.object({
+  sessionId: z.string(),
+  forkedFromId: z.string()
+});
+var ForkSessionResponseSchema = createResponseSchema(ForkSessionDataSchema);
+var ProjectRepoSchema = z.object({
+  repoId: z.string(),
+  isDefault: z.boolean().optional(),
+  addedAt: z.string().optional()
+});
+var ProjectMissionSchema = z.object({
+  missionId: z.string(),
+  addedAt: z.string().optional()
+});
+var ProjectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string().optional(),
+  repos: z.array(ProjectRepoSchema).optional(),
+  missions: z.array(ProjectMissionSchema).optional(),
+  defaultRepoId: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+var ListProjectsDataSchema = z.object({
+  projects: z.array(ProjectSchema),
+  total: z.number().optional()
+});
+var ListProjectsResponseSchema = createResponseSchema(ListProjectsDataSchema);
+var CreateProjectDataSchema = z.object({
+  projectId: z.string(),
+  project: ProjectSchema.optional()
+});
+var CreateProjectResponseSchema = createResponseSchema(CreateProjectDataSchema);
+var GetProjectDataSchema = ProjectSchema;
+var GetProjectResponseSchema = createResponseSchema(GetProjectDataSchema);
+var UpdateProjectDataSchema = z.object({
+  projectId: z.string(),
+  project: ProjectSchema.optional()
+});
+var UpdateProjectResponseSchema = createResponseSchema(UpdateProjectDataSchema);
+var DeleteProjectDataSchema = z.object({
+  projectId: z.string(),
+  deleted: z.boolean()
+});
+var DeleteProjectResponseSchema = createResponseSchema(DeleteProjectDataSchema);
+var AddProjectRepoDataSchema = z.object({
+  projectId: z.string(),
+  repoId: z.string()
+});
+var AddProjectRepoResponseSchema = createResponseSchema(AddProjectRepoDataSchema);
+var ContextReposDataSchema = z.object({
+  repos: z.array(
+    z.object({
+      repoId: z.string(),
+      name: z.string().optional(),
+      isDefault: z.boolean().optional()
+    })
+  )
+});
+var ContextReposResponseSchema = createResponseSchema(ContextReposDataSchema);
+var RepoStatusEnum = z.enum([
+  "queued",
+  "processing",
+  "uploading",
+  "vectorizing",
+  "complete",
+  "failed"
+]);
+var RepoDownloadRequestSchema = z.object({
+  github_url: z.string(),
+  repo_id: z.string(),
+  branch: z.string().optional().default("main"),
+  path: z.string().nullable().optional(),
+  mode: z.enum(["full", "docs_only"]).optional().default("full"),
+  include_extensions: z.array(z.string()).optional(),
+  exclude_patterns: z.array(z.string()).optional(),
+  max_file_size_kb: z.number().min(1).max(5e3).optional().default(500),
+  visibility: z.enum(["private", "public"]).optional().default("private"),
+  trigger_vectorization: z.boolean().optional().default(true),
+  generate_metadata: z.boolean().optional().default(true),
+  is_private: z.boolean().optional().default(false)
+});
+var RepoDownloadDataSchema = z.object({
+  repo_id: z.string(),
+  job_id: z.string(),
+  s3_path: z.string().optional(),
+  status: RepoStatusEnum,
+  files_processed: z.number().optional(),
+  metadata_files_created: z.number().optional(),
+  ingestion_job_id: z.string().nullable().optional()
+});
+var RepoDownloadResponseSchema = createResponseSchema(RepoDownloadDataSchema);
+var RepoStatusDataSchema = z.object({
+  job_id: z.string(),
+  status: RepoStatusEnum,
+  progress: z.number().min(0).max(100).optional(),
+  files_processed: z.number().optional(),
+  total_files: z.number().optional(),
+  error: z.string().nullable().optional(),
+  started_at: z.string().nullable().optional(),
+  completed_at: z.string().nullable().optional()
+});
+var RepoStatusResponseSchema = createResponseSchema(RepoStatusDataSchema);
+var RepoListItemSchema = z.object({
+  repo_id: z.string(),
+  github_url: z.string().optional(),
+  branch: z.string().optional(),
+  visibility: z.enum(["private", "public"]).optional(),
+  mode: z.enum(["full", "docs_only"]).optional(),
+  files_count: z.number().optional(),
+  last_synced: z.string().optional(),
+  s3_path: z.string().optional()
+});
+var RepoListDataSchema = z.object({
+  repos: z.array(RepoListItemSchema),
+  total: z.number().optional()
+});
+var RepoListResponseSchema = createResponseSchema(RepoListDataSchema);
+var RepoExistsDataSchema = z.object({
+  repo_id: z.string(),
+  exists: z.boolean(),
+  indexed_at: z.string().nullable().optional(),
+  files_count: z.number().optional()
+});
+var RepoExistsResponseSchema = createResponseSchema(RepoExistsDataSchema);
+var RepoDeleteDataSchema = z.object({
+  repo_id: z.string(),
+  success: z.boolean(),
+  s3_files_deleted: z.number().optional(),
+  projects_updated: z.number().optional(),
+  error: z.string().optional()
+});
+var RepoDeleteResponseSchema = createResponseSchema(RepoDeleteDataSchema);
+var AuthTokenDataSchema = z.object({
+  accessToken: z.string(),
+  tokenType: z.string().optional().default("Bearer"),
+  expiresIn: z.number().optional(),
+  expiresAt: z.string().optional(),
+  refreshToken: z.string().optional(),
+  scope: z.string().optional()
+});
+var AuthTokenResponseSchema = createResponseSchema(AuthTokenDataSchema);
+var AuthUserInfoSchema = z.object({
+  userId: z.string(),
+  email: z.string().optional(),
+  name: z.string().optional(),
+  roles: z.array(z.string()).optional(),
+  permissions: z.array(z.string()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+var AuthUserInfoResponseSchema = createResponseSchema(AuthUserInfoSchema);
+var AuthValidateDataSchema = z.object({
+  valid: z.boolean(),
+  userId: z.string().optional(),
+  expiresAt: z.string().optional()
+});
+var AuthValidateResponseSchema = createResponseSchema(AuthValidateDataSchema);
+var SearchResultItemSchema = z.object({
+  id: z.string(),
+  path: z.string().optional(),
+  content: z.string().optional(),
+  score: z.number().optional(),
+  highlights: z.array(z.string()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  source: z.string().optional(),
+  type: z.string().optional()
+});
+var VectorSearchDataSchema = z.object({
+  results: z.array(SearchResultItemSchema),
+  total: z.number().optional(),
+  query: z.string().optional(),
+  processingTimeMs: z.number().optional()
+});
+var VectorSearchResponseSchema = createResponseSchema(VectorSearchDataSchema);
+var KBDocumentSchema = z.object({
+  id: z.string(),
+  title: z.string().optional(),
+  content: z.string(),
+  path: z.string().optional(),
+  source: z.string().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  vectorId: z.string().optional()
+});
+var KBListDataSchema = z.object({
+  documents: z.array(KBDocumentSchema),
+  total: z.number().optional(),
+  cursor: z.string().nullable().optional(),
+  hasMore: z.boolean().optional()
+});
+var KBListResponseSchema = createResponseSchema(KBListDataSchema);
+var KBIngestDataSchema = z.object({
+  documentId: z.string(),
+  vectorId: z.string().optional(),
+  chunksCreated: z.number().optional(),
+  status: z.enum(["pending", "processing", "complete", "failed"]).optional()
+});
+var KBIngestResponseSchema = createResponseSchema(KBIngestDataSchema);
+var DiscoveryEndpointSchema = z.object({
+  name: z.string(),
+  path: z.string(),
+  methods: z.array(z.string()),
+  description: z.string().optional(),
+  parameters: z.array(z.record(z.string(), z.unknown())).optional()
+});
+var DiscoveryDataSchema = z.object({
+  version: z.string().optional(),
+  endpoints: z.array(DiscoveryEndpointSchema),
+  contentTypes: z.array(z.string()).optional(),
+  capabilities: z.array(z.string()).optional()
+});
+var DiscoveryResponseSchema = createResponseSchema(DiscoveryDataSchema);
+var IngestionJobSchema = z.object({
+  jobId: z.string(),
+  status: z.enum(["queued", "processing", "complete", "failed"]),
+  progress: z.number().min(0).max(100).optional(),
+  documentsProcessed: z.number().optional(),
+  totalDocuments: z.number().optional(),
+  error: z.string().nullable().optional(),
+  startedAt: z.string().nullable().optional(),
+  completedAt: z.string().nullable().optional()
+});
+var IngestionJobResponseSchema = createResponseSchema(IngestionJobSchema);
+var WSMessageTypeSchema = z.enum([
+  "chat",
+  "chat_response",
+  "stream_start",
+  "stream_chunk",
+  "stream_end",
+  "error",
+  "ping",
+  "pong",
+  "connected",
+  "disconnected",
+  "session_start",
+  "session_end",
+  "typing",
+  "status"
+]);
+var WSBaseMessageSchema = z.object({
+  type: WSMessageTypeSchema,
+  id: z.string().optional(),
+  timestamp: z.string().optional(),
+  sessionId: z.string().optional()
+});
+var WSChatMessageSchema = WSBaseMessageSchema.extend({
+  type: z.literal("chat"),
+  content: z.string(),
+  missionId: z.string().optional(),
+  projectId: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+var WSChatResponseSchema = WSBaseMessageSchema.extend({
+  type: z.literal("chat_response"),
+  content: z.string(),
+  role: z.enum(["assistant", "system"]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  usage: z.object({
+    promptTokens: z.number().optional(),
+    completionTokens: z.number().optional(),
+    totalTokens: z.number().optional()
+  }).optional()
+});
+var WSStreamStartSchema = WSBaseMessageSchema.extend({
+  type: z.literal("stream_start"),
+  streamId: z.string()
+});
+var WSStreamChunkSchema = WSBaseMessageSchema.extend({
+  type: z.literal("stream_chunk"),
+  streamId: z.string(),
+  content: z.string(),
+  index: z.number().optional()
+});
+var WSStreamEndSchema = WSBaseMessageSchema.extend({
+  type: z.literal("stream_end"),
+  streamId: z.string(),
+  usage: z.object({
+    promptTokens: z.number().optional(),
+    completionTokens: z.number().optional(),
+    totalTokens: z.number().optional()
+  }).optional()
+});
+var WSErrorMessageSchema = WSBaseMessageSchema.extend({
+  type: z.literal("error"),
+  code: z.string(),
+  message: z.string(),
+  details: z.record(z.string(), z.unknown()).optional()
+});
+var WSPingPongSchema = WSBaseMessageSchema.extend({
+  type: z.enum(["ping", "pong"])
+});
+var WSConnectedSchema = WSBaseMessageSchema.extend({
+  type: z.literal("connected"),
+  connectionId: z.string().optional(),
+  serverVersion: z.string().optional()
+});
+var WSStatusSchema = WSBaseMessageSchema.extend({
+  type: z.literal("status"),
+  status: z.enum(["ready", "busy", "processing", "idle"]),
+  message: z.string().optional()
+});
+var WSMessageSchema = z.discriminatedUnion("type", [
+  WSChatMessageSchema,
+  WSChatResponseSchema,
+  WSStreamStartSchema,
+  WSStreamChunkSchema,
+  WSStreamEndSchema,
+  WSErrorMessageSchema,
+  WSPingPongSchema.extend({ type: z.literal("ping") }),
+  WSPingPongSchema.extend({ type: z.literal("pong") }),
+  WSConnectedSchema,
+  WSStatusSchema
+]);
+function parseWSMessage(data) {
+  const parsed = JSON.parse(data);
+  return WSMessageSchema.parse(parsed);
+}
+function safeParseWSMessage(data) {
+  try {
+    const parsed = JSON.parse(data);
+    const result = WSMessageSchema.safeParse(parsed);
+    if (result.success) {
+      return { success: true, data: result.data };
+    }
+    return { success: false, error: result.error };
+  } catch {
+    return {
+      success: false,
+      error: new z.ZodError([
+        {
+          code: "custom",
+          message: "Invalid JSON",
+          path: []
+        }
+      ])
+    };
+  }
+}
+var GithubFileInfoSchema = z.object({
+  name: z.string(),
+  path: z.string(),
+  sha: z.string(),
+  size: z.number(),
+  type: z.enum(["file", "dir", "symlink", "submodule"]),
+  url: z.string().optional(),
+  html_url: z.string().optional(),
+  git_url: z.string().optional(),
+  download_url: z.string().nullable().optional(),
+  content: z.string().optional(),
+  encoding: z.string().optional()
+});
+var GithubRepoInfoSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  full_name: z.string(),
+  private: z.boolean(),
+  owner: z.object({
+    login: z.string(),
+    id: z.number(),
+    avatar_url: z.string().optional(),
+    type: z.string().optional()
+  }),
+  html_url: z.string(),
+  description: z.string().nullable().optional(),
+  fork: z.boolean().optional(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+  pushed_at: z.string().optional(),
+  size: z.number().optional(),
+  stargazers_count: z.number().optional(),
+  watchers_count: z.number().optional(),
+  language: z.string().nullable().optional(),
+  default_branch: z.string().optional(),
+  visibility: z.string().optional()
+});
+var GithubBranchInfoSchema = z.object({
+  name: z.string(),
+  commit: z.object({
+    sha: z.string(),
+    url: z.string().optional()
+  }),
+  protected: z.boolean().optional()
+});
+var GithubCommitInfoSchema = z.object({
+  sha: z.string(),
+  message: z.string().optional(),
+  author: z.object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    date: z.string().optional()
+  }).optional(),
+  committer: z.object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    date: z.string().optional()
+  }).optional(),
+  url: z.string().optional(),
+  html_url: z.string().optional()
+});
+var GithubFileDataSchema = z.object({
+  file: GithubFileInfoSchema,
+  content: z.string().optional(),
+  encoding: z.string().optional()
+});
+var GithubFileResponseSchema = createResponseSchema(GithubFileDataSchema);
+var GithubDirectoryDataSchema = z.object({
+  entries: z.array(GithubFileInfoSchema),
+  path: z.string()
+});
+var GithubDirectoryResponseSchema = createResponseSchema(GithubDirectoryDataSchema);
+var GithubRepoDataSchema = z.object({
+  repository: GithubRepoInfoSchema
+});
+var GithubRepoResponseSchema = createResponseSchema(GithubRepoDataSchema);
+var GithubBranchesDataSchema = z.object({
+  branches: z.array(GithubBranchInfoSchema)
+});
+var GithubBranchesResponseSchema = createResponseSchema(GithubBranchesDataSchema);
+var GithubCommitsDataSchema = z.object({
+  commits: z.array(GithubCommitInfoSchema)
+});
+var GithubCommitsResponseSchema = createResponseSchema(GithubCommitsDataSchema);
 
-export { OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPTimeoutError, OCXPValidationError, VALID_CONTENT_TYPES, WebSocketService, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createResponseSchema, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, safeParseWSMessage, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
