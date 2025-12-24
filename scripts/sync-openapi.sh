@@ -11,10 +11,17 @@ CLIENT_TS_DIR="$(dirname "$SCRIPT_DIR")"
 BRAIN_DIR="$CLIENT_TS_DIR/../../contexthub/contexthub-brain"
 API_URL="${1:-https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com}"
 
-echo "==> Generating OpenAPI spec..."
+echo "==> Generating OpenAPI spec from FastAPI..."
 cd "$BRAIN_DIR/functions/ocxp/file_ops"
 export PYTHONPATH="$BRAIN_DIR/functions/ocxp/file_ops:$PYTHONPATH"
-python -c "from openapi_generator import get_openapi_json; print(get_openapi_json('$API_URL'))" > "$BRAIN_DIR/schemas/openapi.json"
+python -c "
+from app.main import create_app
+import json
+app = create_app()
+spec = app.openapi()
+spec['servers'] = [{'url': '$API_URL'}]
+print(json.dumps(spec, indent=2))
+" > "$BRAIN_DIR/schemas/openapi.json"
 echo "    Created: contexthub-brain/schemas/openapi.json"
 
 echo "==> Copying to client-ts..."
