@@ -611,14 +611,14 @@ export const listDownloadedRepos = <ThrowOnError extends boolean = false>(
 /**
  * Delete repository
  *
- * Permanently deletes a downloaded repository and its indexed content.
+ * Permanently deletes a downloaded repository and its indexed content. Uses the repository UUID.
  */
 export const deleteRepo = <ThrowOnError extends boolean = false>(
   options: Options<DeleteRepoData, ThrowOnError>
 ) =>
   (options.client ?? client).delete<DeleteRepoResponses, DeleteRepoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/repo/{repo_id}',
+    url: '/ocxp/repo/{id}',
     ...options,
   });
 

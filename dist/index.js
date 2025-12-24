@@ -811,11 +811,7 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(
-  createConfig({
-    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-  })
-);
+var client = createClient(createConfig());
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -992,7 +988,7 @@ var listDownloadedRepos = (options) => (options?.client ?? client).get({
 });
 var deleteRepo = (options) => (options.client ?? client).delete({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/repo/{repo_id}",
+  url: "/ocxp/repo/{id}",
   ...options
 });
 var createSnapshot = (options) => (options.client ?? client).post({
@@ -1628,13 +1624,13 @@ var OCXPClient = class {
     return extractData(response);
   }
   /**
-   * Delete a downloaded repository
+   * Delete a downloaded repository by its UUID
    */
-  async deleteRepo(repoId) {
+  async deleteRepo(id) {
     const headers = await this.getHeaders();
     const response = await deleteRepo({
       client: this.client,
-      path: { repo_id: repoId },
+      path: { id },
       headers
     });
     return extractData(response);

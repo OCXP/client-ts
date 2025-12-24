@@ -1257,11 +1257,19 @@ type RagRequest = {
 /**
  * RepoDeleteResponse
  *
- * Response for DELETE /ocxp/repo/{repo_id}.
+ * Response for DELETE /ocxp/repo/{id}.
  */
 type RepoDeleteResponse = {
     /**
+     * Id
+     *
+     * Deleted repository UUID
+     */
+    id: string;
+    /**
      * Repo Id
+     *
+     * Deleted repository identifier (owner/repo)
      */
     repo_id: string;
     /**
@@ -1275,6 +1283,12 @@ type RepoDeleteResponse = {
  * Response for POST /ocxp/repo/download.
  */
 type RepoDownloadResponse = {
+    /**
+     * Id
+     *
+     * Unique UUID for API operations (available when linked or complete)
+     */
+    id?: string | null;
     /**
      * Job Id
      */
@@ -1309,7 +1323,15 @@ type RepoDownloadResponse = {
  */
 type RepoInfo = {
     /**
+     * Id
+     *
+     * Unique UUID for API operations
+     */
+    id: string;
+    /**
      * Repo Id
+     *
+     * Repository identifier (owner/repo) for display
      */
     repo_id: string;
     /**
@@ -1322,8 +1344,22 @@ type RepoInfo = {
     url?: string | null;
     /**
      * Branch
+     *
+     * Git branch
      */
-    branch?: string | null;
+    branch?: string;
+    /**
+     * Path
+     *
+     * Subpath within repository (if partial download)
+     */
+    path?: string | null;
+    /**
+     * Visibility
+     *
+     * Repository visibility: public or private
+     */
+    visibility?: string;
     /**
      * Status
      *
@@ -2431,12 +2467,12 @@ type DeleteRepoData = {
     };
     path: {
         /**
-         * Repo Id
+         * Id
          */
-        repo_id: string;
+        id: string;
     };
     query?: never;
-    url: '/ocxp/repo/{repo_id}';
+    url: '/ocxp/repo/{id}';
 };
 type DeleteRepoErrors = {
     /**
@@ -3362,7 +3398,7 @@ declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(option
 /**
  * Delete repository
  *
- * Permanently deletes a downloaded repository and its indexed content.
+ * Permanently deletes a downloaded repository and its indexed content. Uses the repository UUID.
  */
 declare const deleteRepo: <ThrowOnError extends boolean = false>(options: Options<DeleteRepoData, ThrowOnError>) => RequestResult<DeleteRepoResponses, DeleteRepoErrors, ThrowOnError, "fields">;
 /**
@@ -3893,9 +3929,9 @@ declare class OCXPClient {
      */
     listRepos(): Promise<RepoListResponse>;
     /**
-     * Delete a downloaded repository
+     * Delete a downloaded repository by its UUID
      */
-    deleteRepo(repoId: string): Promise<RepoDeleteResponse>;
+    deleteRepo(id: string): Promise<RepoDeleteResponse>;
     /**
      * List all projects in workspace
      */

@@ -1564,22 +1564,22 @@
         ]
       }
     },
-    "/ocxp/repo/{repo_id}": {
+    "/ocxp/repo/{id}": {
       "delete": {
         "tags": [
           "Repo"
         ],
         "summary": "Delete repository",
-        "description": "Permanently deletes a downloaded repository and its indexed content.",
+        "description": "Permanently deletes a downloaded repository and its indexed content. Uses the repository UUID.",
         "operationId": "delete_repo",
         "parameters": [
           {
-            "name": "repo_id",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
-              "title": "Repo Id"
+              "title": "Id"
             }
           },
           {
@@ -5112,9 +5112,21 @@
       },
       "RepoDeleteResponse": {
         "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Deleted repository UUID",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
           "repo_id": {
             "type": "string",
-            "title": "Repo Id"
+            "title": "Repo Id",
+            "description": "Deleted repository identifier (owner/repo)",
+            "examples": [
+              "owner/my-app"
+            ]
           },
           "deleted": {
             "type": "boolean",
@@ -5124,13 +5136,29 @@
         },
         "type": "object",
         "required": [
+          "id",
           "repo_id"
         ],
         "title": "RepoDeleteResponse",
-        "description": "Response for DELETE /ocxp/repo/{repo_id}."
+        "description": "Response for DELETE /ocxp/repo/{id}."
       },
       "RepoDownloadResponse": {
         "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Unique UUID for API operations (available when linked or complete)",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
           "job_id": {
             "type": "string",
             "title": "Job Id",
@@ -5192,11 +5220,20 @@
       },
       "RepoInfo": {
         "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique UUID for API operations",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
           "repo_id": {
             "type": "string",
             "title": "Repo Id",
+            "description": "Repository identifier (owner/repo) for display",
             "examples": [
-              "my-app"
+              "owner/my-app"
             ]
           },
           "name": {
@@ -5221,6 +5258,15 @@
             ]
           },
           "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "Git branch",
+            "default": "main",
+            "examples": [
+              "main"
+            ]
+          },
+          "path": {
             "anyOf": [
               {
                 "type": "string"
@@ -5229,9 +5275,20 @@
                 "type": "null"
               }
             ],
-            "title": "Branch",
+            "title": "Path",
+            "description": "Subpath within repository (if partial download)",
             "examples": [
-              "main"
+              "src/components"
+            ]
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility",
+            "description": "Repository visibility: public or private",
+            "default": "public",
+            "examples": [
+              "public",
+              "private"
             ]
           },
           "status": {
@@ -5266,6 +5323,7 @@
         },
         "type": "object",
         "required": [
+          "id",
           "repo_id",
           "name"
         ],
@@ -5823,10 +5881,5 @@
         }
       }
     }
-  },
-  "servers": [
-    {
-      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-    }
-  ]
+  }
 }

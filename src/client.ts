@@ -611,13 +611,13 @@ export class OCXPClient {
   }
 
   /**
-   * Delete a downloaded repository
+   * Delete a downloaded repository by its UUID
    */
-  async deleteRepo(repoId: string): Promise<RepoDeleteResponse> {
+  async deleteRepo(id: string): Promise<RepoDeleteResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.deleteRepo({
       client: this.client,
-      path: { repo_id: repoId },
+      path: { id },
       headers,
     });
     return extractData(response) as RepoDeleteResponse;
