@@ -1477,6 +1477,92 @@ export type FindByTicketResponses = {
 
 export type FindByTicketResponse = FindByTicketResponses[keyof FindByTicketResponses];
 
+export type DeleteRepositoryData = {
+    body: {
+        /**
+         * Repository identifier to delete
+         */
+        repo_id: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/repo/delete';
+};
+
+export type DeleteRepositoryResponses = {
+    /**
+     * Repository deleted
+     */
+    200: OcxpResponse;
+};
+
+export type DeleteRepositoryResponse = DeleteRepositoryResponses[keyof DeleteRepositoryResponses];
+
+export type CheckRepoExistsData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Repository identifier to check
+         */
+        repo_id: string;
+    };
+    url: '/ocxp/repo/exists';
+};
+
+export type CheckRepoExistsResponses = {
+    /**
+     * Existence check result
+     */
+    200: OcxpResponse & {
+        data?: {
+            exists?: boolean;
+            repo_id?: string;
+        };
+    };
+};
+
+export type CheckRepoExistsResponse = CheckRepoExistsResponses[keyof CheckRepoExistsResponses];
+
+export type MoveContentData = {
+    body: {
+        /**
+         * Source path
+         */
+        from_path: string;
+        /**
+         * Destination path
+         */
+        to_path: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/move';
+};
+
+export type MoveContentResponses = {
+    /**
+     * Move result
+     */
+    200: OcxpResponse;
+};
+
+export type MoveContentResponse = MoveContentResponses[keyof MoveContentResponses];
+
 export type LockContentData = {
     body?: {
         path: string;
@@ -1514,3 +1600,927 @@ export type UnlockContentResponses = {
 };
 
 export type UnlockContentResponse = UnlockContentResponses[keyof UnlockContentResponses];
+
+export type CheckConflictsData = {
+    body: {
+        /**
+         * Paths to check for conflicts
+         */
+        paths: Array<string>;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/conflicts';
+};
+
+export type CheckConflictsResponses = {
+    /**
+     * Conflict check result
+     */
+    200: OcxpResponse;
+};
+
+export type CheckConflictsResponse = CheckConflictsResponses[keyof CheckConflictsResponses];
+
+export type GetPresignedUrlData = {
+    body?: never;
+    path: {
+        /**
+         * Content type
+         */
+        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+        /**
+         * Content identifier
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Operation type (get or put)
+         */
+        operation?: 'get' | 'put';
+        /**
+         * URL expiry in seconds
+         */
+        expiresIn?: number;
+    };
+    url: '/ocxp/{type}/{id}/url';
+};
+
+export type GetPresignedUrlResponses = {
+    /**
+     * Presigned URL
+     */
+    200: OcxpResponse & {
+        data?: {
+            url?: string;
+            expiresAt?: string;
+        };
+    };
+};
+
+export type GetPresignedUrlResponse = GetPresignedUrlResponses[keyof GetPresignedUrlResponses];
+
+export type DownloadContentData = {
+    body: {
+        /**
+         * Content identifier to download
+         */
+        id: string;
+        /**
+         * Download options (skipPatterns, maxFiles, maxSize)
+         */
+        options?: {
+            [key: string]: unknown;
+        };
+    };
+    path: {
+        /**
+         * Content type
+         */
+        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/{type}/download';
+};
+
+export type DownloadContentResponses = {
+    /**
+     * Download URL or stream
+     */
+    200: OcxpResponse;
+};
+
+export type DownloadContentResponse = DownloadContentResponses[keyof DownloadContentResponses];
+
+export type FindContentByData = {
+    body?: never;
+    path: {
+        /**
+         * Content type
+         */
+        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+    };
+    query: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Field to search
+         */
+        field: string;
+        /**
+         * Value to match
+         */
+        value: string;
+    };
+    url: '/ocxp/{type}/find';
+};
+
+export type FindContentByResponses = {
+    /**
+     * Found content
+     */
+    200: OcxpResponse;
+};
+
+export type FindContentByResponse = FindContentByResponses[keyof FindContentByResponses];
+
+export type AuthLoginData = {
+    body: {
+        /**
+         * User email or username
+         */
+        username: string;
+        /**
+         * User password
+         */
+        password: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/auth/login';
+};
+
+export type AuthLoginResponses = {
+    /**
+     * Authentication successful
+     */
+    200: OcxpResponse & {
+        data?: {
+            idToken?: string;
+            accessToken?: string;
+            refreshToken?: string;
+            expiresIn?: number;
+        };
+    };
+};
+
+export type AuthLoginResponse = AuthLoginResponses[keyof AuthLoginResponses];
+
+export type AuthRefreshData = {
+    body: {
+        /**
+         * Cognito refresh token
+         */
+        refreshToken: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/auth/refresh';
+};
+
+export type AuthRefreshResponses = {
+    /**
+     * Tokens refreshed
+     */
+    200: OcxpResponse & {
+        data?: {
+            idToken?: string;
+            accessToken?: string;
+            expiresIn?: number;
+        };
+    };
+};
+
+export type AuthRefreshResponse = AuthRefreshResponses[keyof AuthRefreshResponses];
+
+export type AuthGetConfigData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/config';
+};
+
+export type AuthGetConfigResponses = {
+    /**
+     * Auth configuration
+     */
+    200: OcxpResponse & {
+        data?: {
+            userPoolId?: string;
+            clientId?: string;
+            region?: string;
+            websocketEndpoint?: string;
+        };
+    };
+};
+
+export type AuthGetConfigResponse = AuthGetConfigResponses[keyof AuthGetConfigResponses];
+
+export type AuthListWorkspacesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/workspaces';
+};
+
+export type AuthListWorkspacesResponses = {
+    /**
+     * Workspace list
+     */
+    200: OcxpResponse & {
+        data?: {
+            workspaces?: Array<{
+                id?: string;
+                name?: string;
+                role?: string;
+            }>;
+        };
+    };
+};
+
+export type AuthListWorkspacesResponse = AuthListWorkspacesResponses[keyof AuthListWorkspacesResponses];
+
+export type ListSessionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Maximum sessions to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/session';
+};
+
+export type ListSessionsResponses = {
+    /**
+     * Session list
+     */
+    200: OcxpResponse;
+};
+
+export type ListSessionsResponse = ListSessionsResponses[keyof ListSessionsResponses];
+
+export type CreateSessionData = {
+    body?: {
+        /**
+         * Session title
+         */
+        title?: string;
+        /**
+         * Optional session metadata
+         */
+        metadata?: {
+            [key: string]: unknown;
+        };
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/session';
+};
+
+export type CreateSessionResponses = {
+    /**
+     * Session created
+     */
+    200: OcxpResponse;
+};
+
+export type CreateSessionResponse = CreateSessionResponses[keyof CreateSessionResponses];
+
+export type GetSessionMessagesData = {
+    body?: never;
+    path: {
+        /**
+         * Session ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Maximum messages to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/session/{id}/messages';
+};
+
+export type GetSessionMessagesResponses = {
+    /**
+     * Session messages
+     */
+    200: OcxpResponse;
+};
+
+export type GetSessionMessagesResponse = GetSessionMessagesResponses[keyof GetSessionMessagesResponses];
+
+export type UpdateSessionMetadataData = {
+    body: {
+        title?: string;
+        metadata?: {
+            [key: string]: unknown;
+        };
+    };
+    path: {
+        /**
+         * Session ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/session/{id}/metadata';
+};
+
+export type UpdateSessionMetadataResponses = {
+    /**
+     * Metadata updated
+     */
+    200: OcxpResponse;
+};
+
+export type UpdateSessionMetadataResponse = UpdateSessionMetadataResponses[keyof UpdateSessionMetadataResponses];
+
+export type ForkSessionData = {
+    body?: {
+        /**
+         * Fork from this message onwards
+         */
+        fromMessageId?: string;
+        /**
+         * New session title
+         */
+        title?: string;
+    };
+    path: {
+        /**
+         * Source session ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/session/{id}/fork';
+};
+
+export type ForkSessionResponses = {
+    /**
+     * Session forked
+     */
+    200: OcxpResponse;
+};
+
+export type ForkSessionResponse = ForkSessionResponses[keyof ForkSessionResponses];
+
+export type ListMissionSessionsData = {
+    body?: never;
+    path: {
+        /**
+         * Mission ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/mission/{id}/session';
+};
+
+export type ListMissionSessionsResponses = {
+    /**
+     * Mission sessions
+     */
+    200: OcxpResponse;
+};
+
+export type ListMissionSessionsResponse = ListMissionSessionsResponses[keyof ListMissionSessionsResponses];
+
+export type CreateMissionSessionData = {
+    body?: {
+        /**
+         * Session title
+         */
+        title?: string;
+    };
+    path: {
+        /**
+         * Mission ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/mission/{id}/session';
+};
+
+export type CreateMissionSessionResponses = {
+    /**
+     * Mission session created
+     */
+    200: OcxpResponse;
+};
+
+export type CreateMissionSessionResponse = CreateMissionSessionResponses[keyof CreateMissionSessionResponses];
+
+export type ListProjectsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Filter by status
+         */
+        status?: 'active' | 'archived' | 'paused';
+    };
+    url: '/ocxp/project';
+};
+
+export type ListProjectsResponses = {
+    /**
+     * Project list
+     */
+    200: OcxpResponse;
+};
+
+export type ListProjectsResponse = ListProjectsResponses[keyof ListProjectsResponses];
+
+export type CreateProjectData = {
+    body: {
+        /**
+         * Project name
+         */
+        name: string;
+        /**
+         * Project description
+         */
+        description?: string;
+        /**
+         * Project metadata
+         */
+        metadata?: {
+            [key: string]: unknown;
+        };
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project';
+};
+
+export type CreateProjectResponses = {
+    /**
+     * Project created
+     */
+    200: OcxpResponse;
+};
+
+export type CreateProjectResponse = CreateProjectResponses[keyof CreateProjectResponses];
+
+export type DeleteProjectData = {
+    body?: never;
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}';
+};
+
+export type DeleteProjectResponses = {
+    /**
+     * Project deleted
+     */
+    200: OcxpResponse;
+};
+
+export type DeleteProjectResponse = DeleteProjectResponses[keyof DeleteProjectResponses];
+
+export type GetProjectData = {
+    body?: never;
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}';
+};
+
+export type GetProjectResponses = {
+    /**
+     * Project details
+     */
+    200: OcxpResponse;
+};
+
+export type GetProjectResponse = GetProjectResponses[keyof GetProjectResponses];
+
+export type UpdateProjectData = {
+    body: {
+        name?: string;
+        description?: string;
+        status?: 'active' | 'archived' | 'paused';
+        metadata?: {
+            [key: string]: unknown;
+        };
+    };
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}';
+};
+
+export type UpdateProjectResponses = {
+    /**
+     * Project updated
+     */
+    200: OcxpResponse;
+};
+
+export type UpdateProjectResponse = UpdateProjectResponses[keyof UpdateProjectResponses];
+
+export type AddProjectRepoData = {
+    body: {
+        /**
+         * Repository ID to add
+         */
+        repo_id: string;
+    };
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}/repos';
+};
+
+export type AddProjectRepoResponses = {
+    /**
+     * Repository added
+     */
+    200: OcxpResponse;
+};
+
+export type AddProjectRepoResponse = AddProjectRepoResponses[keyof AddProjectRepoResponses];
+
+export type RemoveProjectRepoData = {
+    body?: never;
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+        /**
+         * Repository ID to remove
+         */
+        repo_id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}/repos/{repo_id}';
+};
+
+export type RemoveProjectRepoResponses = {
+    /**
+     * Repository removed
+     */
+    200: OcxpResponse;
+};
+
+export type RemoveProjectRepoResponse = RemoveProjectRepoResponses[keyof RemoveProjectRepoResponses];
+
+export type SetProjectDefaultRepoData = {
+    body: {
+        /**
+         * Repository ID to set as default
+         */
+        repo_id: string;
+    };
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}/default-repo';
+};
+
+export type SetProjectDefaultRepoResponses = {
+    /**
+     * Default repository set
+     */
+    200: OcxpResponse;
+};
+
+export type SetProjectDefaultRepoResponse = SetProjectDefaultRepoResponses[keyof SetProjectDefaultRepoResponses];
+
+export type GetProjectContextReposData = {
+    body?: never;
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}/context-repos';
+};
+
+export type GetProjectContextReposResponses = {
+    /**
+     * Context repositories
+     */
+    200: OcxpResponse;
+};
+
+export type GetProjectContextReposResponse = GetProjectContextReposResponses[keyof GetProjectContextReposResponses];
+
+export type AddProjectMissionData = {
+    body: {
+        /**
+         * Mission ID to add
+         */
+        mission_id: string;
+    };
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}/missions';
+};
+
+export type AddProjectMissionResponses = {
+    /**
+     * Mission added
+     */
+    200: OcxpResponse;
+};
+
+export type AddProjectMissionResponse = AddProjectMissionResponses[keyof AddProjectMissionResponses];
+
+export type RemoveProjectMissionData = {
+    body?: never;
+    path: {
+        /**
+         * Project ID
+         */
+        id: string;
+        /**
+         * Mission ID to remove
+         */
+        mission_id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/project/{id}/missions/{mission_id}';
+};
+
+export type RemoveProjectMissionResponses = {
+    /**
+     * Mission removed
+     */
+    200: OcxpResponse;
+};
+
+export type RemoveProjectMissionResponse = RemoveProjectMissionResponses[keyof RemoveProjectMissionResponses];
+
+export type CreateDocsSnapshotData = {
+    body: {
+        /**
+         * Documentation URL to snapshot
+         */
+        url: string;
+        /**
+         * Snapshot name
+         */
+        name?: string;
+        /**
+         * Snapshot options
+         */
+        options?: {
+            [key: string]: unknown;
+        };
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/docs/snapshot';
+};
+
+export type CreateDocsSnapshotResponses = {
+    /**
+     * Snapshot created
+     */
+    200: OcxpResponse;
+};
+
+export type CreateDocsSnapshotResponse = CreateDocsSnapshotResponses[keyof CreateDocsSnapshotResponses];
+
+export type ListDocsSnapshotsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/ocxp/docs/list';
+};
+
+export type ListDocsSnapshotsResponses = {
+    /**
+     * Snapshot list
+     */
+    200: OcxpResponse;
+};
+
+export type ListDocsSnapshotsResponse = ListDocsSnapshotsResponses[keyof ListDocsSnapshotsResponses];
+
+export type GetDocsSnapshotStatusData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+        /**
+         * Snapshot job ID
+         */
+        job_id: string;
+    };
+    url: '/ocxp/docs/status';
+};
+
+export type GetDocsSnapshotStatusResponses = {
+    /**
+     * Job status
+     */
+    200: OcxpResponse;
+};
+
+export type GetDocsSnapshotStatusResponse = GetDocsSnapshotStatusResponses[keyof GetDocsSnapshotStatusResponses];
+
+export type RefreshIndexData = {
+    body?: {
+        /**
+         * Content type to refresh (or all if not specified)
+         */
+        contentType?: string;
+        /**
+         * Force full reindex
+         */
+        force?: boolean;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/index/refresh';
+};
+
+export type RefreshIndexResponses = {
+    /**
+     * Index refresh started
+     */
+    200: OcxpResponse;
+};
+
+export type RefreshIndexResponse = RefreshIndexResponses[keyof RefreshIndexResponses];
+
+export type LearnFromMissionData = {
+    body?: {
+        /**
+         * Learning categories to extract
+         */
+        categories?: Array<string>;
+    };
+    path: {
+        /**
+         * Mission ID
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Workspace ID
+         */
+        workspace?: string;
+    };
+    url: '/tools/mission/{id}/learn';
+};
+
+export type LearnFromMissionResponses = {
+    /**
+     * Learnings extracted
+     */
+    200: OcxpResponse;
+};
+
+export type LearnFromMissionResponse = LearnFromMissionResponses[keyof LearnFromMissionResponses];
