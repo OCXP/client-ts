@@ -207,888 +207,6 @@
         ]
       }
     },
-    "/ocxp/types": {
-      "get": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Get content types",
-        "description": "Returns all available content types (mission, context, repo, etc.) with optional item counts.",
-        "operationId": "getContentTypes",
-        "parameters": [
-          {
-            "name": "counts",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Include item counts per type",
-              "default": false,
-              "title": "Counts"
-            },
-            "description": "Include item counts per type"
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of content types returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentTypesResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/{content_type}/list": {
-      "get": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "List content",
-        "description": "Lists all content items of a specific type, optionally filtered by path.",
-        "operationId": "listContent",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by path prefix",
-              "title": "Path"
-            },
-            "description": "Filter by path prefix"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "Maximum items to return",
-              "default": 100,
-              "title": "Limit"
-            },
-            "description": "Maximum items to return"
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Content list returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentListResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid content type"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/{content_type}/query": {
-      "post": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Query content",
-        "description": "Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.",
-        "operationId": "queryContent",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QueryRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Query results returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentListResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid filter or content type"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/{content_type}/search": {
-      "get": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Search content",
-        "description": "Full-text search in content names and paths. Case-insensitive.",
-        "operationId": "searchContent",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "Search query string",
-              "title": "Q"
-            },
-            "description": "Search query string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 500,
-              "minimum": 1,
-              "description": "Maximum results to return",
-              "default": 50,
-              "title": "Limit"
-            },
-            "description": "Maximum results to return"
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Search results returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentListResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/{content_type}/tree": {
-      "get": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Get content tree",
-        "description": "Returns hierarchical tree structure of content with configurable depth.",
-        "operationId": "getContentTree",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Root path for tree",
-              "title": "Path"
-            },
-            "description": "Root path for tree"
-          },
-          {
-            "name": "depth",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 10,
-              "minimum": 1,
-              "description": "Maximum tree depth",
-              "default": 3,
-              "title": "Depth"
-            },
-            "description": "Maximum tree depth"
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tree structure returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentTreeResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/{content_type}/stats": {
-      "get": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Get content statistics",
-        "description": "Returns file counts and sizes grouped by extension for a content path.",
-        "operationId": "getContentStats",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Path to analyze",
-              "title": "Path"
-            },
-            "description": "Path to analyze"
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Statistics returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentStatsResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/{content_type}/{content_id}": {
-      "get": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Read content",
-        "description": "Reads content by type and path. Binary files are base64-encoded.",
-        "operationId": "readContent",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "content_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Id"
-            }
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Content returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentReadResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Content not found"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Write content",
-        "description": "Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.",
-        "operationId": "writeContent",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "content_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Id"
-            }
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WriteRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Content written successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentWriteResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Content already exists or ETag mismatch"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Delete content",
-        "description": "Deletes content. Use recursive=true with confirm=true to delete directories.",
-        "operationId": "deleteContent",
-        "parameters": [
-          {
-            "name": "content_type",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Type"
-            }
-          },
-          {
-            "name": "content_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Id"
-            }
-          },
-          {
-            "name": "recursive",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Delete directory recursively",
-              "default": false,
-              "title": "Recursive"
-            },
-            "description": "Delete directory recursively"
-          },
-          {
-            "name": "confirm",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Confirm recursive deletion",
-              "default": false,
-              "title": "Confirm"
-            },
-            "description": "Confirm recursive deletion"
-          },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Content deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentDeleteResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Recursive delete requires confirmation"
-          },
-          "404": {
-            "description": "Content not found"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/move": {
-      "post": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Move content",
-        "description": "Moves content from source to destination path. Use overwrite=true to replace existing.",
-        "operationId": "moveContent",
-        "parameters": [
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MoveRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Content moved successfully",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "404": {
-            "description": "Source not found"
-          },
-          "409": {
-            "description": "Destination exists"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/lock": {
-      "post": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Lock content",
-        "description": "Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.",
-        "operationId": "lockContent",
-        "parameters": [
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LockRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Lock acquired",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/unlock": {
-      "post": {
-        "tags": [
-          "Content"
-        ],
-        "summary": "Unlock content",
-        "description": "Releases an exclusive lock on content. Stub endpoint for SDK compatibility.",
-        "operationId": "unlockContent",
-        "parameters": [
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LockRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Lock released",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
     "/ocxp/session": {
       "get": {
         "tags": [
@@ -2283,7 +1401,7 @@
           "Repo"
         ],
         "summary": "Start repository download",
-        "description": "Initiates an async download of a Git repository. Returns a job ID for status tracking.",
+        "description": "Initiates an async download of a Git repository. Returns a job ID for status tracking. If the repository already exists (deduplicated), returns immediately with status='linked'.",
         "operationId": "downloadRepository",
         "parameters": [
           {
@@ -2308,7 +1426,7 @@
         },
         "responses": {
           "202": {
-            "description": "Download job started",
+            "description": "Download job started or linked to existing",
             "content": {
               "application/json": {
                 "schema": {
@@ -2453,7 +1571,7 @@
         ],
         "summary": "Delete repository",
         "description": "Permanently deletes a downloaded repository and its indexed content.",
-        "operationId": "deleteRepo",
+        "operationId": "delete_repo",
         "parameters": [
           {
             "name": "repo_id",
@@ -2831,6 +1949,888 @@
         ]
       }
     },
+    "/ocxp/types": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Get content types",
+        "description": "Returns all available content types (mission, context, repo, etc.) with optional item counts.",
+        "operationId": "getContentTypes",
+        "parameters": [
+          {
+            "name": "counts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include item counts per type",
+              "default": false,
+              "title": "Counts"
+            },
+            "description": "Include item counts per type"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of content types returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentTypesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/{content_type}/list": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "List content",
+        "description": "Lists all content items of a specific type, optionally filtered by path.",
+        "operationId": "listContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by path prefix",
+              "title": "Path"
+            },
+            "description": "Filter by path prefix"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Maximum items to return",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Maximum items to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content list returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid content type"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/{content_type}/query": {
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Query content",
+        "description": "Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.",
+        "operationId": "queryContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query results returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid filter or content type"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/{content_type}/search": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Search content",
+        "description": "Full-text search in content names and paths. Case-insensitive.",
+        "operationId": "searchContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Search query string",
+              "title": "Q"
+            },
+            "description": "Search query string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Maximum results to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum results to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/{content_type}/tree": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Get content tree",
+        "description": "Returns hierarchical tree structure of content with configurable depth.",
+        "operationId": "getContentTree",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Root path for tree",
+              "title": "Path"
+            },
+            "description": "Root path for tree"
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "description": "Maximum tree depth",
+              "default": 3,
+              "title": "Depth"
+            },
+            "description": "Maximum tree depth"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tree structure returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentTreeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/{content_type}/stats": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Get content statistics",
+        "description": "Returns file counts and sizes grouped by extension for a content path.",
+        "operationId": "getContentStats",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Path to analyze",
+              "title": "Path"
+            },
+            "description": "Path to analyze"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentStatsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/{content_type}/{content_id}": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Read content",
+        "description": "Reads content by type and path. Binary files are base64-encoded.",
+        "operationId": "readContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentReadResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Write content",
+        "description": "Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.",
+        "operationId": "writeContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Content written successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentWriteResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Content already exists or ETag mismatch"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Delete content",
+        "description": "Deletes content. Use recursive=true with confirm=true to delete directories.",
+        "operationId": "deleteContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Id"
+            }
+          },
+          {
+            "name": "recursive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Delete directory recursively",
+              "default": false,
+              "title": "Recursive"
+            },
+            "description": "Delete directory recursively"
+          },
+          {
+            "name": "confirm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Confirm recursive deletion",
+              "default": false,
+              "title": "Confirm"
+            },
+            "description": "Confirm recursive deletion"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentDeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Recursive delete requires confirmation"
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/move": {
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Move content",
+        "description": "Moves content from source to destination path. Use overwrite=true to replace existing.",
+        "operationId": "moveContent",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Content moved successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Source not found"
+          },
+          "409": {
+            "description": "Destination exists"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/lock": {
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Lock content",
+        "description": "Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.",
+        "operationId": "lockContent",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lock acquired",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/unlock": {
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Unlock content",
+        "description": "Releases an exclusive lock on content. Stub endpoint for SDK compatibility.",
+        "operationId": "unlockContent",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lock released",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/tools/mission/create": {
       "post": {
         "tags": [
@@ -3175,6 +3175,100 @@
             }
           }
         }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login",
+        "description": "JSON login endpoint for programmatic clients.\n\nAuthenticates with Cognito using username/password and returns JWT tokens.\nUse /auth/token for OAuth2 form-based login (Swagger UI).",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh Tokens",
+        "description": "Refresh access token using refresh token.\n\nReturns new access and ID tokens. The refresh token remains valid\nuntil it expires (configured in Cognito).",
+        "operationId": "refreshTokens",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
       }
     },
     "/auth/config": {
@@ -4429,6 +4523,25 @@
         ],
         "title": "LockRequest"
       },
+      "LoginRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "LoginRequest",
+        "description": "JSON login request for programmatic clients."
+      },
       "MessageResponse": {
         "properties": {
           "message_id": {
@@ -4954,6 +5067,49 @@
         ],
         "title": "RAGRequest"
       },
+      "RefreshRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshRequest",
+        "description": "Token refresh request."
+      },
+      "RefreshResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "default": 3600
+          },
+          "id_token": {
+            "type": "string",
+            "title": "Id Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "id_token"
+        ],
+        "title": "RefreshResponse",
+        "description": "Token refresh response (no new refresh_token)."
+      },
       "RepoDeleteResponse": {
         "properties": {
           "repo_id": {
@@ -4985,7 +5141,7 @@
           "status": {
             "type": "string",
             "title": "Status",
-            "description": "started|downloading|indexing|complete|failed",
+            "description": "started|linked|downloading|indexing|complete|failed",
             "examples": [
               "started"
             ]
@@ -5002,6 +5158,27 @@
             "title": "Message",
             "examples": [
               "Download initiated"
+            ]
+          },
+          "deduplicated": {
+            "type": "boolean",
+            "title": "Deduplicated",
+            "description": "True if repo already exists and was linked instead of downloaded",
+            "default": false
+          },
+          "s3_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "S3 Path",
+            "description": "S3 storage path",
+            "examples": [
+              "workspaces/public/repo/owner/repo/"
             ]
           }
         },
@@ -5646,5 +5823,10 @@
         }
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+    }
+  ]
 }

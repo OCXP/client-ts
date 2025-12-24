@@ -1282,13 +1282,25 @@ type RepoDownloadResponse = {
     /**
      * Status
      *
-     * started|downloading|indexing|complete|failed
+     * started|linked|downloading|indexing|complete|failed
      */
     status: string;
     /**
      * Message
      */
     message?: string | null;
+    /**
+     * Deduplicated
+     *
+     * True if repo already exists and was linked instead of downloaded
+     */
+    deduplicated?: boolean;
+    /**
+     * S3 Path
+     *
+     * S3 storage path
+     */
+    s3_path?: string | null;
 };
 /**
  * RepoInfo
@@ -1721,412 +1733,6 @@ type BulkDeleteContentResponses = {
      * Successful Response
      */
     200: BulkDeleteResponse;
-};
-type GetContentTypesData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path?: never;
-    query?: {
-        /**
-         * Counts
-         *
-         * Include item counts per type
-         */
-        counts?: boolean;
-    };
-    url: '/ocxp/types';
-};
-type GetContentTypesErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type GetContentTypesResponses = {
-    /**
-     * List of content types returned
-     */
-    200: ContentTypesResponse$1;
-};
-type ListContentData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-    };
-    query?: {
-        /**
-         * Path
-         *
-         * Filter by path prefix
-         */
-        path?: string | null;
-        /**
-         * Limit
-         *
-         * Maximum items to return
-         */
-        limit?: number;
-    };
-    url: '/ocxp/{content_type}/list';
-};
-type ListContentErrors = {
-    /**
-     * Invalid content type
-     */
-    400: unknown;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type ListContentResponses = {
-    /**
-     * Content list returned
-     */
-    200: ContentListResponse;
-};
-type QueryContentData = {
-    body: QueryRequest;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-    };
-    query?: never;
-    url: '/ocxp/{content_type}/query';
-};
-type QueryContentErrors = {
-    /**
-     * Invalid filter or content type
-     */
-    400: unknown;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type QueryContentResponses = {
-    /**
-     * Query results returned
-     */
-    200: ContentListResponse;
-};
-type SearchContentData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-    };
-    query: {
-        /**
-         * Q
-         *
-         * Search query string
-         */
-        q: string;
-        /**
-         * Limit
-         *
-         * Maximum results to return
-         */
-        limit?: number;
-    };
-    url: '/ocxp/{content_type}/search';
-};
-type SearchContentErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type SearchContentResponses = {
-    /**
-     * Search results returned
-     */
-    200: ContentListResponse;
-};
-type GetContentTreeData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-    };
-    query?: {
-        /**
-         * Path
-         *
-         * Root path for tree
-         */
-        path?: string | null;
-        /**
-         * Depth
-         *
-         * Maximum tree depth
-         */
-        depth?: number;
-    };
-    url: '/ocxp/{content_type}/tree';
-};
-type GetContentTreeErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type GetContentTreeResponses = {
-    /**
-     * Tree structure returned
-     */
-    200: ContentTreeResponse;
-};
-type GetContentStatsData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-    };
-    query?: {
-        /**
-         * Path
-         *
-         * Path to analyze
-         */
-        path?: string | null;
-    };
-    url: '/ocxp/{content_type}/stats';
-};
-type GetContentStatsErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type GetContentStatsResponses = {
-    /**
-     * Statistics returned
-     */
-    200: ContentStatsResponse;
-};
-type DeleteContentData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-        /**
-         * Content Id
-         */
-        content_id: string;
-    };
-    query?: {
-        /**
-         * Recursive
-         *
-         * Delete directory recursively
-         */
-        recursive?: boolean;
-        /**
-         * Confirm
-         *
-         * Confirm recursive deletion
-         */
-        confirm?: boolean;
-    };
-    url: '/ocxp/{content_type}/{content_id}';
-};
-type DeleteContentErrors = {
-    /**
-     * Recursive delete requires confirmation
-     */
-    400: unknown;
-    /**
-     * Content not found
-     */
-    404: unknown;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type DeleteContentResponses = {
-    /**
-     * Content deleted
-     */
-    200: ContentDeleteResponse;
-};
-type ReadContentData = {
-    body?: never;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-        /**
-         * Content Id
-         */
-        content_id: string;
-    };
-    query?: never;
-    url: '/ocxp/{content_type}/{content_id}';
-};
-type ReadContentErrors = {
-    /**
-     * Content not found
-     */
-    404: unknown;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type ReadContentResponses = {
-    /**
-     * Content returned
-     */
-    200: ContentReadResponse;
-};
-type WriteContentData = {
-    body: WriteRequest;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Content Type
-         */
-        content_type: string;
-        /**
-         * Content Id
-         */
-        content_id: string;
-    };
-    query?: never;
-    url: '/ocxp/{content_type}/{content_id}';
-};
-type WriteContentErrors = {
-    /**
-     * Content already exists or ETag mismatch
-     */
-    409: unknown;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type WriteContentResponses = {
-    /**
-     * Content written successfully
-     */
-    201: ContentWriteResponse;
-};
-type LockContentData = {
-    body: LockRequest;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path?: never;
-    query?: never;
-    url: '/ocxp/lock';
-};
-type LockContentErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type LockContentResponses = {
-    /**
-     * Lock acquired
-     */
-    200: unknown;
-};
-type UnlockContentData = {
-    body: LockRequest;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path?: never;
-    query?: never;
-    url: '/ocxp/unlock';
-};
-type UnlockContentErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type UnlockContentResponses = {
-    /**
-     * Lock released
-     */
-    200: unknown;
 };
 type ListSessionsData = {
     body?: never;
@@ -2754,7 +2360,7 @@ type DownloadRepositoryErrors = {
 };
 type DownloadRepositoryResponses = {
     /**
-     * Download job started
+     * Download job started or linked to existing
      */
     202: RepoDownloadResponse;
 };
@@ -2997,6 +2603,412 @@ type GithubGetContentsResponses = {
      */
     200: unknown;
 };
+type GetContentTypesData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Counts
+         *
+         * Include item counts per type
+         */
+        counts?: boolean;
+    };
+    url: '/ocxp/types';
+};
+type GetContentTypesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetContentTypesResponses = {
+    /**
+     * List of content types returned
+     */
+    200: ContentTypesResponse$1;
+};
+type ListContentData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: {
+        /**
+         * Path
+         *
+         * Filter by path prefix
+         */
+        path?: string | null;
+        /**
+         * Limit
+         *
+         * Maximum items to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/{content_type}/list';
+};
+type ListContentErrors = {
+    /**
+     * Invalid content type
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListContentResponses = {
+    /**
+     * Content list returned
+     */
+    200: ContentListResponse;
+};
+type QueryContentData = {
+    body: QueryRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/query';
+};
+type QueryContentErrors = {
+    /**
+     * Invalid filter or content type
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type QueryContentResponses = {
+    /**
+     * Query results returned
+     */
+    200: ContentListResponse;
+};
+type SearchContentData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query: {
+        /**
+         * Q
+         *
+         * Search query string
+         */
+        q: string;
+        /**
+         * Limit
+         *
+         * Maximum results to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/{content_type}/search';
+};
+type SearchContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type SearchContentResponses = {
+    /**
+     * Search results returned
+     */
+    200: ContentListResponse;
+};
+type GetContentTreeData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: {
+        /**
+         * Path
+         *
+         * Root path for tree
+         */
+        path?: string | null;
+        /**
+         * Depth
+         *
+         * Maximum tree depth
+         */
+        depth?: number;
+    };
+    url: '/ocxp/{content_type}/tree';
+};
+type GetContentTreeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetContentTreeResponses = {
+    /**
+     * Tree structure returned
+     */
+    200: ContentTreeResponse;
+};
+type GetContentStatsData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+    };
+    query?: {
+        /**
+         * Path
+         *
+         * Path to analyze
+         */
+        path?: string | null;
+    };
+    url: '/ocxp/{content_type}/stats';
+};
+type GetContentStatsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetContentStatsResponses = {
+    /**
+     * Statistics returned
+     */
+    200: ContentStatsResponse;
+};
+type DeleteContentData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+        /**
+         * Content Id
+         */
+        content_id: string;
+    };
+    query?: {
+        /**
+         * Recursive
+         *
+         * Delete directory recursively
+         */
+        recursive?: boolean;
+        /**
+         * Confirm
+         *
+         * Confirm recursive deletion
+         */
+        confirm?: boolean;
+    };
+    url: '/ocxp/{content_type}/{content_id}';
+};
+type DeleteContentErrors = {
+    /**
+     * Recursive delete requires confirmation
+     */
+    400: unknown;
+    /**
+     * Content not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DeleteContentResponses = {
+    /**
+     * Content deleted
+     */
+    200: ContentDeleteResponse;
+};
+type ReadContentData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+        /**
+         * Content Id
+         */
+        content_id: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/{content_id}';
+};
+type ReadContentErrors = {
+    /**
+     * Content not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ReadContentResponses = {
+    /**
+     * Content returned
+     */
+    200: ContentReadResponse;
+};
+type WriteContentData = {
+    body: WriteRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Content Type
+         */
+        content_type: string;
+        /**
+         * Content Id
+         */
+        content_id: string;
+    };
+    query?: never;
+    url: '/ocxp/{content_type}/{content_id}';
+};
+type WriteContentErrors = {
+    /**
+     * Content already exists or ETag mismatch
+     */
+    409: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type WriteContentResponses = {
+    /**
+     * Content written successfully
+     */
+    201: ContentWriteResponse;
+};
+type LockContentData = {
+    body: LockRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/lock';
+};
+type LockContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type LockContentResponses = {
+    /**
+     * Lock acquired
+     */
+    200: unknown;
+};
+type UnlockContentData = {
+    body: LockRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/unlock';
+};
+type UnlockContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type UnlockContentResponses = {
+    /**
+     * Lock released
+     */
+    200: unknown;
+};
 type CreateMissionData = {
     body: MissionCreateRequest;
     headers?: {
@@ -3222,72 +3234,6 @@ declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: 
  */
 declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, BulkDeleteContentErrors, ThrowOnError, "fields">;
 /**
- * Get content types
- *
- * Returns all available content types (mission, context, repo, etc.) with optional item counts.
- */
-declare const getContentTypes: <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => RequestResult<GetContentTypesResponses, GetContentTypesErrors, ThrowOnError, "fields">;
-/**
- * List content
- *
- * Lists all content items of a specific type, optionally filtered by path.
- */
-declare const listContent: <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => RequestResult<ListContentResponses, ListContentErrors, ThrowOnError, "fields">;
-/**
- * Query content
- *
- * Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.
- */
-declare const queryContent: <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => RequestResult<QueryContentResponses, QueryContentErrors, ThrowOnError, "fields">;
-/**
- * Search content
- *
- * Full-text search in content names and paths. Case-insensitive.
- */
-declare const searchContent: <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => RequestResult<SearchContentResponses, SearchContentErrors, ThrowOnError, "fields">;
-/**
- * Get content tree
- *
- * Returns hierarchical tree structure of content with configurable depth.
- */
-declare const getContentTree: <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => RequestResult<GetContentTreeResponses, GetContentTreeErrors, ThrowOnError, "fields">;
-/**
- * Get content statistics
- *
- * Returns file counts and sizes grouped by extension for a content path.
- */
-declare const getContentStats: <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => RequestResult<GetContentStatsResponses, GetContentStatsErrors, ThrowOnError, "fields">;
-/**
- * Delete content
- *
- * Deletes content. Use recursive=true with confirm=true to delete directories.
- */
-declare const deleteContent: <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => RequestResult<DeleteContentResponses, DeleteContentErrors, ThrowOnError, "fields">;
-/**
- * Read content
- *
- * Reads content by type and path. Binary files are base64-encoded.
- */
-declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, ReadContentErrors, ThrowOnError, "fields">;
-/**
- * Write content
- *
- * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
- */
-declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, WriteContentErrors, ThrowOnError, "fields">;
-/**
- * Lock content
- *
- * Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.
- */
-declare const lockContent: <ThrowOnError extends boolean = false>(options: Options<LockContentData, ThrowOnError>) => RequestResult<LockContentResponses, LockContentErrors, ThrowOnError, "fields">;
-/**
- * Unlock content
- *
- * Releases an exclusive lock on content. Stub endpoint for SDK compatibility.
- */
-declare const unlockContent: <ThrowOnError extends boolean = false>(options: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, UnlockContentErrors, ThrowOnError, "fields">;
-/**
  * List all sessions
  *
  * Returns sessions for the workspace filtered by status. Ordered by most recently updated.
@@ -3398,7 +3344,7 @@ declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: 
 /**
  * Start repository download
  *
- * Initiates an async download of a Git repository. Returns a job ID for status tracking.
+ * Initiates an async download of a Git repository. Returns a job ID for status tracking. If the repository already exists (deduplicated), returns immediately with status='linked'.
  */
 declare const downloadRepository: <ThrowOnError extends boolean = false>(options: Options<DownloadRepositoryData, ThrowOnError>) => RequestResult<DownloadRepositoryResponses, DownloadRepositoryErrors, ThrowOnError, "fields">;
 /**
@@ -3455,6 +3401,72 @@ declare const githubListBranches: <ThrowOnError extends boolean = false>(options
  * Get repository contents.
  */
 declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, GithubGetContentsErrors, ThrowOnError, "fields">;
+/**
+ * Get content types
+ *
+ * Returns all available content types (mission, context, repo, etc.) with optional item counts.
+ */
+declare const getContentTypes: <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => RequestResult<GetContentTypesResponses, GetContentTypesErrors, ThrowOnError, "fields">;
+/**
+ * List content
+ *
+ * Lists all content items of a specific type, optionally filtered by path.
+ */
+declare const listContent: <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => RequestResult<ListContentResponses, ListContentErrors, ThrowOnError, "fields">;
+/**
+ * Query content
+ *
+ * Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.
+ */
+declare const queryContent: <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => RequestResult<QueryContentResponses, QueryContentErrors, ThrowOnError, "fields">;
+/**
+ * Search content
+ *
+ * Full-text search in content names and paths. Case-insensitive.
+ */
+declare const searchContent: <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => RequestResult<SearchContentResponses, SearchContentErrors, ThrowOnError, "fields">;
+/**
+ * Get content tree
+ *
+ * Returns hierarchical tree structure of content with configurable depth.
+ */
+declare const getContentTree: <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => RequestResult<GetContentTreeResponses, GetContentTreeErrors, ThrowOnError, "fields">;
+/**
+ * Get content statistics
+ *
+ * Returns file counts and sizes grouped by extension for a content path.
+ */
+declare const getContentStats: <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => RequestResult<GetContentStatsResponses, GetContentStatsErrors, ThrowOnError, "fields">;
+/**
+ * Delete content
+ *
+ * Deletes content. Use recursive=true with confirm=true to delete directories.
+ */
+declare const deleteContent: <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => RequestResult<DeleteContentResponses, DeleteContentErrors, ThrowOnError, "fields">;
+/**
+ * Read content
+ *
+ * Reads content by type and path. Binary files are base64-encoded.
+ */
+declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, ReadContentErrors, ThrowOnError, "fields">;
+/**
+ * Write content
+ *
+ * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
+ */
+declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, WriteContentErrors, ThrowOnError, "fields">;
+/**
+ * Lock content
+ *
+ * Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.
+ */
+declare const lockContent: <ThrowOnError extends boolean = false>(options: Options<LockContentData, ThrowOnError>) => RequestResult<LockContentResponses, LockContentErrors, ThrowOnError, "fields">;
+/**
+ * Unlock content
+ *
+ * Releases an exclusive lock on content. Stub endpoint for SDK compatibility.
+ */
+declare const unlockContent: <ThrowOnError extends boolean = false>(options: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, UnlockContentErrors, ThrowOnError, "fields">;
 /**
  * Create a new mission
  *
@@ -3871,42 +3883,15 @@ declare class OCXPClient {
      * @param branch - Optional branch (default: main)
      * @param mode - Download mode: full or docs_only
      */
-    downloadRepository(repoUrl: string, branch?: string, mode?: string): Promise<({
-        data: RepoDownloadResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: unknown;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    downloadRepository(repoUrl: string, branch?: string, mode?: string): Promise<RepoDownloadResponse>;
     /**
      * Get repository download status
      */
-    getRepoStatus(jobId: string): Promise<({
-        data: RepoStatusResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: unknown;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    getRepoStatus(jobId: string): Promise<RepoStatusResponse>;
     /**
      * List all downloaded repositories in workspace
      */
-    listRepos(): Promise<({
-        data: RepoListResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    listRepos(): Promise<RepoListResponse>;
     /**
      * Delete a downloaded repository
      */

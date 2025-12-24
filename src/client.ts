@@ -24,6 +24,9 @@ import type {
   SessionMetadataUpdate,
   SessionForkResponse,
   ForkRequest,
+  RepoDownloadResponse,
+  RepoStatusResponse,
+  RepoListResponse,
   RepoDeleteResponse,
   AuthConfig,
   UserResponse,
@@ -572,36 +575,39 @@ export class OCXPClient {
    * @param branch - Optional branch (default: main)
    * @param mode - Download mode: full or docs_only
    */
-  async downloadRepository(repoUrl: string, branch?: string, mode?: string) {
+  async downloadRepository(repoUrl: string, branch?: string, mode?: string): Promise<RepoDownloadResponse> {
     const headers = await this.getHeaders();
-    return sdk.downloadRepository({
+    const response = await sdk.downloadRepository({
       client: this.client,
       body: { repo_url: repoUrl, branch, mode },
       headers,
     });
+    return extractData(response) as RepoDownloadResponse;
   }
 
   /**
    * Get repository download status
    */
-  async getRepoStatus(jobId: string) {
+  async getRepoStatus(jobId: string): Promise<RepoStatusResponse> {
     const headers = await this.getHeaders();
-    return sdk.getRepoDownloadStatus({
+    const response = await sdk.getRepoDownloadStatus({
       client: this.client,
       path: { job_id: jobId },
       headers,
     });
+    return extractData(response) as RepoStatusResponse;
   }
 
   /**
    * List all downloaded repositories in workspace
    */
-  async listRepos() {
+  async listRepos(): Promise<RepoListResponse> {
     const headers = await this.getHeaders();
-    return sdk.listDownloadedRepos({
+    const response = await sdk.listDownloadedRepos({
       client: this.client,
       headers,
     });
+    return extractData(response) as RepoListResponse;
   }
 
   /**

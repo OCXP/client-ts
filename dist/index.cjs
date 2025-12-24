@@ -813,7 +813,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig());
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -837,77 +841,6 @@ var bulkWriteContent = (options) => (options.client ?? client).post({
 var bulkDeleteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/{content_type}/bulk/delete",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var getContentTypes = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/types",
-  ...options
-});
-var listContent = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/list",
-  ...options
-});
-var queryContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/query",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var searchContent = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/search",
-  ...options
-});
-var getContentTree = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/tree",
-  ...options
-});
-var getContentStats = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/stats",
-  ...options
-});
-var deleteContent = (options) => (options.client ?? client).delete({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/{content_id}",
-  ...options
-});
-var readContent = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/{content_id}",
-  ...options
-});
-var writeContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/{content_id}",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var lockContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/lock",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var unlockContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/unlock",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1106,6 +1039,77 @@ var githubListBranches = (options) => (options.client ?? client).post({
 var githubGetContents = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/github/contents",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getContentTypes = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/types",
+  ...options
+});
+var listContent = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/list",
+  ...options
+});
+var queryContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/query",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var searchContent = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/search",
+  ...options
+});
+var getContentTree = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/tree",
+  ...options
+});
+var getContentStats = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/stats",
+  ...options
+});
+var deleteContent = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/{content_id}",
+  ...options
+});
+var readContent = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/{content_id}",
+  ...options
+});
+var writeContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/{content_type}/{content_id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var lockContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/lock",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var unlockContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/unlock",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1595,32 +1599,35 @@ var OCXPClient = class {
    */
   async downloadRepository(repoUrl, branch, mode) {
     const headers = await this.getHeaders();
-    return downloadRepository({
+    const response = await downloadRepository({
       client: this.client,
       body: { repo_url: repoUrl, branch, mode },
       headers
     });
+    return extractData(response);
   }
   /**
    * Get repository download status
    */
   async getRepoStatus(jobId) {
     const headers = await this.getHeaders();
-    return getRepoDownloadStatus({
+    const response = await getRepoDownloadStatus({
       client: this.client,
       path: { job_id: jobId },
       headers
     });
+    return extractData(response);
   }
   /**
    * List all downloaded repositories in workspace
    */
   async listRepos() {
     const headers = await this.getHeaders();
-    return listDownloadedRepos({
+    const response = await listDownloadedRepos({
       client: this.client,
       headers
     });
+    return extractData(response);
   }
   /**
    * Delete a downloaded repository

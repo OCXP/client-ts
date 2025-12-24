@@ -118,9 +118,12 @@ import type {
   LockContentData,
   LockContentErrors,
   LockContentResponses,
+  LoginData,
+  LoginErrors,
   LoginForAccessTokenData,
   LoginForAccessTokenErrors,
   LoginForAccessTokenResponses,
+  LoginResponses,
   MoveContentData,
   MoveContentErrors,
   MoveContentResponses,
@@ -136,6 +139,9 @@ import type {
   ReadContentData,
   ReadContentErrors,
   ReadContentResponses,
+  RefreshTokensData,
+  RefreshTokensErrors,
+  RefreshTokensResponses,
   RemoveLinkedRepoData,
   RemoveLinkedRepoErrors,
   RemoveLinkedRepoResponses,
@@ -233,194 +239,6 @@ export const bulkDeleteContent = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{content_type}/bulk/delete',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Get content types
- *
- * Returns all available content types (mission, context, repo, etc.) with optional item counts.
- */
-export const getContentTypes = <ThrowOnError extends boolean = false>(
-  options?: Options<GetContentTypesData, ThrowOnError>
-) =>
-  (options?.client ?? client).get<GetContentTypesResponses, GetContentTypesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/types',
-    ...options,
-  });
-
-/**
- * List content
- *
- * Lists all content items of a specific type, optionally filtered by path.
- */
-export const listContent = <ThrowOnError extends boolean = false>(
-  options: Options<ListContentData, ThrowOnError>
-) =>
-  (options.client ?? client).get<ListContentResponses, ListContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/list',
-    ...options,
-  });
-
-/**
- * Query content
- *
- * Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.
- */
-export const queryContent = <ThrowOnError extends boolean = false>(
-  options: Options<QueryContentData, ThrowOnError>
-) =>
-  (options.client ?? client).post<QueryContentResponses, QueryContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/query',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Search content
- *
- * Full-text search in content names and paths. Case-insensitive.
- */
-export const searchContent = <ThrowOnError extends boolean = false>(
-  options: Options<SearchContentData, ThrowOnError>
-) =>
-  (options.client ?? client).get<SearchContentResponses, SearchContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/search',
-    ...options,
-  });
-
-/**
- * Get content tree
- *
- * Returns hierarchical tree structure of content with configurable depth.
- */
-export const getContentTree = <ThrowOnError extends boolean = false>(
-  options: Options<GetContentTreeData, ThrowOnError>
-) =>
-  (options.client ?? client).get<GetContentTreeResponses, GetContentTreeErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/tree',
-    ...options,
-  });
-
-/**
- * Get content statistics
- *
- * Returns file counts and sizes grouped by extension for a content path.
- */
-export const getContentStats = <ThrowOnError extends boolean = false>(
-  options: Options<GetContentStatsData, ThrowOnError>
-) =>
-  (options.client ?? client).get<GetContentStatsResponses, GetContentStatsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/stats',
-    ...options,
-  });
-
-/**
- * Delete content
- *
- * Deletes content. Use recursive=true with confirm=true to delete directories.
- */
-export const deleteContent = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteContentData, ThrowOnError>
-) =>
-  (options.client ?? client).delete<DeleteContentResponses, DeleteContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/{content_id}',
-    ...options,
-  });
-
-/**
- * Read content
- *
- * Reads content by type and path. Binary files are base64-encoded.
- */
-export const readContent = <ThrowOnError extends boolean = false>(
-  options: Options<ReadContentData, ThrowOnError>
-) =>
-  (options.client ?? client).get<ReadContentResponses, ReadContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/{content_id}',
-    ...options,
-  });
-
-/**
- * Write content
- *
- * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
- */
-export const writeContent = <ThrowOnError extends boolean = false>(
-  options: Options<WriteContentData, ThrowOnError>
-) =>
-  (options.client ?? client).post<WriteContentResponses, WriteContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/{content_id}',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Move content
- *
- * Moves content from source to destination path. Use overwrite=true to replace existing.
- */
-export const moveContent = <ThrowOnError extends boolean = false>(
-  options: Options<MoveContentData, ThrowOnError>
-) =>
-  (options.client ?? client).post<MoveContentResponses, MoveContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/move',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Lock content
- *
- * Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.
- */
-export const lockContent = <ThrowOnError extends boolean = false>(
-  options: Options<LockContentData, ThrowOnError>
-) =>
-  (options.client ?? client).post<LockContentResponses, LockContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/lock',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Unlock content
- *
- * Releases an exclusive lock on content. Stub endpoint for SDK compatibility.
- */
-export const unlockContent = <ThrowOnError extends boolean = false>(
-  options: Options<UnlockContentData, ThrowOnError>
-) =>
-  (options.client ?? client).post<UnlockContentResponses, UnlockContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/unlock',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -735,7 +553,7 @@ export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(
 /**
  * Start repository download
  *
- * Initiates an async download of a Git repository. Returns a job ID for status tracking.
+ * Initiates an async download of a Git repository. Returns a job ID for status tracking. If the repository already exists (deduplicated), returns immediately with status='linked'.
  */
 export const downloadRepository = <ThrowOnError extends boolean = false>(
   options: Options<DownloadRepositoryData, ThrowOnError>
@@ -919,6 +737,194 @@ export const githubGetContents = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Get content types
+ *
+ * Returns all available content types (mission, context, repo, etc.) with optional item counts.
+ */
+export const getContentTypes = <ThrowOnError extends boolean = false>(
+  options?: Options<GetContentTypesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetContentTypesResponses, GetContentTypesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/types',
+    ...options,
+  });
+
+/**
+ * List content
+ *
+ * Lists all content items of a specific type, optionally filtered by path.
+ */
+export const listContent = <ThrowOnError extends boolean = false>(
+  options: Options<ListContentData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ListContentResponses, ListContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/list',
+    ...options,
+  });
+
+/**
+ * Query content
+ *
+ * Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.
+ */
+export const queryContent = <ThrowOnError extends boolean = false>(
+  options: Options<QueryContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<QueryContentResponses, QueryContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/query',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Search content
+ *
+ * Full-text search in content names and paths. Case-insensitive.
+ */
+export const searchContent = <ThrowOnError extends boolean = false>(
+  options: Options<SearchContentData, ThrowOnError>
+) =>
+  (options.client ?? client).get<SearchContentResponses, SearchContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/search',
+    ...options,
+  });
+
+/**
+ * Get content tree
+ *
+ * Returns hierarchical tree structure of content with configurable depth.
+ */
+export const getContentTree = <ThrowOnError extends boolean = false>(
+  options: Options<GetContentTreeData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetContentTreeResponses, GetContentTreeErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/tree',
+    ...options,
+  });
+
+/**
+ * Get content statistics
+ *
+ * Returns file counts and sizes grouped by extension for a content path.
+ */
+export const getContentStats = <ThrowOnError extends boolean = false>(
+  options: Options<GetContentStatsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetContentStatsResponses, GetContentStatsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/stats',
+    ...options,
+  });
+
+/**
+ * Delete content
+ *
+ * Deletes content. Use recursive=true with confirm=true to delete directories.
+ */
+export const deleteContent = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteContentData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteContentResponses, DeleteContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/{content_id}',
+    ...options,
+  });
+
+/**
+ * Read content
+ *
+ * Reads content by type and path. Binary files are base64-encoded.
+ */
+export const readContent = <ThrowOnError extends boolean = false>(
+  options: Options<ReadContentData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ReadContentResponses, ReadContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/{content_id}',
+    ...options,
+  });
+
+/**
+ * Write content
+ *
+ * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
+ */
+export const writeContent = <ThrowOnError extends boolean = false>(
+  options: Options<WriteContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<WriteContentResponses, WriteContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/{content_type}/{content_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Move content
+ *
+ * Moves content from source to destination path. Use overwrite=true to replace existing.
+ */
+export const moveContent = <ThrowOnError extends boolean = false>(
+  options: Options<MoveContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<MoveContentResponses, MoveContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/move',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Lock content
+ *
+ * Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.
+ */
+export const lockContent = <ThrowOnError extends boolean = false>(
+  options: Options<LockContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<LockContentResponses, LockContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/lock',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Unlock content
+ *
+ * Releases an exclusive lock on content. Stub endpoint for SDK compatibility.
+ */
+export const unlockContent = <ThrowOnError extends boolean = false>(
+  options: Options<UnlockContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<UnlockContentResponses, UnlockContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/unlock',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * Create a new mission
  *
  * Creates a mission with optional project association and goals list.
@@ -1027,6 +1033,48 @@ export const loginForAccessToken = <ThrowOnError extends boolean = false>(
     ...options,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Login
+ *
+ * JSON login endpoint for programmatic clients.
+ *
+ * Authenticates with Cognito using username/password and returns JWT tokens.
+ * Use /auth/token for OAuth2 form-based login (Swagger UI).
+ */
+export const login = <ThrowOnError extends boolean = false>(
+  options: Options<LoginData, ThrowOnError>
+) =>
+  (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/login',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Refresh Tokens
+ *
+ * Refresh access token using refresh token.
+ *
+ * Returns new access and ID tokens. The refresh token remains valid
+ * until it expires (configured in Cognito).
+ */
+export const refreshTokens = <ThrowOnError extends boolean = false>(
+  options: Options<RefreshTokensData, ThrowOnError>
+) =>
+  (options.client ?? client).post<RefreshTokensResponses, RefreshTokensErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/refresh',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
       ...options.headers,
     },
   });
