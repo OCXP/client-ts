@@ -1,5 +1,315 @@
 import { z } from 'zod';
 
+type AuthToken = string | undefined;
+interface Auth {
+    /**
+     * Which part of the request do we use to send the auth?
+     *
+     * @default 'header'
+     */
+    in?: 'header' | 'query' | 'cookie';
+    /**
+     * Header or query parameter name.
+     *
+     * @default 'Authorization'
+     */
+    name?: string;
+    scheme?: 'basic' | 'bearer';
+    type: 'apiKey' | 'http';
+}
+
+interface SerializerOptions<T> {
+    /**
+     * @default true
+     */
+    explode: boolean;
+    style: T;
+}
+type ArrayStyle = 'form' | 'spaceDelimited' | 'pipeDelimited';
+type ObjectStyle = 'form' | 'deepObject';
+
+type QuerySerializer = (query: Record<string, unknown>) => string;
+type BodySerializer = (body: any) => any;
+type QuerySerializerOptionsObject = {
+    allowReserved?: boolean;
+    array?: Partial<SerializerOptions<ArrayStyle>>;
+    object?: Partial<SerializerOptions<ObjectStyle>>;
+};
+type QuerySerializerOptions = QuerySerializerOptionsObject & {
+    /**
+     * Per-parameter serialization overrides. When provided, these settings
+     * override the global array/object settings for specific parameter names.
+     */
+    parameters?: Record<string, QuerySerializerOptionsObject>;
+};
+
+type HttpMethod = 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace';
+type Client$1<RequestFn = never, Config = unknown, MethodFn = never, BuildUrlFn = never, SseFn = never> = {
+    /**
+     * Returns the final request URL.
+     */
+    buildUrl: BuildUrlFn;
+    getConfig: () => Config;
+    request: RequestFn;
+    setConfig: (config: Config) => Config;
+} & {
+    [K in HttpMethod]: MethodFn;
+} & ([SseFn] extends [never] ? {
+    sse?: never;
+} : {
+    sse: {
+        [K in HttpMethod]: SseFn;
+    };
+});
+interface Config$1 {
+    /**
+     * Auth token or a function returning auth token. The resolved value will be
+     * added to the request payload as defined by its `security` array.
+     */
+    auth?: ((auth: Auth) => Promise<AuthToken> | AuthToken) | AuthToken;
+    /**
+     * A function for serializing request body parameter. By default,
+     * {@link JSON.stringify()} will be used.
+     */
+    bodySerializer?: BodySerializer | null;
+    /**
+     * An object containing any HTTP headers that you want to pre-populate your
+     * `Headers` object with.
+     *
+     * {@link https://developer.mozilla.org/docs/Web/API/Headers/Headers#init See more}
+     */
+    headers?: RequestInit['headers'] | Record<string, string | number | boolean | (string | number | boolean)[] | null | undefined | unknown>;
+    /**
+     * The request method.
+     *
+     * {@link https://developer.mozilla.org/docs/Web/API/fetch#method See more}
+     */
+    method?: Uppercase<HttpMethod>;
+    /**
+     * A function for serializing request query parameters. By default, arrays
+     * will be exploded in form style, objects will be exploded in deepObject
+     * style, and reserved characters are percent-encoded.
+     *
+     * This method will have no effect if the native `paramsSerializer()` Axios
+     * API function is used.
+     *
+     * {@link https://swagger.io/docs/specification/serialization/#query View examples}
+     */
+    querySerializer?: QuerySerializer | QuerySerializerOptions;
+    /**
+     * A function validating request data. This is useful if you want to ensure
+     * the request conforms to the desired shape, so it can be safely sent to
+     * the server.
+     */
+    requestValidator?: (data: unknown) => Promise<unknown>;
+    /**
+     * A function transforming response data before it's returned. This is useful
+     * for post-processing data, e.g. converting ISO strings into Date objects.
+     */
+    responseTransformer?: (data: unknown) => Promise<unknown>;
+    /**
+     * A function validating response data. This is useful if you want to ensure
+     * the response conforms to the desired shape, so it can be safely passed to
+     * the transformers and returned to the user.
+     */
+    responseValidator?: (data: unknown) => Promise<unknown>;
+}
+
+type ServerSentEventsOptions<TData = unknown> = Omit<RequestInit, 'method'> & Pick<Config$1, 'method' | 'responseTransformer' | 'responseValidator'> & {
+    /**
+     * Fetch API implementation. You can use this option to provide a custom
+     * fetch instance.
+     *
+     * @default globalThis.fetch
+     */
+    fetch?: typeof fetch;
+    /**
+     * Implementing clients can call request interceptors inside this hook.
+     */
+    onRequest?: (url: string, init: RequestInit) => Promise<Request>;
+    /**
+     * Callback invoked when a network or parsing error occurs during streaming.
+     *
+     * This option applies only if the endpoint returns a stream of events.
+     *
+     * @param error The error that occurred.
+     */
+    onSseError?: (error: unknown) => void;
+    /**
+     * Callback invoked when an event is streamed from the server.
+     *
+     * This option applies only if the endpoint returns a stream of events.
+     *
+     * @param event Event streamed from the server.
+     * @returns Nothing (void).
+     */
+    onSseEvent?: (event: StreamEvent<TData>) => void;
+    serializedBody?: RequestInit['body'];
+    /**
+     * Default retry delay in milliseconds.
+     *
+     * This option applies only if the endpoint returns a stream of events.
+     *
+     * @default 3000
+     */
+    sseDefaultRetryDelay?: number;
+    /**
+     * Maximum number of retry attempts before giving up.
+     */
+    sseMaxRetryAttempts?: number;
+    /**
+     * Maximum retry delay in milliseconds.
+     *
+     * Applies only when exponential backoff is used.
+     *
+     * This option applies only if the endpoint returns a stream of events.
+     *
+     * @default 30000
+     */
+    sseMaxRetryDelay?: number;
+    /**
+     * Optional sleep function for retry backoff.
+     *
+     * Defaults to using `setTimeout`.
+     */
+    sseSleepFn?: (ms: number) => Promise<void>;
+    url: string;
+};
+interface StreamEvent<TData = unknown> {
+    data: TData;
+    event?: string;
+    id?: string;
+    retry?: number;
+}
+type ServerSentEventsResult<TData = unknown, TReturn = void, TNext = unknown> = {
+    stream: AsyncGenerator<TData extends Record<string, unknown> ? TData[keyof TData] : TData, TReturn, TNext>;
+};
+
+type ErrInterceptor<Err, Res, Req, Options> = (error: Err, response: Res, request: Req, options: Options) => Err | Promise<Err>;
+type ReqInterceptor<Req, Options> = (request: Req, options: Options) => Req | Promise<Req>;
+type ResInterceptor<Res, Req, Options> = (response: Res, request: Req, options: Options) => Res | Promise<Res>;
+declare class Interceptors<Interceptor> {
+    fns: Array<Interceptor | null>;
+    clear(): void;
+    eject(id: number | Interceptor): void;
+    exists(id: number | Interceptor): boolean;
+    getInterceptorIndex(id: number | Interceptor): number;
+    update(id: number | Interceptor, fn: Interceptor): number | Interceptor | false;
+    use(fn: Interceptor): number;
+}
+interface Middleware<Req, Res, Err, Options> {
+    error: Interceptors<ErrInterceptor<Err, Res, Req, Options>>;
+    request: Interceptors<ReqInterceptor<Req, Options>>;
+    response: Interceptors<ResInterceptor<Res, Req, Options>>;
+}
+declare const createConfig: <T extends ClientOptions = ClientOptions>(override?: Config<Omit<ClientOptions, keyof T> & T>) => Config<Omit<ClientOptions, keyof T> & T>;
+
+type ResponseStyle = 'data' | 'fields';
+interface Config<T extends ClientOptions = ClientOptions> extends Omit<RequestInit, 'body' | 'headers' | 'method'>, Config$1 {
+    /**
+     * Base URL for all requests made by this client.
+     */
+    baseUrl?: T['baseUrl'];
+    /**
+     * Fetch API implementation. You can use this option to provide a custom
+     * fetch instance.
+     *
+     * @default globalThis.fetch
+     */
+    fetch?: typeof fetch;
+    /**
+     * Please don't use the Fetch client for Next.js applications. The `next`
+     * options won't have any effect.
+     *
+     * Install {@link https://www.npmjs.com/package/@hey-api/client-next `@hey-api/client-next`} instead.
+     */
+    next?: never;
+    /**
+     * Return the response data parsed in a specified format. By default, `auto`
+     * will infer the appropriate method from the `Content-Type` response header.
+     * You can override this behavior with any of the {@link Body} methods.
+     * Select `stream` if you don't want to parse response data at all.
+     *
+     * @default 'auto'
+     */
+    parseAs?: 'arrayBuffer' | 'auto' | 'blob' | 'formData' | 'json' | 'stream' | 'text';
+    /**
+     * Should we return only data or multiple fields (data, error, response, etc.)?
+     *
+     * @default 'fields'
+     */
+    responseStyle?: ResponseStyle;
+    /**
+     * Throw an error instead of returning it in the response?
+     *
+     * @default false
+     */
+    throwOnError?: T['throwOnError'];
+}
+interface RequestOptions<TData = unknown, TResponseStyle extends ResponseStyle = 'fields', ThrowOnError extends boolean = boolean, Url extends string = string> extends Config<{
+    responseStyle: TResponseStyle;
+    throwOnError: ThrowOnError;
+}>, Pick<ServerSentEventsOptions<TData>, 'onSseError' | 'onSseEvent' | 'sseDefaultRetryDelay' | 'sseMaxRetryAttempts' | 'sseMaxRetryDelay'> {
+    /**
+     * Any body that you want to add to your request.
+     *
+     * {@link https://developer.mozilla.org/docs/Web/API/fetch#body}
+     */
+    body?: unknown;
+    path?: Record<string, unknown>;
+    query?: Record<string, unknown>;
+    /**
+     * Security mechanism(s) to use for the request.
+     */
+    security?: ReadonlyArray<Auth>;
+    url: Url;
+}
+interface ResolvedRequestOptions<TResponseStyle extends ResponseStyle = 'fields', ThrowOnError extends boolean = boolean, Url extends string = string> extends RequestOptions<unknown, TResponseStyle, ThrowOnError, Url> {
+    serializedBody?: string;
+}
+type RequestResult<TData = unknown, TError = unknown, ThrowOnError extends boolean = boolean, TResponseStyle extends ResponseStyle = 'fields'> = ThrowOnError extends true ? Promise<TResponseStyle extends 'data' ? TData extends Record<string, unknown> ? TData[keyof TData] : TData : {
+    data: TData extends Record<string, unknown> ? TData[keyof TData] : TData;
+    request: Request;
+    response: Response;
+}> : Promise<TResponseStyle extends 'data' ? (TData extends Record<string, unknown> ? TData[keyof TData] : TData) | undefined : ({
+    data: TData extends Record<string, unknown> ? TData[keyof TData] : TData;
+    error: undefined;
+} | {
+    data: undefined;
+    error: TError extends Record<string, unknown> ? TError[keyof TError] : TError;
+}) & {
+    request: Request;
+    response: Response;
+}>;
+interface ClientOptions {
+    baseUrl?: string;
+    responseStyle?: ResponseStyle;
+    throwOnError?: boolean;
+}
+type MethodFn = <TData = unknown, TError = unknown, ThrowOnError extends boolean = false, TResponseStyle extends ResponseStyle = 'fields'>(options: Omit<RequestOptions<TData, TResponseStyle, ThrowOnError>, 'method'>) => RequestResult<TData, TError, ThrowOnError, TResponseStyle>;
+type SseFn = <TData = unknown, TError = unknown, ThrowOnError extends boolean = false, TResponseStyle extends ResponseStyle = 'fields'>(options: Omit<RequestOptions<TData, TResponseStyle, ThrowOnError>, 'method'>) => Promise<ServerSentEventsResult<TData, TError>>;
+type RequestFn = <TData = unknown, TError = unknown, ThrowOnError extends boolean = false, TResponseStyle extends ResponseStyle = 'fields'>(options: Omit<RequestOptions<TData, TResponseStyle, ThrowOnError>, 'method'> & Pick<Required<RequestOptions<TData, TResponseStyle, ThrowOnError>>, 'method'>) => RequestResult<TData, TError, ThrowOnError, TResponseStyle>;
+type BuildUrlFn = <TData extends {
+    body?: unknown;
+    path?: Record<string, unknown>;
+    query?: Record<string, unknown>;
+    url: string;
+}>(options: TData & Options$1<TData>) => string;
+type Client = Client$1<RequestFn, Config, MethodFn, BuildUrlFn, SseFn> & {
+    interceptors: Middleware<Request, Response, unknown, ResolvedRequestOptions>;
+};
+interface TDataShape {
+    body?: unknown;
+    headers?: unknown;
+    path?: unknown;
+    query?: unknown;
+    url: string;
+}
+type OmitKeys<T, K> = Pick<T, Exclude<keyof T, K>>;
+type Options$1<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown, TResponseStyle extends ResponseStyle = 'fields'> = OmitKeys<RequestOptions<TResponse, TResponseStyle, ThrowOnError>, 'body' | 'path' | 'query' | 'url'> & ([TData] extends [never] ? unknown : Omit<TData, 'url'>);
+
+declare const createClient: (config?: Config) => Client;
+
 /**
  * WriteRequestBody
  *
@@ -113,195 +423,6 @@ type BulkDeleteRequestBody = {
     };
 };
 /**
- * TypedListRequest
- *
- * Request for typed list operations.
- */
-type TypedListRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Path
-     *
-     * Subpath to list
-     */
-    path?: string;
-    /**
-     * Limit
-     *
-     * Maximum entries to return
-     */
-    limit?: number;
-    /**
-     * Cursor
-     *
-     * Pagination cursor
-     */
-    cursor?: string | unknown;
-};
-/**
- * TypedQueryRequest
- *
- * Request for typed query operations.
- */
-type TypedQueryRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Filters
-     *
-     * Query filters
-     */
-    filters?: Array<{
-        [key: string]: unknown;
-    }>;
-    /**
-     * Limit
-     *
-     * Maximum entries to return
-     */
-    limit?: number;
-};
-/**
- * TypedSearchRequest
- *
- * Request for typed search operations.
- */
-type TypedSearchRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Q
-     *
-     * Search query
-     */
-    q: string;
-    /**
-     * Fuzzy
-     *
-     * Enable fuzzy matching
-     */
-    fuzzy?: string;
-    /**
-     * Limit
-     *
-     * Maximum entries to return
-     */
-    limit?: number;
-};
-/**
- * TypedFindByRequest
- *
- * Request for typed findBy operations.
- */
-type TypedFindByRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Field
-     *
-     * Field to search
-     */
-    field: string;
-    /**
-     * Value
-     *
-     * Value to match
-     */
-    value: string;
-};
-/**
- * TypedTreeRequest
- *
- * Request for tree operations.
- */
-type TypedTreeRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Path
-     *
-     * Root path for tree
-     */
-    path?: string;
-    /**
-     * Depth
-     *
-     * Maximum tree depth
-     */
-    depth?: number;
-};
-/**
- * TypedStatsRequest
- *
- * Request for stats operations.
- */
-type TypedStatsRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Path
-     *
-     * Path to calculate stats for
-     */
-    path?: string;
-};
-/**
- * TypedDeleteRequest
- *
- * Request for typed delete operations.
- */
-type TypedDeleteRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Id
-     *
-     * Content identifier
-     */
-    id: string;
-    /**
-     * Recursive
-     *
-     * Delete recursively
-     */
-    recursive?: string;
-    /**
-     * Confirm
-     *
-     * Confirm recursive delete
-     */
-    confirm?: string;
-};
-/**
  * DownloadRequest
  *
  * Request for bulk download operations.
@@ -327,37 +448,6 @@ type DownloadRequest = {
     options?: {
         [key: string]: unknown;
     };
-};
-/**
- * PresignedUrlRequest
- *
- * Request for presigned URL generation.
- */
-type PresignedUrlRequest = {
-    /**
-     * Type
-     *
-     * Content type (mission, project, context, sop, repo, artifact)
-     */
-    type: string;
-    /**
-     * Id
-     *
-     * Content identifier
-     */
-    id: string;
-    /**
-     * Operation
-     *
-     * Operation type (get or put)
-     */
-    operation?: string;
-    /**
-     * Expiresin
-     *
-     * URL expiry in seconds
-     */
-    expiresIn?: number;
 };
 /**
  * RepoDownloadRequest
@@ -642,7 +732,7 @@ type OcxpResponse = {
 /**
  * Content type metadata from /ocxp/types
  */
-type ContentType = {
+type ContentType$1 = {
     name?: string;
     description?: string;
     prefix?: string | null;
@@ -652,16 +742,6 @@ type ContentType = {
     endpoints?: {
         [key: string]: unknown;
     };
-};
-/**
- * Entry from list operations
- */
-type ListEntry = {
-    name?: string;
-    type?: 'file' | 'directory';
-    path?: string;
-    size?: number;
-    mtime?: string;
 };
 /**
  * Filter for query operations
@@ -738,10 +818,6 @@ type RepoListItem$1 = {
     last_synced?: string;
     s3_path?: string;
 };
-/**
- * Content type
- */
-type ContentType2 = 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
 type GetContentTypesData = {
     body?: never;
     path?: never;
@@ -760,12 +836,11 @@ type GetContentTypesResponses = {
      */
     200: OcxpResponse & {
         data?: {
-            types?: Array<ContentType>;
+            types?: Array<ContentType$1>;
             total?: number;
         };
     };
 };
-type GetContentTypesResponse = GetContentTypesResponses[keyof GetContentTypesResponses];
 type ListContentData = {
     body?: never;
     path: {
@@ -790,7 +865,6 @@ type ListContentResponses = {
      */
     200: OcxpResponse;
 };
-type ListContentResponse = ListContentResponses[keyof ListContentResponses];
 type DeleteContentData = {
     body?: never;
     path: {
@@ -819,7 +893,6 @@ type DeleteContentResponses = {
      */
     200: OcxpResponse;
 };
-type DeleteContentResponse = DeleteContentResponses[keyof DeleteContentResponses];
 type ReadContentData = {
     body?: never;
     path: {
@@ -846,7 +919,6 @@ type ReadContentResponses = {
      */
     200: OcxpResponse;
 };
-type ReadContentResponse = ReadContentResponses[keyof ReadContentResponses];
 type WriteContentData = {
     body: WriteRequestBody;
     path: {
@@ -873,7 +945,6 @@ type WriteContentResponses = {
      */
     200: OcxpResponse;
 };
-type WriteContentResponse = WriteContentResponses[keyof WriteContentResponses];
 type QueryContentData = {
     body?: {
         filters?: Array<QueryFilter>;
@@ -899,7 +970,6 @@ type QueryContentResponses = {
      */
     200: OcxpResponse;
 };
-type QueryContentResponse = QueryContentResponses[keyof QueryContentResponses];
 type SearchContentData = {
     body?: never;
     path: {
@@ -925,7 +995,6 @@ type SearchContentResponses = {
      */
     200: OcxpResponse;
 };
-type SearchContentResponse = SearchContentResponses[keyof SearchContentResponses];
 type GetContentTreeData = {
     body?: never;
     path: {
@@ -950,7 +1019,6 @@ type GetContentTreeResponses = {
      */
     200: OcxpResponse;
 };
-type GetContentTreeResponse = GetContentTreeResponses[keyof GetContentTreeResponses];
 type GetContentStatsData = {
     body?: never;
     path: {
@@ -974,7 +1042,6 @@ type GetContentStatsResponses = {
      */
     200: OcxpResponse;
 };
-type GetContentStatsResponse = GetContentStatsResponses[keyof GetContentStatsResponses];
 type BulkReadContentData = {
     body: BulkReadRequestBody;
     path: {
@@ -997,7 +1064,6 @@ type BulkReadContentResponses = {
      */
     200: OcxpResponse;
 };
-type BulkReadContentResponse = BulkReadContentResponses[keyof BulkReadContentResponses];
 type BulkWriteContentData = {
     body: BulkWriteRequestBody;
     path: {
@@ -1020,7 +1086,6 @@ type BulkWriteContentResponses = {
      */
     200: OcxpResponse;
 };
-type BulkWriteContentResponse = BulkWriteContentResponses[keyof BulkWriteContentResponses];
 type BulkDeleteContentData = {
     body: BulkDeleteRequestBody;
     path: {
@@ -1043,7 +1108,6 @@ type BulkDeleteContentResponses = {
      */
     200: OcxpResponse;
 };
-type BulkDeleteContentResponse = BulkDeleteContentResponses[keyof BulkDeleteContentResponses];
 type QueryKnowledgeBaseData = {
     body: KbQueryRequest;
     path?: never;
@@ -1061,7 +1125,6 @@ type QueryKnowledgeBaseResponses = {
      */
     200: OcxpResponse;
 };
-type QueryKnowledgeBaseResponse = QueryKnowledgeBaseResponses[keyof QueryKnowledgeBaseResponses];
 type RagKnowledgeBaseData = {
     body: {
         query: string;
@@ -1083,7 +1146,6 @@ type RagKnowledgeBaseResponses = {
      */
     200: OcxpResponse;
 };
-type RagKnowledgeBaseResponse = RagKnowledgeBaseResponses[keyof RagKnowledgeBaseResponses];
 type DownloadRepositoryData = {
     body: RepoDownloadRequest$1;
     path?: never;
@@ -1103,7 +1165,6 @@ type DownloadRepositoryResponses = {
         data?: RepoDownloadResponse$1;
     };
 };
-type DownloadRepositoryResponse = DownloadRepositoryResponses[keyof DownloadRepositoryResponses];
 type GetRepoDownloadStatusData = {
     body?: never;
     path?: never;
@@ -1127,7 +1188,6 @@ type GetRepoDownloadStatusResponses = {
         data?: RepoStatusResponse$1;
     };
 };
-type GetRepoDownloadStatusResponse = GetRepoDownloadStatusResponses[keyof GetRepoDownloadStatusResponses];
 type ListDownloadedReposData = {
     body?: never;
     path?: never;
@@ -1158,7 +1218,6 @@ type ListDownloadedReposResponses = {
         };
     };
 };
-type ListDownloadedReposResponse = ListDownloadedReposResponses[keyof ListDownloadedReposResponses];
 type GithubCheckAccessData = {
     body: GitHubCheckAccessRequest;
     path?: never;
@@ -1178,7 +1237,6 @@ type GithubCheckAccessResponses = {
         data?: GitHubCheckAccessResponse;
     };
 };
-type GithubCheckAccessResponse = GithubCheckAccessResponses[keyof GithubCheckAccessResponses];
 type GithubListBranchesData = {
     body: GitHubListBranchesRequest;
     path?: never;
@@ -1198,7 +1256,6 @@ type GithubListBranchesResponses = {
         data?: GitHubListBranchesResponse;
     };
 };
-type GithubListBranchesResponse = GithubListBranchesResponses[keyof GithubListBranchesResponses];
 type GithubGetContentsData = {
     body: GitHubGetContentsRequest;
     path?: never;
@@ -1218,7 +1275,6 @@ type GithubGetContentsResponses = {
         data?: GitHubGetContentsResponse;
     };
 };
-type GithubGetContentsResponse = GithubGetContentsResponses[keyof GithubGetContentsResponses];
 type CreateMissionData = {
     body: MissionCreateRequest;
     path?: never;
@@ -1236,7 +1292,6 @@ type CreateMissionResponses = {
      */
     200: OcxpResponse;
 };
-type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
 type UpdateMissionData = {
     body?: {
         [key: string]: unknown;
@@ -1258,7 +1313,6 @@ type UpdateMissionResponses = {
      */
     200: OcxpResponse;
 };
-type UpdateMissionResponse = UpdateMissionResponses[keyof UpdateMissionResponses];
 type GetMissionContextData = {
     body?: never;
     path: {
@@ -1278,7 +1332,6 @@ type GetMissionContextResponses = {
      */
     200: OcxpResponse;
 };
-type GetMissionContextResponse = GetMissionContextResponses[keyof GetMissionContextResponses];
 type DiscoverSimilarData = {
     body: DiscoverRequest;
     path?: never;
@@ -1296,7 +1349,6 @@ type DiscoverSimilarResponses = {
      */
     200: OcxpResponse;
 };
-type DiscoverSimilarResponse = DiscoverSimilarResponses[keyof DiscoverSimilarResponses];
 type FindByTicketData = {
     body: {
         ticket_id: string;
@@ -1316,84 +1368,6 @@ type FindByTicketResponses = {
      */
     200: OcxpResponse;
 };
-type FindByTicketResponse = FindByTicketResponses[keyof FindByTicketResponses];
-type DeleteRepositoryData = {
-    body: {
-        /**
-         * Repository identifier to delete
-         */
-        repo_id: string;
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/repo/delete';
-};
-type DeleteRepositoryResponses = {
-    /**
-     * Repository deleted
-     */
-    200: OcxpResponse;
-};
-type DeleteRepositoryResponse = DeleteRepositoryResponses[keyof DeleteRepositoryResponses];
-type CheckRepoExistsData = {
-    body?: never;
-    path?: never;
-    query: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Repository identifier to check
-         */
-        repo_id: string;
-    };
-    url: '/ocxp/repo/exists';
-};
-type CheckRepoExistsResponses = {
-    /**
-     * Existence check result
-     */
-    200: OcxpResponse & {
-        data?: {
-            exists?: boolean;
-            repo_id?: string;
-        };
-    };
-};
-type CheckRepoExistsResponse = CheckRepoExistsResponses[keyof CheckRepoExistsResponses];
-type MoveContentData = {
-    body: {
-        /**
-         * Source path
-         */
-        from_path: string;
-        /**
-         * Destination path
-         */
-        to_path: string;
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/move';
-};
-type MoveContentResponses = {
-    /**
-     * Move result
-     */
-    200: OcxpResponse;
-};
-type MoveContentResponse = MoveContentResponses[keyof MoveContentResponses];
 type LockContentData = {
     body?: {
         path: string;
@@ -1409,7 +1383,6 @@ type LockContentResponses = {
      */
     200: OcxpResponse;
 };
-type LockContentResponse = LockContentResponses[keyof LockContentResponses];
 type UnlockContentData = {
     body?: {
         path: string;
@@ -1425,846 +1398,148 @@ type UnlockContentResponses = {
      */
     200: OcxpResponse;
 };
-type UnlockContentResponse = UnlockContentResponses[keyof UnlockContentResponses];
-type CheckConflictsData = {
-    body: {
-        /**
-         * Paths to check for conflicts
-         */
-        paths: Array<string>;
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/conflicts';
-};
-type CheckConflictsResponses = {
-    /**
-     * Conflict check result
-     */
-    200: OcxpResponse;
-};
-type CheckConflictsResponse = CheckConflictsResponses[keyof CheckConflictsResponses];
-type GetPresignedUrlData = {
-    body?: never;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-        /**
-         * Content identifier
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Operation type (get or put)
-         */
-        operation?: 'get' | 'put';
-        /**
-         * URL expiry in seconds
-         */
-        expiresIn?: number;
-    };
-    url: '/ocxp/{type}/{id}/url';
-};
-type GetPresignedUrlResponses = {
-    /**
-     * Presigned URL
-     */
-    200: OcxpResponse & {
-        data?: {
-            url?: string;
-            expiresAt?: string;
-        };
-    };
-};
-type GetPresignedUrlResponse = GetPresignedUrlResponses[keyof GetPresignedUrlResponses];
-type DownloadContentData = {
-    body: {
-        /**
-         * Content identifier to download
-         */
-        id: string;
-        /**
-         * Download options (skipPatterns, maxFiles, maxSize)
-         */
-        options?: {
-            [key: string]: unknown;
-        };
-    };
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/{type}/download';
-};
-type DownloadContentResponses = {
-    /**
-     * Download URL or stream
-     */
-    200: OcxpResponse;
-};
-type DownloadContentResponse = DownloadContentResponses[keyof DownloadContentResponses];
-type FindContentByData = {
-    body?: never;
-    path: {
-        /**
-         * Content type
-         */
-        type: 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
-    };
-    query: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Field to search
-         */
-        field: string;
-        /**
-         * Value to match
-         */
-        value: string;
-    };
-    url: '/ocxp/{type}/find';
-};
-type FindContentByResponses = {
-    /**
-     * Found content
-     */
-    200: OcxpResponse;
-};
-type FindContentByResponse = FindContentByResponses[keyof FindContentByResponses];
-type AuthLoginData = {
-    body: {
-        /**
-         * User email or username
-         */
-        username: string;
-        /**
-         * User password
-         */
-        password: string;
-    };
-    path?: never;
-    query?: never;
-    url: '/auth/login';
-};
-type AuthLoginResponses = {
-    /**
-     * Authentication successful
-     */
-    200: OcxpResponse & {
-        data?: {
-            idToken?: string;
-            accessToken?: string;
-            refreshToken?: string;
-            expiresIn?: number;
-        };
-    };
-};
-type AuthLoginResponse = AuthLoginResponses[keyof AuthLoginResponses];
-type AuthRefreshData = {
-    body: {
-        /**
-         * Cognito refresh token
-         */
-        refreshToken: string;
-    };
-    path?: never;
-    query?: never;
-    url: '/auth/refresh';
-};
-type AuthRefreshResponses = {
-    /**
-     * Tokens refreshed
-     */
-    200: OcxpResponse & {
-        data?: {
-            idToken?: string;
-            accessToken?: string;
-            expiresIn?: number;
-        };
-    };
-};
-type AuthRefreshResponse = AuthRefreshResponses[keyof AuthRefreshResponses];
-type AuthGetConfigData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/config';
-};
-type AuthGetConfigResponses = {
-    /**
-     * Auth configuration
-     */
-    200: OcxpResponse & {
-        data?: {
-            userPoolId?: string;
-            clientId?: string;
-            region?: string;
-            websocketEndpoint?: string;
-        };
-    };
-};
-type AuthGetConfigResponse = AuthGetConfigResponses[keyof AuthGetConfigResponses];
-type AuthListWorkspacesData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/workspaces';
-};
-type AuthListWorkspacesResponses = {
-    /**
-     * Workspace list
-     */
-    200: OcxpResponse & {
-        data?: {
-            workspaces?: Array<{
-                id?: string;
-                name?: string;
-                role?: string;
-            }>;
-        };
-    };
-};
-type AuthListWorkspacesResponse = AuthListWorkspacesResponses[keyof AuthListWorkspacesResponses];
-type ListSessionsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Maximum sessions to return
-         */
-        limit?: number;
-    };
-    url: '/ocxp/session';
-};
-type ListSessionsResponses = {
-    /**
-     * Session list
-     */
-    200: OcxpResponse;
-};
-type ListSessionsResponse = ListSessionsResponses[keyof ListSessionsResponses];
-type CreateSessionData = {
-    body?: {
-        /**
-         * Session title
-         */
-        title?: string;
-        /**
-         * Optional session metadata
-         */
-        metadata?: {
-            [key: string]: unknown;
-        };
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/session';
-};
-type CreateSessionResponses = {
-    /**
-     * Session created
-     */
-    200: OcxpResponse;
-};
-type CreateSessionResponse = CreateSessionResponses[keyof CreateSessionResponses];
-type GetSessionMessagesData = {
-    body?: never;
-    path: {
-        /**
-         * Session ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Maximum messages to return
-         */
-        limit?: number;
-    };
-    url: '/ocxp/session/{id}/messages';
-};
-type GetSessionMessagesResponses = {
-    /**
-     * Session messages
-     */
-    200: OcxpResponse;
-};
-type GetSessionMessagesResponse = GetSessionMessagesResponses[keyof GetSessionMessagesResponses];
-type UpdateSessionMetadataData = {
-    body: {
-        title?: string;
-        metadata?: {
-            [key: string]: unknown;
-        };
-    };
-    path: {
-        /**
-         * Session ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/session/{id}/metadata';
-};
-type UpdateSessionMetadataResponses = {
-    /**
-     * Metadata updated
-     */
-    200: OcxpResponse;
-};
-type UpdateSessionMetadataResponse = UpdateSessionMetadataResponses[keyof UpdateSessionMetadataResponses];
-type ForkSessionData = {
-    body?: {
-        /**
-         * Fork from this message onwards
-         */
-        fromMessageId?: string;
-        /**
-         * New session title
-         */
-        title?: string;
-    };
-    path: {
-        /**
-         * Source session ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/session/{id}/fork';
-};
-type ForkSessionResponses = {
-    /**
-     * Session forked
-     */
-    200: OcxpResponse;
-};
-type ForkSessionResponse = ForkSessionResponses[keyof ForkSessionResponses];
-type ListMissionSessionsData = {
-    body?: never;
-    path: {
-        /**
-         * Mission ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/mission/{id}/session';
-};
-type ListMissionSessionsResponses = {
-    /**
-     * Mission sessions
-     */
-    200: OcxpResponse;
-};
-type ListMissionSessionsResponse = ListMissionSessionsResponses[keyof ListMissionSessionsResponses];
-type CreateMissionSessionData = {
-    body?: {
-        /**
-         * Session title
-         */
-        title?: string;
-    };
-    path: {
-        /**
-         * Mission ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/mission/{id}/session';
-};
-type CreateMissionSessionResponses = {
-    /**
-     * Mission session created
-     */
-    200: OcxpResponse;
-};
-type CreateMissionSessionResponse = CreateMissionSessionResponses[keyof CreateMissionSessionResponses];
-type ListProjectsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Filter by status
-         */
-        status?: 'active' | 'archived' | 'paused';
-    };
-    url: '/ocxp/project';
-};
-type ListProjectsResponses = {
-    /**
-     * Project list
-     */
-    200: OcxpResponse;
-};
-type ListProjectsResponse = ListProjectsResponses[keyof ListProjectsResponses];
-type CreateProjectData = {
-    body: {
-        /**
-         * Project name
-         */
-        name: string;
-        /**
-         * Project description
-         */
-        description?: string;
-        /**
-         * Project metadata
-         */
-        metadata?: {
-            [key: string]: unknown;
-        };
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project';
-};
-type CreateProjectResponses = {
-    /**
-     * Project created
-     */
-    200: OcxpResponse;
-};
-type CreateProjectResponse = CreateProjectResponses[keyof CreateProjectResponses];
-type DeleteProjectData = {
-    body?: never;
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}';
-};
-type DeleteProjectResponses = {
-    /**
-     * Project deleted
-     */
-    200: OcxpResponse;
-};
-type DeleteProjectResponse = DeleteProjectResponses[keyof DeleteProjectResponses];
-type GetProjectData = {
-    body?: never;
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}';
-};
-type GetProjectResponses = {
-    /**
-     * Project details
-     */
-    200: OcxpResponse;
-};
-type GetProjectResponse = GetProjectResponses[keyof GetProjectResponses];
-type UpdateProjectData = {
-    body: {
-        name?: string;
-        description?: string;
-        status?: 'active' | 'archived' | 'paused';
-        metadata?: {
-            [key: string]: unknown;
-        };
-    };
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}';
-};
-type UpdateProjectResponses = {
-    /**
-     * Project updated
-     */
-    200: OcxpResponse;
-};
-type UpdateProjectResponse = UpdateProjectResponses[keyof UpdateProjectResponses];
-type AddProjectRepoData = {
-    body: {
-        /**
-         * Repository ID to add
-         */
-        repo_id: string;
-    };
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}/repos';
-};
-type AddProjectRepoResponses = {
-    /**
-     * Repository added
-     */
-    200: OcxpResponse;
-};
-type AddProjectRepoResponse = AddProjectRepoResponses[keyof AddProjectRepoResponses];
-type RemoveProjectRepoData = {
-    body?: never;
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-        /**
-         * Repository ID to remove
-         */
-        repo_id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}/repos/{repo_id}';
-};
-type RemoveProjectRepoResponses = {
-    /**
-     * Repository removed
-     */
-    200: OcxpResponse;
-};
-type RemoveProjectRepoResponse = RemoveProjectRepoResponses[keyof RemoveProjectRepoResponses];
-type SetProjectDefaultRepoData = {
-    body: {
-        /**
-         * Repository ID to set as default
-         */
-        repo_id: string;
-    };
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}/default-repo';
-};
-type SetProjectDefaultRepoResponses = {
-    /**
-     * Default repository set
-     */
-    200: OcxpResponse;
-};
-type SetProjectDefaultRepoResponse = SetProjectDefaultRepoResponses[keyof SetProjectDefaultRepoResponses];
-type GetProjectContextReposData = {
-    body?: never;
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}/context-repos';
-};
-type GetProjectContextReposResponses = {
-    /**
-     * Context repositories
-     */
-    200: OcxpResponse;
-};
-type GetProjectContextReposResponse = GetProjectContextReposResponses[keyof GetProjectContextReposResponses];
-type AddProjectMissionData = {
-    body: {
-        /**
-         * Mission ID to add
-         */
-        mission_id: string;
-    };
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}/missions';
-};
-type AddProjectMissionResponses = {
-    /**
-     * Mission added
-     */
-    200: OcxpResponse;
-};
-type AddProjectMissionResponse = AddProjectMissionResponses[keyof AddProjectMissionResponses];
-type RemoveProjectMissionData = {
-    body?: never;
-    path: {
-        /**
-         * Project ID
-         */
-        id: string;
-        /**
-         * Mission ID to remove
-         */
-        mission_id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/project/{id}/missions/{mission_id}';
-};
-type RemoveProjectMissionResponses = {
-    /**
-     * Mission removed
-     */
-    200: OcxpResponse;
-};
-type RemoveProjectMissionResponse = RemoveProjectMissionResponses[keyof RemoveProjectMissionResponses];
-type CreateDocsSnapshotData = {
-    body: {
-        /**
-         * Documentation URL to snapshot
-         */
-        url: string;
-        /**
-         * Snapshot name
-         */
-        name?: string;
-        /**
-         * Snapshot options
-         */
-        options?: {
-            [key: string]: unknown;
-        };
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/docs/snapshot';
-};
-type CreateDocsSnapshotResponses = {
-    /**
-     * Snapshot created
-     */
-    200: OcxpResponse;
-};
-type CreateDocsSnapshotResponse = CreateDocsSnapshotResponses[keyof CreateDocsSnapshotResponses];
-type ListDocsSnapshotsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/ocxp/docs/list';
-};
-type ListDocsSnapshotsResponses = {
-    /**
-     * Snapshot list
-     */
-    200: OcxpResponse;
-};
-type ListDocsSnapshotsResponse = ListDocsSnapshotsResponses[keyof ListDocsSnapshotsResponses];
-type GetDocsSnapshotStatusData = {
-    body?: never;
-    path?: never;
-    query: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-        /**
-         * Snapshot job ID
-         */
-        job_id: string;
-    };
-    url: '/ocxp/docs/status';
-};
-type GetDocsSnapshotStatusResponses = {
-    /**
-     * Job status
-     */
-    200: OcxpResponse;
-};
-type GetDocsSnapshotStatusResponse = GetDocsSnapshotStatusResponses[keyof GetDocsSnapshotStatusResponses];
-type RefreshIndexData = {
-    body?: {
-        /**
-         * Content type to refresh (or all if not specified)
-         */
-        contentType?: string;
-        /**
-         * Force full reindex
-         */
-        force?: boolean;
-    };
-    path?: never;
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/index/refresh';
-};
-type RefreshIndexResponses = {
-    /**
-     * Index refresh started
-     */
-    200: OcxpResponse;
-};
-type RefreshIndexResponse = RefreshIndexResponses[keyof RefreshIndexResponses];
-type LearnFromMissionData = {
-    body?: {
-        /**
-         * Learning categories to extract
-         */
-        categories?: Array<string>;
-    };
-    path: {
-        /**
-         * Mission ID
-         */
-        id: string;
-    };
-    query?: {
-        /**
-         * Workspace ID
-         */
-        workspace?: string;
-    };
-    url: '/tools/mission/{id}/learn';
-};
-type LearnFromMissionResponses = {
-    /**
-     * Learnings extracted
-     */
-    200: OcxpResponse;
-};
-type LearnFromMissionResponse = LearnFromMissionResponses[keyof LearnFromMissionResponses];
 
+type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options$1<TData, ThrowOnError> & {
+    /**
+     * You can provide a client instance returned by `createClient()` instead of
+     * individual options. This might be also useful if you want to implement a
+     * custom client.
+     */
+    client?: Client;
+    /**
+     * You can pass arbitrary values through the `meta` object. This can be
+     * used to access values that aren't defined as part of the SDK function.
+     */
+    meta?: Record<string, unknown>;
+};
 /**
- * OCXPClient - Custom wrapper for the generated OCXP SDK
- * Provides workspace injection and auth token management
+ * List available content types
+ *
+ * Returns all content types with metadata, endpoints, and optional counts.
  */
+declare const getContentTypes: <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => RequestResult<GetContentTypesResponses, unknown, ThrowOnError, "fields">;
+/**
+ * List content of a type
+ */
+declare const listContent: <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => RequestResult<ListContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Delete content
+ */
+declare const deleteContent: <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => RequestResult<DeleteContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Read content by ID
+ */
+declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Create or update content
+ */
+declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Query content with filters
+ */
+declare const queryContent: <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => RequestResult<QueryContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Full-text search
+ */
+declare const searchContent: <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => RequestResult<SearchContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Get hierarchical tree structure
+ */
+declare const getContentTree: <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => RequestResult<GetContentTreeResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Get content statistics
+ */
+declare const getContentStats: <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => RequestResult<GetContentStatsResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Read multiple items
+ */
+declare const bulkReadContent: <ThrowOnError extends boolean = false>(options: Options<BulkReadContentData, ThrowOnError>) => RequestResult<BulkReadContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Write multiple items
+ */
+declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: Options<BulkWriteContentData, ThrowOnError>) => RequestResult<BulkWriteContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Delete multiple items
+ */
+declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Semantic search in Knowledge Base
+ */
+declare const queryKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<QueryKnowledgeBaseData, ThrowOnError>) => RequestResult<QueryKnowledgeBaseResponses, unknown, ThrowOnError, "fields">;
+/**
+ * RAG with citations
+ */
+declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<RagKnowledgeBaseData, ThrowOnError>) => RequestResult<RagKnowledgeBaseResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Download GitHub repo and vectorize
+ *
+ * Download repo from GitHub, upload to S3 with metadata sidecars, and trigger Bedrock KB vectorization.
+ */
+declare const downloadRepository: <ThrowOnError extends boolean = false>(options: Options<DownloadRepositoryData, ThrowOnError>) => RequestResult<DownloadRepositoryResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Check repo download job status
+ */
+declare const getRepoDownloadStatus: <ThrowOnError extends boolean = false>(options: Options<GetRepoDownloadStatusData, ThrowOnError>) => RequestResult<GetRepoDownloadStatusResponses, unknown, ThrowOnError, "fields">;
+/**
+ * List downloaded repositories
+ */
+declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => RequestResult<ListDownloadedReposResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Check repository access
+ *
+ * Verify if the user can access a GitHub repository before downloading.
+ */
+declare const githubCheckAccess: <ThrowOnError extends boolean = false>(options: Options<GithubCheckAccessData, ThrowOnError>) => RequestResult<GithubCheckAccessResponses, unknown, ThrowOnError, "fields">;
+/**
+ * List repository branches
+ *
+ * Get list of branches for a GitHub repository.
+ */
+declare const githubListBranches: <ThrowOnError extends boolean = false>(options: Options<GithubListBranchesData, ThrowOnError>) => RequestResult<GithubListBranchesResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Get repository contents
+ *
+ * Browse repository files and folders.
+ */
+declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Create a new mission from ticket
+ */
+declare const createMission: <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => RequestResult<CreateMissionResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Update mission progress
+ */
+declare const updateMission: <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => RequestResult<UpdateMissionResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Get mission context for agents
+ */
+declare const getMissionContext: <ThrowOnError extends boolean = false>(options: Options<GetMissionContextData, ThrowOnError>) => RequestResult<GetMissionContextResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Discover similar content across types
+ */
+declare const discoverSimilar: <ThrowOnError extends boolean = false>(options: Options<DiscoverSimilarData, ThrowOnError>) => RequestResult<DiscoverSimilarResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Find content by Jira ticket ID
+ */
+declare const findByTicket: <ThrowOnError extends boolean = false>(options: Options<FindByTicketData, ThrowOnError>) => RequestResult<FindByTicketResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Acquire exclusive lock
+ */
+declare const lockContent: <ThrowOnError extends boolean = false>(options?: Options<LockContentData, ThrowOnError>) => RequestResult<LockContentResponses, unknown, ThrowOnError, "fields">;
+/**
+ * Release exclusive lock
+ */
+declare const unlockContent: <ThrowOnError extends boolean = false>(options?: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, unknown, ThrowOnError, "fields">;
 
+interface ListEntry$1 {
+    name: string;
+    type: string;
+    path: string;
+    size?: number;
+    mtime?: string;
+}
 interface ListResult {
-    entries: ListEntry[];
+    entries: ListEntry$1[];
     cursor?: string | null;
     hasMore: boolean;
     total: number;
@@ -2285,7 +1560,10 @@ interface DeleteResult {
     path: string;
 }
 interface ContentTypesResult {
-    types: ContentType[];
+    types: Array<{
+        name: string;
+        description: string;
+    }>;
     total: number;
 }
 interface OCXPClientOptions {
@@ -2296,7 +1574,7 @@ interface OCXPClientOptions {
     /** Static token or async function to get token */
     token?: string | (() => Promise<string>);
 }
-type ContentTypeValue = ContentType2;
+type ContentTypeValue = 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
 /**
  * OCXPClient provides a high-level interface to the OCXP API
  */
@@ -2306,7 +1584,7 @@ declare class OCXPClient {
     private tokenProvider?;
     constructor(options: OCXPClientOptions);
     /**
-     * Get authorization headers
+     * Get headers including workspace and auth
      */
     private getHeaders;
     /**
@@ -2338,9 +1616,8 @@ declare class OCXPClient {
      */
     write(type: ContentTypeValue, id: string, content: string, options?: {
         encoding?: string;
-        metadata?: Record<string, unknown>;
-        ifNotExists?: boolean;
         etag?: string;
+        ifNotExists?: boolean;
     }): Promise<WriteResult>;
     /**
      * Delete content
@@ -2362,7 +1639,7 @@ declare class OCXPClient {
     /**
      * Full-text search
      */
-    search(type: ContentTypeValue, q: string, fuzzy?: boolean, limit?: number): Promise<({
+    search(type: ContentTypeValue, q: string, limit?: number): Promise<({
         data: undefined;
         error: unknown;
     } | {
@@ -2401,10 +1678,7 @@ declare class OCXPClient {
     /**
      * Read multiple items at once
      */
-    bulkRead(type: ContentTypeValue, ids: string[], options?: {
-        concurrency?: number;
-        continueOnError?: boolean;
-    }): Promise<({
+    bulkRead(type: ContentTypeValue, ids: string[]): Promise<({
         data: undefined;
         error: unknown;
     } | {
@@ -2420,11 +1694,7 @@ declare class OCXPClient {
     bulkWrite(type: ContentTypeValue, items: Array<{
         id: string;
         content: string;
-        metadata?: Record<string, unknown>;
-    }>, options?: {
-        concurrency?: number;
-        continueOnError?: boolean;
-    }): Promise<({
+    }>): Promise<({
         data: undefined;
         error: unknown;
     } | {
@@ -2437,10 +1707,7 @@ declare class OCXPClient {
     /**
      * Delete multiple items at once
      */
-    bulkDelete(type: ContentTypeValue, ids: string[], options?: {
-        concurrency?: number;
-        continueOnError?: boolean;
-    }): Promise<({
+    bulkDelete(type: ContentTypeValue, ids: string[]): Promise<({
         data: undefined;
         error: unknown;
     } | {
@@ -2466,7 +1733,7 @@ declare class OCXPClient {
     /**
      * RAG with citations
      */
-    kbRag(query: string, sessionId?: string, systemPrompt?: string): Promise<({
+    kbRag(query: string, sessionId?: string): Promise<({
         data: undefined;
         error: unknown;
     } | {
@@ -2477,7 +1744,7 @@ declare class OCXPClient {
         response: Response;
     }>;
     /**
-     * Create a new mission from ticket
+     * Create a new mission from Jira ticket
      */
     createMission(ticketId: string, ticketSummary?: string, ticketDescription?: string): Promise<({
         data: undefined;
@@ -2518,7 +1785,7 @@ declare class OCXPClient {
     /**
      * Discover similar content across types
      */
-    discover(query: string, contentType?: string, maxResults?: number, includeRelated?: boolean): Promise<({
+    discover(query: string, contentType?: string, includeRelated?: boolean): Promise<({
         data: undefined;
         error: unknown;
     } | {
@@ -2543,6 +1810,8 @@ declare class OCXPClient {
     }>;
     /**
      * Acquire exclusive lock on content
+     * @param path - Content path (e.g., "mission/my-mission")
+     * @param ttl - Lock time-to-live in seconds
      */
     lock(path: string, ttl?: number): Promise<({
         data: undefined;
@@ -2556,6 +1825,8 @@ declare class OCXPClient {
     }>;
     /**
      * Release exclusive lock
+     * @param path - Content path
+     * @param lockToken - Token from lock acquisition
      */
     unlock(path: string, lockToken: string): Promise<({
         data: undefined;
@@ -2570,95 +1841,109 @@ declare class OCXPClient {
     /**
      * Check if a repository is accessible
      */
-    githubCheckAccess(owner: string, repo: string, githubToken?: string): Promise<{
-        accessible: boolean;
-        private?: boolean;
-        default_branch?: string;
-        error?: string;
-        rate_limit?: Record<string, unknown>;
+    githubCheckAccess(owner: string, repo: string, token?: string): Promise<({
+        data: undefined;
+        error: unknown;
+    } | {
+        data: OcxpResponse & {
+            data?: GitHubCheckAccessResponse;
+        };
+        error: undefined;
+    }) & {
+        request: Request;
+        response: Response;
     }>;
     /**
      * List branches for a repository
      */
-    githubListBranches(owner: string, repo: string, githubToken?: string): Promise<{
-        branches?: string[];
-        error?: Record<string, unknown>;
+    githubListBranches(owner: string, repo: string, token?: string): Promise<({
+        data: undefined;
+        error: unknown;
+    } | {
+        data: OcxpResponse & {
+            data?: GitHubListBranchesResponse;
+        };
+        error: undefined;
+    }) & {
+        request: Request;
+        response: Response;
     }>;
     /**
      * Get repository contents at a path
      */
-    githubGetContents(owner: string, repo: string, path?: string, ref?: string, githubToken?: string): Promise<{
-        contents?: unknown;
-        error?: Record<string, unknown>;
+    githubGetContents(owner: string, repo: string, path?: string, ref?: string, token?: string): Promise<({
+        data: undefined;
+        error: unknown;
+    } | {
+        data: OcxpResponse & {
+            data?: GitHubGetContentsResponse;
+        };
+        error: undefined;
+    }) & {
+        request: Request;
+        response: Response;
     }>;
     /**
      * Download repository and trigger vectorization
-     * Uses tarball download for efficiency (single GitHub request)
      */
     downloadRepository(request: {
         github_url: string;
         repo_id: string;
         branch?: string;
         path?: string;
-        visibility?: 'public' | 'private';
-        trigger_vectorization?: boolean;
-        is_private?: boolean;
-    }): Promise<{
-        job_id: string;
-        status: string;
-        repo_id: string;
+        mode?: 'full' | 'docs_only';
+        visibility?: 'private' | 'public';
+        github_token?: string;
+    }): Promise<({
+        data: undefined;
+        error: unknown;
+    } | {
+        data: OcxpResponse & {
+            data?: RepoDownloadResponse$1;
+        };
+        error: undefined;
+    }) & {
+        request: Request;
+        response: Response;
     }>;
     /**
-     * Get repository download/vectorization status
+     * Get repository download status
      */
-    getRepoStatus(jobId: string): Promise<{
-        job_id: string;
-        status: string;
-        progress?: number;
-        files_processed?: number;
-        total_files?: number;
-        error?: string;
+    getRepoStatus(jobId: string): Promise<({
+        data: undefined;
+        error: unknown;
+    } | {
+        data: OcxpResponse & {
+            data?: RepoStatusResponse$1;
+        };
+        error: undefined;
+    }) & {
+        request: Request;
+        response: Response;
     }>;
     /**
      * List all downloaded repositories in workspace
      */
-    listRepos(options?: {
-        visibility?: 'public' | 'private';
-        repoId?: string;
-    }): Promise<{
-        repos: Array<{
-            repo_id: string;
-            github_url: string;
-            branch: string;
-            visibility: "public" | "private";
-            s3_path: string;
-            files_count: number;
-            total_size_bytes: number;
-            indexed_at: string;
-            kb_synced: boolean;
-        }>;
-        count: number;
+    listRepos(): Promise<({
+        data: undefined;
+        error: unknown;
+    } | {
+        data: OcxpResponse & {
+            data?: {
+                repos?: Array<RepoListItem$1>;
+                count?: number;
+            };
+        };
+        error: undefined;
+    }) & {
+        request: Request;
+        response: Response;
     }>;
     /**
-     * Delete a repository and all associated data
-     * Removes S3 files, job records, and project references
+     * Delete a repository
+     * Note: This endpoint is not yet implemented in the API
      */
-    deleteRepository(repoId: string): Promise<{
-        repo_id: string;
-        success: boolean;
-        s3_files_deleted: number;
-        projects_updated: number;
-        error?: string;
-    }>;
-    /**
-     * Check if a repository already exists in the system
-     */
-    checkRepoExists(repoId: string): Promise<{
-        repo_id: string;
-        exists: boolean;
-        indexed_at: string | null;
-        files_count: number;
-    }>;
+    deleteRepository(_repoId: string): Promise<never>;
 }
 /**
  * Create a new OCXP client instance
@@ -2983,652 +2268,6 @@ declare class OCXPPathService {
  * Create a new OCXPPathService instance
  */
 declare function createPathService(options: OCXPPathServiceOptions): OCXPPathService;
-
-type AuthToken = string | undefined;
-interface Auth {
-    /**
-     * Which part of the request do we use to send the auth?
-     *
-     * @default 'header'
-     */
-    in?: 'header' | 'query' | 'cookie';
-    /**
-     * Header or query parameter name.
-     *
-     * @default 'Authorization'
-     */
-    name?: string;
-    scheme?: 'basic' | 'bearer';
-    type: 'apiKey' | 'http';
-}
-
-interface SerializerOptions<T> {
-    /**
-     * @default true
-     */
-    explode: boolean;
-    style: T;
-}
-type ArrayStyle = 'form' | 'spaceDelimited' | 'pipeDelimited';
-type ObjectStyle = 'form' | 'deepObject';
-
-type QuerySerializer = (query: Record<string, unknown>) => string;
-type BodySerializer = (body: any) => any;
-type QuerySerializerOptionsObject = {
-    allowReserved?: boolean;
-    array?: Partial<SerializerOptions<ArrayStyle>>;
-    object?: Partial<SerializerOptions<ObjectStyle>>;
-};
-type QuerySerializerOptions = QuerySerializerOptionsObject & {
-    /**
-     * Per-parameter serialization overrides. When provided, these settings
-     * override the global array/object settings for specific parameter names.
-     */
-    parameters?: Record<string, QuerySerializerOptionsObject>;
-};
-
-type HttpMethod = 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace';
-type Client$1<RequestFn = never, Config = unknown, MethodFn = never, BuildUrlFn = never, SseFn = never> = {
-    /**
-     * Returns the final request URL.
-     */
-    buildUrl: BuildUrlFn;
-    getConfig: () => Config;
-    request: RequestFn;
-    setConfig: (config: Config) => Config;
-} & {
-    [K in HttpMethod]: MethodFn;
-} & ([SseFn] extends [never] ? {
-    sse?: never;
-} : {
-    sse: {
-        [K in HttpMethod]: SseFn;
-    };
-});
-interface Config$1 {
-    /**
-     * Auth token or a function returning auth token. The resolved value will be
-     * added to the request payload as defined by its `security` array.
-     */
-    auth?: ((auth: Auth) => Promise<AuthToken> | AuthToken) | AuthToken;
-    /**
-     * A function for serializing request body parameter. By default,
-     * {@link JSON.stringify()} will be used.
-     */
-    bodySerializer?: BodySerializer | null;
-    /**
-     * An object containing any HTTP headers that you want to pre-populate your
-     * `Headers` object with.
-     *
-     * {@link https://developer.mozilla.org/docs/Web/API/Headers/Headers#init See more}
-     */
-    headers?: RequestInit['headers'] | Record<string, string | number | boolean | (string | number | boolean)[] | null | undefined | unknown>;
-    /**
-     * The request method.
-     *
-     * {@link https://developer.mozilla.org/docs/Web/API/fetch#method See more}
-     */
-    method?: Uppercase<HttpMethod>;
-    /**
-     * A function for serializing request query parameters. By default, arrays
-     * will be exploded in form style, objects will be exploded in deepObject
-     * style, and reserved characters are percent-encoded.
-     *
-     * This method will have no effect if the native `paramsSerializer()` Axios
-     * API function is used.
-     *
-     * {@link https://swagger.io/docs/specification/serialization/#query View examples}
-     */
-    querySerializer?: QuerySerializer | QuerySerializerOptions;
-    /**
-     * A function validating request data. This is useful if you want to ensure
-     * the request conforms to the desired shape, so it can be safely sent to
-     * the server.
-     */
-    requestValidator?: (data: unknown) => Promise<unknown>;
-    /**
-     * A function transforming response data before it's returned. This is useful
-     * for post-processing data, e.g. converting ISO strings into Date objects.
-     */
-    responseTransformer?: (data: unknown) => Promise<unknown>;
-    /**
-     * A function validating response data. This is useful if you want to ensure
-     * the response conforms to the desired shape, so it can be safely passed to
-     * the transformers and returned to the user.
-     */
-    responseValidator?: (data: unknown) => Promise<unknown>;
-}
-
-type ServerSentEventsOptions<TData = unknown> = Omit<RequestInit, 'method'> & Pick<Config$1, 'method' | 'responseTransformer' | 'responseValidator'> & {
-    /**
-     * Fetch API implementation. You can use this option to provide a custom
-     * fetch instance.
-     *
-     * @default globalThis.fetch
-     */
-    fetch?: typeof fetch;
-    /**
-     * Implementing clients can call request interceptors inside this hook.
-     */
-    onRequest?: (url: string, init: RequestInit) => Promise<Request>;
-    /**
-     * Callback invoked when a network or parsing error occurs during streaming.
-     *
-     * This option applies only if the endpoint returns a stream of events.
-     *
-     * @param error The error that occurred.
-     */
-    onSseError?: (error: unknown) => void;
-    /**
-     * Callback invoked when an event is streamed from the server.
-     *
-     * This option applies only if the endpoint returns a stream of events.
-     *
-     * @param event Event streamed from the server.
-     * @returns Nothing (void).
-     */
-    onSseEvent?: (event: StreamEvent<TData>) => void;
-    serializedBody?: RequestInit['body'];
-    /**
-     * Default retry delay in milliseconds.
-     *
-     * This option applies only if the endpoint returns a stream of events.
-     *
-     * @default 3000
-     */
-    sseDefaultRetryDelay?: number;
-    /**
-     * Maximum number of retry attempts before giving up.
-     */
-    sseMaxRetryAttempts?: number;
-    /**
-     * Maximum retry delay in milliseconds.
-     *
-     * Applies only when exponential backoff is used.
-     *
-     * This option applies only if the endpoint returns a stream of events.
-     *
-     * @default 30000
-     */
-    sseMaxRetryDelay?: number;
-    /**
-     * Optional sleep function for retry backoff.
-     *
-     * Defaults to using `setTimeout`.
-     */
-    sseSleepFn?: (ms: number) => Promise<void>;
-    url: string;
-};
-interface StreamEvent<TData = unknown> {
-    data: TData;
-    event?: string;
-    id?: string;
-    retry?: number;
-}
-type ServerSentEventsResult<TData = unknown, TReturn = void, TNext = unknown> = {
-    stream: AsyncGenerator<TData extends Record<string, unknown> ? TData[keyof TData] : TData, TReturn, TNext>;
-};
-
-type ErrInterceptor<Err, Res, Req, Options> = (error: Err, response: Res, request: Req, options: Options) => Err | Promise<Err>;
-type ReqInterceptor<Req, Options> = (request: Req, options: Options) => Req | Promise<Req>;
-type ResInterceptor<Res, Req, Options> = (response: Res, request: Req, options: Options) => Res | Promise<Res>;
-declare class Interceptors<Interceptor> {
-    fns: Array<Interceptor | null>;
-    clear(): void;
-    eject(id: number | Interceptor): void;
-    exists(id: number | Interceptor): boolean;
-    getInterceptorIndex(id: number | Interceptor): number;
-    update(id: number | Interceptor, fn: Interceptor): number | Interceptor | false;
-    use(fn: Interceptor): number;
-}
-interface Middleware<Req, Res, Err, Options> {
-    error: Interceptors<ErrInterceptor<Err, Res, Req, Options>>;
-    request: Interceptors<ReqInterceptor<Req, Options>>;
-    response: Interceptors<ResInterceptor<Res, Req, Options>>;
-}
-declare const createConfig: <T extends ClientOptions = ClientOptions>(override?: Config<Omit<ClientOptions, keyof T> & T>) => Config<Omit<ClientOptions, keyof T> & T>;
-
-type ResponseStyle = 'data' | 'fields';
-interface Config<T extends ClientOptions = ClientOptions> extends Omit<RequestInit, 'body' | 'headers' | 'method'>, Config$1 {
-    /**
-     * Base URL for all requests made by this client.
-     */
-    baseUrl?: T['baseUrl'];
-    /**
-     * Fetch API implementation. You can use this option to provide a custom
-     * fetch instance.
-     *
-     * @default globalThis.fetch
-     */
-    fetch?: typeof fetch;
-    /**
-     * Please don't use the Fetch client for Next.js applications. The `next`
-     * options won't have any effect.
-     *
-     * Install {@link https://www.npmjs.com/package/@hey-api/client-next `@hey-api/client-next`} instead.
-     */
-    next?: never;
-    /**
-     * Return the response data parsed in a specified format. By default, `auto`
-     * will infer the appropriate method from the `Content-Type` response header.
-     * You can override this behavior with any of the {@link Body} methods.
-     * Select `stream` if you don't want to parse response data at all.
-     *
-     * @default 'auto'
-     */
-    parseAs?: 'arrayBuffer' | 'auto' | 'blob' | 'formData' | 'json' | 'stream' | 'text';
-    /**
-     * Should we return only data or multiple fields (data, error, response, etc.)?
-     *
-     * @default 'fields'
-     */
-    responseStyle?: ResponseStyle;
-    /**
-     * Throw an error instead of returning it in the response?
-     *
-     * @default false
-     */
-    throwOnError?: T['throwOnError'];
-}
-interface RequestOptions<TData = unknown, TResponseStyle extends ResponseStyle = 'fields', ThrowOnError extends boolean = boolean, Url extends string = string> extends Config<{
-    responseStyle: TResponseStyle;
-    throwOnError: ThrowOnError;
-}>, Pick<ServerSentEventsOptions<TData>, 'onSseError' | 'onSseEvent' | 'sseDefaultRetryDelay' | 'sseMaxRetryAttempts' | 'sseMaxRetryDelay'> {
-    /**
-     * Any body that you want to add to your request.
-     *
-     * {@link https://developer.mozilla.org/docs/Web/API/fetch#body}
-     */
-    body?: unknown;
-    path?: Record<string, unknown>;
-    query?: Record<string, unknown>;
-    /**
-     * Security mechanism(s) to use for the request.
-     */
-    security?: ReadonlyArray<Auth>;
-    url: Url;
-}
-interface ResolvedRequestOptions<TResponseStyle extends ResponseStyle = 'fields', ThrowOnError extends boolean = boolean, Url extends string = string> extends RequestOptions<unknown, TResponseStyle, ThrowOnError, Url> {
-    serializedBody?: string;
-}
-type RequestResult<TData = unknown, TError = unknown, ThrowOnError extends boolean = boolean, TResponseStyle extends ResponseStyle = 'fields'> = ThrowOnError extends true ? Promise<TResponseStyle extends 'data' ? TData extends Record<string, unknown> ? TData[keyof TData] : TData : {
-    data: TData extends Record<string, unknown> ? TData[keyof TData] : TData;
-    request: Request;
-    response: Response;
-}> : Promise<TResponseStyle extends 'data' ? (TData extends Record<string, unknown> ? TData[keyof TData] : TData) | undefined : ({
-    data: TData extends Record<string, unknown> ? TData[keyof TData] : TData;
-    error: undefined;
-} | {
-    data: undefined;
-    error: TError extends Record<string, unknown> ? TError[keyof TError] : TError;
-}) & {
-    request: Request;
-    response: Response;
-}>;
-interface ClientOptions {
-    baseUrl?: string;
-    responseStyle?: ResponseStyle;
-    throwOnError?: boolean;
-}
-type MethodFn = <TData = unknown, TError = unknown, ThrowOnError extends boolean = false, TResponseStyle extends ResponseStyle = 'fields'>(options: Omit<RequestOptions<TData, TResponseStyle, ThrowOnError>, 'method'>) => RequestResult<TData, TError, ThrowOnError, TResponseStyle>;
-type SseFn = <TData = unknown, TError = unknown, ThrowOnError extends boolean = false, TResponseStyle extends ResponseStyle = 'fields'>(options: Omit<RequestOptions<TData, TResponseStyle, ThrowOnError>, 'method'>) => Promise<ServerSentEventsResult<TData, TError>>;
-type RequestFn = <TData = unknown, TError = unknown, ThrowOnError extends boolean = false, TResponseStyle extends ResponseStyle = 'fields'>(options: Omit<RequestOptions<TData, TResponseStyle, ThrowOnError>, 'method'> & Pick<Required<RequestOptions<TData, TResponseStyle, ThrowOnError>>, 'method'>) => RequestResult<TData, TError, ThrowOnError, TResponseStyle>;
-type BuildUrlFn = <TData extends {
-    body?: unknown;
-    path?: Record<string, unknown>;
-    query?: Record<string, unknown>;
-    url: string;
-}>(options: TData & Options$1<TData>) => string;
-type Client = Client$1<RequestFn, Config, MethodFn, BuildUrlFn, SseFn> & {
-    interceptors: Middleware<Request, Response, unknown, ResolvedRequestOptions>;
-};
-interface TDataShape {
-    body?: unknown;
-    headers?: unknown;
-    path?: unknown;
-    query?: unknown;
-    url: string;
-}
-type OmitKeys<T, K> = Pick<T, Exclude<keyof T, K>>;
-type Options$1<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown, TResponseStyle extends ResponseStyle = 'fields'> = OmitKeys<RequestOptions<TResponse, TResponseStyle, ThrowOnError>, 'body' | 'path' | 'query' | 'url'> & ([TData] extends [never] ? unknown : Omit<TData, 'url'>);
-
-declare const createClient: (config?: Config) => Client;
-
-type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options$1<TData, ThrowOnError> & {
-    /**
-     * You can provide a client instance returned by `createClient()` instead of
-     * individual options. This might be also useful if you want to implement a
-     * custom client.
-     */
-    client?: Client;
-    /**
-     * You can pass arbitrary values through the `meta` object. This can be
-     * used to access values that aren't defined as part of the SDK function.
-     */
-    meta?: Record<string, unknown>;
-};
-/**
- * List available content types
- *
- * Returns all content types with metadata, endpoints, and optional counts.
- */
-declare const getContentTypes: <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => RequestResult<GetContentTypesResponses, unknown, ThrowOnError, "fields">;
-/**
- * List content of a type
- */
-declare const listContent: <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => RequestResult<ListContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Delete content
- */
-declare const deleteContent: <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => RequestResult<DeleteContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Read content by ID
- */
-declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Create or update content
- */
-declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Query content with filters
- */
-declare const queryContent: <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => RequestResult<QueryContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Full-text search
- */
-declare const searchContent: <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => RequestResult<SearchContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get hierarchical tree structure
- */
-declare const getContentTree: <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => RequestResult<GetContentTreeResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get content statistics
- */
-declare const getContentStats: <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => RequestResult<GetContentStatsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Read multiple items
- */
-declare const bulkReadContent: <ThrowOnError extends boolean = false>(options: Options<BulkReadContentData, ThrowOnError>) => RequestResult<BulkReadContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Write multiple items
- */
-declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: Options<BulkWriteContentData, ThrowOnError>) => RequestResult<BulkWriteContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Delete multiple items
- */
-declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Semantic search in Knowledge Base
- */
-declare const queryKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<QueryKnowledgeBaseData, ThrowOnError>) => RequestResult<QueryKnowledgeBaseResponses, unknown, ThrowOnError, "fields">;
-/**
- * RAG with citations
- */
-declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<RagKnowledgeBaseData, ThrowOnError>) => RequestResult<RagKnowledgeBaseResponses, unknown, ThrowOnError, "fields">;
-/**
- * Download GitHub repo and vectorize
- *
- * Download repo from GitHub, upload to S3 with metadata sidecars, and trigger Bedrock KB vectorization.
- */
-declare const downloadRepository: <ThrowOnError extends boolean = false>(options: Options<DownloadRepositoryData, ThrowOnError>) => RequestResult<DownloadRepositoryResponses, unknown, ThrowOnError, "fields">;
-/**
- * Check repo download job status
- */
-declare const getRepoDownloadStatus: <ThrowOnError extends boolean = false>(options: Options<GetRepoDownloadStatusData, ThrowOnError>) => RequestResult<GetRepoDownloadStatusResponses, unknown, ThrowOnError, "fields">;
-/**
- * List downloaded repositories
- */
-declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => RequestResult<ListDownloadedReposResponses, unknown, ThrowOnError, "fields">;
-/**
- * Check repository access
- *
- * Verify if the user can access a GitHub repository before downloading.
- */
-declare const githubCheckAccess: <ThrowOnError extends boolean = false>(options: Options<GithubCheckAccessData, ThrowOnError>) => RequestResult<GithubCheckAccessResponses, unknown, ThrowOnError, "fields">;
-/**
- * List repository branches
- *
- * Get list of branches for a GitHub repository.
- */
-declare const githubListBranches: <ThrowOnError extends boolean = false>(options: Options<GithubListBranchesData, ThrowOnError>) => RequestResult<GithubListBranchesResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get repository contents
- *
- * Browse repository files and folders.
- */
-declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Create a new mission from ticket
- */
-declare const createMission: <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => RequestResult<CreateMissionResponses, unknown, ThrowOnError, "fields">;
-/**
- * Update mission progress
- */
-declare const updateMission: <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => RequestResult<UpdateMissionResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get mission context for agents
- */
-declare const getMissionContext: <ThrowOnError extends boolean = false>(options: Options<GetMissionContextData, ThrowOnError>) => RequestResult<GetMissionContextResponses, unknown, ThrowOnError, "fields">;
-/**
- * Discover similar content across types
- */
-declare const discoverSimilar: <ThrowOnError extends boolean = false>(options: Options<DiscoverSimilarData, ThrowOnError>) => RequestResult<DiscoverSimilarResponses, unknown, ThrowOnError, "fields">;
-/**
- * Find content by Jira ticket ID
- */
-declare const findByTicket: <ThrowOnError extends boolean = false>(options: Options<FindByTicketData, ThrowOnError>) => RequestResult<FindByTicketResponses, unknown, ThrowOnError, "fields">;
-/**
- * Delete a downloaded repository
- *
- * Delete a repository and its associated S3 files.
- */
-declare const deleteRepository: <ThrowOnError extends boolean = false>(options: Options<DeleteRepositoryData, ThrowOnError>) => RequestResult<DeleteRepositoryResponses, unknown, ThrowOnError, "fields">;
-/**
- * Check if repository exists
- *
- * Check if a repository has already been indexed.
- */
-declare const checkRepoExists: <ThrowOnError extends boolean = false>(options: Options<CheckRepoExistsData, ThrowOnError>) => RequestResult<CheckRepoExistsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Move or rename content
- *
- * Move content from one path to another.
- */
-declare const moveContent: <ThrowOnError extends boolean = false>(options: Options<MoveContentData, ThrowOnError>) => RequestResult<MoveContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Acquire exclusive lock
- */
-declare const lockContent: <ThrowOnError extends boolean = false>(options?: Options<LockContentData, ThrowOnError>) => RequestResult<LockContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Release exclusive lock
- */
-declare const unlockContent: <ThrowOnError extends boolean = false>(options?: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Check for content conflicts
- *
- * Check if content has conflicts before writing.
- */
-declare const checkConflicts: <ThrowOnError extends boolean = false>(options: Options<CheckConflictsData, ThrowOnError>) => RequestResult<CheckConflictsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get presigned URL for content
- *
- * Generate a presigned URL for direct S3 access.
- */
-declare const getPresignedUrl: <ThrowOnError extends boolean = false>(options: Options<GetPresignedUrlData, ThrowOnError>) => RequestResult<GetPresignedUrlResponses, unknown, ThrowOnError, "fields">;
-/**
- * Download content as archive
- *
- * Download multiple files as a single archive.
- */
-declare const downloadContent: <ThrowOnError extends boolean = false>(options: Options<DownloadContentData, ThrowOnError>) => RequestResult<DownloadContentResponses, unknown, ThrowOnError, "fields">;
-/**
- * Find content by field value
- *
- * Find content by a specific field and value.
- */
-declare const findContentBy: <ThrowOnError extends boolean = false>(options: Options<FindContentByData, ThrowOnError>) => RequestResult<FindContentByResponses, unknown, ThrowOnError, "fields">;
-/**
- * Login with Cognito credentials
- *
- * Authenticate user and return JWT tokens.
- */
-declare const authLogin: <ThrowOnError extends boolean = false>(options: Options<AuthLoginData, ThrowOnError>) => RequestResult<AuthLoginResponses, unknown, ThrowOnError, "fields">;
-/**
- * Refresh authentication tokens
- *
- * Use refresh token to get new access and ID tokens.
- */
-declare const authRefresh: <ThrowOnError extends boolean = false>(options: Options<AuthRefreshData, ThrowOnError>) => RequestResult<AuthRefreshResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get authentication configuration
- *
- * Get Cognito User Pool IDs and other auth config.
- */
-declare const authGetConfig: <ThrowOnError extends boolean = false>(options?: Options<AuthGetConfigData, ThrowOnError>) => RequestResult<AuthGetConfigResponses, unknown, ThrowOnError, "fields">;
-/**
- * List available workspaces
- *
- * Get list of workspaces the user has access to.
- */
-declare const authListWorkspaces: <ThrowOnError extends boolean = false>(options?: Options<AuthListWorkspacesData, ThrowOnError>) => RequestResult<AuthListWorkspacesResponses, unknown, ThrowOnError, "fields">;
-/**
- * List chat sessions
- *
- * Get list of user's chat sessions.
- */
-declare const listSessions: <ThrowOnError extends boolean = false>(options?: Options<ListSessionsData, ThrowOnError>) => RequestResult<ListSessionsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Create a new chat session
- *
- * Create a new session for chat conversations.
- */
-declare const createSession: <ThrowOnError extends boolean = false>(options?: Options<CreateSessionData, ThrowOnError>) => RequestResult<CreateSessionResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get session messages
- *
- * Get all messages in a chat session.
- */
-declare const getSessionMessages: <ThrowOnError extends boolean = false>(options: Options<GetSessionMessagesData, ThrowOnError>) => RequestResult<GetSessionMessagesResponses, unknown, ThrowOnError, "fields">;
-/**
- * Update session metadata
- *
- * Update metadata for a chat session.
- */
-declare const updateSessionMetadata: <ThrowOnError extends boolean = false>(options: Options<UpdateSessionMetadataData, ThrowOnError>) => RequestResult<UpdateSessionMetadataResponses, unknown, ThrowOnError, "fields">;
-/**
- * Fork a session
- *
- * Create a new session from an existing one.
- */
-declare const forkSession: <ThrowOnError extends boolean = false>(options: Options<ForkSessionData, ThrowOnError>) => RequestResult<ForkSessionResponses, unknown, ThrowOnError, "fields">;
-/**
- * List sessions for a mission
- *
- * Get all chat sessions associated with a mission.
- */
-declare const listMissionSessions: <ThrowOnError extends boolean = false>(options: Options<ListMissionSessionsData, ThrowOnError>) => RequestResult<ListMissionSessionsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Create a session for a mission
- *
- * Create a new chat session linked to a mission.
- */
-declare const createMissionSession: <ThrowOnError extends boolean = false>(options: Options<CreateMissionSessionData, ThrowOnError>) => RequestResult<CreateMissionSessionResponses, unknown, ThrowOnError, "fields">;
-/**
- * List all projects
- *
- * Get list of user's projects.
- */
-declare const listProjects: <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>) => RequestResult<ListProjectsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Create a new project
- *
- * Create a new project for organizing missions and repos.
- */
-declare const createProject: <ThrowOnError extends boolean = false>(options: Options<CreateProjectData, ThrowOnError>) => RequestResult<CreateProjectResponses, unknown, ThrowOnError, "fields">;
-/**
- * Delete a project
- *
- * Delete a project (soft delete or archive).
- */
-declare const deleteProject: <ThrowOnError extends boolean = false>(options: Options<DeleteProjectData, ThrowOnError>) => RequestResult<DeleteProjectResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get project details
- *
- * Get a project by ID with all its details.
- */
-declare const getProject: <ThrowOnError extends boolean = false>(options: Options<GetProjectData, ThrowOnError>) => RequestResult<GetProjectResponses, unknown, ThrowOnError, "fields">;
-/**
- * Update a project
- *
- * Update project details.
- */
-declare const updateProject: <ThrowOnError extends boolean = false>(options: Options<UpdateProjectData, ThrowOnError>) => RequestResult<UpdateProjectResponses, unknown, ThrowOnError, "fields">;
-/**
- * Add repository to project
- *
- * Link a repository to a project.
- */
-declare const addProjectRepo: <ThrowOnError extends boolean = false>(options: Options<AddProjectRepoData, ThrowOnError>) => RequestResult<AddProjectRepoResponses, unknown, ThrowOnError, "fields">;
-/**
- * Remove repository from project
- *
- * Unlink a repository from a project.
- */
-declare const removeProjectRepo: <ThrowOnError extends boolean = false>(options: Options<RemoveProjectRepoData, ThrowOnError>) => RequestResult<RemoveProjectRepoResponses, unknown, ThrowOnError, "fields">;
-/**
- * Set default repository
- *
- * Set the default repository for a project.
- */
-declare const setProjectDefaultRepo: <ThrowOnError extends boolean = false>(options: Options<SetProjectDefaultRepoData, ThrowOnError>) => RequestResult<SetProjectDefaultRepoResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get project context repositories
- *
- * Get repositories providing context for this project.
- */
-declare const getProjectContextRepos: <ThrowOnError extends boolean = false>(options: Options<GetProjectContextReposData, ThrowOnError>) => RequestResult<GetProjectContextReposResponses, unknown, ThrowOnError, "fields">;
-/**
- * Add mission to project
- *
- * Link a mission to a project.
- */
-declare const addProjectMission: <ThrowOnError extends boolean = false>(options: Options<AddProjectMissionData, ThrowOnError>) => RequestResult<AddProjectMissionResponses, unknown, ThrowOnError, "fields">;
-/**
- * Remove mission from project
- *
- * Unlink a mission from a project.
- */
-declare const removeProjectMission: <ThrowOnError extends boolean = false>(options: Options<RemoveProjectMissionData, ThrowOnError>) => RequestResult<RemoveProjectMissionResponses, unknown, ThrowOnError, "fields">;
-/**
- * Create documentation snapshot
- *
- * Create a snapshot of documentation from a URL.
- */
-declare const createDocsSnapshot: <ThrowOnError extends boolean = false>(options: Options<CreateDocsSnapshotData, ThrowOnError>) => RequestResult<CreateDocsSnapshotResponses, unknown, ThrowOnError, "fields">;
-/**
- * List documentation snapshots
- *
- * Get list of all documentation snapshots.
- */
-declare const listDocsSnapshots: <ThrowOnError extends boolean = false>(options?: Options<ListDocsSnapshotsData, ThrowOnError>) => RequestResult<ListDocsSnapshotsResponses, unknown, ThrowOnError, "fields">;
-/**
- * Get snapshot job status
- *
- * Check status of a documentation snapshot job.
- */
-declare const getDocsSnapshotStatus: <ThrowOnError extends boolean = false>(options: Options<GetDocsSnapshotStatusData, ThrowOnError>) => RequestResult<GetDocsSnapshotStatusResponses, unknown, ThrowOnError, "fields">;
-/**
- * Refresh content index
- *
- * Trigger a refresh of the content index.
- */
-declare const refreshIndex: <ThrowOnError extends boolean = false>(options?: Options<RefreshIndexData, ThrowOnError>) => RequestResult<RefreshIndexResponses, unknown, ThrowOnError, "fields">;
-/**
- * Learn from completed mission
- *
- * Extract learnings and patterns from a completed mission.
- */
-declare const learnFromMission: <ThrowOnError extends boolean = false>(options: Options<LearnFromMissionData, ThrowOnError>) => RequestResult<LearnFromMissionResponses, unknown, ThrowOnError, "fields">;
 
 /**
  * WebSocket service for OCXP real-time communication
@@ -4001,6 +2640,7 @@ declare const ContentTypeSchema: z.ZodEnum<{
     kb: "kb";
     docs: "docs";
 }>;
+type ContentType = z.infer<typeof ContentTypeSchema>;
 /**
  * Helper to create typed OCXP response schema
  */
@@ -4040,6 +2680,7 @@ declare const ListEntrySchema: z.ZodObject<{
     size: z.ZodOptional<z.ZodNumber>;
     mtime: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
+type ListEntry = z.infer<typeof ListEntrySchema>;
 /**
  * List response data schema
  */
@@ -4513,6 +3154,7 @@ declare const ListSessionsDataSchema: z.ZodObject<{
     }, z.core.$strip>>;
     total: z.ZodOptional<z.ZodNumber>;
 }, z.core.$strip>;
+type ListSessionsData = z.infer<typeof ListSessionsDataSchema>;
 /**
  * List sessions response schema
  */
@@ -4543,6 +3185,7 @@ declare const ListSessionsResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type ListSessionsResponse = z.infer<typeof ListSessionsResponseSchema>;
 /**
  * Create session response data schema
  */
@@ -4550,6 +3193,7 @@ declare const CreateSessionDataSchema: z.ZodObject<{
     sessionId: z.ZodString;
     missionId: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
+type CreateSessionData = z.infer<typeof CreateSessionDataSchema>;
 /**
  * Create session response schema
  */
@@ -4572,6 +3216,7 @@ declare const CreateSessionResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type CreateSessionResponse = z.infer<typeof CreateSessionResponseSchema>;
 /**
  * Get session messages response data schema
  */
@@ -4589,6 +3234,7 @@ declare const GetSessionMessagesDataSchema: z.ZodObject<{
     }, z.core.$strip>>;
     sessionId: z.ZodString;
 }, z.core.$strip>;
+type GetSessionMessagesData = z.infer<typeof GetSessionMessagesDataSchema>;
 /**
  * Get session messages response schema
  */
@@ -4621,6 +3267,7 @@ declare const GetSessionMessagesResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type GetSessionMessagesResponse = z.infer<typeof GetSessionMessagesResponseSchema>;
 /**
  * Update session metadata response data schema
  */
@@ -4628,6 +3275,7 @@ declare const UpdateSessionMetadataDataSchema: z.ZodObject<{
     sessionId: z.ZodString;
     metadata: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, z.core.$strip>;
+type UpdateSessionMetadataData = z.infer<typeof UpdateSessionMetadataDataSchema>;
 /**
  * Update session metadata response schema
  */
@@ -4650,6 +3298,7 @@ declare const UpdateSessionMetadataResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type UpdateSessionMetadataResponse = z.infer<typeof UpdateSessionMetadataResponseSchema>;
 /**
  * Fork session response data schema
  */
@@ -4657,6 +3306,7 @@ declare const ForkSessionDataSchema: z.ZodObject<{
     sessionId: z.ZodString;
     forkedFromId: z.ZodString;
 }, z.core.$strip>;
+type ForkSessionData = z.infer<typeof ForkSessionDataSchema>;
 /**
  * Fork session response schema
  */
@@ -4679,6 +3329,7 @@ declare const ForkSessionResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type ForkSessionResponse = z.infer<typeof ForkSessionResponseSchema>;
 
 /**
  * Project Zod Schemas
@@ -4749,6 +3400,7 @@ declare const ListProjectsDataSchema: z.ZodObject<{
     }, z.core.$strip>>;
     total: z.ZodOptional<z.ZodNumber>;
 }, z.core.$strip>;
+type ListProjectsData = z.infer<typeof ListProjectsDataSchema>;
 /**
  * List projects response schema
  */
@@ -4788,6 +3440,7 @@ declare const ListProjectsResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type ListProjectsResponse = z.infer<typeof ListProjectsResponseSchema>;
 /**
  * Create project response data schema
  */
@@ -4812,6 +3465,7 @@ declare const CreateProjectDataSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type CreateProjectData = z.infer<typeof CreateProjectDataSchema>;
 /**
  * Create project response schema
  */
@@ -4851,6 +3505,7 @@ declare const CreateProjectResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type CreateProjectResponse = z.infer<typeof CreateProjectResponseSchema>;
 /**
  * Get project response data schema
  */
@@ -4872,6 +3527,7 @@ declare const GetProjectDataSchema: z.ZodObject<{
     defaultRepoId: z.ZodOptional<z.ZodString>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, z.core.$strip>;
+type GetProjectData = z.infer<typeof GetProjectDataSchema>;
 /**
  * Get project response schema
  */
@@ -4908,6 +3564,7 @@ declare const GetProjectResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type GetProjectResponse = z.infer<typeof GetProjectResponseSchema>;
 /**
  * Update project response data schema
  */
@@ -4932,6 +3589,7 @@ declare const UpdateProjectDataSchema: z.ZodObject<{
         metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type UpdateProjectData = z.infer<typeof UpdateProjectDataSchema>;
 /**
  * Update project response schema
  */
@@ -4971,6 +3629,7 @@ declare const UpdateProjectResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type UpdateProjectResponse = z.infer<typeof UpdateProjectResponseSchema>;
 /**
  * Delete project response data schema
  */
@@ -4978,6 +3637,7 @@ declare const DeleteProjectDataSchema: z.ZodObject<{
     projectId: z.ZodString;
     deleted: z.ZodBoolean;
 }, z.core.$strip>;
+type DeleteProjectData = z.infer<typeof DeleteProjectDataSchema>;
 /**
  * Delete project response schema
  */
@@ -5000,6 +3660,7 @@ declare const DeleteProjectResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type DeleteProjectResponse = z.infer<typeof DeleteProjectResponseSchema>;
 /**
  * Add project repo response data schema
  */
@@ -5007,6 +3668,7 @@ declare const AddProjectRepoDataSchema: z.ZodObject<{
     projectId: z.ZodString;
     repoId: z.ZodString;
 }, z.core.$strip>;
+type AddProjectRepoData = z.infer<typeof AddProjectRepoDataSchema>;
 /**
  * Add project repo response schema
  */
@@ -5029,6 +3691,7 @@ declare const AddProjectRepoResponseSchema: z.ZodObject<{
         operation: z.ZodString;
     }, z.core.$strip>>;
 }, z.core.$strip>;
+type AddProjectRepoResponse = z.infer<typeof AddProjectRepoResponseSchema>;
 /**
  * Context repos response data schema
  */
@@ -6483,4 +5146,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AddProjectMissionData, type AddProjectMissionResponse, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AuthGetConfigData, type AuthGetConfigResponse, type AuthListWorkspacesData, type AuthListWorkspacesResponse, type AuthLoginData, type AuthLoginResponse, type AuthRefreshData, type AuthRefreshResponse, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type CheckConflictsData, type CheckConflictsResponse, type CheckRepoExistsData, type CheckRepoExistsResponse, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentType2, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDocsSnapshotData, type CreateDocsSnapshotResponse, type CreateMissionData, type CreateMissionResponse, type CreateMissionSessionData, type CreateMissionSessionResponse, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DeleteContentData, type DeleteContentResponse, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteRepositoryData, type DeleteRepositoryResponse, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadContentData, type DownloadContentResponse, type DownloadRepositoryData, type DownloadRepositoryResponse, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponse, type FindContentByData, type FindContentByResponse, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetDocsSnapshotStatusData, type GetDocsSnapshotStatusResponse, type GetMissionContextData, type GetMissionContextResponse, type GetPresignedUrlData, type GetPresignedUrlResponse, type GetProjectContextReposData, type GetProjectContextReposResponse, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponse, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponse, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponse, type GithubListBranchesData, type GithubListBranchesResponse, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type LearnFromMissionData, type LearnFromMissionResponse, type ListContentData, type ListContentResponse, type ListData, ListDataSchema, type ListDocsSnapshotsData, type ListDocsSnapshotsResponse, type ListDownloadedReposData, type ListDownloadedReposResponse, type ListEntry, ListEntrySchema, type ListMissionSessionsData, type ListMissionSessionsResponse, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type LockContentData, type LockContentResponse, type Meta, MetaSchema, type MissionCreateRequest, type MoveContentData, type MoveContentResponse, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type OcxpResponse, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlRequest, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, ProjectSchema, type QueryContentData, type QueryContentResponse, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshIndexData, type RefreshIndexResponse, type RemoveProjectMissionData, type RemoveProjectMissionResponse, type RemoveProjectRepoData, type RemoveProjectRepoResponse, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponse, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionMessage, SessionMessageSchema, SessionSchema, type SetProjectDefaultRepoData, type SetProjectDefaultRepoResponse, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponse, type WriteData, WriteDataSchema, type WriteRequestBody, type WriteResponse, WriteResponseSchema, type WriteResult, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createResponseSchema, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, safeParseWSMessage, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequestBody, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, type KbQueryRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type LockContentData, type LockContentResponses, type Meta, MetaSchema, type MissionCreateRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectMission, ProjectMissionSchema, type ProjectRepo, ProjectRepoSchema, ProjectSchema, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionMessage, SessionMessageSchema, SessionSchema, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequestBody, type WriteResponse, WriteResponseSchema, type WriteResult, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createResponseSchema, createWebSocketService, deleteContent, discoverSimilar, downloadRepository, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, getRepoDownloadStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDownloadedRepos, lockContent, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, safeParseWSMessage, searchContent, unlockContent, updateMission, writeContent };

@@ -90,18 +90,16 @@ export {
 
 // Re-export types - using new naming from openapi-ts
 export type {
-  // Request types
-  WriteRequest,
-  QueryRequest,
+  // Request body types
+  WriteRequestBody,
   QueryFilter,
-  BulkReadRequest,
-  BulkWriteRequest,
-  BulkDeleteRequest,
+  BulkReadRequestBody,
+  BulkWriteRequestBody,
+  BulkDeleteRequestBody,
   DownloadRequest,
   KbQueryRequest,
   DiscoverRequest,
   MissionCreateRequest,
-  LockRequest,
 
   // Data types for SDK functions - Content CRUD
   GetContentTypesData,

@@ -480,6 +480,19 @@
             "title": "Branch",
             "type": "string"
           },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Subdirectory path to filter (e.g., 'src/components'). If set, only files under this path are indexed.",
+            "title": "Path"
+          },
           "repo_id": {
             "description": "Repository identifier (lowercase alphanumeric with hyphens)",
             "maxLength": 100,

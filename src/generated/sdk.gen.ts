@@ -2,20 +2,78 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddProjectMissionData, AddProjectMissionResponses, AddProjectRepoData, AddProjectRepoResponses, AuthGetConfigData, AuthGetConfigResponses, AuthListWorkspacesData, AuthListWorkspacesResponses, AuthLoginData, AuthLoginResponses, AuthRefreshData, AuthRefreshResponses, BulkDeleteContentData, BulkDeleteContentResponses, BulkReadContentData, BulkReadContentResponses, BulkWriteContentData, BulkWriteContentResponses, CheckConflictsData, CheckConflictsResponses, CheckRepoExistsData, CheckRepoExistsResponses, CreateDocsSnapshotData, CreateDocsSnapshotResponses, CreateMissionData, CreateMissionResponses, CreateMissionSessionData, CreateMissionSessionResponses, CreateProjectData, CreateProjectResponses, CreateSessionData, CreateSessionResponses, DeleteContentData, DeleteContentResponses, DeleteProjectData, DeleteProjectResponses, DeleteRepositoryData, DeleteRepositoryResponses, DiscoverSimilarData, DiscoverSimilarResponses, DownloadContentData, DownloadContentResponses, DownloadRepositoryData, DownloadRepositoryResponses, FindByTicketData, FindByTicketResponses, FindContentByData, FindContentByResponses, ForkSessionData, ForkSessionResponses, GetContentStatsData, GetContentStatsResponses, GetContentTreeData, GetContentTreeResponses, GetContentTypesData, GetContentTypesResponses, GetDocsSnapshotStatusData, GetDocsSnapshotStatusResponses, GetMissionContextData, GetMissionContextResponses, GetPresignedUrlData, GetPresignedUrlResponses, GetProjectContextReposData, GetProjectContextReposResponses, GetProjectData, GetProjectResponses, GetRepoDownloadStatusData, GetRepoDownloadStatusResponses, GetSessionMessagesData, GetSessionMessagesResponses, GithubCheckAccessData, GithubCheckAccessResponses, GithubGetContentsData, GithubGetContentsResponses, GithubListBranchesData, GithubListBranchesResponses, LearnFromMissionData, LearnFromMissionResponses, ListContentData, ListContentResponses, ListDocsSnapshotsData, ListDocsSnapshotsResponses, ListDownloadedReposData, ListDownloadedReposResponses, ListMissionSessionsData, ListMissionSessionsResponses, ListProjectsData, ListProjectsResponses, ListSessionsData, ListSessionsResponses, LockContentData, LockContentResponses, MoveContentData, MoveContentResponses, QueryContentData, QueryContentResponses, QueryKnowledgeBaseData, QueryKnowledgeBaseResponses, RagKnowledgeBaseData, RagKnowledgeBaseResponses, ReadContentData, ReadContentResponses, RefreshIndexData, RefreshIndexResponses, RemoveProjectMissionData, RemoveProjectMissionResponses, RemoveProjectRepoData, RemoveProjectRepoResponses, SearchContentData, SearchContentResponses, SetProjectDefaultRepoData, SetProjectDefaultRepoResponses, UnlockContentData, UnlockContentResponses, UpdateMissionData, UpdateMissionResponses, UpdateProjectData, UpdateProjectResponses, UpdateSessionMetadataData, UpdateSessionMetadataResponses, WriteContentData, WriteContentResponses } from './types.gen';
+import type {
+  BulkDeleteContentData,
+  BulkDeleteContentResponses,
+  BulkReadContentData,
+  BulkReadContentResponses,
+  BulkWriteContentData,
+  BulkWriteContentResponses,
+  CreateMissionData,
+  CreateMissionResponses,
+  DeleteContentData,
+  DeleteContentResponses,
+  DiscoverSimilarData,
+  DiscoverSimilarResponses,
+  DownloadRepositoryData,
+  DownloadRepositoryResponses,
+  FindByTicketData,
+  FindByTicketResponses,
+  GetContentStatsData,
+  GetContentStatsResponses,
+  GetContentTreeData,
+  GetContentTreeResponses,
+  GetContentTypesData,
+  GetContentTypesResponses,
+  GetMissionContextData,
+  GetMissionContextResponses,
+  GetRepoDownloadStatusData,
+  GetRepoDownloadStatusResponses,
+  GithubCheckAccessData,
+  GithubCheckAccessResponses,
+  GithubGetContentsData,
+  GithubGetContentsResponses,
+  GithubListBranchesData,
+  GithubListBranchesResponses,
+  ListContentData,
+  ListContentResponses,
+  ListDownloadedReposData,
+  ListDownloadedReposResponses,
+  LockContentData,
+  LockContentResponses,
+  QueryContentData,
+  QueryContentResponses,
+  QueryKnowledgeBaseData,
+  QueryKnowledgeBaseResponses,
+  RagKnowledgeBaseData,
+  RagKnowledgeBaseResponses,
+  ReadContentData,
+  ReadContentResponses,
+  SearchContentData,
+  SearchContentResponses,
+  UnlockContentData,
+  UnlockContentResponses,
+  UpdateMissionData,
+  UpdateMissionResponses,
+  WriteContentData,
+  WriteContentResponses,
+} from './types.gen';
 
-export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
-    /**
-     * You can provide a client instance returned by `createClient()` instead of
-     * individual options. This might be also useful if you want to implement a
-     * custom client.
-     */
-    client?: Client;
-    /**
-     * You can pass arbitrary values through the `meta` object. This can be
-     * used to access values that aren't defined as part of the SDK function.
-     */
-    meta?: Record<string, unknown>;
+export type Options<
+  TData extends TDataShape = TDataShape,
+  ThrowOnError extends boolean = boolean,
+> = Options2<TData, ThrowOnError> & {
+  /**
+   * You can provide a client instance returned by `createClient()` instead of
+   * individual options. This might be also useful if you want to implement a
+   * custom client.
+   */
+  client?: Client;
+  /**
+   * You can pass arbitrary values through the `meta` object. This can be
+   * used to access values that aren't defined as part of the SDK function.
+   */
+  meta?: Record<string, unknown>;
 };
 
 /**
@@ -23,758 +81,399 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  *
  * Returns all content types with metadata, endpoints, and optional counts.
  */
-export const getContentTypes = <ThrowOnError extends boolean = false>(options?: Options<GetContentTypesData, ThrowOnError>) => (options?.client ?? client).get<GetContentTypesResponses, unknown, ThrowOnError>({
+export const getContentTypes = <ThrowOnError extends boolean = false>(
+  options?: Options<GetContentTypesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetContentTypesResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/types',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * List content of a type
  */
-export const listContent = <ThrowOnError extends boolean = false>(options: Options<ListContentData, ThrowOnError>) => (options.client ?? client).get<ListContentResponses, unknown, ThrowOnError>({
+export const listContent = <ThrowOnError extends boolean = false>(
+  options: Options<ListContentData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ListContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/list',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Delete content
  */
-export const deleteContent = <ThrowOnError extends boolean = false>(options: Options<DeleteContentData, ThrowOnError>) => (options.client ?? client).delete<DeleteContentResponses, unknown, ThrowOnError>({
+export const deleteContent = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteContentData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/{id}',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Read content by ID
  */
-export const readContent = <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => (options.client ?? client).get<ReadContentResponses, unknown, ThrowOnError>({
+export const readContent = <ThrowOnError extends boolean = false>(
+  options: Options<ReadContentData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ReadContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/{id}',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Create or update content
  */
-export const writeContent = <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => (options.client ?? client).post<WriteContentResponses, unknown, ThrowOnError>({
+export const writeContent = <ThrowOnError extends boolean = false>(
+  options: Options<WriteContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<WriteContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/{id}',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Query content with filters
  */
-export const queryContent = <ThrowOnError extends boolean = false>(options: Options<QueryContentData, ThrowOnError>) => (options.client ?? client).post<QueryContentResponses, unknown, ThrowOnError>({
+export const queryContent = <ThrowOnError extends boolean = false>(
+  options: Options<QueryContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<QueryContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/query',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Full-text search
  */
-export const searchContent = <ThrowOnError extends boolean = false>(options: Options<SearchContentData, ThrowOnError>) => (options.client ?? client).get<SearchContentResponses, unknown, ThrowOnError>({
+export const searchContent = <ThrowOnError extends boolean = false>(
+  options: Options<SearchContentData, ThrowOnError>
+) =>
+  (options.client ?? client).get<SearchContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/search',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Get hierarchical tree structure
  */
-export const getContentTree = <ThrowOnError extends boolean = false>(options: Options<GetContentTreeData, ThrowOnError>) => (options.client ?? client).get<GetContentTreeResponses, unknown, ThrowOnError>({
+export const getContentTree = <ThrowOnError extends boolean = false>(
+  options: Options<GetContentTreeData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetContentTreeResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/tree',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Get content statistics
  */
-export const getContentStats = <ThrowOnError extends boolean = false>(options: Options<GetContentStatsData, ThrowOnError>) => (options.client ?? client).get<GetContentStatsResponses, unknown, ThrowOnError>({
+export const getContentStats = <ThrowOnError extends boolean = false>(
+  options: Options<GetContentStatsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetContentStatsResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/stats',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Read multiple items
  */
-export const bulkReadContent = <ThrowOnError extends boolean = false>(options: Options<BulkReadContentData, ThrowOnError>) => (options.client ?? client).post<BulkReadContentResponses, unknown, ThrowOnError>({
+export const bulkReadContent = <ThrowOnError extends boolean = false>(
+  options: Options<BulkReadContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkReadContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/bulk/read',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Write multiple items
  */
-export const bulkWriteContent = <ThrowOnError extends boolean = false>(options: Options<BulkWriteContentData, ThrowOnError>) => (options.client ?? client).post<BulkWriteContentResponses, unknown, ThrowOnError>({
+export const bulkWriteContent = <ThrowOnError extends boolean = false>(
+  options: Options<BulkWriteContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkWriteContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/bulk/write',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Delete multiple items
  */
-export const bulkDeleteContent = <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => (options.client ?? client).post<BulkDeleteContentResponses, unknown, ThrowOnError>({
+export const bulkDeleteContent = <ThrowOnError extends boolean = false>(
+  options: Options<BulkDeleteContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkDeleteContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/{type}/bulk/delete',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Semantic search in Knowledge Base
  */
-export const queryKnowledgeBase = <ThrowOnError extends boolean = false>(options: Options<QueryKnowledgeBaseData, ThrowOnError>) => (options.client ?? client).post<QueryKnowledgeBaseResponses, unknown, ThrowOnError>({
+export const queryKnowledgeBase = <ThrowOnError extends boolean = false>(
+  options: Options<QueryKnowledgeBaseData, ThrowOnError>
+) =>
+  (options.client ?? client).post<QueryKnowledgeBaseResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/kb/query',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * RAG with citations
  */
-export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(options: Options<RagKnowledgeBaseData, ThrowOnError>) => (options.client ?? client).post<RagKnowledgeBaseResponses, unknown, ThrowOnError>({
+export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(
+  options: Options<RagKnowledgeBaseData, ThrowOnError>
+) =>
+  (options.client ?? client).post<RagKnowledgeBaseResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/kb/rag',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Download GitHub repo and vectorize
  *
  * Download repo from GitHub, upload to S3 with metadata sidecars, and trigger Bedrock KB vectorization.
  */
-export const downloadRepository = <ThrowOnError extends boolean = false>(options: Options<DownloadRepositoryData, ThrowOnError>) => (options.client ?? client).post<DownloadRepositoryResponses, unknown, ThrowOnError>({
+export const downloadRepository = <ThrowOnError extends boolean = false>(
+  options: Options<DownloadRepositoryData, ThrowOnError>
+) =>
+  (options.client ?? client).post<DownloadRepositoryResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/repo/download',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Check repo download job status
  */
-export const getRepoDownloadStatus = <ThrowOnError extends boolean = false>(options: Options<GetRepoDownloadStatusData, ThrowOnError>) => (options.client ?? client).get<GetRepoDownloadStatusResponses, unknown, ThrowOnError>({
+export const getRepoDownloadStatus = <ThrowOnError extends boolean = false>(
+  options: Options<GetRepoDownloadStatusData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetRepoDownloadStatusResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/repo/status',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * List downloaded repositories
  */
-export const listDownloadedRepos = <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => (options?.client ?? client).get<ListDownloadedReposResponses, unknown, ThrowOnError>({
+export const listDownloadedRepos = <ThrowOnError extends boolean = false>(
+  options?: Options<ListDownloadedReposData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListDownloadedReposResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/repo/list',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Check repository access
  *
  * Verify if the user can access a GitHub repository before downloading.
  */
-export const githubCheckAccess = <ThrowOnError extends boolean = false>(options: Options<GithubCheckAccessData, ThrowOnError>) => (options.client ?? client).post<GithubCheckAccessResponses, unknown, ThrowOnError>({
+export const githubCheckAccess = <ThrowOnError extends boolean = false>(
+  options: Options<GithubCheckAccessData, ThrowOnError>
+) =>
+  (options.client ?? client).post<GithubCheckAccessResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/github/check_access',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * List repository branches
  *
  * Get list of branches for a GitHub repository.
  */
-export const githubListBranches = <ThrowOnError extends boolean = false>(options: Options<GithubListBranchesData, ThrowOnError>) => (options.client ?? client).post<GithubListBranchesResponses, unknown, ThrowOnError>({
+export const githubListBranches = <ThrowOnError extends boolean = false>(
+  options: Options<GithubListBranchesData, ThrowOnError>
+) =>
+  (options.client ?? client).post<GithubListBranchesResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/github/list_branches',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Get repository contents
  *
  * Browse repository files and folders.
  */
-export const githubGetContents = <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => (options.client ?? client).post<GithubGetContentsResponses, unknown, ThrowOnError>({
+export const githubGetContents = <ThrowOnError extends boolean = false>(
+  options: Options<GithubGetContentsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<GithubGetContentsResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/github/get_contents',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Create a new mission from ticket
  */
-export const createMission = <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => (options.client ?? client).post<CreateMissionResponses, unknown, ThrowOnError>({
+export const createMission = <ThrowOnError extends boolean = false>(
+  options: Options<CreateMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateMissionResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/create',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Update mission progress
  */
-export const updateMission = <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => (options.client ?? client).post<UpdateMissionResponses, unknown, ThrowOnError>({
+export const updateMission = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<UpdateMissionResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/{id}/update',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Get mission context for agents
  */
-export const getMissionContext = <ThrowOnError extends boolean = false>(options: Options<GetMissionContextData, ThrowOnError>) => (options.client ?? client).get<GetMissionContextResponses, unknown, ThrowOnError>({
+export const getMissionContext = <ThrowOnError extends boolean = false>(
+  options: Options<GetMissionContextData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetMissionContextResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/{id}/context',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Discover similar content across types
  */
-export const discoverSimilar = <ThrowOnError extends boolean = false>(options: Options<DiscoverSimilarData, ThrowOnError>) => (options.client ?? client).post<DiscoverSimilarResponses, unknown, ThrowOnError>({
+export const discoverSimilar = <ThrowOnError extends boolean = false>(
+  options: Options<DiscoverSimilarData, ThrowOnError>
+) =>
+  (options.client ?? client).post<DiscoverSimilarResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/discover',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Find content by Jira ticket ID
  */
-export const findByTicket = <ThrowOnError extends boolean = false>(options: Options<FindByTicketData, ThrowOnError>) => (options.client ?? client).post<FindByTicketResponses, unknown, ThrowOnError>({
+export const findByTicket = <ThrowOnError extends boolean = false>(
+  options: Options<FindByTicketData, ThrowOnError>
+) =>
+  (options.client ?? client).post<FindByTicketResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/discover/ticket',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Delete a downloaded repository
- *
- * Delete a repository and its associated S3 files.
- */
-export const deleteRepository = <ThrowOnError extends boolean = false>(options: Options<DeleteRepositoryData, ThrowOnError>) => (options.client ?? client).post<DeleteRepositoryResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/repo/delete',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Check if repository exists
- *
- * Check if a repository has already been indexed.
- */
-export const checkRepoExists = <ThrowOnError extends boolean = false>(options: Options<CheckRepoExistsData, ThrowOnError>) => (options.client ?? client).get<CheckRepoExistsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/repo/exists',
-    ...options
-});
-
-/**
- * Move or rename content
- *
- * Move content from one path to another.
- */
-export const moveContent = <ThrowOnError extends boolean = false>(options: Options<MoveContentData, ThrowOnError>) => (options.client ?? client).post<MoveContentResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/move',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Acquire exclusive lock
  */
-export const lockContent = <ThrowOnError extends boolean = false>(options?: Options<LockContentData, ThrowOnError>) => (options?.client ?? client).post<LockContentResponses, unknown, ThrowOnError>({
+export const lockContent = <ThrowOnError extends boolean = false>(
+  options?: Options<LockContentData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<LockContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/lock',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
 
 /**
  * Release exclusive lock
  */
-export const unlockContent = <ThrowOnError extends boolean = false>(options?: Options<UnlockContentData, ThrowOnError>) => (options?.client ?? client).post<UnlockContentResponses, unknown, ThrowOnError>({
+export const unlockContent = <ThrowOnError extends boolean = false>(
+  options?: Options<UnlockContentData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<UnlockContentResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/unlock',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
-
-/**
- * Check for content conflicts
- *
- * Check if content has conflicts before writing.
- */
-export const checkConflicts = <ThrowOnError extends boolean = false>(options: Options<CheckConflictsData, ThrowOnError>) => (options.client ?? client).post<CheckConflictsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/conflicts',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get presigned URL for content
- *
- * Generate a presigned URL for direct S3 access.
- */
-export const getPresignedUrl = <ThrowOnError extends boolean = false>(options: Options<GetPresignedUrlData, ThrowOnError>) => (options.client ?? client).get<GetPresignedUrlResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{type}/{id}/url',
-    ...options
-});
-
-/**
- * Download content as archive
- *
- * Download multiple files as a single archive.
- */
-export const downloadContent = <ThrowOnError extends boolean = false>(options: Options<DownloadContentData, ThrowOnError>) => (options.client ?? client).post<DownloadContentResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{type}/download',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Find content by field value
- *
- * Find content by a specific field and value.
- */
-export const findContentBy = <ThrowOnError extends boolean = false>(options: Options<FindContentByData, ThrowOnError>) => (options.client ?? client).get<FindContentByResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{type}/find',
-    ...options
-});
-
-/**
- * Login with Cognito credentials
- *
- * Authenticate user and return JWT tokens.
- */
-export const authLogin = <ThrowOnError extends boolean = false>(options: Options<AuthLoginData, ThrowOnError>) => (options.client ?? client).post<AuthLoginResponses, unknown, ThrowOnError>({
-    url: '/auth/login',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Refresh authentication tokens
- *
- * Use refresh token to get new access and ID tokens.
- */
-export const authRefresh = <ThrowOnError extends boolean = false>(options: Options<AuthRefreshData, ThrowOnError>) => (options.client ?? client).post<AuthRefreshResponses, unknown, ThrowOnError>({
-    url: '/auth/refresh',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get authentication configuration
- *
- * Get Cognito User Pool IDs and other auth config.
- */
-export const authGetConfig = <ThrowOnError extends boolean = false>(options?: Options<AuthGetConfigData, ThrowOnError>) => (options?.client ?? client).get<AuthGetConfigResponses, unknown, ThrowOnError>({ url: '/auth/config', ...options });
-
-/**
- * List available workspaces
- *
- * Get list of workspaces the user has access to.
- */
-export const authListWorkspaces = <ThrowOnError extends boolean = false>(options?: Options<AuthListWorkspacesData, ThrowOnError>) => (options?.client ?? client).get<AuthListWorkspacesResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/auth/workspaces',
-    ...options
-});
-
-/**
- * List chat sessions
- *
- * Get list of user's chat sessions.
- */
-export const listSessions = <ThrowOnError extends boolean = false>(options?: Options<ListSessionsData, ThrowOnError>) => (options?.client ?? client).get<ListSessionsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/session',
-    ...options
-});
-
-/**
- * Create a new chat session
- *
- * Create a new session for chat conversations.
- */
-export const createSession = <ThrowOnError extends boolean = false>(options?: Options<CreateSessionData, ThrowOnError>) => (options?.client ?? client).post<CreateSessionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/session',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
-
-/**
- * Get session messages
- *
- * Get all messages in a chat session.
- */
-export const getSessionMessages = <ThrowOnError extends boolean = false>(options: Options<GetSessionMessagesData, ThrowOnError>) => (options.client ?? client).get<GetSessionMessagesResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/session/{id}/messages',
-    ...options
-});
-
-/**
- * Update session metadata
- *
- * Update metadata for a chat session.
- */
-export const updateSessionMetadata = <ThrowOnError extends boolean = false>(options: Options<UpdateSessionMetadataData, ThrowOnError>) => (options.client ?? client).post<UpdateSessionMetadataResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/session/{id}/metadata',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Fork a session
- *
- * Create a new session from an existing one.
- */
-export const forkSession = <ThrowOnError extends boolean = false>(options: Options<ForkSessionData, ThrowOnError>) => (options.client ?? client).post<ForkSessionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/session/{id}/fork',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * List sessions for a mission
- *
- * Get all chat sessions associated with a mission.
- */
-export const listMissionSessions = <ThrowOnError extends boolean = false>(options: Options<ListMissionSessionsData, ThrowOnError>) => (options.client ?? client).get<ListMissionSessionsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/mission/{id}/session',
-    ...options
-});
-
-/**
- * Create a session for a mission
- *
- * Create a new chat session linked to a mission.
- */
-export const createMissionSession = <ThrowOnError extends boolean = false>(options: Options<CreateMissionSessionData, ThrowOnError>) => (options.client ?? client).post<CreateMissionSessionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/mission/{id}/session',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * List all projects
- *
- * Get list of user's projects.
- */
-export const listProjects = <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>) => (options?.client ?? client).get<ListProjectsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project',
-    ...options
-});
-
-/**
- * Create a new project
- *
- * Create a new project for organizing missions and repos.
- */
-export const createProject = <ThrowOnError extends boolean = false>(options: Options<CreateProjectData, ThrowOnError>) => (options.client ?? client).post<CreateProjectResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Delete a project
- *
- * Delete a project (soft delete or archive).
- */
-export const deleteProject = <ThrowOnError extends boolean = false>(options: Options<DeleteProjectData, ThrowOnError>) => (options.client ?? client).delete<DeleteProjectResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}',
-    ...options
-});
-
-/**
- * Get project details
- *
- * Get a project by ID with all its details.
- */
-export const getProject = <ThrowOnError extends boolean = false>(options: Options<GetProjectData, ThrowOnError>) => (options.client ?? client).get<GetProjectResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}',
-    ...options
-});
-
-/**
- * Update a project
- *
- * Update project details.
- */
-export const updateProject = <ThrowOnError extends boolean = false>(options: Options<UpdateProjectData, ThrowOnError>) => (options.client ?? client).put<UpdateProjectResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Add repository to project
- *
- * Link a repository to a project.
- */
-export const addProjectRepo = <ThrowOnError extends boolean = false>(options: Options<AddProjectRepoData, ThrowOnError>) => (options.client ?? client).post<AddProjectRepoResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}/repos',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Remove repository from project
- *
- * Unlink a repository from a project.
- */
-export const removeProjectRepo = <ThrowOnError extends boolean = false>(options: Options<RemoveProjectRepoData, ThrowOnError>) => (options.client ?? client).delete<RemoveProjectRepoResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}/repos/{repo_id}',
-    ...options
-});
-
-/**
- * Set default repository
- *
- * Set the default repository for a project.
- */
-export const setProjectDefaultRepo = <ThrowOnError extends boolean = false>(options: Options<SetProjectDefaultRepoData, ThrowOnError>) => (options.client ?? client).put<SetProjectDefaultRepoResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}/default-repo',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get project context repositories
- *
- * Get repositories providing context for this project.
- */
-export const getProjectContextRepos = <ThrowOnError extends boolean = false>(options: Options<GetProjectContextReposData, ThrowOnError>) => (options.client ?? client).get<GetProjectContextReposResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}/context-repos',
-    ...options
-});
-
-/**
- * Add mission to project
- *
- * Link a mission to a project.
- */
-export const addProjectMission = <ThrowOnError extends boolean = false>(options: Options<AddProjectMissionData, ThrowOnError>) => (options.client ?? client).post<AddProjectMissionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}/missions',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Remove mission from project
- *
- * Unlink a mission from a project.
- */
-export const removeProjectMission = <ThrowOnError extends boolean = false>(options: Options<RemoveProjectMissionData, ThrowOnError>) => (options.client ?? client).delete<RemoveProjectMissionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/project/{id}/missions/{mission_id}',
-    ...options
-});
-
-/**
- * Create documentation snapshot
- *
- * Create a snapshot of documentation from a URL.
- */
-export const createDocsSnapshot = <ThrowOnError extends boolean = false>(options: Options<CreateDocsSnapshotData, ThrowOnError>) => (options.client ?? client).post<CreateDocsSnapshotResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/docs/snapshot',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * List documentation snapshots
- *
- * Get list of all documentation snapshots.
- */
-export const listDocsSnapshots = <ThrowOnError extends boolean = false>(options?: Options<ListDocsSnapshotsData, ThrowOnError>) => (options?.client ?? client).get<ListDocsSnapshotsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/docs/list',
-    ...options
-});
-
-/**
- * Get snapshot job status
- *
- * Check status of a documentation snapshot job.
- */
-export const getDocsSnapshotStatus = <ThrowOnError extends boolean = false>(options: Options<GetDocsSnapshotStatusData, ThrowOnError>) => (options.client ?? client).get<GetDocsSnapshotStatusResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/docs/status',
-    ...options
-});
-
-/**
- * Refresh content index
- *
- * Trigger a refresh of the content index.
- */
-export const refreshIndex = <ThrowOnError extends boolean = false>(options?: Options<RefreshIndexData, ThrowOnError>) => (options?.client ?? client).post<RefreshIndexResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/index/refresh',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
-
-/**
- * Learn from completed mission
- *
- * Extract learnings and patterns from a completed mission.
- */
-export const learnFromMission = <ThrowOnError extends boolean = false>(options: Options<LearnFromMissionData, ThrowOnError>) => (options.client ?? client).post<LearnFromMissionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/tools/mission/{id}/learn',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });

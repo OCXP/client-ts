@@ -19,7 +19,14 @@ import type { ContentTypeValue } from './client';
  * Valid content types for OCXP API
  */
 export const VALID_CONTENT_TYPES: ContentTypeValue[] = [
-  'mission', 'project', 'context', 'sop', 'repo', 'artifact', 'kb', 'docs'
+  'mission',
+  'project',
+  'context',
+  'sop',
+  'repo',
+  'artifact',
+  'kb',
+  'docs',
 ];
 
 /**
@@ -108,15 +115,17 @@ export function parsePath(path: string): ParsedPath {
  * @returns Normalized path with singular type prefix
  */
 export function normalizePath(path: string): string {
-  return path
-    // S3 plural to OCXP singular
-    .replace(/^missions\//, 'mission/')
-    .replace(/^projects\//, 'project/')
-    .replace(/^contexts\//, 'context/')
-    .replace(/^sops\//, 'sop/')
-    .replace(/^repos\//, 'repo/')
-    .replace(/^artifacts\//, 'artifact/')
-    .replace(/^kbs\//, 'kb/');
+  return (
+    path
+      // S3 plural to OCXP singular
+      .replace(/^missions\//, 'mission/')
+      .replace(/^projects\//, 'project/')
+      .replace(/^contexts\//, 'context/')
+      .replace(/^sops\//, 'sop/')
+      .replace(/^repos\//, 'repo/')
+      .replace(/^artifacts\//, 'artifact/')
+      .replace(/^kbs\//, 'kb/')
+  );
 }
 
 /**

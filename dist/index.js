@@ -980,29 +980,6 @@ var findByTicket = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
-var deleteRepository = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/repo/delete",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var checkRepoExists = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/repo/exists",
-  ...options
-});
-var moveContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/move",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
 var lockContent = (options) => (options?.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/lock",
@@ -1021,222 +998,6 @@ var unlockContent = (options) => (options?.client ?? client).post({
     ...options?.headers
   }
 });
-var checkConflicts = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/conflicts",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var getPresignedUrl = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/{id}/url",
-  ...options
-});
-var downloadContent = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/download",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var findContentBy = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{type}/find",
-  ...options
-});
-var authLogin = (options) => (options.client ?? client).post({
-  url: "/auth/login",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var authRefresh = (options) => (options.client ?? client).post({
-  url: "/auth/refresh",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var authGetConfig = (options) => (options?.client ?? client).get({
-  url: "/auth/config",
-  ...options
-});
-var authListWorkspaces = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/auth/workspaces",
-  ...options
-});
-var listSessions = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/session",
-  ...options
-});
-var createSession = (options) => (options?.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/session",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options?.headers
-  }
-});
-var getSessionMessages = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/session/{id}/messages",
-  ...options
-});
-var updateSessionMetadata = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/session/{id}/metadata",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var forkSession = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/session/{id}/fork",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var listMissionSessions = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/mission/{id}/session",
-  ...options
-});
-var createMissionSession = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/mission/{id}/session",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var listProjects = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project",
-  ...options
-});
-var createProject = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var deleteProject = (options) => (options.client ?? client).delete({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}",
-  ...options
-});
-var getProject = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}",
-  ...options
-});
-var updateProject = (options) => (options.client ?? client).put({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var addProjectRepo = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}/repos",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var removeProjectRepo = (options) => (options.client ?? client).delete({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}/repos/{repo_id}",
-  ...options
-});
-var setProjectDefaultRepo = (options) => (options.client ?? client).put({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}/default-repo",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var getProjectContextRepos = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}/context-repos",
-  ...options
-});
-var addProjectMission = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}/missions",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var removeProjectMission = (options) => (options.client ?? client).delete({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/project/{id}/missions/{mission_id}",
-  ...options
-});
-var createDocsSnapshot = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/docs/snapshot",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var listDocsSnapshots = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/docs/list",
-  ...options
-});
-var getDocsSnapshotStatus = (options) => (options.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/docs/status",
-  ...options
-});
-var refreshIndex = (options) => (options?.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/index/refresh",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options?.headers
-  }
-});
-var learnFromMission = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/mission/{id}/learn",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
 
 // src/client.ts
 function extractData(response) {
@@ -1245,13 +1006,7 @@ function extractData(response) {
       typeof response.error === "object" && response.error !== null ? response.error.message || JSON.stringify(response.error) : String(response.error)
     );
   }
-  const ocxpResponse = response.data;
-  if (ocxpResponse?.error) {
-    throw new Error(
-      typeof ocxpResponse.error === "object" && ocxpResponse.error !== null ? ocxpResponse.error.message || JSON.stringify(ocxpResponse.error) : String(ocxpResponse.error)
-    );
-  }
-  return ocxpResponse?.data || {};
+  return response.data;
 }
 var OCXPClient = class {
   client;
@@ -1266,10 +1021,12 @@ var OCXPClient = class {
     this.client = createClient(config);
   }
   /**
-   * Get authorization headers
+   * Get headers including workspace and auth
    */
   async getHeaders() {
-    const headers = {};
+    const headers = {
+      "X-Workspace": this.workspace
+    };
     if (this.tokenProvider) {
       const token = typeof this.tokenProvider === "function" ? await this.tokenProvider() : this.tokenProvider;
       if (token) {
@@ -1304,7 +1061,7 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     const response = await getContentTypes({
       client: this.client,
-      query: { workspace: this.workspace, counts },
+      query: { counts },
       headers
     });
     const data = extractData(response);
@@ -1322,14 +1079,14 @@ var OCXPClient = class {
     const response = await listContent({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace, path, limit },
+      query: { path, limit },
       headers
     });
     const data = extractData(response);
     return {
       entries: data.entries || [],
       cursor: data.cursor,
-      hasMore: data.hasMore || false,
+      hasMore: data.has_more || false,
       total: data.total || 0
     };
   }
@@ -1341,7 +1098,6 @@ var OCXPClient = class {
     const response = await readContent({
       client: this.client,
       path: { type, id },
-      query: { workspace: this.workspace },
       headers
     });
     const data = extractData(response);
@@ -1360,12 +1116,13 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     const body = {
       content,
-      ...options
+      encoding: options?.encoding || "utf-8",
+      etag: options?.etag,
+      ifNotExists: options?.ifNotExists
     };
     const response = await writeContent({
       client: this.client,
       path: { type, id },
-      query: { workspace: this.workspace },
       body,
       headers
     });
@@ -1383,7 +1140,7 @@ var OCXPClient = class {
     const response = await deleteContent({
       client: this.client,
       path: { type, id },
-      query: { workspace: this.workspace, recursive, confirm },
+      query: { recursive, confirm },
       headers
     });
     const data = extractData(response);
@@ -1401,20 +1158,19 @@ var OCXPClient = class {
     return queryContent({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace },
-      body: { filters, limit },
+      body: { filters: filters || [], limit: limit || 100 },
       headers
     });
   }
   /**
    * Full-text search
    */
-  async search(type, q, fuzzy = false, limit) {
+  async search(type, q, limit) {
     const headers = await this.getHeaders();
     return searchContent({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace, q, fuzzy, limit },
+      query: { q, limit },
       headers
     });
   }
@@ -1427,7 +1183,7 @@ var OCXPClient = class {
     return getContentTree({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace, path, depth },
+      query: { path, depth },
       headers
     });
   }
@@ -1439,7 +1195,7 @@ var OCXPClient = class {
     return getContentStats({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace, path },
+      query: { path },
       headers
     });
   }
@@ -1447,39 +1203,36 @@ var OCXPClient = class {
   /**
    * Read multiple items at once
    */
-  async bulkRead(type, ids, options) {
+  async bulkRead(type, ids) {
     const headers = await this.getHeaders();
     return bulkReadContent({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace },
-      body: { ids, options },
+      body: { ids },
       headers
     });
   }
   /**
    * Write multiple items at once
    */
-  async bulkWrite(type, items, options) {
+  async bulkWrite(type, items) {
     const headers = await this.getHeaders();
     return bulkWriteContent({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace },
-      body: { items, options },
+      body: { items },
       headers
     });
   }
   /**
    * Delete multiple items at once
    */
-  async bulkDelete(type, ids, options) {
+  async bulkDelete(type, ids) {
     const headers = await this.getHeaders();
     return bulkDeleteContent({
       client: this.client,
       path: { type },
-      query: { workspace: this.workspace },
-      body: { ids, options },
+      body: { ids },
       headers
     });
   }
@@ -1492,11 +1245,10 @@ var OCXPClient = class {
     const body = {
       query,
       searchType,
-      maxResults
+      maxResults: maxResults || 5
     };
     return queryKnowledgeBase({
       client: this.client,
-      query: { workspace: this.workspace },
       body,
       headers
     });
@@ -1504,30 +1256,27 @@ var OCXPClient = class {
   /**
    * RAG with citations
    */
-  async kbRag(query, sessionId, systemPrompt) {
+  async kbRag(query, sessionId) {
     const headers = await this.getHeaders();
     return ragKnowledgeBase({
       client: this.client,
-      query: { workspace: this.workspace },
-      body: { query, sessionId, systemPrompt },
+      body: { query, sessionId },
       headers
     });
   }
   // ============== Tools ==============
   /**
-   * Create a new mission from ticket
+   * Create a new mission from Jira ticket
    */
   async createMission(ticketId, ticketSummary, ticketDescription) {
     const headers = await this.getHeaders();
     const body = {
       ticket_id: ticketId,
       ticket_summary: ticketSummary,
-      ticket_description: ticketDescription,
-      workspace: this.workspace
+      ticket_description: ticketDescription
     };
     return createMission({
       client: this.client,
-      query: { workspace: this.workspace },
       body,
       headers
     });
@@ -1540,7 +1289,6 @@ var OCXPClient = class {
     return updateMission({
       client: this.client,
       path: { id: missionId },
-      query: { workspace: this.workspace },
       body: updates,
       headers
     });
@@ -1553,24 +1301,21 @@ var OCXPClient = class {
     return getMissionContext({
       client: this.client,
       path: { id: missionId },
-      query: { workspace: this.workspace },
       headers
     });
   }
   /**
    * Discover similar content across types
    */
-  async discover(query, contentType, maxResults, includeRelated = true) {
+  async discover(query, contentType, includeRelated) {
     const headers = await this.getHeaders();
     const body = {
       query,
       content_type: contentType,
-      max_results: maxResults,
       include_related: includeRelated
     };
     return discoverSimilar({
       client: this.client,
-      query: { workspace: this.workspace },
       body,
       headers
     });
@@ -1582,7 +1327,6 @@ var OCXPClient = class {
     const headers = await this.getHeaders();
     return findByTicket({
       client: this.client,
-      query: { workspace: this.workspace },
       body: { ticket_id: ticketId },
       headers
     });
@@ -1590,23 +1334,33 @@ var OCXPClient = class {
   // ============== Locking ==============
   /**
    * Acquire exclusive lock on content
+   * @param path - Content path (e.g., "mission/my-mission")
+   * @param ttl - Lock time-to-live in seconds
    */
   async lock(path, ttl) {
     const headers = await this.getHeaders();
     return lockContent({
       client: this.client,
-      body: { path, ttl },
+      body: {
+        path,
+        ttl
+      },
       headers
     });
   }
   /**
    * Release exclusive lock
+   * @param path - Content path
+   * @param lockToken - Token from lock acquisition
    */
   async unlock(path, lockToken) {
     const headers = await this.getHeaders();
     return unlockContent({
       client: this.client,
-      body: { path, lockToken },
+      body: {
+        path,
+        lockToken
+      },
       headers
     });
   }
@@ -1614,127 +1368,75 @@ var OCXPClient = class {
   /**
    * Check if a repository is accessible
    */
-  async githubCheckAccess(owner, repo, githubToken) {
+  async githubCheckAccess(owner, repo, token) {
     const headers = await this.getHeaders();
-    const response = await githubCheckAccess({
+    return githubCheckAccess({
       client: this.client,
-      query: { workspace: this.workspace },
-      body: { owner, repo, github_token: githubToken },
+      body: { owner, repo, github_token: token },
       headers
     });
-    return extractData(response);
   }
   /**
    * List branches for a repository
    */
-  async githubListBranches(owner, repo, githubToken) {
+  async githubListBranches(owner, repo, token) {
     const headers = await this.getHeaders();
-    const response = await githubListBranches({
+    return githubListBranches({
       client: this.client,
-      query: { workspace: this.workspace },
-      body: { owner, repo, github_token: githubToken },
+      body: { owner, repo, github_token: token },
       headers
     });
-    return extractData(response);
   }
   /**
    * Get repository contents at a path
    */
-  async githubGetContents(owner, repo, path = "", ref = "main", githubToken) {
+  async githubGetContents(owner, repo, path = "", ref, token) {
     const headers = await this.getHeaders();
-    const response = await githubGetContents({
+    return githubGetContents({
       client: this.client,
-      query: { workspace: this.workspace },
-      body: { owner, repo, path, ref, github_token: githubToken },
+      body: { owner, repo, path, ref, github_token: token },
       headers
     });
-    return extractData(response);
   }
   // ============== Repository Management ==============
   /**
    * Download repository and trigger vectorization
-   * Uses tarball download for efficiency (single GitHub request)
    */
   async downloadRepository(request) {
     const headers = await this.getHeaders();
-    const response = await downloadRepository({
+    return downloadRepository({
       client: this.client,
-      query: { workspace: this.workspace },
       body: request,
       headers
     });
-    return extractData(response);
   }
   /**
-   * Get repository download/vectorization status
+   * Get repository download status
    */
   async getRepoStatus(jobId) {
     const headers = await this.getHeaders();
-    const response = await getRepoDownloadStatus({
+    return getRepoDownloadStatus({
       client: this.client,
-      query: { workspace: this.workspace, job_id: jobId },
+      query: { job_id: jobId },
       headers
     });
-    return extractData(response);
   }
   /**
    * List all downloaded repositories in workspace
    */
-  async listRepos(options) {
+  async listRepos() {
     const headers = await this.getHeaders();
-    const response = await listDownloadedRepos({
+    return listDownloadedRepos({
       client: this.client,
-      query: {
-        workspace: this.workspace,
-        visibility: options?.visibility,
-        repo_id: options?.repoId
-      },
       headers
     });
-    return extractData(response);
   }
   /**
-   * Delete a repository and all associated data
-   * Removes S3 files, job records, and project references
+   * Delete a repository
+   * Note: This endpoint is not yet implemented in the API
    */
-  async deleteRepository(repoId) {
-    const headers = await this.getHeaders();
-    const response = await fetch(
-      `${this.client.getConfig().baseUrl}/ocxp/repo/delete?workspace=${this.workspace}`,
-      {
-        method: "POST",
-        headers: {
-          ...headers,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ repo_id: repoId })
-      }
-    );
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to delete repository: ${error}`);
-    }
-    const result = await response.json();
-    return result.data;
-  }
-  /**
-   * Check if a repository already exists in the system
-   */
-  async checkRepoExists(repoId) {
-    const headers = await this.getHeaders();
-    const response = await fetch(
-      `${this.client.getConfig().baseUrl}/ocxp/repo/exists?workspace=${this.workspace}&repo_id=${encodeURIComponent(repoId)}`,
-      {
-        method: "GET",
-        headers
-      }
-    );
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to check repository exists: ${error}`);
-    }
-    const result = await response.json();
-    return result.data;
+  async deleteRepository(_repoId) {
+    throw new Error("deleteRepository is not yet implemented in the OCXP API");
   }
 };
 function createOCXPClient(options) {
@@ -1923,7 +1625,6 @@ var OCXPPathService = class {
     }
     await this.client.write(type, id, content, {
       encoding: options?.encoding,
-      metadata: options?.metadata,
       ifNotExists: options?.ifNotExists,
       etag: options?.etag
     });
@@ -3004,6 +2705,6 @@ var GithubCommitsDataSchema = z.object({
 });
 var GithubCommitsResponseSchema = createResponseSchema(GithubCommitsDataSchema);
 
-export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createResponseSchema, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, safeParseWSMessage, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createResponseSchema, createWebSocketService, deleteContent, discoverSimilar, downloadRepository, findByTicket, getCanonicalType, getContentStats, getContentTree, getContentTypes, getMissionContext, getRepoDownloadStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDownloadedRepos, lockContent, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, safeParseWSMessage, searchContent, unlockContent, updateMission, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
