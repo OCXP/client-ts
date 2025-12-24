@@ -128,7 +128,6 @@ export {
 
   // Index (1)
   refreshIndex,
-
   type Options,
 } from './generated';
 
@@ -331,3 +330,25 @@ export {
   type NotificationMessage,
   type SyncEventMessage,
 } from './websocket';
+
+// Error types
+export {
+  OCXPError,
+  OCXPNetworkError,
+  OCXPValidationError,
+  OCXPAuthError,
+  OCXPNotFoundError,
+  OCXPRateLimitError,
+  OCXPConflictError,
+  OCXPTimeoutError,
+  OCXPErrorCode,
+  isOCXPError,
+  isOCXPNetworkError,
+  isOCXPValidationError,
+  isOCXPAuthError,
+  isOCXPNotFoundError,
+  isOCXPRateLimitError,
+  isOCXPConflictError,
+  isOCXPTimeoutError,
+  mapHttpError,
+} from './types';

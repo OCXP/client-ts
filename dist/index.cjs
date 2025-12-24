@@ -2219,8 +2219,199 @@ function createWebSocketService(options) {
   return new WebSocketService(options);
 }
 
+// src/types/errors.ts
+var OCXPErrorCode = /* @__PURE__ */ ((OCXPErrorCode2) => {
+  OCXPErrorCode2["NETWORK_ERROR"] = "NETWORK_ERROR";
+  OCXPErrorCode2["VALIDATION_ERROR"] = "VALIDATION_ERROR";
+  OCXPErrorCode2["AUTH_ERROR"] = "AUTH_ERROR";
+  OCXPErrorCode2["NOT_FOUND"] = "NOT_FOUND";
+  OCXPErrorCode2["RATE_LIMITED"] = "RATE_LIMITED";
+  OCXPErrorCode2["CONFLICT"] = "CONFLICT";
+  OCXPErrorCode2["TIMEOUT"] = "TIMEOUT";
+  OCXPErrorCode2["SERVER_ERROR"] = "SERVER_ERROR";
+  OCXPErrorCode2["UNKNOWN"] = "UNKNOWN";
+  return OCXPErrorCode2;
+})(OCXPErrorCode || {});
+var OCXPError = class extends Error {
+  /** Error code for programmatic handling */
+  code;
+  /** HTTP status code if applicable */
+  statusCode;
+  /** Additional error details */
+  details;
+  /** Request ID for debugging */
+  requestId;
+  /** Original cause of the error */
+  cause;
+  constructor(message, code = "UNKNOWN" /* UNKNOWN */, statusCode = 500, options) {
+    super(message);
+    this.name = "OCXPError";
+    this.code = code;
+    this.statusCode = statusCode;
+    this.details = options?.details;
+    this.requestId = options?.requestId;
+    this.cause = options?.cause;
+    if ("captureStackTrace" in Error && typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+  /**
+   * Convert error to JSON for logging/serialization
+   */
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      code: this.code,
+      statusCode: this.statusCode,
+      details: this.details,
+      requestId: this.requestId,
+      stack: this.stack
+    };
+  }
+};
+var OCXPNetworkError = class extends OCXPError {
+  constructor(message, options) {
+    super(message, "NETWORK_ERROR" /* NETWORK_ERROR */, 0, options);
+    this.name = "OCXPNetworkError";
+  }
+};
+var OCXPValidationError = class extends OCXPError {
+  /** Field-level validation errors */
+  validationErrors;
+  constructor(message, validationErrors, options) {
+    super(message, "VALIDATION_ERROR" /* VALIDATION_ERROR */, 400, {
+      ...options,
+      details: { ...options?.details, validationErrors }
+    });
+    this.name = "OCXPValidationError";
+    this.validationErrors = validationErrors;
+  }
+};
+var OCXPAuthError = class extends OCXPError {
+  constructor(message, options) {
+    super(message, "AUTH_ERROR" /* AUTH_ERROR */, 401, options);
+    this.name = "OCXPAuthError";
+  }
+};
+var OCXPNotFoundError = class extends OCXPError {
+  /** The resource path that was not found */
+  path;
+  constructor(message, path, options) {
+    super(message, "NOT_FOUND" /* NOT_FOUND */, 404, {
+      ...options,
+      details: { ...options?.details, path }
+    });
+    this.name = "OCXPNotFoundError";
+    this.path = path;
+  }
+};
+var OCXPRateLimitError = class extends OCXPError {
+  /** Seconds until rate limit resets */
+  retryAfter;
+  constructor(message = "Rate limit exceeded", retryAfter, options) {
+    super(message, "RATE_LIMITED" /* RATE_LIMITED */, 429, {
+      ...options,
+      details: { ...options?.details, retryAfter }
+    });
+    this.name = "OCXPRateLimitError";
+    this.retryAfter = retryAfter;
+  }
+};
+var OCXPConflictError = class extends OCXPError {
+  /** Expected etag value */
+  expectedEtag;
+  /** Actual etag value */
+  actualEtag;
+  constructor(message, options) {
+    super(message, "CONFLICT" /* CONFLICT */, 409, {
+      details: {
+        ...options?.details,
+        expectedEtag: options?.expectedEtag,
+        actualEtag: options?.actualEtag
+      },
+      requestId: options?.requestId,
+      cause: options?.cause
+    });
+    this.name = "OCXPConflictError";
+    this.expectedEtag = options?.expectedEtag;
+    this.actualEtag = options?.actualEtag;
+  }
+};
+var OCXPTimeoutError = class extends OCXPError {
+  /** Timeout duration in milliseconds */
+  timeoutMs;
+  constructor(message = "Operation timed out", timeoutMs, options) {
+    super(message, "TIMEOUT" /* TIMEOUT */, 408, {
+      ...options,
+      details: { ...options?.details, timeoutMs }
+    });
+    this.name = "OCXPTimeoutError";
+    this.timeoutMs = timeoutMs;
+  }
+};
+function isOCXPError(error) {
+  return error instanceof OCXPError;
+}
+function isOCXPNetworkError(error) {
+  return error instanceof OCXPNetworkError;
+}
+function isOCXPValidationError(error) {
+  return error instanceof OCXPValidationError;
+}
+function isOCXPAuthError(error) {
+  return error instanceof OCXPAuthError;
+}
+function isOCXPNotFoundError(error) {
+  return error instanceof OCXPNotFoundError;
+}
+function isOCXPRateLimitError(error) {
+  return error instanceof OCXPRateLimitError;
+}
+function isOCXPConflictError(error) {
+  return error instanceof OCXPConflictError;
+}
+function isOCXPTimeoutError(error) {
+  return error instanceof OCXPTimeoutError;
+}
+function mapHttpError(statusCode, message, options) {
+  const baseOptions = {
+    details: options?.details,
+    requestId: options?.requestId
+  };
+  switch (statusCode) {
+    case 400:
+      return new OCXPValidationError(message, void 0, baseOptions);
+    case 401:
+    case 403:
+      return new OCXPAuthError(message, baseOptions);
+    case 404:
+      return new OCXPNotFoundError(message, options?.path, baseOptions);
+    case 408:
+      return new OCXPTimeoutError(message, void 0, baseOptions);
+    case 409:
+      return new OCXPConflictError(message, baseOptions);
+    case 429:
+      return new OCXPRateLimitError(message, options?.retryAfter, baseOptions);
+    default:
+      if (statusCode >= 500) {
+        return new OCXPError(message, "SERVER_ERROR" /* SERVER_ERROR */, statusCode, baseOptions);
+      }
+      return new OCXPError(message, "UNKNOWN" /* UNKNOWN */, statusCode, baseOptions);
+  }
+}
+
+exports.OCXPAuthError = OCXPAuthError;
 exports.OCXPClient = OCXPClient;
+exports.OCXPConflictError = OCXPConflictError;
+exports.OCXPError = OCXPError;
+exports.OCXPErrorCode = OCXPErrorCode;
+exports.OCXPNetworkError = OCXPNetworkError;
+exports.OCXPNotFoundError = OCXPNotFoundError;
 exports.OCXPPathService = OCXPPathService;
+exports.OCXPRateLimitError = OCXPRateLimitError;
+exports.OCXPTimeoutError = OCXPTimeoutError;
+exports.OCXPValidationError = OCXPValidationError;
 exports.VALID_CONTENT_TYPES = VALID_CONTENT_TYPES;
 exports.WebSocketService = WebSocketService;
 exports.addProjectMission = addProjectMission;
@@ -2268,6 +2459,14 @@ exports.getSessionMessages = getSessionMessages;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;
 exports.githubListBranches = githubListBranches;
+exports.isOCXPAuthError = isOCXPAuthError;
+exports.isOCXPConflictError = isOCXPConflictError;
+exports.isOCXPError = isOCXPError;
+exports.isOCXPNetworkError = isOCXPNetworkError;
+exports.isOCXPNotFoundError = isOCXPNotFoundError;
+exports.isOCXPRateLimitError = isOCXPRateLimitError;
+exports.isOCXPTimeoutError = isOCXPTimeoutError;
+exports.isOCXPValidationError = isOCXPValidationError;
 exports.isValidContentType = isValidContentType;
 exports.learnFromMission = learnFromMission;
 exports.listContent = listContent;
@@ -2277,6 +2476,7 @@ exports.listMissionSessions = listMissionSessions;
 exports.listProjects = listProjects;
 exports.listSessions = listSessions;
 exports.lockContent = lockContent;
+exports.mapHttpError = mapHttpError;
 exports.moveContent = moveContent;
 exports.normalizePath = normalizePath;
 exports.parsePath = parsePath;

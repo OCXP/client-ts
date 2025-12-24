@@ -3770,4 +3770,165 @@ declare class WebSocketService {
  */
 declare function createWebSocketService(options: WebSocketServiceOptions): WebSocketService;
 
-export { type AddProjectMissionData, type AddProjectMissionResponse, type AddProjectRepoData, type AddProjectRepoResponse, type AuthGetConfigData, type AuthGetConfigResponse, type AuthListWorkspacesData, type AuthListWorkspacesResponse, type AuthLoginData, type AuthLoginResponse, type AuthRefreshData, type AuthRefreshResponse, type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type CheckConflictsData, type CheckConflictsResponse, type CheckRepoExistsData, type CheckRepoExistsResponse, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentType2, type ContentTypeValue, type ContentTypesResult, type CreateDocsSnapshotData, type CreateDocsSnapshotResponse, type CreateMissionData, type CreateMissionResponse, type CreateMissionSessionData, type CreateMissionSessionResponse, type CreateProjectData, type CreateProjectResponse, type CreateSessionData, type CreateSessionResponse, type DeleteContentData, type DeleteContentResponse, type DeleteProjectData, type DeleteProjectResponse, type DeleteRepositoryData, type DeleteRepositoryResponse, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DownloadContentData, type DownloadContentResponse, type DownloadRepositoryData, type DownloadRepositoryResponse, type DownloadRequest, type FindByTicketData, type FindByTicketResponse, type FindContentByData, type FindContentByResponse, type ForkSessionData, type ForkSessionResponse, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetDocsSnapshotStatusData, type GetDocsSnapshotStatusResponse, type GetMissionContextData, type GetMissionContextResponse, type GetPresignedUrlData, type GetPresignedUrlResponse, type GetProjectContextReposData, type GetProjectContextReposResponse, type GetProjectData, type GetProjectResponse, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponse, type GetSessionMessagesData, type GetSessionMessagesResponse, type GithubCheckAccessData, type GithubCheckAccessResponse, type GithubGetContentsData, type GithubGetContentsResponse, type GithubListBranchesData, type GithubListBranchesResponse, type JobProgressMessage, type KbQueryRequest, type LearnFromMissionData, type LearnFromMissionResponse, type ListContentData, type ListContentResponse, type ListDocsSnapshotsData, type ListDocsSnapshotsResponse, type ListDownloadedReposData, type ListDownloadedReposResponse, type ListEntry, type ListMissionSessionsData, type ListMissionSessionsResponse, type ListProjectsData, type ListProjectsResponse, type ListResult, type ListSessionsData, type ListSessionsResponse, type LockContentData, type LockContentResponse, type MissionCreateRequest, type MoveContentData, type MoveContentResponse, type NotificationMessage, OCXPClient, type OCXPClientOptions, OCXPPathService, type OCXPPathServiceOptions, type OcxpResponse, type Options, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlRequest, type QueryContentData, type QueryContentResponse, type QueryFilter, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadResult, type RefreshIndexData, type RefreshIndexResponse, type RemoveProjectMissionData, type RemoveProjectMissionResponse, type RemoveProjectRepoData, type RemoveProjectRepoResponse, type RepoStatusMessage, type SearchContentData, type SearchContentResponse, type SetProjectDefaultRepoData, type SetProjectDefaultRepoResponse, type SyncEventMessage, type TokenProvider, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, type UpdateProjectData, type UpdateProjectResponse, type UpdateSessionMetadataData, type UpdateSessionMetadataResponse, VALID_CONTENT_TYPES, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponse, type WriteRequestBody, type WriteResult, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, moveContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+/**
+ * OCXP Error Types
+ *
+ * Typed error classes for the OCXP SDK providing structured error handling
+ * with error codes, HTTP status codes, and detailed context.
+ */
+/**
+ * Error codes for OCXP operations
+ */
+declare enum OCXPErrorCode {
+    /** Network-level error (connection failed, timeout, etc.) */
+    NETWORK_ERROR = "NETWORK_ERROR",
+    /** Request or response validation failed */
+    VALIDATION_ERROR = "VALIDATION_ERROR",
+    /** Authentication or authorization failed */
+    AUTH_ERROR = "AUTH_ERROR",
+    /** Resource not found */
+    NOT_FOUND = "NOT_FOUND",
+    /** Rate limit exceeded */
+    RATE_LIMITED = "RATE_LIMITED",
+    /** Conflict (e.g., etag mismatch) */
+    CONFLICT = "CONFLICT",
+    /** Operation timed out */
+    TIMEOUT = "TIMEOUT",
+    /** Server-side error */
+    SERVER_ERROR = "SERVER_ERROR",
+    /** Unknown error */
+    UNKNOWN = "UNKNOWN"
+}
+/**
+ * Base error class for all OCXP errors
+ */
+declare class OCXPError extends Error {
+    /** Error code for programmatic handling */
+    readonly code: OCXPErrorCode;
+    /** HTTP status code if applicable */
+    readonly statusCode: number;
+    /** Additional error details */
+    readonly details?: Record<string, unknown>;
+    /** Request ID for debugging */
+    readonly requestId?: string;
+    /** Original cause of the error */
+    readonly cause?: Error;
+    constructor(message: string, code?: OCXPErrorCode, statusCode?: number, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+    /**
+     * Convert error to JSON for logging/serialization
+     */
+    toJSON(): Record<string, unknown>;
+}
+/**
+ * Network-level error (connection failed, DNS resolution, etc.)
+ */
+declare class OCXPNetworkError extends OCXPError {
+    constructor(message: string, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Validation error (request or response validation failed)
+ */
+declare class OCXPValidationError extends OCXPError {
+    /** Field-level validation errors */
+    readonly validationErrors?: Record<string, string[]>;
+    constructor(message: string, validationErrors?: Record<string, string[]>, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Authentication or authorization error
+ */
+declare class OCXPAuthError extends OCXPError {
+    constructor(message: string, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Resource not found error
+ */
+declare class OCXPNotFoundError extends OCXPError {
+    /** The resource path that was not found */
+    readonly path?: string;
+    constructor(message: string, path?: string, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Rate limit exceeded error
+ */
+declare class OCXPRateLimitError extends OCXPError {
+    /** Seconds until rate limit resets */
+    readonly retryAfter?: number;
+    constructor(message?: string, retryAfter?: number, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Conflict error (e.g., etag mismatch, concurrent modification)
+ */
+declare class OCXPConflictError extends OCXPError {
+    /** Expected etag value */
+    readonly expectedEtag?: string;
+    /** Actual etag value */
+    readonly actualEtag?: string;
+    constructor(message: string, options?: {
+        expectedEtag?: string;
+        actualEtag?: string;
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Operation timeout error
+ */
+declare class OCXPTimeoutError extends OCXPError {
+    /** Timeout duration in milliseconds */
+    readonly timeoutMs?: number;
+    constructor(message?: string, timeoutMs?: number, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Type guard to check if an error is an OCXPError
+ */
+declare function isOCXPError(error: unknown): error is OCXPError;
+/**
+ * Type guard for specific error types
+ */
+declare function isOCXPNetworkError(error: unknown): error is OCXPNetworkError;
+declare function isOCXPValidationError(error: unknown): error is OCXPValidationError;
+declare function isOCXPAuthError(error: unknown): error is OCXPAuthError;
+declare function isOCXPNotFoundError(error: unknown): error is OCXPNotFoundError;
+declare function isOCXPRateLimitError(error: unknown): error is OCXPRateLimitError;
+declare function isOCXPConflictError(error: unknown): error is OCXPConflictError;
+declare function isOCXPTimeoutError(error: unknown): error is OCXPTimeoutError;
+/**
+ * Map HTTP status code to appropriate OCXP error
+ */
+declare function mapHttpError(statusCode: number, message: string, options?: {
+    details?: Record<string, unknown>;
+    requestId?: string;
+    path?: string;
+    retryAfter?: number;
+}): OCXPError;
+
+export { type AddProjectMissionData, type AddProjectMissionResponse, type AddProjectRepoData, type AddProjectRepoResponse, type AuthGetConfigData, type AuthGetConfigResponse, type AuthListWorkspacesData, type AuthListWorkspacesResponse, type AuthLoginData, type AuthLoginResponse, type AuthRefreshData, type AuthRefreshResponse, type BulkDeleteContentData, type BulkDeleteContentResponse, type BulkDeleteRequestBody, type BulkReadContentData, type BulkReadContentResponse, type BulkReadRequestBody, type BulkWriteContentData, type BulkWriteContentResponse, type BulkWriteRequestBody, type CheckConflictsData, type CheckConflictsResponse, type CheckRepoExistsData, type CheckRepoExistsResponse, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentType2, type ContentTypeValue, type ContentTypesResult, type CreateDocsSnapshotData, type CreateDocsSnapshotResponse, type CreateMissionData, type CreateMissionResponse, type CreateMissionSessionData, type CreateMissionSessionResponse, type CreateProjectData, type CreateProjectResponse, type CreateSessionData, type CreateSessionResponse, type DeleteContentData, type DeleteContentResponse, type DeleteProjectData, type DeleteProjectResponse, type DeleteRepositoryData, type DeleteRepositoryResponse, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponse, type DownloadContentData, type DownloadContentResponse, type DownloadRepositoryData, type DownloadRepositoryResponse, type DownloadRequest, type FindByTicketData, type FindByTicketResponse, type FindContentByData, type FindContentByResponse, type ForkSessionData, type ForkSessionResponse, type GetContentStatsData, type GetContentStatsResponse, type GetContentTreeData, type GetContentTreeResponse, type GetContentTypesData, type GetContentTypesResponse, type GetDocsSnapshotStatusData, type GetDocsSnapshotStatusResponse, type GetMissionContextData, type GetMissionContextResponse, type GetPresignedUrlData, type GetPresignedUrlResponse, type GetProjectContextReposData, type GetProjectContextReposResponse, type GetProjectData, type GetProjectResponse, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponse, type GetSessionMessagesData, type GetSessionMessagesResponse, type GithubCheckAccessData, type GithubCheckAccessResponse, type GithubGetContentsData, type GithubGetContentsResponse, type GithubListBranchesData, type GithubListBranchesResponse, type JobProgressMessage, type KbQueryRequest, type LearnFromMissionData, type LearnFromMissionResponse, type ListContentData, type ListContentResponse, type ListDocsSnapshotsData, type ListDocsSnapshotsResponse, type ListDownloadedReposData, type ListDownloadedReposResponse, type ListEntry, type ListMissionSessionsData, type ListMissionSessionsResponse, type ListProjectsData, type ListProjectsResponse, type ListResult, type ListSessionsData, type ListSessionsResponse, type LockContentData, type LockContentResponse, type MissionCreateRequest, type MoveContentData, type MoveContentResponse, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, OCXPTimeoutError, OCXPValidationError, type OcxpResponse, type Options, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlRequest, type QueryContentData, type QueryContentResponse, type QueryFilter, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponse, type RagKnowledgeBaseData, type RagKnowledgeBaseResponse, type ReadContentData, type ReadContentResponse, type ReadResult, type RefreshIndexData, type RefreshIndexResponse, type RemoveProjectMissionData, type RemoveProjectMissionResponse, type RemoveProjectRepoData, type RemoveProjectRepoResponse, type RepoStatusMessage, type SearchContentData, type SearchContentResponse, type SetProjectDefaultRepoData, type SetProjectDefaultRepoResponse, type SyncEventMessage, type TokenProvider, type TypedDeleteRequest, type TypedFindByRequest, type TypedListRequest, type TypedQueryRequest, type TypedSearchRequest, type TypedStatsRequest, type TypedTreeRequest, type UnlockContentData, type UnlockContentResponse, type UpdateMissionData, type UpdateMissionResponse, type UpdateProjectData, type UpdateProjectResponse, type UpdateSessionMetadataData, type UpdateSessionMetadataResponse, VALID_CONTENT_TYPES, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WriteContentData, type WriteContentResponse, type WriteRequestBody, type WriteResult, addProjectMission, addProjectRepo, authGetConfig, authListWorkspaces, authLogin, authRefresh, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, checkConflicts, checkRepoExists, createClient, createConfig, createDocsSnapshot, createMission, createMissionSession, createOCXPClient, createPathService, createProject, createSession, createWebSocketService, deleteContent, deleteProject, deleteRepository, discoverSimilar, downloadContent, downloadRepository, findByTicket, findContentBy, forkSession, getCanonicalType, getContentStats, getContentTree, getContentTypes, getDocsSnapshotStatus, getMissionContext, getPresignedUrl, getProject, getProjectContextRepos, getRepoDownloadStatus, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, learnFromMission, listContent, listDocsSnapshots, listDownloadedRepos, listMissionSessions, listProjects, listSessions, lockContent, mapHttpError, moveContent, normalizePath, parsePath, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshIndex, removeProjectMission, removeProjectRepo, searchContent, setProjectDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
