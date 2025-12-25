@@ -593,6 +593,18 @@ export type KbQueryRequest = {
    * Filter to specific repo IDs
    */
   repo_ids?: Array<string> | null;
+  /**
+   * Project Id
+   *
+   * Filter to specific project
+   */
+  project_id?: string | null;
+  /**
+   * Mission Id
+   *
+   * Filter to specific mission
+   */
+  mission_id?: string | null;
 };
 
 /**
@@ -1387,6 +1399,18 @@ export type SnapshotRequest = {
    * Trigger KB sync after upload
    */
   trigger_vectorization?: boolean;
+  /**
+   * Project Id
+   *
+   * Project ID for KB filtering
+   */
+  project_id?: string | null;
+  /**
+   * Mission Id
+   *
+   * Mission ID for KB filtering
+   */
+  mission_id?: string | null;
 };
 
 /**

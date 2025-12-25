@@ -382,14 +382,24 @@ export class OCXPClient {
    */
   async kbQuery(
     query: string,
-    searchType: 'SEMANTIC' | 'HYBRID' = 'SEMANTIC',
-    maxResults?: number
+    options?: {
+      searchType?: 'SEMANTIC' | 'HYBRID';
+      maxResults?: number;
+      docId?: string;
+      repoIds?: string[];
+      projectId?: string;
+      missionId?: string;
+    }
   ) {
     const headers = await this.getHeaders();
     const body: KbQueryRequest = {
       query,
-      search_type: searchType,
-      max_results: maxResults || 5,
+      search_type: options?.searchType || 'SEMANTIC',
+      max_results: options?.maxResults || 5,
+      doc_id: options?.docId,
+      repo_ids: options?.repoIds,
+      project_id: options?.projectId,
+      mission_id: options?.missionId,
     };
 
     const response = await sdk.queryKnowledgeBase({
@@ -871,27 +881,30 @@ export class OCXPClient {
   /**
    * Create documentation snapshot
    * @param sourceUrl - GitHub repository URL
-   * @param branch - Branch to snapshot (default: "main")
-   * @param paths - Paths to include (empty = all)
-   * @param docId - Custom doc ID (auto-generated if not provided)
-   * @param triggerVectorization - Trigger KB sync after upload (default: true)
+   * @param options - Snapshot options
    */
   async createSnapshot(
     sourceUrl: string,
-    branch = 'main',
-    paths: string[] = [],
-    docId?: string,
-    triggerVectorization = true
+    options?: {
+      branch?: string;
+      paths?: string[];
+      docId?: string;
+      triggerVectorization?: boolean;
+      projectId?: string;
+      missionId?: string;
+    }
   ): Promise<unknown> {
     const headers = await this.getHeaders();
     const response = await sdk.createSnapshot({
       client: this.client,
       body: {
         source_url: sourceUrl,
-        branch,
-        paths,
-        doc_id: docId,
-        trigger_vectorization: triggerVectorization,
+        branch: options?.branch || 'main',
+        paths: options?.paths || [],
+        doc_id: options?.docId,
+        trigger_vectorization: options?.triggerVectorization ?? true,
+        project_id: options?.projectId,
+        mission_id: options?.missionId,
       },
       headers,
     });
@@ -1201,11 +1214,19 @@ export class KBNamespace {
   constructor(private client: OCXPClient) {}
 
   /**
-   * Query the knowledge base
-   * @example ocxp.kb.query('search term', { searchType: 'SEMANTIC', maxResults: 5 })
+   * Query the knowledge base with optional filtering
+   * @example ocxp.kb.query('search term', { searchType: 'HYBRID', maxResults: 10 })
+   * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
    */
-  async query(query: string, options?: { searchType?: 'SEMANTIC' | 'HYBRID'; maxResults?: number }) {
-    return this.client.kbQuery(query, options?.searchType || 'SEMANTIC', options?.maxResults);
+  async query(query: string, options?: {
+    searchType?: 'SEMANTIC' | 'HYBRID';
+    maxResults?: number;
+    docId?: string;
+    repoIds?: string[];
+    projectId?: string;
+    missionId?: string;
+  }) {
+    return this.client.kbQuery(query, options);
   }
 
   /**

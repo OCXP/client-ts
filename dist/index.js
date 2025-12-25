@@ -1419,12 +1419,16 @@ var OCXPClient = class {
   /**
    * Semantic search in Knowledge Base
    */
-  async kbQuery(query, searchType = "SEMANTIC", maxResults) {
+  async kbQuery(query, options) {
     const headers = await this.getHeaders();
     const body = {
       query,
-      search_type: searchType,
-      max_results: maxResults || 5
+      search_type: options?.searchType || "SEMANTIC",
+      max_results: options?.maxResults || 5,
+      doc_id: options?.docId,
+      repo_ids: options?.repoIds,
+      project_id: options?.projectId,
+      mission_id: options?.missionId
     };
     const response = await queryKnowledgeBase({
       client: this.client,
@@ -1860,21 +1864,20 @@ var OCXPClient = class {
   /**
    * Create documentation snapshot
    * @param sourceUrl - GitHub repository URL
-   * @param branch - Branch to snapshot (default: "main")
-   * @param paths - Paths to include (empty = all)
-   * @param docId - Custom doc ID (auto-generated if not provided)
-   * @param triggerVectorization - Trigger KB sync after upload (default: true)
+   * @param options - Snapshot options
    */
-  async createSnapshot(sourceUrl, branch = "main", paths = [], docId, triggerVectorization = true) {
+  async createSnapshot(sourceUrl, options) {
     const headers = await this.getHeaders();
     const response = await createSnapshot({
       client: this.client,
       body: {
         source_url: sourceUrl,
-        branch,
-        paths,
-        doc_id: docId,
-        trigger_vectorization: triggerVectorization
+        branch: options?.branch || "main",
+        paths: options?.paths || [],
+        doc_id: options?.docId,
+        trigger_vectorization: options?.triggerVectorization ?? true,
+        project_id: options?.projectId,
+        mission_id: options?.missionId
       },
       headers
     });
@@ -2140,11 +2143,12 @@ var KBNamespace = class {
     this.client = client2;
   }
   /**
-   * Query the knowledge base
-   * @example ocxp.kb.query('search term', { searchType: 'SEMANTIC', maxResults: 5 })
+   * Query the knowledge base with optional filtering
+   * @example ocxp.kb.query('search term', { searchType: 'HYBRID', maxResults: 10 })
+   * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
    */
   async query(query, options) {
-    return this.client.kbQuery(query, options?.searchType || "SEMANTIC", options?.maxResults);
+    return this.client.kbQuery(query, options);
   }
   /**
    * RAG query with LLM response and citations

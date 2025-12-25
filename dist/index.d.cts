@@ -868,6 +868,18 @@ type KbQueryRequest = {
      * Filter to specific repo IDs
      */
     repo_ids?: Array<string> | null;
+    /**
+     * Project Id
+     *
+     * Filter to specific project
+     */
+    project_id?: string | null;
+    /**
+     * Mission Id
+     *
+     * Filter to specific mission
+     */
+    mission_id?: string | null;
 };
 /**
  * KBQueryResponse
@@ -1561,6 +1573,18 @@ type SnapshotRequest = {
      * Trigger KB sync after upload
      */
     trigger_vectorization?: boolean;
+    /**
+     * Project Id
+     *
+     * Project ID for KB filtering
+     */
+    project_id?: string | null;
+    /**
+     * Mission Id
+     *
+     * Mission ID for KB filtering
+     */
+    mission_id?: string | null;
 };
 /**
  * TicketDiscoverResponse
@@ -3759,7 +3783,14 @@ declare class OCXPClient {
     /**
      * Semantic search in Knowledge Base
      */
-    kbQuery(query: string, searchType?: 'SEMANTIC' | 'HYBRID', maxResults?: number): Promise<KbQueryResponse>;
+    kbQuery(query: string, options?: {
+        searchType?: 'SEMANTIC' | 'HYBRID';
+        maxResults?: number;
+        docId?: string;
+        repoIds?: string[];
+        projectId?: string;
+        missionId?: string;
+    }): Promise<KbQueryResponse>;
     /**
      * RAG with citations
      */
@@ -3968,12 +3999,16 @@ declare class OCXPClient {
     /**
      * Create documentation snapshot
      * @param sourceUrl - GitHub repository URL
-     * @param branch - Branch to snapshot (default: "main")
-     * @param paths - Paths to include (empty = all)
-     * @param docId - Custom doc ID (auto-generated if not provided)
-     * @param triggerVectorization - Trigger KB sync after upload (default: true)
+     * @param options - Snapshot options
      */
-    createSnapshot(sourceUrl: string, branch?: string, paths?: string[], docId?: string, triggerVectorization?: boolean): Promise<unknown>;
+    createSnapshot(sourceUrl: string, options?: {
+        branch?: string;
+        paths?: string[];
+        docId?: string;
+        triggerVectorization?: boolean;
+        projectId?: string;
+        missionId?: string;
+    }): Promise<unknown>;
     /**
      * List documentation snapshots
      */
@@ -4197,12 +4232,17 @@ declare class KBNamespace {
     private client;
     constructor(client: OCXPClient);
     /**
-     * Query the knowledge base
-     * @example ocxp.kb.query('search term', { searchType: 'SEMANTIC', maxResults: 5 })
+     * Query the knowledge base with optional filtering
+     * @example ocxp.kb.query('search term', { searchType: 'HYBRID', maxResults: 10 })
+     * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
      */
     query(query: string, options?: {
         searchType?: 'SEMANTIC' | 'HYBRID';
         maxResults?: number;
+        docId?: string;
+        repoIds?: string[];
+        projectId?: string;
+        missionId?: string;
     }): Promise<KbQueryResponse>;
     /**
      * RAG query with LLM response and citations
