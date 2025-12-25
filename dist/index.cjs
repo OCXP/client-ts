@@ -1428,22 +1428,24 @@ var OCXPClient = class {
       search_type: searchType,
       max_results: maxResults || 5
     };
-    return queryKnowledgeBase({
+    const response = await queryKnowledgeBase({
       client: this.client,
       body,
       headers
     });
+    return extractData(response);
   }
   /**
    * RAG with citations
    */
   async kbRag(query, sessionId) {
     const headers = await this.getHeaders();
-    return ragKnowledgeBase({
+    const response = await ragKnowledgeBase({
       client: this.client,
       body: { query, session_id: sessionId },
       headers
     });
+    return extractData(response);
   }
   // ============== Tools ==============
   /**
@@ -1555,11 +1557,12 @@ var OCXPClient = class {
    */
   async githubCheckAccess(repoUrl) {
     const headers = await this.getHeaders();
-    return githubCheckAccess({
+    const response = await githubCheckAccess({
       client: this.client,
       body: { repo_url: repoUrl },
       headers
     });
+    return extractData(response);
   }
   /**
    * List branches for a repository
@@ -1567,11 +1570,12 @@ var OCXPClient = class {
    */
   async githubListBranches(repoUrl) {
     const headers = await this.getHeaders();
-    return githubListBranches({
+    const response = await githubListBranches({
       client: this.client,
       body: { repo_url: repoUrl },
       headers
     });
+    return extractData(response);
   }
   /**
    * Get repository contents at a path
@@ -1581,11 +1585,12 @@ var OCXPClient = class {
    */
   async githubGetContents(repoUrl, path = "", ref) {
     const headers = await this.getHeaders();
-    return githubGetContents({
+    const response = await githubGetContents({
       client: this.client,
       body: { repo_url: repoUrl, path, ref },
       headers
     });
+    return extractData(response);
   }
   // ============== Repository Management ==============
   /**

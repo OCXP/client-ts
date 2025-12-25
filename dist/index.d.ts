@@ -3759,29 +3759,11 @@ declare class OCXPClient {
     /**
      * Semantic search in Knowledge Base
      */
-    kbQuery(query: string, searchType?: 'SEMANTIC' | 'HYBRID', maxResults?: number): Promise<({
-        data: KbQueryResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    kbQuery(query: string, searchType?: 'SEMANTIC' | 'HYBRID', maxResults?: number): Promise<KbQueryResponse>;
     /**
      * RAG with citations
      */
-    kbRag(query: string, sessionId?: string): Promise<({
-        data: KbRagResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    kbRag(query: string, sessionId?: string): Promise<KbRagResponse>;
     /**
      * Create a new mission
      */
@@ -3882,46 +3864,19 @@ declare class OCXPClient {
      * Check if a repository is accessible
      * @param repoUrl - Full GitHub repository URL
      */
-    githubCheckAccess(repoUrl: string): Promise<({
-        data: unknown;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    githubCheckAccess(repoUrl: string): Promise<unknown>;
     /**
      * List branches for a repository
      * @param repoUrl - Full GitHub repository URL
      */
-    githubListBranches(repoUrl: string): Promise<({
-        data: unknown;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    githubListBranches(repoUrl: string): Promise<unknown>;
     /**
      * Get repository contents at a path
      * @param repoUrl - Full GitHub repository URL
      * @param path - Path within the repository
      * @param ref - Git ref (branch, tag, or commit)
      */
-    githubGetContents(repoUrl: string, path?: string, ref?: string): Promise<({
-        data: unknown;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    githubGetContents(repoUrl: string, path?: string, ref?: string): Promise<unknown>;
     /**
      * Download repository and trigger vectorization
      * @param repoUrl - Full GitHub repository URL

@@ -392,11 +392,12 @@ export class OCXPClient {
       max_results: maxResults || 5,
     };
 
-    return sdk.queryKnowledgeBase({
+    const response = await sdk.queryKnowledgeBase({
       client: this.client,
       body,
       headers,
     });
+    return extractData(response);
   }
 
   /**
@@ -404,11 +405,12 @@ export class OCXPClient {
    */
   async kbRag(query: string, sessionId?: string) {
     const headers = await this.getHeaders();
-    return sdk.ragKnowledgeBase({
+    const response = await sdk.ragKnowledgeBase({
       client: this.client,
       body: { query, session_id: sessionId },
       headers,
     });
+    return extractData(response);
   }
 
   // ============== Tools ==============
@@ -533,11 +535,12 @@ export class OCXPClient {
    */
   async githubCheckAccess(repoUrl: string) {
     const headers = await this.getHeaders();
-    return sdk.githubCheckAccess({
+    const response = await sdk.githubCheckAccess({
       client: this.client,
       body: { repo_url: repoUrl },
       headers,
     });
+    return extractData(response);
   }
 
   /**
@@ -546,11 +549,12 @@ export class OCXPClient {
    */
   async githubListBranches(repoUrl: string) {
     const headers = await this.getHeaders();
-    return sdk.githubListBranches({
+    const response = await sdk.githubListBranches({
       client: this.client,
       body: { repo_url: repoUrl },
       headers,
     });
+    return extractData(response);
   }
 
   /**
@@ -561,11 +565,12 @@ export class OCXPClient {
    */
   async githubGetContents(repoUrl: string, path = '', ref?: string) {
     const headers = await this.getHeaders();
-    return sdk.githubGetContents({
+    const response = await sdk.githubGetContents({
       client: this.client,
       body: { repo_url: repoUrl, path, ref },
       headers,
     });
+    return extractData(response);
   }
 
   // ============== Repository Management ==============
