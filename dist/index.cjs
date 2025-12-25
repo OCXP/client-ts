@@ -1196,7 +1196,8 @@ var OCXPClient = class {
     this.workspace = options.workspace || "dev";
     this.tokenProvider = options.token;
     const config = createConfig({
-      baseUrl: options.endpoint.replace(/\/$/, "")
+      baseUrl: options.endpoint.replace(/\/$/, ""),
+      throwOnError: true
     });
     this.client = createClient(config);
   }

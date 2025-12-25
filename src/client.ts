@@ -113,6 +113,7 @@ export class OCXPClient {
 
     const config = createConfig<ClientOptions>({
       baseUrl: options.endpoint.replace(/\/$/, ''),
+      throwOnError: true,
     });
 
     this.client = createClient(config);
