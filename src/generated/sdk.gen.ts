@@ -625,7 +625,7 @@ export const deleteRepo = <ThrowOnError extends boolean = false>(
 /**
  * Create Snapshot
  *
- * Create a documentation snapshot.
+ * Create a documentation snapshot from a GitHub repository.
  */
 export const createSnapshot = <ThrowOnError extends boolean = false>(
   options: Options<CreateSnapshotData, ThrowOnError>

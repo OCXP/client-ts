@@ -865,12 +865,29 @@ export class OCXPClient {
 
   /**
    * Create documentation snapshot
+   * @param sourceUrl - GitHub repository URL
+   * @param branch - Branch to snapshot (default: "main")
+   * @param paths - Paths to include (empty = all)
+   * @param docId - Custom doc ID (auto-generated if not provided)
+   * @param triggerVectorization - Trigger KB sync after upload (default: true)
    */
-  async createSnapshot(sourceUrl: string, targetPath?: string): Promise<unknown> {
+  async createSnapshot(
+    sourceUrl: string,
+    branch = 'main',
+    paths: string[] = [],
+    docId?: string,
+    triggerVectorization = true
+  ): Promise<unknown> {
     const headers = await this.getHeaders();
     const response = await sdk.createSnapshot({
       client: this.client,
-      body: { source_url: sourceUrl, target_path: targetPath },
+      body: {
+        source_url: sourceUrl,
+        branch,
+        paths,
+        doc_id: docId,
+        trigger_vectorization: triggerVectorization,
+      },
       headers,
     });
     return extractData(response);

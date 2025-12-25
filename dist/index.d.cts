@@ -857,25 +857,17 @@ type KbQueryRequest = {
      */
     search_type?: string;
     /**
-     * Project Id
-     *
-     * Project ID for scoped queries
-     */
-    project_id?: string | null;
-    /**
      * Doc Id
      *
      * Filter to specific doc_id
      */
     doc_id?: string | null;
     /**
-     * Fallback Enabled
+     * Repo Ids
+     *
+     * Filter to specific repo IDs
      */
-    fallback_enabled?: boolean;
-    /**
-     * Score Threshold
-     */
-    score_threshold?: number;
+    repo_ids?: Array<string> | null;
 };
 /**
  * KBQueryResponse
@@ -1243,16 +1235,6 @@ type RagRequest = {
      * Session ID for conversation
      */
     session_id?: string | null;
-    /**
-     * Project Id
-     *
-     * Project ID for scoped queries
-     */
-    project_id?: string | null;
-    /**
-     * Fallback Enabled
-     */
-    fallback_enabled?: boolean;
 };
 /**
  * RepoDeleteResponse
@@ -1551,12 +1533,34 @@ type SetDefaultRepoRequest = {
 type SnapshotRequest = {
     /**
      * Source Url
+     *
+     * GitHub repository URL
      */
     source_url: string;
     /**
-     * Target Path
+     * Branch
+     *
+     * Branch to snapshot
      */
-    target_path?: string | null;
+    branch?: string;
+    /**
+     * Paths
+     *
+     * Paths to include (empty = all)
+     */
+    paths?: Array<string>;
+    /**
+     * Doc Id
+     *
+     * Custom doc ID (auto-generated if not provided)
+     */
+    doc_id?: string | null;
+    /**
+     * Trigger Vectorization
+     *
+     * Trigger KB sync after upload
+     */
+    trigger_vectorization?: boolean;
 };
 /**
  * TicketDiscoverResponse
@@ -2523,7 +2527,12 @@ type ListDocsData = {
         'X-Workspace'?: string;
     };
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Doc Id
+         */
+        doc_id?: string | null;
+    };
     url: '/ocxp/docs/list';
 };
 type ListDocsErrors = {
@@ -3404,7 +3413,7 @@ declare const deleteRepo: <ThrowOnError extends boolean = false>(options: Option
 /**
  * Create Snapshot
  *
- * Create a documentation snapshot.
+ * Create a documentation snapshot from a GitHub repository.
  */
 declare const createSnapshot: <ThrowOnError extends boolean = false>(options: Options<CreateSnapshotData, ThrowOnError>) => RequestResult<CreateSnapshotResponses, CreateSnapshotErrors, ThrowOnError, "fields">;
 /**
@@ -4003,8 +4012,13 @@ declare class OCXPClient {
     archiveSession(sessionId: string): Promise<void>;
     /**
      * Create documentation snapshot
+     * @param sourceUrl - GitHub repository URL
+     * @param branch - Branch to snapshot (default: "main")
+     * @param paths - Paths to include (empty = all)
+     * @param docId - Custom doc ID (auto-generated if not provided)
+     * @param triggerVectorization - Trigger KB sync after upload (default: true)
      */
-    createSnapshot(sourceUrl: string, targetPath?: string): Promise<unknown>;
+    createSnapshot(sourceUrl: string, branch?: string, paths?: string[], docId?: string, triggerVectorization?: boolean): Promise<unknown>;
     /**
      * List documentation snapshots
      */

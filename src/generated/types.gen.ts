@@ -582,25 +582,17 @@ export type KbQueryRequest = {
    */
   search_type?: string;
   /**
-   * Project Id
-   *
-   * Project ID for scoped queries
-   */
-  project_id?: string | null;
-  /**
    * Doc Id
    *
    * Filter to specific doc_id
    */
   doc_id?: string | null;
   /**
-   * Fallback Enabled
+   * Repo Ids
+   *
+   * Filter to specific repo IDs
    */
-  fallback_enabled?: boolean;
-  /**
-   * Score Threshold
-   */
-  score_threshold?: number;
+  repo_ids?: Array<string> | null;
 };
 
 /**
@@ -1021,16 +1013,6 @@ export type RagRequest = {
    * Session ID for conversation
    */
   session_id?: string | null;
-  /**
-   * Project Id
-   *
-   * Project ID for scoped queries
-   */
-  project_id?: string | null;
-  /**
-   * Fallback Enabled
-   */
-  fallback_enabled?: boolean;
 };
 
 /**
@@ -1377,12 +1359,34 @@ export type SetDefaultRepoRequest = {
 export type SnapshotRequest = {
   /**
    * Source Url
+   *
+   * GitHub repository URL
    */
   source_url: string;
   /**
-   * Target Path
+   * Branch
+   *
+   * Branch to snapshot
    */
-  target_path?: string | null;
+  branch?: string;
+  /**
+   * Paths
+   *
+   * Paths to include (empty = all)
+   */
+  paths?: Array<string>;
+  /**
+   * Doc Id
+   *
+   * Custom doc ID (auto-generated if not provided)
+   */
+  doc_id?: string | null;
+  /**
+   * Trigger Vectorization
+   *
+   * Trigger KB sync after upload
+   */
+  trigger_vectorization?: boolean;
 };
 
 /**
@@ -2540,7 +2544,12 @@ export type ListDocsData = {
     'X-Workspace'?: string;
   };
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Doc Id
+     */
+    doc_id?: string | null;
+  };
   url: '/ocxp/docs/list';
 };
 
