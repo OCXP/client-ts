@@ -1285,7 +1285,7 @@
           "KB"
         ],
         "summary": "Query Knowledge Base",
-        "description": "Semantic search with optional project scoping and fallback.",
+        "description": "Semantic search with optional project scoping and external docs fallback.",
         "operationId": "queryKnowledgeBase",
         "parameters": [
           {
@@ -4361,6 +4361,26 @@
             ],
             "title": "Mission Id",
             "description": "Filter to specific mission"
+          },
+          "enable_fallback": {
+            "type": "boolean",
+            "title": "Enable Fallback",
+            "description": "Enable external docs fallback when KB has no/low results",
+            "default": true
+          },
+          "fallback_threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Fallback Threshold",
+            "description": "Score threshold below which fallback triggers",
+            "default": 0.5
+          },
+          "persist_external_docs": {
+            "type": "boolean",
+            "title": "Persist External Docs",
+            "description": "Save external docs to S3 for future KB queries",
+            "default": true
           }
         },
         "type": "object",
@@ -4381,6 +4401,28 @@
           "count": {
             "type": "integer",
             "title": "Count"
+          },
+          "fallback_triggered": {
+            "type": "boolean",
+            "title": "Fallback Triggered",
+            "description": "Whether external docs fallback was triggered",
+            "default": false
+          },
+          "fallback_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Source",
+            "description": "External source used for fallback",
+            "examples": [
+              "context7",
+              "aws_docs"
+            ]
           }
         },
         "type": "object",
@@ -4456,6 +4498,17 @@
               }
             ],
             "title": "Metadata"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type",
+            "description": "Source type: kb, context7, aws_docs",
+            "default": "kb",
+            "examples": [
+              "kb",
+              "context7",
+              "aws_docs"
+            ]
           }
         },
         "type": "object",
@@ -5941,5 +5994,10 @@
         }
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+    }
+  ]
 }

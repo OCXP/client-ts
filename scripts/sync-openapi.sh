@@ -12,8 +12,8 @@ BRAIN_DIR="$CLIENT_TS_DIR/../../contexthub/contexthub-brain"
 API_URL="${1:-https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com}"
 
 echo "==> Generating OpenAPI spec from FastAPI..."
-cd "$BRAIN_DIR/functions/ocxp/file_ops"
-export PYTHONPATH="$BRAIN_DIR/functions/ocxp/file_ops:$PYTHONPATH"
+cd "$BRAIN_DIR/functions/ocxp/api"
+export PYTHONPATH="$BRAIN_DIR/functions/ocxp/api:$PYTHONPATH"
 python -c "
 from app.main import create_app
 import json

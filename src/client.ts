@@ -380,7 +380,7 @@ export class OCXPClient {
   // ============== Knowledge Base ==============
 
   /**
-   * Semantic search in Knowledge Base
+   * Semantic search in Knowledge Base with optional external docs fallback
    */
   async kbQuery(
     query: string,
@@ -391,6 +391,12 @@ export class OCXPClient {
       repoIds?: string[];
       projectId?: string;
       missionId?: string;
+      /** Enable external docs fallback (Context7, AWS Docs) when KB has no/low results. Default: true */
+      enableFallback?: boolean;
+      /** Score threshold (0-1) below which fallback triggers. Default: 0.5 */
+      fallbackThreshold?: number;
+      /** Save external docs to S3 for future KB queries. Default: true */
+      persistExternalDocs?: boolean;
     }
   ) {
     const headers = await this.getHeaders();
@@ -402,6 +408,9 @@ export class OCXPClient {
       repo_ids: options?.repoIds,
       project_id: options?.projectId,
       mission_id: options?.missionId,
+      enable_fallback: options?.enableFallback ?? true,
+      fallback_threshold: options?.fallbackThreshold ?? 0.5,
+      persist_external_docs: options?.persistExternalDocs ?? true,
     };
 
     const response = await sdk.queryKnowledgeBase({
@@ -1259,9 +1268,10 @@ export class KBNamespace {
   constructor(private client: OCXPClient) {}
 
   /**
-   * Query the knowledge base with optional filtering
+   * Query the knowledge base with optional filtering and external docs fallback
    * @example ocxp.kb.query('search term', { searchType: 'HYBRID', maxResults: 10 })
    * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
+   * @example ocxp.kb.query('strands agent', { enableFallback: true, persistExternalDocs: true })
    */
   async query(query: string, options?: {
     searchType?: 'SEMANTIC' | 'HYBRID';
@@ -1270,6 +1280,12 @@ export class KBNamespace {
     repoIds?: string[];
     projectId?: string;
     missionId?: string;
+    /** Enable external docs fallback (Context7, AWS Docs) when KB has no/low results. Default: true */
+    enableFallback?: boolean;
+    /** Score threshold (0-1) below which fallback triggers. Default: 0.5 */
+    fallbackThreshold?: number;
+    /** Save external docs to S3 for future KB queries. Default: true */
+    persistExternalDocs?: boolean;
   }) {
     return this.client.kbQuery(query, options);
   }

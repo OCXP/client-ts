@@ -813,7 +813,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig());
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -1446,7 +1450,7 @@ var OCXPClient = class {
   }
   // ============== Knowledge Base ==============
   /**
-   * Semantic search in Knowledge Base
+   * Semantic search in Knowledge Base with optional external docs fallback
    */
   async kbQuery(query, options) {
     const headers = await this.getHeaders();
@@ -1457,7 +1461,10 @@ var OCXPClient = class {
       doc_id: options?.docId,
       repo_ids: options?.repoIds,
       project_id: options?.projectId,
-      mission_id: options?.missionId
+      mission_id: options?.missionId,
+      enable_fallback: options?.enableFallback ?? true,
+      fallback_threshold: options?.fallbackThreshold ?? 0.5,
+      persist_external_docs: options?.persistExternalDocs ?? true
     };
     const response = await queryKnowledgeBase({
       client: this.client,
@@ -2212,9 +2219,10 @@ var KBNamespace = class {
     this.client = client2;
   }
   /**
-   * Query the knowledge base with optional filtering
+   * Query the knowledge base with optional filtering and external docs fallback
    * @example ocxp.kb.query('search term', { searchType: 'HYBRID', maxResults: 10 })
    * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
+   * @example ocxp.kb.query('strands agent', { enableFallback: true, persistExternalDocs: true })
    */
   async query(query, options) {
     return this.client.kbQuery(query, options);

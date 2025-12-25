@@ -880,6 +880,24 @@ type KbQueryRequest = {
      * Filter to specific mission
      */
     mission_id?: string | null;
+    /**
+     * Enable Fallback
+     *
+     * Enable external docs fallback when KB has no/low results
+     */
+    enable_fallback?: boolean;
+    /**
+     * Fallback Threshold
+     *
+     * Score threshold below which fallback triggers
+     */
+    fallback_threshold?: number;
+    /**
+     * Persist External Docs
+     *
+     * Save external docs to S3 for future KB queries
+     */
+    persist_external_docs?: boolean;
 };
 /**
  * KBQueryResponse
@@ -895,6 +913,18 @@ type KbQueryResponse = {
      * Count
      */
     count: number;
+    /**
+     * Fallback Triggered
+     *
+     * Whether external docs fallback was triggered
+     */
+    fallback_triggered?: boolean;
+    /**
+     * Fallback Source
+     *
+     * External source used for fallback
+     */
+    fallback_source?: string | null;
 };
 /**
  * KBRagResponse
@@ -941,6 +971,12 @@ type KbResultItem = {
     metadata?: {
         [key: string]: unknown;
     } | null;
+    /**
+     * Source Type
+     *
+     * Source type: kb, context7, aws_docs
+     */
+    source_type?: string;
 };
 /**
  * LinkedRepoResponse
@@ -3535,7 +3571,7 @@ declare const removeMission: <ThrowOnError extends boolean = false>(options: Opt
 /**
  * Query Knowledge Base
  *
- * Semantic search with optional project scoping and fallback.
+ * Semantic search with optional project scoping and external docs fallback.
  */
 declare const queryKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<QueryKnowledgeBaseData, ThrowOnError>) => RequestResult<QueryKnowledgeBaseResponses, QueryKnowledgeBaseErrors, ThrowOnError, "fields">;
 /**
@@ -3939,7 +3975,7 @@ declare class OCXPClient {
         response: Response;
     }>;
     /**
-     * Semantic search in Knowledge Base
+     * Semantic search in Knowledge Base with optional external docs fallback
      */
     kbQuery(query: string, options?: {
         searchType?: 'SEMANTIC' | 'HYBRID';
@@ -3948,6 +3984,12 @@ declare class OCXPClient {
         repoIds?: string[];
         projectId?: string;
         missionId?: string;
+        /** Enable external docs fallback (Context7, AWS Docs) when KB has no/low results. Default: true */
+        enableFallback?: boolean;
+        /** Score threshold (0-1) below which fallback triggers. Default: 0.5 */
+        fallbackThreshold?: number;
+        /** Save external docs to S3 for future KB queries. Default: true */
+        persistExternalDocs?: boolean;
     }): Promise<KbQueryResponse>;
     /**
      * RAG with citations
@@ -4410,9 +4452,10 @@ declare class KBNamespace {
     private client;
     constructor(client: OCXPClient);
     /**
-     * Query the knowledge base with optional filtering
+     * Query the knowledge base with optional filtering and external docs fallback
      * @example ocxp.kb.query('search term', { searchType: 'HYBRID', maxResults: 10 })
      * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
+     * @example ocxp.kb.query('strands agent', { enableFallback: true, persistExternalDocs: true })
      */
     query(query: string, options?: {
         searchType?: 'SEMANTIC' | 'HYBRID';
@@ -4421,6 +4464,12 @@ declare class KBNamespace {
         repoIds?: string[];
         projectId?: string;
         missionId?: string;
+        /** Enable external docs fallback (Context7, AWS Docs) when KB has no/low results. Default: true */
+        enableFallback?: boolean;
+        /** Score threshold (0-1) below which fallback triggers. Default: 0.5 */
+        fallbackThreshold?: number;
+        /** Save external docs to S3 for future KB queries. Default: true */
+        persistExternalDocs?: boolean;
     }): Promise<KbQueryResponse>;
     /**
      * RAG query with LLM response and citations

@@ -513,7 +513,7 @@ export const removeMission = <ThrowOnError extends boolean = false>(
 /**
  * Query Knowledge Base
  *
- * Semantic search with optional project scoping and fallback.
+ * Semantic search with optional project scoping and external docs fallback.
  */
 export const queryKnowledgeBase = <ThrowOnError extends boolean = false>(
   options: Options<QueryKnowledgeBaseData, ThrowOnError>
