@@ -1935,6 +1935,224 @@ var OCXPClient = class {
     });
     return extractData(response);
   }
+  // ============== Namespaced Accessors ==============
+  _mission;
+  _project;
+  _session;
+  _kb;
+  /**
+   * Mission namespace for convenient mission operations
+   * @example ocxp.mission.list({ status: 'pending' })
+   */
+  get mission() {
+    if (!this._mission) {
+      this._mission = new MissionNamespace(this);
+    }
+    return this._mission;
+  }
+  /**
+   * Project namespace for convenient project operations
+   * @example ocxp.project.list()
+   */
+  get project() {
+    if (!this._project) {
+      this._project = new ProjectNamespace(this);
+    }
+    return this._project;
+  }
+  /**
+   * Session namespace for convenient session operations
+   * @example ocxp.session.list({ status: 'active' })
+   */
+  get session() {
+    if (!this._session) {
+      this._session = new SessionNamespace(this);
+    }
+    return this._session;
+  }
+  /**
+   * KB namespace for convenient knowledge base operations
+   * @example ocxp.kb.query('search term')
+   */
+  get kb() {
+    if (!this._kb) {
+      this._kb = new KBNamespace(this);
+    }
+    return this._kb;
+  }
+};
+var MissionNamespace = class {
+  constructor(client2) {
+    this.client = client2;
+  }
+  /**
+   * List missions with optional filtering
+   * @example ocxp.mission.list({ status: 'pending', limit: 10 })
+   */
+  async list(options) {
+    if (options?.status) {
+      const filters = [{ field: "status", operator: "eq", value: options.status }];
+      return this.client.query("mission", filters, options?.limit);
+    }
+    return this.client.list("mission", options?.path, options?.limit);
+  }
+  /**
+   * Get a mission by ID
+   * @example ocxp.mission.get('CTX-123')
+   */
+  async get(id) {
+    return this.client.read("mission", id);
+  }
+  /**
+   * Create a new mission
+   * @example ocxp.mission.create({ name: 'My Mission', description: 'Description' })
+   */
+  async create(data) {
+    return this.client.createMission(data.name, data.description, data.projectId, data.goals);
+  }
+  /**
+   * Get mission context for agents
+   * @example ocxp.mission.getContext('CTX-123')
+   */
+  async getContext(missionId) {
+    return this.client.getMissionContext(missionId);
+  }
+  /**
+   * Update mission progress
+   */
+  async update(missionId, updates) {
+    return this.client.updateMission(missionId, updates);
+  }
+};
+var ProjectNamespace = class {
+  constructor(client2) {
+    this.client = client2;
+  }
+  /**
+   * List all projects
+   * @example ocxp.project.list()
+   */
+  async list(limit) {
+    return this.client.listProjects(limit);
+  }
+  /**
+   * Get a project by ID
+   * @example ocxp.project.get('my-project')
+   */
+  async get(projectId) {
+    return this.client.getProject(projectId);
+  }
+  /**
+   * Create a new project
+   * @example ocxp.project.create({ id: 'my-project', name: 'My Project' })
+   */
+  async create(data) {
+    return this.client.createProject(data.id, data.name, data.description);
+  }
+  /**
+   * Update a project
+   */
+  async update(projectId, data) {
+    return this.client.updateProject(projectId, data);
+  }
+  /**
+   * Delete a project
+   */
+  async delete(projectId) {
+    return this.client.deleteProject(projectId);
+  }
+  /**
+   * Add a repository to a project
+   */
+  async addRepo(projectId, repoId, options) {
+    return this.client.addProjectRepo(projectId, repoId, options);
+  }
+  /**
+   * Remove a repository from a project
+   */
+  async removeRepo(projectId, repoId) {
+    return this.client.removeProjectRepo(projectId, repoId);
+  }
+  /**
+   * Set the default repository for a project
+   */
+  async setDefaultRepo(projectId, repoId) {
+    return this.client.setDefaultRepo(projectId, repoId);
+  }
+  /**
+   * Get context repositories for a project
+   */
+  async getContextRepos(projectId) {
+    return this.client.getContextRepos(projectId);
+  }
+  /**
+   * Add a mission to a project
+   */
+  async addMission(projectId, missionId) {
+    return this.client.addProjectMission(projectId, missionId);
+  }
+  /**
+   * Remove a mission from a project
+   */
+  async removeMission(projectId, missionId) {
+    return this.client.removeProjectMission(projectId, missionId);
+  }
+};
+var SessionNamespace = class {
+  constructor(client2) {
+    this.client = client2;
+  }
+  /**
+   * List sessions with optional filtering
+   * @example ocxp.session.list({ status: 'active', limit: 10 })
+   */
+  async list(options) {
+    return this.client.listSessions(options?.limit, options?.status);
+  }
+  /**
+   * Get session messages
+   * @example ocxp.session.getMessages('session-id')
+   */
+  async getMessages(sessionId) {
+    return this.client.getSessionMessages(sessionId);
+  }
+  /**
+   * Update session metadata
+   */
+  async updateMetadata(sessionId, data) {
+    return this.client.updateSessionMetadata(sessionId, data);
+  }
+  /**
+   * Fork a session
+   */
+  async fork(sessionId, missionId, forkPoint) {
+    return this.client.forkSession(sessionId, missionId, forkPoint);
+  }
+  /**
+   * Archive a session
+   */
+  async archive(sessionId) {
+    return this.client.archiveSession(sessionId);
+  }
+};
+var KBNamespace = class {
+  constructor(client2) {
+    this.client = client2;
+  }
+  /**
+   * Query the knowledge base
+   * @example ocxp.kb.query('search term', { searchType: 'SEMANTIC', maxResults: 5 })
+   */
+  async query(query, options) {
+    return this.client.kbQuery(query, options?.searchType || "SEMANTIC", options?.maxResults);
+  }
+  /**
+   * RAG query with LLM response and citations
+   * @example ocxp.kb.rag('What is OCXP?')
+   */
+  async rag(query, sessionId) {
+    return this.client.kbRag(query, sessionId);
+  }
 };
 function createOCXPClient(options) {
   return new OCXPClient(options);
@@ -3202,6 +3420,6 @@ var GithubCommitsDataSchema = z.object({
 });
 var GithubCommitsResponseSchema = createResponseSchema(GithubCommitsDataSchema);
 
-export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, loginForAccessToken, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, loginForAccessToken, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

@@ -14,6 +14,11 @@ export {
   type WriteResult,
   type DeleteResult,
   type ContentTypesResult,
+  // Namespace classes for convenient API access
+  MissionNamespace,
+  ProjectNamespace,
+  SessionNamespace,
+  KBNamespace,
 } from './client';
 
 // Path utilities
