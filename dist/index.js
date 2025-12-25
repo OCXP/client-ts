@@ -1092,6 +1092,15 @@ var writeContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var moveContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/move",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var lockContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/lock",
@@ -1159,6 +1168,24 @@ var loginForAccessToken = (options) => (options.client ?? client).post({
   ...options,
   headers: {
     "Content-Type": "application/x-www-form-urlencoded",
+    ...options.headers
+  }
+});
+var login = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/login",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var refreshTokens = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/refresh",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
     ...options.headers
   }
 });
@@ -1552,6 +1579,21 @@ var OCXPClient = class {
       headers
     });
   }
+  /**
+   * Move/rename content
+   * @param source - Source path (e.g., "mission/old-id")
+   * @param destination - Destination path (e.g., "mission/new-id")
+   * @param overwrite - Whether to overwrite existing content at destination
+   */
+  async move(source, destination, overwrite = false) {
+    const headers = await this.getHeaders();
+    const response = await moveContent({
+      client: this.client,
+      body: { source, destination, overwrite },
+      headers
+    });
+    return extractData(response);
+  }
   // ============== GitHub API Proxy ==============
   /**
    * Check if a repository is accessible
@@ -1935,6 +1977,31 @@ var OCXPClient = class {
     const response = await listWorkspaces({
       client: this.client,
       headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Login with username and password (JSON endpoint for programmatic clients)
+   * @param username - Cognito username
+   * @param password - User password
+   * @returns Token response with access_token, refresh_token, and expires_in
+   */
+  async login(username, password) {
+    const response = await login({
+      client: this.client,
+      body: { username, password }
+    });
+    return extractData(response);
+  }
+  /**
+   * Refresh access token using refresh token
+   * @param refreshToken - The refresh token from login
+   * @returns New access token (refresh token remains the same)
+   */
+  async refreshToken(refreshToken) {
+    const response = await refreshTokens({
+      client: this.client,
+      body: { refresh_token: refreshToken }
     });
     return extractData(response);
   }
@@ -3424,6 +3491,6 @@ var GithubCommitsDataSchema = z.object({
 });
 var GithubCommitsResponseSchema = createResponseSchema(GithubCommitsDataSchema);
 
-export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, loginForAccessToken, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

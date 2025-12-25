@@ -32,6 +32,8 @@ import type {
   UserResponse,
   WorkspacesResponse,
   LinkedRepoResponse,
+  TokenResponse,
+  RefreshResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -537,6 +539,22 @@ export class OCXPClient {
     });
   }
 
+  /**
+   * Move/rename content
+   * @param source - Source path (e.g., "mission/old-id")
+   * @param destination - Destination path (e.g., "mission/new-id")
+   * @param overwrite - Whether to overwrite existing content at destination
+   */
+  async move(source: string, destination: string, overwrite = false) {
+    const headers = await this.getHeaders();
+    const response = await sdk.moveContent({
+      client: this.client,
+      body: { source, destination, overwrite },
+      headers,
+    });
+    return extractData(response);
+  }
+
   // ============== GitHub API Proxy ==============
 
   /**
@@ -970,6 +988,33 @@ export class OCXPClient {
       headers,
     });
     return extractData(response) as WorkspacesResponse;
+  }
+
+  /**
+   * Login with username and password (JSON endpoint for programmatic clients)
+   * @param username - Cognito username
+   * @param password - User password
+   * @returns Token response with access_token, refresh_token, and expires_in
+   */
+  async login(username: string, password: string): Promise<TokenResponse> {
+    const response = await sdk.login({
+      client: this.client,
+      body: { username, password },
+    });
+    return extractData(response) as TokenResponse;
+  }
+
+  /**
+   * Refresh access token using refresh token
+   * @param refreshToken - The refresh token from login
+   * @returns New access token (refresh token remains the same)
+   */
+  async refreshToken(refreshToken: string): Promise<RefreshResponse> {
+    const response = await sdk.refreshTokens({
+      client: this.client,
+      body: { refresh_token: refreshToken },
+    });
+    return extractData(response) as RefreshResponse;
   }
 
   // ============== Namespaced Accessors ==============

@@ -998,6 +998,21 @@ type LockRequest = {
     ttl?: number;
 };
 /**
+ * LoginRequest
+ *
+ * JSON login request for programmatic clients.
+ */
+type LoginRequest = {
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * Password
+     */
+    password: string;
+};
+/**
  * MessageResponse
  *
  * Single message in a session.
@@ -1110,6 +1125,23 @@ type MissionUpdateResponse = {
      * Progress
      */
     progress?: number | null;
+};
+/**
+ * MoveRequest
+ */
+type MoveRequest = {
+    /**
+     * Source
+     */
+    source: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Overwrite
+     */
+    overwrite?: boolean;
 };
 /**
  * ProjectCreate
@@ -1247,6 +1279,40 @@ type RagRequest = {
      * Session ID for conversation
      */
     session_id?: string | null;
+};
+/**
+ * RefreshRequest
+ *
+ * Token refresh request.
+ */
+type RefreshRequest = {
+    /**
+     * Refresh Token
+     */
+    refresh_token: string;
+};
+/**
+ * RefreshResponse
+ *
+ * Token refresh response (no new refresh_token).
+ */
+type RefreshResponse = {
+    /**
+     * Access Token
+     */
+    access_token: string;
+    /**
+     * Token Type
+     */
+    token_type?: string;
+    /**
+     * Expires In
+     */
+    expires_in?: number;
+    /**
+     * Id Token
+     */
+    id_token: string;
 };
 /**
  * RepoDeleteResponse
@@ -3030,6 +3096,38 @@ type WriteContentResponses = {
      */
     201: ContentWriteResponse;
 };
+type MoveContentData = {
+    body: MoveRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/move';
+};
+type MoveContentErrors = {
+    /**
+     * Source not found
+     */
+    404: unknown;
+    /**
+     * Destination exists
+     */
+    409: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type MoveContentResponses = {
+    /**
+     * Content moved successfully
+     */
+    200: unknown;
+};
 type LockContentData = {
     body: LockRequest;
     headers?: {
@@ -3233,6 +3331,42 @@ type LoginForAccessTokenResponses = {
      * Successful Response
      */
     200: TokenResponse;
+};
+type LoginData = {
+    body: LoginRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/login';
+};
+type LoginErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type LoginResponses = {
+    /**
+     * Successful Response
+     */
+    200: TokenResponse;
+};
+type RefreshTokensData = {
+    body: RefreshRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/refresh';
+};
+type RefreshTokensErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type RefreshTokensResponses = {
+    /**
+     * Successful Response
+     */
+    200: RefreshResponse;
 };
 type GetAuthConfigData = {
     body?: never;
@@ -3525,6 +3659,12 @@ declare const readContent: <ThrowOnError extends boolean = false>(options: Optio
  */
 declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, WriteContentErrors, ThrowOnError, "fields">;
 /**
+ * Move content
+ *
+ * Moves content from source to destination path. Use overwrite=true to replace existing.
+ */
+declare const moveContent: <ThrowOnError extends boolean = false>(options: Options<MoveContentData, ThrowOnError>) => RequestResult<MoveContentResponses, MoveContentErrors, ThrowOnError, "fields">;
+/**
  * Lock content
  *
  * Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.
@@ -3575,6 +3715,24 @@ declare const findByTicket: <ThrowOnError extends boolean = false>(options: Opti
  * Use this endpoint to get a token for testing other endpoints in Swagger.
  */
 declare const loginForAccessToken: <ThrowOnError extends boolean = false>(options: Options<LoginForAccessTokenData, ThrowOnError>) => RequestResult<LoginForAccessTokenResponses, LoginForAccessTokenErrors, ThrowOnError, "fields">;
+/**
+ * Login
+ *
+ * JSON login endpoint for programmatic clients.
+ *
+ * Authenticates with Cognito using username/password and returns JWT tokens.
+ * Use /auth/token for OAuth2 form-based login (Swagger UI).
+ */
+declare const login: <ThrowOnError extends boolean = false>(options: Options<LoginData, ThrowOnError>) => RequestResult<LoginResponses, LoginErrors, ThrowOnError, "fields">;
+/**
+ * Refresh Tokens
+ *
+ * Refresh access token using refresh token.
+ *
+ * Returns new access and ID tokens. The refresh token remains valid
+ * until it expires (configured in Cognito).
+ */
+declare const refreshTokens: <ThrowOnError extends boolean = false>(options: Options<RefreshTokensData, ThrowOnError>) => RequestResult<RefreshTokensResponses, RefreshTokensErrors, ThrowOnError, "fields">;
 /**
  * Get Auth Config
  *
@@ -3892,6 +4050,13 @@ declare class OCXPClient {
         response: Response;
     }>;
     /**
+     * Move/rename content
+     * @param source - Source path (e.g., "mission/old-id")
+     * @param destination - Destination path (e.g., "mission/new-id")
+     * @param overwrite - Whether to overwrite existing content at destination
+     */
+    move(source: string, destination: string, overwrite?: boolean): Promise<unknown>;
+    /**
      * Check if a repository is accessible
      * @param repoUrl - Full GitHub repository URL
      */
@@ -4029,6 +4194,19 @@ declare class OCXPClient {
      * List workspaces for authenticated user
      */
     listWorkspaces(): Promise<WorkspacesResponse>;
+    /**
+     * Login with username and password (JSON endpoint for programmatic clients)
+     * @param username - Cognito username
+     * @param password - User password
+     * @returns Token response with access_token, refresh_token, and expires_in
+     */
+    login(username: string, password: string): Promise<TokenResponse>;
+    /**
+     * Refresh access token using refresh token
+     * @param refreshToken - The refresh token from login
+     * @returns New access token (refresh token remains the same)
+     */
+    refreshToken(refreshToken: string): Promise<RefreshResponse>;
     private _mission?;
     private _project?;
     private _session?;
@@ -7438,4 +7616,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateSnapshotData, type CreateSnapshotResponses, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetSnapshotStatusData, type GetSnapshotStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDocsData, type ListDocsResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SnapshotRequest, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TokenResponse, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, loginForAccessToken, mapHttpError, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateSnapshotData, type CreateSnapshotResponses, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetSnapshotStatusData, type GetSnapshotStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDocsData, type ListDocsResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SnapshotRequest, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TokenResponse, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };

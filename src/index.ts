@@ -114,6 +114,8 @@ export {
 
   // Auth
   loginForAccessToken,
+  login,
+  refreshTokens,
   getAuthConfig,
   getCurrentUser,
   listWorkspaces,
@@ -121,6 +123,7 @@ export {
   // Utility
   lockContent,
   unlockContent,
+  moveContent,
 
   type Options,
 } from './generated';
@@ -148,6 +151,9 @@ export type {
   CheckAccessRequest,
   ListBranchesRequest,
   GetContentsRequest,
+  MoveRequest,
+  LoginRequest,
+  RefreshRequest,
 
   // Response types
   ProjectListResponse,
@@ -167,6 +173,7 @@ export type {
   UserResponse,
   WorkspacesResponse,
   TokenResponse,
+  RefreshResponse,
 
   // Data types for SDK functions - Content CRUD
   GetContentTypesData,
@@ -291,6 +298,12 @@ export type {
   LockContentResponses,
   UnlockContentData,
   UnlockContentResponses,
+  MoveContentData,
+  MoveContentResponses,
+  LoginData,
+  LoginResponses,
+  RefreshTokensData,
+  RefreshTokensResponses,
 } from './generated';
 
 // Re-export client utilities for advanced use

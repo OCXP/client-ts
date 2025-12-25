@@ -1094,6 +1094,15 @@ var writeContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var moveContent = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/move",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var lockContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/lock",
@@ -1161,6 +1170,24 @@ var loginForAccessToken = (options) => (options.client ?? client).post({
   ...options,
   headers: {
     "Content-Type": "application/x-www-form-urlencoded",
+    ...options.headers
+  }
+});
+var login = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/login",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var refreshTokens = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth/refresh",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
     ...options.headers
   }
 });
@@ -1554,6 +1581,21 @@ var OCXPClient = class {
       headers
     });
   }
+  /**
+   * Move/rename content
+   * @param source - Source path (e.g., "mission/old-id")
+   * @param destination - Destination path (e.g., "mission/new-id")
+   * @param overwrite - Whether to overwrite existing content at destination
+   */
+  async move(source, destination, overwrite = false) {
+    const headers = await this.getHeaders();
+    const response = await moveContent({
+      client: this.client,
+      body: { source, destination, overwrite },
+      headers
+    });
+    return extractData(response);
+  }
   // ============== GitHub API Proxy ==============
   /**
    * Check if a repository is accessible
@@ -1937,6 +1979,31 @@ var OCXPClient = class {
     const response = await listWorkspaces({
       client: this.client,
       headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Login with username and password (JSON endpoint for programmatic clients)
+   * @param username - Cognito username
+   * @param password - User password
+   * @returns Token response with access_token, refresh_token, and expires_in
+   */
+  async login(username, password) {
+    const response = await login({
+      client: this.client,
+      body: { username, password }
+    });
+    return extractData(response);
+  }
+  /**
+   * Refresh access token using refresh token
+   * @param refreshToken - The refresh token from login
+   * @returns New access token (refresh token remains the same)
+   */
+  async refreshToken(refreshToken) {
+    const response = await refreshTokens({
+      client: this.client,
+      body: { refresh_token: refreshToken }
     });
     return extractData(response);
   }
@@ -3613,8 +3680,10 @@ exports.listProjects = listProjects;
 exports.listSessions = listSessions;
 exports.listWorkspaces = listWorkspaces;
 exports.lockContent = lockContent;
+exports.login = login;
 exports.loginForAccessToken = loginForAccessToken;
 exports.mapHttpError = mapHttpError;
+exports.moveContent = moveContent;
 exports.normalizePath = normalizePath;
 exports.parsePath = parsePath;
 exports.parseWSMessage = parseWSMessage;
@@ -3622,6 +3691,7 @@ exports.queryContent = queryContent;
 exports.queryKnowledgeBase = queryKnowledgeBase;
 exports.ragKnowledgeBase = ragKnowledgeBase;
 exports.readContent = readContent;
+exports.refreshTokens = refreshTokens;
 exports.removeLinkedRepo = removeLinkedRepo;
 exports.removeMission = removeMission;
 exports.safeParseWSMessage = safeParseWSMessage;
