@@ -813,11 +813,7 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(
-  createConfig({
-    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-  })
-);
+var client = createClient(createConfig());
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -955,6 +951,53 @@ var removeMission = (options) => (options.client ?? client).delete({
   url: "/ocxp/project/{project_id}/missions/{mission_id}",
   ...options
 });
+var listMissions = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission",
+  ...options
+});
+var createMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteMission = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{mission_id}",
+  ...options
+});
+var getMission = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{mission_id}",
+  ...options
+});
+var updateMission = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{mission_id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var addSession = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{mission_id}/sessions",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var removeSession = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{mission_id}/sessions/{session_id}",
+  ...options
+});
 var queryKnowledgeBase = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/kb/query",
@@ -1047,17 +1090,17 @@ var githubGetContents = (options) => (options.client ?? client).post({
 });
 var getContentTypes = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/types",
+  url: "/ocxp/context/types",
   ...options
 });
 var listContent = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/list",
+  url: "/ocxp/context/{content_type}/list",
   ...options
 });
 var queryContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/query",
+  url: "/ocxp/context/{content_type}/query",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1066,32 +1109,32 @@ var queryContent = (options) => (options.client ?? client).post({
 });
 var searchContent = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/search",
+  url: "/ocxp/context/{content_type}/search",
   ...options
 });
 var getContentTree = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/tree",
+  url: "/ocxp/context/{content_type}/tree",
   ...options
 });
 var getContentStats = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/stats",
+  url: "/ocxp/context/{content_type}/stats",
   ...options
 });
 var deleteContent = (options) => (options.client ?? client).delete({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/{content_id}",
+  url: "/ocxp/context/{content_type}/{content_id}",
   ...options
 });
 var readContent = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/{content_id}",
+  url: "/ocxp/context/{content_type}/{content_id}",
   ...options
 });
 var writeContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/{content_id}",
+  url: "/ocxp/context/{content_type}/{content_id}",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1100,7 +1143,7 @@ var writeContent = (options) => (options.client ?? client).post({
 });
 var moveContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/move",
+  url: "/ocxp/context/move",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1109,7 +1152,7 @@ var moveContent = (options) => (options.client ?? client).post({
 });
 var lockContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/lock",
+  url: "/ocxp/context/lock",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1118,25 +1161,7 @@ var lockContent = (options) => (options.client ?? client).post({
 });
 var unlockContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/unlock",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var createMission = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/mission/create",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var updateMission = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/mission/{mission_id}/update",
+  url: "/ocxp/context/unlock",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1388,16 +1413,17 @@ var OCXPClient = class {
   }
   // ============== Tree & Stats ==============
   /**
-   * Get hierarchical tree structure
+   * Get hierarchical tree structure from S3 context
    */
   async tree(type, path, depth) {
     const headers = await this.getHeaders();
-    return getContentTree({
+    const response = await getContentTree({
       client: this.client,
       path: { content_type: type },
       query: { path, depth },
       headers
     });
+    return extractData(response);
   }
   /**
    * Get content statistics
@@ -1485,36 +1511,103 @@ var OCXPClient = class {
     });
     return extractData(response);
   }
-  // ============== Tools ==============
+  // ============== Mission Operations ==============
   /**
-   * Create a new mission
+   * List all missions in workspace
    */
-  async createMission(name, description, projectId, goals) {
+  async listMissions(options) {
+    const headers = await this.getHeaders();
+    const response = await listMissions({
+      client: this.client,
+      query: {
+        project_id: options?.projectId,
+        status: options?.status,
+        limit: options?.limit
+      },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Create a new mission with auto-generated UUID
+   */
+  async createMission(title, description, projectId, goals) {
     const headers = await this.getHeaders();
     const body = {
-      name,
+      title,
       description,
       project_id: projectId,
       goals
     };
-    return createMission({
+    const response = await createMission({
       client: this.client,
       body,
       headers
     });
+    return extractData(response);
   }
   /**
-   * Update mission progress
+   * Get mission by ID
+   */
+  async getMission(missionId) {
+    const headers = await this.getHeaders();
+    const response = await getMission({
+      client: this.client,
+      path: { mission_id: missionId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Update mission
    */
   async updateMission(missionId, updates) {
     const headers = await this.getHeaders();
-    return updateMission({
+    const response = await updateMission({
       client: this.client,
       path: { mission_id: missionId },
       body: updates,
       headers
     });
+    return extractData(response);
   }
+  /**
+   * Delete mission
+   */
+  async deleteMission(missionId) {
+    const headers = await this.getHeaders();
+    await deleteMission({
+      client: this.client,
+      path: { mission_id: missionId },
+      headers
+    });
+  }
+  /**
+   * Add session to mission
+   */
+  async addMissionSession(missionId, sessionId) {
+    const headers = await this.getHeaders();
+    const response = await addSession({
+      client: this.client,
+      path: { mission_id: missionId },
+      body: { session_id: sessionId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Remove session from mission
+   */
+  async removeMissionSession(missionId, sessionId) {
+    const headers = await this.getHeaders();
+    const response = await removeSession({
+      client: this.client,
+      path: { mission_id: missionId, session_id: sessionId },
+      headers
+    });
+    return extractData(response);
+  }
+  // ============== Tools ==============
   /**
    * Get mission context for agents
    */
@@ -1710,12 +1803,11 @@ var OCXPClient = class {
     return extractData(response);
   }
   /**
-   * Create a new project
+   * Create a new project with auto-generated UUID
    */
-  async createProject(projectId, name, description) {
+  async createProject(name, description) {
     const headers = await this.getHeaders();
     const body = {
-      project_id: projectId,
       name,
       description
     };
@@ -2010,9 +2102,70 @@ var OCXPClient = class {
   async refreshToken(refreshToken) {
     const response = await refreshTokens({
       client: this.client,
-      body: { refresh_token: refreshToken }
+      body: { refreshToken }
     });
     return extractData(response);
+  }
+  /**
+   * Set GitHub token for the authenticated user
+   * Stores the token server-side linked to the Cognito identity
+   * @param token - GitHub Personal Access Token
+   * @returns Success response
+   */
+  async setGitHubToken(token) {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "PUT",
+      url: "/auth/github-token",
+      headers,
+      body: { github_token: token }
+    });
+    if (response.error) {
+      throw new Error(`Failed to set GitHub token: ${typeof response.error === "object" ? JSON.stringify(response.error) : response.error}`);
+    }
+    if (response.data === true) {
+      return { success: true };
+    }
+    return response.data || { success: true };
+  }
+  /**
+   * Get GitHub token status for the authenticated user
+   * @returns Token status (configured or not)
+   */
+  async getGitHubTokenStatus() {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "GET",
+      url: "/auth/github-token",
+      headers
+    });
+    if (response.error) {
+      throw new Error(`Failed to get GitHub token status: ${typeof response.error === "object" ? JSON.stringify(response.error) : response.error}`);
+    }
+    const data = response.data;
+    if (data && typeof data === "object" && "configured" in data) {
+      return data;
+    }
+    return { configured: false };
+  }
+  /**
+   * Delete GitHub token for the authenticated user
+   * @returns Success response
+   */
+  async deleteGitHubToken() {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "DELETE",
+      url: "/auth/github-token",
+      headers
+    });
+    if (response.error) {
+      throw new Error(`Failed to delete GitHub token: ${typeof response.error === "object" ? JSON.stringify(response.error) : response.error}`);
+    }
+    if (response.data === true) {
+      return { success: true };
+    }
+    return response.data || { success: true };
   }
   // ============== Namespaced Accessors ==============
   _mission;
@@ -2066,41 +2219,62 @@ var MissionNamespace = class {
   }
   /**
    * List missions with optional filtering
-   * @example ocxp.mission.list({ status: 'pending', limit: 10 })
+   * @example ocxp.mission.list({ status: 'active', limit: 10 })
    */
   async list(options) {
-    if (options?.status) {
-      const filters = [{ field: "status", operator: "eq", value: options.status }];
-      return this.client.query("mission", filters, options?.limit);
-    }
-    return this.client.list("mission", options?.path, options?.limit);
+    return this.client.listMissions(options);
   }
   /**
    * Get a mission by ID
-   * @example ocxp.mission.get('CTX-123')
+   * @example ocxp.mission.get('uuid')
    */
-  async get(id) {
-    return this.client.read("mission", id);
+  async get(missionId) {
+    return this.client.getMission(missionId);
   }
   /**
-   * Create a new mission
-   * @example ocxp.mission.create({ name: 'My Mission', description: 'Description' })
+   * Create a new mission with auto-generated UUID
+   * @example ocxp.mission.create({ title: 'My Mission', description: 'Description' })
    */
   async create(data) {
-    return this.client.createMission(data.name, data.description, data.projectId, data.goals);
+    return this.client.createMission(data.title, data.description, data.projectId, data.goals);
+  }
+  /**
+   * Update mission
+   */
+  async update(missionId, updates) {
+    return this.client.updateMission(missionId, updates);
+  }
+  /**
+   * Delete mission
+   */
+  async delete(missionId) {
+    return this.client.deleteMission(missionId);
+  }
+  /**
+   * Add session to mission
+   */
+  async addSession(missionId, sessionId) {
+    return this.client.addMissionSession(missionId, sessionId);
+  }
+  /**
+   * Remove session from mission
+   */
+  async removeSession(missionId, sessionId) {
+    return this.client.removeMissionSession(missionId, sessionId);
   }
   /**
    * Get mission context for agents
-   * @example ocxp.mission.getContext('CTX-123')
+   * @example ocxp.mission.getContext('uuid')
    */
   async getContext(missionId) {
     return this.client.getMissionContext(missionId);
   }
   /**
-   * Update mission progress
+   * Get mission content tree structure from S3
+   * @example ocxp.mission.tree('subfolder', 5)
    */
-  async update(missionId, updates) {
-    return this.client.updateMission(missionId, updates);
+  async tree(path, depth) {
+    return this.client.tree("mission", path, depth);
   }
 };
 var ProjectNamespace = class {
@@ -2122,11 +2296,11 @@ var ProjectNamespace = class {
     return this.client.getProject(projectId);
   }
   /**
-   * Create a new project
-   * @example ocxp.project.create({ id: 'my-project', name: 'My Project' })
+   * Create a new project with auto-generated UUID
+   * @example ocxp.project.create({ name: 'My Project', description: 'Optional description' })
    */
   async create(data) {
-    return this.client.createProject(data.id, data.name, data.description);
+    return this.client.createProject(data.name, data.description);
   }
   /**
    * Update a project
@@ -2175,6 +2349,13 @@ var ProjectNamespace = class {
    */
   async removeMission(projectId, missionId) {
     return this.client.removeProjectMission(projectId, missionId);
+  }
+  /**
+   * Get project content tree structure from S3
+   * @example ocxp.project.tree('subfolder', 5)
+   */
+  async tree(path, depth) {
+    return this.client.tree("project", path, depth);
   }
 };
 var SessionNamespace = class {

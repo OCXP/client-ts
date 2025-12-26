@@ -10,7 +10,9 @@ import type {
   QueryFilter,
   KbQueryRequest,
   DiscoverRequest,
-  MissionCreateRequest,
+  MissionCreate,
+  MissionResponse,
+  MissionListResponse,
   ProjectListResponse,
   ProjectResponse,
   ProjectCreate,
@@ -34,6 +36,7 @@ import type {
   LinkedRepoResponse,
   TokenResponse,
   RefreshResponse,
+  ContentTreeResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -311,16 +314,17 @@ export class OCXPClient {
   // ============== Tree & Stats ==============
 
   /**
-   * Get hierarchical tree structure
+   * Get hierarchical tree structure from S3 context
    */
-  async tree(type: ContentTypeValue, path?: string, depth?: number) {
+  async tree(type: ContentTypeValue, path?: string, depth?: number): Promise<ContentTreeResponse> {
     const headers = await this.getHeaders();
-    return sdk.getContentTree({
+    const response = await sdk.getContentTree({
       client: this.client,
       path: { content_type: type },
       query: { path, depth },
       headers,
     });
+    return extractData(response) as ContentTreeResponse;
   }
 
   /**
@@ -434,39 +438,112 @@ export class OCXPClient {
     return extractData(response);
   }
 
-  // ============== Tools ==============
+  // ============== Mission Operations ==============
 
   /**
-   * Create a new mission
+   * List all missions in workspace
    */
-  async createMission(name: string, description?: string, projectId?: string, goals?: string[]) {
+  async listMissions(options?: { projectId?: string; status?: string; limit?: number }): Promise<MissionListResponse> {
     const headers = await this.getHeaders();
-    const body: MissionCreateRequest = {
-      name,
+    const response = await sdk.listMissions({
+      client: this.client,
+      query: {
+        project_id: options?.projectId,
+        status: options?.status,
+        limit: options?.limit,
+      },
+      headers,
+    });
+    return extractData(response) as MissionListResponse;
+  }
+
+  /**
+   * Create a new mission with auto-generated UUID
+   */
+  async createMission(title: string, description?: string, projectId?: string, goals?: string[]): Promise<MissionResponse> {
+    const headers = await this.getHeaders();
+    const body: MissionCreate = {
+      title,
       description,
       project_id: projectId,
       goals,
     };
 
-    return sdk.createMission({
+    const response = await sdk.createMission({
       client: this.client,
       body,
+      headers,
+    });
+    return extractData(response) as MissionResponse;
+  }
+
+  /**
+   * Get mission by ID
+   */
+  async getMission(missionId: string): Promise<MissionResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getMission({
+      client: this.client,
+      path: { mission_id: missionId },
+      headers,
+    });
+    return extractData(response) as MissionResponse;
+  }
+
+  /**
+   * Update mission
+   */
+  async updateMission(missionId: string, updates: { title?: string; description?: string; status?: string; progress?: number; notes?: string }): Promise<MissionResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.updateMission({
+      client: this.client,
+      path: { mission_id: missionId },
+      body: updates,
+      headers,
+    });
+    return extractData(response) as MissionResponse;
+  }
+
+  /**
+   * Delete mission
+   */
+  async deleteMission(missionId: string): Promise<void> {
+    const headers = await this.getHeaders();
+    await sdk.deleteMission({
+      client: this.client,
+      path: { mission_id: missionId },
       headers,
     });
   }
 
   /**
-   * Update mission progress
+   * Add session to mission
    */
-  async updateMission(missionId: string, updates: Record<string, unknown>) {
+  async addMissionSession(missionId: string, sessionId: string): Promise<MissionResponse> {
     const headers = await this.getHeaders();
-    return sdk.updateMission({
+    const response = await sdk.addSession({
       client: this.client,
       path: { mission_id: missionId },
-      body: updates as { status?: string; progress?: number; context?: Record<string, unknown> },
+      body: { session_id: sessionId },
       headers,
     });
+    return extractData(response) as MissionResponse;
   }
+
+  /**
+   * Remove session from mission
+   */
+  async removeMissionSession(missionId: string, sessionId: string): Promise<MissionResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.removeSession({
+      client: this.client,
+      path: { mission_id: missionId, session_id: sessionId },
+      headers,
+    });
+    return extractData(response) as MissionResponse;
+  }
+
+  // ============== Tools ==============
 
   /**
    * Get mission context for agents
@@ -682,12 +759,11 @@ export class OCXPClient {
   }
 
   /**
-   * Create a new project
+   * Create a new project with auto-generated UUID
    */
-  async createProject(projectId: string, name: string, description?: string): Promise<ProjectResponse> {
+  async createProject(name: string, description?: string): Promise<ProjectResponse> {
     const headers = await this.getHeaders();
     const body: ProjectCreate = {
-      project_id: projectId,
       name,
       description,
     };
@@ -1021,9 +1097,75 @@ export class OCXPClient {
   async refreshToken(refreshToken: string): Promise<RefreshResponse> {
     const response = await sdk.refreshTokens({
       client: this.client,
-      body: { refresh_token: refreshToken },
+      body: { refreshToken },
     });
     return extractData(response) as RefreshResponse;
+  }
+
+  /**
+   * Set GitHub token for the authenticated user
+   * Stores the token server-side linked to the Cognito identity
+   * @param token - GitHub Personal Access Token
+   * @returns Success response
+   */
+  async setGitHubToken(token: string): Promise<{ success: boolean }> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<{ success: boolean } | true, unknown>({
+      method: 'PUT',
+      url: '/auth/github-token',
+      headers,
+      body: { github_token: token },
+    });
+    if (response.error) {
+      throw new Error(`Failed to set GitHub token: ${typeof response.error === 'object' ? JSON.stringify(response.error) : response.error}`);
+    }
+    // Handle case where response.data might be true (boolean) or object
+    if (response.data === true) {
+      return { success: true };
+    }
+    return response.data || { success: true };
+  }
+
+  /**
+   * Get GitHub token status for the authenticated user
+   * @returns Token status (configured or not)
+   */
+  async getGitHubTokenStatus(): Promise<{ configured: boolean; username?: string }> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<{ configured: boolean; username?: string }, unknown>({
+      method: 'GET',
+      url: '/auth/github-token',
+      headers,
+    });
+    if (response.error) {
+      throw new Error(`Failed to get GitHub token status: ${typeof response.error === 'object' ? JSON.stringify(response.error) : response.error}`);
+    }
+    const data = response.data;
+    if (data && typeof data === 'object' && 'configured' in data) {
+      return data as { configured: boolean; username?: string };
+    }
+    return { configured: false };
+  }
+
+  /**
+   * Delete GitHub token for the authenticated user
+   * @returns Success response
+   */
+  async deleteGitHubToken(): Promise<{ success: boolean }> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<{ success: boolean } | true, unknown>({
+      method: 'DELETE',
+      url: '/auth/github-token',
+      headers,
+    });
+    if (response.error) {
+      throw new Error(`Failed to delete GitHub token: ${typeof response.error === 'object' ? JSON.stringify(response.error) : response.error}`);
+    }
+    // Handle case where response.data might be true (boolean) or object
+    if (response.data === true) {
+      return { success: true };
+    }
+    return response.data || { success: true };
   }
 
   // ============== Namespaced Accessors ==============
@@ -1088,45 +1230,70 @@ export class MissionNamespace {
 
   /**
    * List missions with optional filtering
-   * @example ocxp.mission.list({ status: 'pending', limit: 10 })
+   * @example ocxp.mission.list({ status: 'active', limit: 10 })
    */
-  async list(options?: { status?: string; path?: string; limit?: number }) {
-    if (options?.status) {
-      const filters: QueryFilter[] = [{ field: 'status', operator: 'eq', value: options.status }];
-      return this.client.query('mission', filters, options?.limit);
-    }
-    return this.client.list('mission', options?.path, options?.limit);
+  async list(options?: { projectId?: string; status?: string; limit?: number }): Promise<MissionListResponse> {
+    return this.client.listMissions(options);
   }
 
   /**
    * Get a mission by ID
-   * @example ocxp.mission.get('CTX-123')
+   * @example ocxp.mission.get('uuid')
    */
-  async get(id: string): Promise<ReadResult> {
-    return this.client.read('mission', id);
+  async get(missionId: string): Promise<MissionResponse> {
+    return this.client.getMission(missionId);
   }
 
   /**
-   * Create a new mission
-   * @example ocxp.mission.create({ name: 'My Mission', description: 'Description' })
+   * Create a new mission with auto-generated UUID
+   * @example ocxp.mission.create({ title: 'My Mission', description: 'Description' })
    */
-  async create(data: { name: string; description?: string; projectId?: string; goals?: string[] }) {
-    return this.client.createMission(data.name, data.description, data.projectId, data.goals);
+  async create(data: { title: string; description?: string; projectId?: string; goals?: string[] }): Promise<MissionResponse> {
+    return this.client.createMission(data.title, data.description, data.projectId, data.goals);
+  }
+
+  /**
+   * Update mission
+   */
+  async update(missionId: string, updates: { title?: string; description?: string; status?: string; progress?: number; notes?: string }): Promise<MissionResponse> {
+    return this.client.updateMission(missionId, updates);
+  }
+
+  /**
+   * Delete mission
+   */
+  async delete(missionId: string): Promise<void> {
+    return this.client.deleteMission(missionId);
+  }
+
+  /**
+   * Add session to mission
+   */
+  async addSession(missionId: string, sessionId: string): Promise<MissionResponse> {
+    return this.client.addMissionSession(missionId, sessionId);
+  }
+
+  /**
+   * Remove session from mission
+   */
+  async removeSession(missionId: string, sessionId: string): Promise<MissionResponse> {
+    return this.client.removeMissionSession(missionId, sessionId);
   }
 
   /**
    * Get mission context for agents
-   * @example ocxp.mission.getContext('CTX-123')
+   * @example ocxp.mission.getContext('uuid')
    */
   async getContext(missionId: string) {
     return this.client.getMissionContext(missionId);
   }
 
   /**
-   * Update mission progress
+   * Get mission content tree structure from S3
+   * @example ocxp.mission.tree('subfolder', 5)
    */
-  async update(missionId: string, updates: Record<string, unknown>) {
-    return this.client.updateMission(missionId, updates);
+  async tree(path?: string, depth?: number): Promise<ContentTreeResponse> {
+    return this.client.tree('mission', path, depth);
   }
 }
 
@@ -1153,11 +1320,11 @@ export class ProjectNamespace {
   }
 
   /**
-   * Create a new project
-   * @example ocxp.project.create({ id: 'my-project', name: 'My Project' })
+   * Create a new project with auto-generated UUID
+   * @example ocxp.project.create({ name: 'My Project', description: 'Optional description' })
    */
-  async create(data: { id: string; name: string; description?: string }): Promise<ProjectResponse> {
-    return this.client.createProject(data.id, data.name, data.description);
+  async create(data: { name: string; description?: string }): Promise<ProjectResponse> {
+    return this.client.createProject(data.name, data.description);
   }
 
   /**
@@ -1214,6 +1381,14 @@ export class ProjectNamespace {
    */
   async removeMission(projectId: string, missionId: string): Promise<ProjectResponse> {
     return this.client.removeProjectMission(projectId, missionId);
+  }
+
+  /**
+   * Get project content tree structure from S3
+   * @example ocxp.project.tree('subfolder', 5)
+   */
+  async tree(path?: string, depth?: number): Promise<ContentTreeResponse> {
+    return this.client.tree('project', path, depth);
   }
 }
 

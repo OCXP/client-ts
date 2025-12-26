@@ -14,6 +14,9 @@ import type {
   AddMissionData,
   AddMissionErrors,
   AddMissionResponses,
+  AddSessionData,
+  AddSessionErrors,
+  AddSessionResponses,
   ArchiveSessionData,
   ArchiveSessionErrors,
   ArchiveSessionResponses,
@@ -26,6 +29,9 @@ import type {
   BulkWriteContentData,
   BulkWriteContentErrors,
   BulkWriteContentResponses,
+  CreateMission2Data,
+  CreateMission2Errors,
+  CreateMission2Responses,
   CreateMissionData,
   CreateMissionErrors,
   CreateMissionResponses,
@@ -38,6 +44,11 @@ import type {
   DeleteContentData,
   DeleteContentErrors,
   DeleteContentResponses,
+  DeleteGithubTokenData,
+  DeleteGithubTokenResponses,
+  DeleteMissionData,
+  DeleteMissionErrors,
+  DeleteMissionResponses,
   DeleteProjectData,
   DeleteProjectErrors,
   DeleteProjectResponses,
@@ -72,9 +83,14 @@ import type {
   GetContextReposResponses,
   GetCurrentUserData,
   GetCurrentUserResponses,
+  GetGithubTokenStatusData,
+  GetGithubTokenStatusResponses,
   GetMissionContextData,
   GetMissionContextErrors,
   GetMissionContextResponses,
+  GetMissionData,
+  GetMissionErrors,
+  GetMissionResponses,
   GetProjectData,
   GetProjectErrors,
   GetProjectResponses,
@@ -107,6 +123,12 @@ import type {
   ListDownloadedReposData,
   ListDownloadedReposErrors,
   ListDownloadedReposResponses,
+  ListMissionsData,
+  ListMissionsErrors,
+  ListMissionsResponses,
+  ListProjectsAliasData,
+  ListProjectsAliasErrors,
+  ListProjectsAliasResponses,
   ListProjectsData,
   ListProjectsErrors,
   ListProjectsResponses,
@@ -148,15 +170,24 @@ import type {
   RemoveMissionData,
   RemoveMissionErrors,
   RemoveMissionResponses,
+  RemoveSessionData,
+  RemoveSessionErrors,
+  RemoveSessionResponses,
   SearchContentData,
   SearchContentErrors,
   SearchContentResponses,
   SetDefaultRepoData,
   SetDefaultRepoErrors,
   SetDefaultRepoResponses,
+  SetGithubTokenData,
+  SetGithubTokenErrors,
+  SetGithubTokenResponses,
   UnlockContentData,
   UnlockContentErrors,
   UnlockContentResponses,
+  UpdateMission2Data,
+  UpdateMission2Errors,
+  UpdateMission2Responses,
   UpdateMissionData,
   UpdateMissionErrors,
   UpdateMissionResponses,
@@ -349,7 +380,7 @@ export const listProjects = <ThrowOnError extends boolean = false>(
 /**
  * Create a new project
  *
- * Creates a project with the given ID and name. Projects link repos, missions, and sessions for context scoping.
+ * Creates a project with auto-generated UUID. Projects link repos, missions, and sessions for context scoping.
  */
 export const createProject = <ThrowOnError extends boolean = false>(
   options: Options<CreateProjectData, ThrowOnError>
@@ -362,6 +393,24 @@ export const createProject = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * List all projects (alias)
+ *
+ * Alias for GET /ocxp/project. Returns all projects in the workspace.
+ */
+export const listProjectsAlias = <ThrowOnError extends boolean = false>(
+  options?: Options<ListProjectsAliasData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListProjectsAliasResponses,
+    ListProjectsAliasErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/list',
+    ...options,
   });
 
 /**
@@ -507,6 +556,116 @@ export const removeMission = <ThrowOnError extends boolean = false>(
   (options.client ?? client).delete<RemoveMissionResponses, RemoveMissionErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/project/{project_id}/missions/{mission_id}',
+    ...options,
+  });
+
+/**
+ * List all missions
+ *
+ * Returns all missions in the workspace, optionally filtered by project.
+ */
+export const listMissions = <ThrowOnError extends boolean = false>(
+  options?: Options<ListMissionsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListMissionsResponses, ListMissionsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission',
+    ...options,
+  });
+
+/**
+ * Create a new mission
+ *
+ * Creates a mission with auto-generated UUID and context folder.
+ */
+export const createMission = <ThrowOnError extends boolean = false>(
+  options: Options<CreateMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateMissionResponses, CreateMissionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete mission
+ *
+ * Permanently deletes a mission and its metadata.
+ */
+export const deleteMission = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteMissionResponses, DeleteMissionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}',
+    ...options,
+  });
+
+/**
+ * Get mission details
+ *
+ * Returns full mission details including status, progress, and linked sessions.
+ */
+export const getMission = <ThrowOnError extends boolean = false>(
+  options: Options<GetMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetMissionResponses, GetMissionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}',
+    ...options,
+  });
+
+/**
+ * Update mission
+ *
+ * Updates mission metadata. Only provided fields are updated.
+ */
+export const updateMission = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).put<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Add session to mission
+ *
+ * Associates a session with the mission.
+ */
+export const addSession = <ThrowOnError extends boolean = false>(
+  options: Options<AddSessionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<AddSessionResponses, AddSessionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/sessions',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Remove session from mission
+ *
+ * Removes the session association from the mission. The session itself is not deleted.
+ */
+export const removeSession = <ThrowOnError extends boolean = false>(
+  options: Options<RemoveSessionData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<RemoveSessionResponses, RemoveSessionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/sessions/{session_id}',
     ...options,
   });
 
@@ -674,6 +833,9 @@ export const getSnapshotStatus = <ThrowOnError extends boolean = false>(
  * Github Check Access
  *
  * Check GitHub repository access.
+ *
+ * Uses the user's stored GitHub token for private repository access.
+ * Public repositories are accessible without a token.
  */
 export const githubCheckAccess = <ThrowOnError extends boolean = false>(
   options: Options<GithubCheckAccessData, ThrowOnError>
@@ -696,6 +858,8 @@ export const githubCheckAccess = <ThrowOnError extends boolean = false>(
  * Github List Branches
  *
  * List repository branches.
+ *
+ * Uses the user's stored GitHub token for private repository access.
  */
 export const githubListBranches = <ThrowOnError extends boolean = false>(
   options: Options<GithubListBranchesData, ThrowOnError>
@@ -718,6 +882,8 @@ export const githubListBranches = <ThrowOnError extends boolean = false>(
  * Github Get Contents
  *
  * Get repository contents.
+ *
+ * Uses the user's stored GitHub token for private repository access.
  */
 export const githubGetContents = <ThrowOnError extends boolean = false>(
   options: Options<GithubGetContentsData, ThrowOnError>
@@ -746,7 +912,7 @@ export const getContentTypes = <ThrowOnError extends boolean = false>(
 ) =>
   (options?.client ?? client).get<GetContentTypesResponses, GetContentTypesErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/types',
+    url: '/ocxp/context/types',
     ...options,
   });
 
@@ -760,7 +926,7 @@ export const listContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<ListContentResponses, ListContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/list',
+    url: '/ocxp/context/{content_type}/list',
     ...options,
   });
 
@@ -774,7 +940,7 @@ export const queryContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<QueryContentResponses, QueryContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/query',
+    url: '/ocxp/context/{content_type}/query',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -792,7 +958,7 @@ export const searchContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<SearchContentResponses, SearchContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/search',
+    url: '/ocxp/context/{content_type}/search',
     ...options,
   });
 
@@ -806,7 +972,7 @@ export const getContentTree = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<GetContentTreeResponses, GetContentTreeErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/tree',
+    url: '/ocxp/context/{content_type}/tree',
     ...options,
   });
 
@@ -820,7 +986,7 @@ export const getContentStats = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<GetContentStatsResponses, GetContentStatsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/stats',
+    url: '/ocxp/context/{content_type}/stats',
     ...options,
   });
 
@@ -834,7 +1000,7 @@ export const deleteContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).delete<DeleteContentResponses, DeleteContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/{content_id}',
+    url: '/ocxp/context/{content_type}/{content_id}',
     ...options,
   });
 
@@ -848,7 +1014,7 @@ export const readContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<ReadContentResponses, ReadContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/{content_id}',
+    url: '/ocxp/context/{content_type}/{content_id}',
     ...options,
   });
 
@@ -862,7 +1028,7 @@ export const writeContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<WriteContentResponses, WriteContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/{content_id}',
+    url: '/ocxp/context/{content_type}/{content_id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -880,7 +1046,7 @@ export const moveContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<MoveContentResponses, MoveContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/move',
+    url: '/ocxp/context/move',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -898,7 +1064,7 @@ export const lockContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<LockContentResponses, LockContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/lock',
+    url: '/ocxp/context/lock',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -916,7 +1082,7 @@ export const unlockContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<UnlockContentResponses, UnlockContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/unlock',
+    url: '/ocxp/context/unlock',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -929,10 +1095,10 @@ export const unlockContent = <ThrowOnError extends boolean = false>(
  *
  * Creates a mission with optional project association and goals list.
  */
-export const createMission = <ThrowOnError extends boolean = false>(
-  options: Options<CreateMissionData, ThrowOnError>
+export const createMission2 = <ThrowOnError extends boolean = false>(
+  options: Options<CreateMission2Data, ThrowOnError>
 ) =>
-  (options.client ?? client).post<CreateMissionResponses, CreateMissionErrors, ThrowOnError>({
+  (options.client ?? client).post<CreateMission2Responses, CreateMission2Errors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/create',
     ...options,
@@ -947,10 +1113,10 @@ export const createMission = <ThrowOnError extends boolean = false>(
  *
  * Updates mission status, progress percentage, and/or notes.
  */
-export const updateMission = <ThrowOnError extends boolean = false>(
-  options: Options<UpdateMissionData, ThrowOnError>
+export const updateMission2 = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMission2Data, ThrowOnError>
 ) =>
-  (options.client ?? client).post<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError>({
+  (options.client ?? client).post<UpdateMission2Responses, UpdateMission2Errors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/{mission_id}/update',
     ...options,
@@ -1118,6 +1284,61 @@ export const listWorkspaces = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/auth/workspaces',
     ...options,
+  });
+
+/**
+ * Delete Github Token
+ *
+ * Remove user's stored GitHub token.
+ *
+ * Deletes the GitHub token from DynamoDB. The user will need to
+ * reconfigure their token for future GitHub operations.
+ */
+export const deleteGithubToken = <ThrowOnError extends boolean = false>(
+  options?: Options<DeleteGithubTokenData, ThrowOnError>
+) =>
+  (options?.client ?? client).delete<DeleteGithubTokenResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/github-token',
+    ...options,
+  });
+
+/**
+ * Get Github Token Status
+ *
+ * Check if user has a GitHub token configured.
+ *
+ * Returns whether a token is stored and the associated GitHub username,
+ * but never returns the actual token value.
+ */
+export const getGithubTokenStatus = <ThrowOnError extends boolean = false>(
+  options?: Options<GetGithubTokenStatusData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetGithubTokenStatusResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/github-token',
+    ...options,
+  });
+
+/**
+ * Set Github Token
+ *
+ * Save user's GitHub token for server-side repository operations.
+ *
+ * The token is stored securely in DynamoDB linked to the user's Cognito identity.
+ * This enables GitHub operations without transmitting the token on every request.
+ */
+export const setGithubToken = <ThrowOnError extends boolean = false>(
+  options: Options<SetGithubTokenData, ThrowOnError>
+) =>
+  (options.client ?? client).put<SetGithubTokenResponses, SetGithubTokenErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/github-token',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**

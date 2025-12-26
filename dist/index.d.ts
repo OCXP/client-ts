@@ -791,6 +791,10 @@ type DownloadRequest = {
      * Mode
      */
     mode?: string;
+    /**
+     * Path
+     */
+    path?: string | null;
 };
 /**
  * FindByTicketRequest
@@ -1091,6 +1095,27 @@ type MissionContextResponse = {
     };
 };
 /**
+ * MissionCreate
+ */
+type MissionCreate = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description?: string;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Goals
+     */
+    goals?: Array<string>;
+};
+/**
  * MissionCreateRequest
  */
 type MissionCreateRequest = {
@@ -1112,26 +1137,101 @@ type MissionCreateRequest = {
     goals?: Array<string> | null;
 };
 /**
- * MissionCreateResponse
+ * MissionListResponse
  *
- * Response for POST /tools/mission/create.
+ * Response for GET /ocxp/mission.
  */
-type MissionCreateResponse = {
+type MissionListResponse = {
+    /**
+     * Missions
+     */
+    missions: Array<MissionResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * MissionResponse
+ *
+ * Full mission response.
+ */
+type MissionResponse = {
     /**
      * Mission Id
      */
     mission_id: string;
     /**
-     * Path
+     * Workspace
      */
-    path: string;
-};
-/**
- * MissionUpdateRequest
- */
-type MissionUpdateRequest = {
+    workspace: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description?: string;
+    /**
+     * Context Path
+     */
+    context_path?: string | null;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
     /**
      * Status
+     *
+     * draft|active|completed|archived
+     */
+    status?: string;
+    /**
+     * Progress
+     */
+    progress?: number;
+    /**
+     * Goals
+     */
+    goals?: Array<string>;
+    /**
+     * Notes
+     */
+    notes?: string;
+    /**
+     * Session Ids
+     */
+    session_ids?: Array<string>;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    /**
+     * Created By
+     */
+    created_by?: string | null;
+};
+/**
+ * MissionUpdate
+ */
+type MissionUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Status
+     *
+     * draft|active|completed|archived
      */
     status?: string | null;
     /**
@@ -1142,25 +1242,6 @@ type MissionUpdateRequest = {
      * Notes
      */
     notes?: string | null;
-};
-/**
- * MissionUpdateResponse
- *
- * Response for POST /tools/mission/{id}/update.
- */
-type MissionUpdateResponse = {
-    /**
-     * Mission Id
-     */
-    mission_id: string;
-    /**
-     * Status
-     */
-    status?: string | null;
-    /**
-     * Progress
-     */
-    progress?: number | null;
 };
 /**
  * MoveRequest
@@ -1183,10 +1264,6 @@ type MoveRequest = {
  * ProjectCreate
  */
 type ProjectCreate = {
-    /**
-     * Project Id
-     */
-    project_id: string;
     /**
      * Name
      */
@@ -1233,6 +1310,10 @@ type ProjectResponse = {
      * Description
      */
     description: string;
+    /**
+     * Context Path
+     */
+    context_path?: string | null;
     /**
      * Linked Repos
      */
@@ -1319,36 +1400,36 @@ type RagRequest = {
 /**
  * RefreshRequest
  *
- * Token refresh request.
+ * Token refresh request - accepts both camelCase and snake_case.
  */
 type RefreshRequest = {
     /**
-     * Refresh Token
+     * Refreshtoken
      */
-    refresh_token: string;
+    refreshToken: string;
 };
 /**
  * RefreshResponse
  *
- * Token refresh response (no new refresh_token).
+ * Token refresh response with camelCase output (no new refresh_token).
  */
 type RefreshResponse = {
     /**
-     * Access Token
+     * Accesstoken
      */
-    access_token: string;
+    accessToken: string;
     /**
-     * Token Type
+     * Tokentype
      */
-    token_type?: string;
+    tokenType?: string;
     /**
-     * Expires In
+     * Expiresin
      */
-    expires_in?: number;
+    expiresIn?: number;
     /**
-     * Id Token
+     * Idtoken
      */
-    id_token: string;
+    idToken: string;
 };
 /**
  * RepoDeleteResponse
@@ -1466,6 +1547,24 @@ type RepoInfo = {
      * Last Synced
      */
     last_synced?: string | null;
+    /**
+     * Files Count
+     *
+     * Number of files indexed
+     */
+    files_count?: number;
+    /**
+     * Total Size Bytes
+     *
+     * Total storage size in bytes
+     */
+    total_size_bytes?: number;
+    /**
+     * S3 Path
+     *
+     * S3 storage location
+     */
+    s3_path?: string | null;
 };
 /**
  * RepoListResponse
@@ -1508,6 +1607,14 @@ type RepoStatusResponse = {
      * Repo Id
      */
     repo_id?: string | null;
+    /**
+     * Files Processed
+     */
+    files_processed?: number | null;
+    /**
+     * Total Files
+     */
+    total_files?: number | null;
 };
 /**
  * SessionForkResponse
@@ -1706,29 +1813,29 @@ type TicketDiscoverResponse = {
 /**
  * TokenResponse
  *
- * OAuth2 token response.
+ * OAuth2 token response with camelCase output for plugin compatibility.
  */
 type TokenResponse = {
     /**
-     * Access Token
+     * Accesstoken
      */
-    access_token: string;
+    accessToken: string;
     /**
-     * Token Type
+     * Tokentype
      */
-    token_type?: string;
+    tokenType?: string;
     /**
-     * Expires In
+     * Expiresin
      */
-    expires_in?: number;
+    expiresIn?: number;
     /**
-     * Id Token
+     * Idtoken
      */
-    id_token: string;
+    idToken: string;
     /**
-     * Refresh Token
+     * Refreshtoken
      */
-    refresh_token: string;
+    refreshToken: string;
 };
 /**
  * UserResponse
@@ -2117,10 +2224,6 @@ type CreateProjectData = {
 };
 type CreateProjectErrors = {
     /**
-     * Project with this ID already exists
-     */
-    409: unknown;
-    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -2453,6 +2556,65 @@ type RemoveMissionResponses = {
      * Mission removed successfully
      */
     200: ProjectResponse;
+};
+type CreateMissionData = {
+    body: MissionCreate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/mission';
+};
+type CreateMissionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type CreateMissionResponses = {
+    /**
+     * Mission created successfully
+     */
+    201: MissionResponse;
+};
+type UpdateMissionData = {
+    body: MissionUpdate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Mission Id
+         *
+         * Mission ID
+         */
+        mission_id: string;
+    };
+    query?: never;
+    url: '/ocxp/mission/{mission_id}';
+};
+type UpdateMissionErrors = {
+    /**
+     * Mission not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type UpdateMissionResponses = {
+    /**
+     * Mission updated successfully
+     */
+    200: MissionResponse;
 };
 type QueryKnowledgeBaseData = {
     body: KbQueryRequest;
@@ -2791,7 +2953,7 @@ type GetContentTypesData = {
          */
         counts?: boolean;
     };
-    url: '/ocxp/types';
+    url: '/ocxp/context/types';
 };
 type GetContentTypesErrors = {
     /**
@@ -2833,7 +2995,7 @@ type ListContentData = {
          */
         limit?: number;
     };
-    url: '/ocxp/{content_type}/list';
+    url: '/ocxp/context/{content_type}/list';
 };
 type ListContentErrors = {
     /**
@@ -2866,7 +3028,7 @@ type QueryContentData = {
         content_type: string;
     };
     query?: never;
-    url: '/ocxp/{content_type}/query';
+    url: '/ocxp/context/{content_type}/query';
 };
 type QueryContentErrors = {
     /**
@@ -2912,7 +3074,7 @@ type SearchContentData = {
          */
         limit?: number;
     };
-    url: '/ocxp/{content_type}/search';
+    url: '/ocxp/context/{content_type}/search';
 };
 type SearchContentErrors = {
     /**
@@ -2954,7 +3116,7 @@ type GetContentTreeData = {
          */
         depth?: number;
     };
-    url: '/ocxp/{content_type}/tree';
+    url: '/ocxp/context/{content_type}/tree';
 };
 type GetContentTreeErrors = {
     /**
@@ -2990,7 +3152,7 @@ type GetContentStatsData = {
          */
         path?: string | null;
     };
-    url: '/ocxp/{content_type}/stats';
+    url: '/ocxp/context/{content_type}/stats';
 };
 type GetContentStatsErrors = {
     /**
@@ -3036,7 +3198,7 @@ type DeleteContentData = {
          */
         confirm?: boolean;
     };
-    url: '/ocxp/{content_type}/{content_id}';
+    url: '/ocxp/context/{content_type}/{content_id}';
 };
 type DeleteContentErrors = {
     /**
@@ -3077,7 +3239,7 @@ type ReadContentData = {
         content_id: string;
     };
     query?: never;
-    url: '/ocxp/{content_type}/{content_id}';
+    url: '/ocxp/context/{content_type}/{content_id}';
 };
 type ReadContentErrors = {
     /**
@@ -3114,7 +3276,7 @@ type WriteContentData = {
         content_id: string;
     };
     query?: never;
-    url: '/ocxp/{content_type}/{content_id}';
+    url: '/ocxp/context/{content_type}/{content_id}';
 };
 type WriteContentErrors = {
     /**
@@ -3142,7 +3304,7 @@ type MoveContentData = {
     };
     path?: never;
     query?: never;
-    url: '/ocxp/move';
+    url: '/ocxp/context/move';
 };
 type MoveContentErrors = {
     /**
@@ -3174,7 +3336,7 @@ type LockContentData = {
     };
     path?: never;
     query?: never;
-    url: '/ocxp/lock';
+    url: '/ocxp/context/lock';
 };
 type LockContentErrors = {
     /**
@@ -3198,7 +3360,7 @@ type UnlockContentData = {
     };
     path?: never;
     query?: never;
-    url: '/ocxp/unlock';
+    url: '/ocxp/context/unlock';
 };
 type UnlockContentErrors = {
     /**
@@ -3211,63 +3373,6 @@ type UnlockContentResponses = {
      * Lock released
      */
     200: unknown;
-};
-type CreateMissionData = {
-    body: MissionCreateRequest;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path?: never;
-    query?: never;
-    url: '/tools/mission/create';
-};
-type CreateMissionErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type CreateMissionResponses = {
-    /**
-     * Mission created successfully
-     */
-    201: MissionCreateResponse;
-};
-type UpdateMissionData = {
-    body: MissionUpdateRequest;
-    headers?: {
-        /**
-         * X-Workspace
-         */
-        'X-Workspace'?: string;
-    };
-    path: {
-        /**
-         * Mission Id
-         */
-        mission_id: string;
-    };
-    query?: never;
-    url: '/tools/mission/{mission_id}/update';
-};
-type UpdateMissionErrors = {
-    /**
-     * Mission not found
-     */
-    404: unknown;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-type UpdateMissionResponses = {
-    /**
-     * Mission updated successfully
-     */
-    200: MissionUpdateResponse;
 };
 type GetMissionContextData = {
     body?: never;
@@ -3511,7 +3616,7 @@ declare const listProjects: <ThrowOnError extends boolean = false>(options?: Opt
 /**
  * Create a new project
  *
- * Creates a project with the given ID and name. Projects link repos, missions, and sessions for context scoping.
+ * Creates a project with auto-generated UUID. Projects link repos, missions, and sessions for context scoping.
  */
 declare const createProject: <ThrowOnError extends boolean = false>(options: Options<CreateProjectData, ThrowOnError>) => RequestResult<CreateProjectResponses, CreateProjectErrors, ThrowOnError, "fields">;
 /**
@@ -3568,6 +3673,18 @@ declare const addMission: <ThrowOnError extends boolean = false>(options: Option
  * Removes the mission association from the project. The mission itself is not deleted.
  */
 declare const removeMission: <ThrowOnError extends boolean = false>(options: Options<RemoveMissionData, ThrowOnError>) => RequestResult<RemoveMissionResponses, RemoveMissionErrors, ThrowOnError, "fields">;
+/**
+ * Create a new mission
+ *
+ * Creates a mission with auto-generated UUID and context folder.
+ */
+declare const createMission: <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => RequestResult<CreateMissionResponses, CreateMissionErrors, ThrowOnError, "fields">;
+/**
+ * Update mission
+ *
+ * Updates mission metadata. Only provided fields are updated.
+ */
+declare const updateMission: <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => RequestResult<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError, "fields">;
 /**
  * Query Knowledge Base
  *
@@ -3626,18 +3743,25 @@ declare const getSnapshotStatus: <ThrowOnError extends boolean = false>(options:
  * Github Check Access
  *
  * Check GitHub repository access.
+ *
+ * Uses the user's stored GitHub token for private repository access.
+ * Public repositories are accessible without a token.
  */
 declare const githubCheckAccess: <ThrowOnError extends boolean = false>(options: Options<GithubCheckAccessData, ThrowOnError>) => RequestResult<GithubCheckAccessResponses, GithubCheckAccessErrors, ThrowOnError, "fields">;
 /**
  * Github List Branches
  *
  * List repository branches.
+ *
+ * Uses the user's stored GitHub token for private repository access.
  */
 declare const githubListBranches: <ThrowOnError extends boolean = false>(options: Options<GithubListBranchesData, ThrowOnError>) => RequestResult<GithubListBranchesResponses, GithubListBranchesErrors, ThrowOnError, "fields">;
 /**
  * Github Get Contents
  *
  * Get repository contents.
+ *
+ * Uses the user's stored GitHub token for private repository access.
  */
 declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, GithubGetContentsErrors, ThrowOnError, "fields">;
 /**
@@ -3712,18 +3836,6 @@ declare const lockContent: <ThrowOnError extends boolean = false>(options: Optio
  * Releases an exclusive lock on content. Stub endpoint for SDK compatibility.
  */
 declare const unlockContent: <ThrowOnError extends boolean = false>(options: Options<UnlockContentData, ThrowOnError>) => RequestResult<UnlockContentResponses, UnlockContentErrors, ThrowOnError, "fields">;
-/**
- * Create a new mission
- *
- * Creates a mission with optional project association and goals list.
- */
-declare const createMission: <ThrowOnError extends boolean = false>(options: Options<CreateMissionData, ThrowOnError>) => RequestResult<CreateMissionResponses, CreateMissionErrors, ThrowOnError, "fields">;
-/**
- * Update mission status
- *
- * Updates mission status, progress percentage, and/or notes.
- */
-declare const updateMission: <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData, ThrowOnError>) => RequestResult<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError, "fields">;
 /**
  * Get mission context
  *
@@ -3907,18 +4019,9 @@ declare class OCXPClient {
         response: Response;
     }>;
     /**
-     * Get hierarchical tree structure
+     * Get hierarchical tree structure from S3 context
      */
-    tree(type: ContentTypeValue, path?: string, depth?: number): Promise<({
-        data: ContentTreeResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    tree(type: ContentTypeValue, path?: string, depth?: number): Promise<ContentTreeResponse>;
     /**
      * Get content statistics
      */
@@ -3996,31 +4099,43 @@ declare class OCXPClient {
      */
     kbRag(query: string, sessionId?: string): Promise<KbRagResponse>;
     /**
-     * Create a new mission
+     * List all missions in workspace
      */
-    createMission(name: string, description?: string, projectId?: string, goals?: string[]): Promise<({
-        data: MissionCreateResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    listMissions(options?: {
+        projectId?: string;
+        status?: string;
+        limit?: number;
+    }): Promise<MissionListResponse>;
     /**
-     * Update mission progress
+     * Create a new mission with auto-generated UUID
      */
-    updateMission(missionId: string, updates: Record<string, unknown>): Promise<({
-        data: MissionUpdateResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: unknown;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    createMission(title: string, description?: string, projectId?: string, goals?: string[]): Promise<MissionResponse>;
+    /**
+     * Get mission by ID
+     */
+    getMission(missionId: string): Promise<MissionResponse>;
+    /**
+     * Update mission
+     */
+    updateMission(missionId: string, updates: {
+        title?: string;
+        description?: string;
+        status?: string;
+        progress?: number;
+        notes?: string;
+    }): Promise<MissionResponse>;
+    /**
+     * Delete mission
+     */
+    deleteMission(missionId: string): Promise<void>;
+    /**
+     * Add session to mission
+     */
+    addMissionSession(missionId: string, sessionId: string): Promise<MissionResponse>;
+    /**
+     * Remove session from mission
+     */
+    removeMissionSession(missionId: string, sessionId: string): Promise<MissionResponse>;
     /**
      * Get mission context for agents
      */
@@ -4139,9 +4254,9 @@ declare class OCXPClient {
      */
     listProjects(limit?: number): Promise<ProjectListResponse>;
     /**
-     * Create a new project
+     * Create a new project with auto-generated UUID
      */
-    createProject(projectId: string, name: string, description?: string): Promise<ProjectResponse>;
+    createProject(name: string, description?: string): Promise<ProjectResponse>;
     /**
      * Get project by ID
      */
@@ -4249,6 +4364,30 @@ declare class OCXPClient {
      * @returns New access token (refresh token remains the same)
      */
     refreshToken(refreshToken: string): Promise<RefreshResponse>;
+    /**
+     * Set GitHub token for the authenticated user
+     * Stores the token server-side linked to the Cognito identity
+     * @param token - GitHub Personal Access Token
+     * @returns Success response
+     */
+    setGitHubToken(token: string): Promise<{
+        success: boolean;
+    }>;
+    /**
+     * Get GitHub token status for the authenticated user
+     * @returns Token status (configured or not)
+     */
+    getGitHubTokenStatus(): Promise<{
+        configured: boolean;
+        username?: string;
+    }>;
+    /**
+     * Delete GitHub token for the authenticated user
+     * @returns Success response
+     */
+    deleteGitHubToken(): Promise<{
+        success: boolean;
+    }>;
     private _mission?;
     private _project?;
     private _session?;
@@ -4282,49 +4421,53 @@ declare class MissionNamespace {
     constructor(client: OCXPClient);
     /**
      * List missions with optional filtering
-     * @example ocxp.mission.list({ status: 'pending', limit: 10 })
+     * @example ocxp.mission.list({ status: 'active', limit: 10 })
      */
     list(options?: {
+        projectId?: string;
         status?: string;
-        path?: string;
         limit?: number;
-    }): Promise<ListResult | (({
-        data: ContentListResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: unknown;
-    }) & {
-        request: Request;
-        response: Response;
-    })>;
+    }): Promise<MissionListResponse>;
     /**
      * Get a mission by ID
-     * @example ocxp.mission.get('CTX-123')
+     * @example ocxp.mission.get('uuid')
      */
-    get(id: string): Promise<ReadResult>;
+    get(missionId: string): Promise<MissionResponse>;
     /**
-     * Create a new mission
-     * @example ocxp.mission.create({ name: 'My Mission', description: 'Description' })
+     * Create a new mission with auto-generated UUID
+     * @example ocxp.mission.create({ title: 'My Mission', description: 'Description' })
      */
     create(data: {
-        name: string;
+        title: string;
         description?: string;
         projectId?: string;
         goals?: string[];
-    }): Promise<({
-        data: MissionCreateResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: HttpValidationError;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    }): Promise<MissionResponse>;
+    /**
+     * Update mission
+     */
+    update(missionId: string, updates: {
+        title?: string;
+        description?: string;
+        status?: string;
+        progress?: number;
+        notes?: string;
+    }): Promise<MissionResponse>;
+    /**
+     * Delete mission
+     */
+    delete(missionId: string): Promise<void>;
+    /**
+     * Add session to mission
+     */
+    addSession(missionId: string, sessionId: string): Promise<MissionResponse>;
+    /**
+     * Remove session from mission
+     */
+    removeSession(missionId: string, sessionId: string): Promise<MissionResponse>;
     /**
      * Get mission context for agents
-     * @example ocxp.mission.getContext('CTX-123')
+     * @example ocxp.mission.getContext('uuid')
      */
     getContext(missionId: string): Promise<({
         data: MissionContextResponse;
@@ -4337,18 +4480,10 @@ declare class MissionNamespace {
         response: Response;
     }>;
     /**
-     * Update mission progress
+     * Get mission content tree structure from S3
+     * @example ocxp.mission.tree('subfolder', 5)
      */
-    update(missionId: string, updates: Record<string, unknown>): Promise<({
-        data: MissionUpdateResponse;
-        error: undefined;
-    } | {
-        data: undefined;
-        error: unknown;
-    }) & {
-        request: Request;
-        response: Response;
-    }>;
+    tree(path?: string, depth?: number): Promise<ContentTreeResponse>;
 }
 /**
  * Project namespace for convenient project operations
@@ -4367,11 +4502,10 @@ declare class ProjectNamespace {
      */
     get(projectId: string): Promise<ProjectResponse>;
     /**
-     * Create a new project
-     * @example ocxp.project.create({ id: 'my-project', name: 'My Project' })
+     * Create a new project with auto-generated UUID
+     * @example ocxp.project.create({ name: 'My Project', description: 'Optional description' })
      */
     create(data: {
-        id: string;
         name: string;
         description?: string;
     }): Promise<ProjectResponse>;
@@ -4412,6 +4546,11 @@ declare class ProjectNamespace {
      * Remove a mission from a project
      */
     removeMission(projectId: string, missionId: string): Promise<ProjectResponse>;
+    /**
+     * Get project content tree structure from S3
+     * @example ocxp.project.tree('subfolder', 5)
+     */
+    tree(path?: string, depth?: number): Promise<ContentTreeResponse>;
 }
 /**
  * Session namespace for convenient session operations
