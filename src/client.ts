@@ -37,6 +37,13 @@ import type {
   TokenResponse,
   RefreshResponse,
   ContentTreeResponse,
+  // Database types
+  DatabaseCreate,
+  DatabaseUpdate,
+  DatabaseConfigResponse,
+  DatabaseListResponse,
+  DatabaseSchemaResponse,
+  DatabaseSampleResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -741,6 +748,125 @@ export class OCXPClient {
       headers,
     });
     return extractData(response) as RepoDeleteResponse;
+  }
+
+  // ============== Database Operations ==============
+
+  /**
+   * List all database configurations in workspace
+   */
+  async listDatabases(): Promise<DatabaseListResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listDatabases({
+      client: this.client,
+      headers,
+    });
+    return extractData(response) as DatabaseListResponse;
+  }
+
+  /**
+   * Create a new database configuration
+   */
+  async createDatabase(config: DatabaseCreate): Promise<DatabaseConfigResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.createDatabase({
+      client: this.client,
+      body: config,
+      headers,
+    });
+    return extractData(response) as DatabaseConfigResponse;
+  }
+
+  /**
+   * Get database configuration by ID
+   */
+  async getDatabase(databaseId: string): Promise<DatabaseConfigResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getDatabase({
+      client: this.client,
+      path: { database_id: databaseId },
+      headers,
+    });
+    return extractData(response) as DatabaseConfigResponse;
+  }
+
+  /**
+   * Update database configuration
+   */
+  async updateDatabase(databaseId: string, updates: DatabaseUpdate): Promise<DatabaseConfigResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.updateDatabase({
+      client: this.client,
+      path: { database_id: databaseId },
+      body: updates,
+      headers,
+    });
+    return extractData(response) as DatabaseConfigResponse;
+  }
+
+  /**
+   * Delete database configuration
+   */
+  async deleteDatabase(databaseId: string): Promise<void> {
+    const headers = await this.getHeaders();
+    await sdk.deleteDatabase({
+      client: this.client,
+      path: { database_id: databaseId },
+      headers,
+    });
+  }
+
+  /**
+   * Test database connection
+   */
+  async testDatabaseConnection(databaseId: string): Promise<{ success: boolean; message: string; latency_ms?: number }> {
+    const headers = await this.getHeaders();
+    const response = await sdk.testDatabaseConnection({
+      client: this.client,
+      path: { database_id: databaseId },
+      headers,
+    });
+    return extractData(response) as { success: boolean; message: string; latency_ms?: number };
+  }
+
+  /**
+   * Get database schema (tables and columns)
+   */
+  async getDatabaseSchema(databaseId?: string): Promise<DatabaseSchemaResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getSchema({
+      client: this.client,
+      query: { database_id: databaseId },
+      headers,
+    });
+    return extractData(response) as DatabaseSchemaResponse;
+  }
+
+  /**
+   * Get sample data from a table
+   */
+  async getDatabaseSample(tableName: string, databaseId?: string, limit?: number): Promise<DatabaseSampleResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getSample({
+      client: this.client,
+      path: { table_name: tableName },
+      query: { database_id: databaseId, limit },
+      headers,
+    });
+    return extractData(response) as DatabaseSampleResponse;
+  }
+
+  /**
+   * List all tables in database
+   */
+  async listDatabaseTables(databaseId?: string): Promise<{ tables: string[] }> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listTables({
+      client: this.client,
+      query: { database_id: databaseId },
+      headers,
+    });
+    return extractData(response) as { tables: string[] };
   }
 
   // ============== Project Operations ==============

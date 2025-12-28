@@ -311,6 +311,29 @@ type Options$1<TData extends TDataShape = TDataShape, ThrowOnError extends boole
 declare const createClient: (config?: Config) => Client;
 
 /**
+ * AddDatabaseRequest
+ */
+type AddDatabaseRequest = {
+    /**
+     * Database Id
+     *
+     * Database config ID (UUID or 'amc-default')
+     */
+    database_id: string;
+    /**
+     * Priority
+     *
+     * Priority weight for database selection
+     */
+    priority?: number;
+    /**
+     * Auto Include
+     *
+     * Automatically include in agent context
+     */
+    auto_include?: boolean;
+};
+/**
  * AddMissionRequest
  */
 type AddMissionRequest = {
@@ -712,6 +735,10 @@ type ContentWriteResponse = {
      */
     path: string;
     /**
+     * Type
+     */
+    type?: string;
+    /**
      * Size
      */
     size?: number | null;
@@ -719,6 +746,250 @@ type ContentWriteResponse = {
      * Etag
      */
     etag?: string | null;
+};
+/**
+ * DatabaseConfigResponse
+ *
+ * Full database configuration response.
+ */
+type DatabaseConfigResponse = {
+    /**
+     * Database Id
+     */
+    database_id: string;
+    /**
+     * Workspace
+     */
+    workspace: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string;
+    /**
+     * Db Type
+     *
+     * postgres|postgres_lambda|mysql|mariadb
+     */
+    db_type: string;
+    /**
+     * Lambda Function Name
+     */
+    lambda_function_name?: string | null;
+    /**
+     * Lambda Region
+     */
+    lambda_region?: string;
+    /**
+     * Host
+     */
+    host?: string | null;
+    /**
+     * Port
+     */
+    port?: number | null;
+    /**
+     * Database Name
+     */
+    database_name?: string | null;
+    /**
+     * Allowed Tables
+     */
+    allowed_tables?: Array<string>;
+    /**
+     * Read Only
+     */
+    read_only?: boolean;
+    /**
+     * Max Rows
+     */
+    max_rows?: number;
+    /**
+     * Status
+     *
+     * active|inactive|error
+     */
+    status?: string;
+    /**
+     * Last Used
+     */
+    last_used?: string | null;
+    /**
+     * Error Message
+     */
+    error_message?: string | null;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+};
+/**
+ * DatabaseCreate
+ *
+ * Request body for creating a database config.
+ */
+type DatabaseCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string;
+    /**
+     * Db Type
+     *
+     * postgres|postgres_lambda|supabase|mysql|mariadb
+     */
+    db_type?: string;
+    /**
+     * Lambda Function Name
+     *
+     * Lambda function name for postgres_lambda type
+     */
+    lambda_function_name?: string | null;
+    /**
+     * Lambda Region
+     */
+    lambda_region?: string;
+    /**
+     * Secret Arn
+     *
+     * AWS Secrets Manager ARN for credentials
+     */
+    secret_arn?: string | null;
+    /**
+     * Allowed Tables
+     */
+    allowed_tables?: Array<string>;
+    /**
+     * Read Only
+     */
+    read_only?: boolean;
+    /**
+     * Max Rows
+     */
+    max_rows?: number;
+};
+/**
+ * DatabaseListResponse
+ *
+ * Response for GET /ocxp/database.
+ */
+type DatabaseListResponse = {
+    /**
+     * Databases
+     */
+    databases: Array<DatabaseConfigResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * DatabaseSampleResponse
+ *
+ * Response for GET /ocxp/context/database/sample/{table}.
+ */
+type DatabaseSampleResponse = {
+    /**
+     * Table Name
+     */
+    table_name: string;
+    /**
+     * Rows
+     */
+    rows?: Array<{
+        [key: string]: unknown;
+    }>;
+    /**
+     * Columns
+     */
+    columns?: Array<string>;
+    /**
+     * Row Count
+     */
+    row_count?: number;
+    /**
+     * Database Id
+     */
+    database_id?: string | null;
+};
+/**
+ * DatabaseSchemaResponse
+ *
+ * Response for GET /ocxp/context/database/schema.
+ */
+type DatabaseSchemaResponse = {
+    /**
+     * Tables
+     */
+    tables?: Array<{
+        [key: string]: unknown;
+    }>;
+    /**
+     * Table Count
+     */
+    table_count?: number;
+    /**
+     * Database Id
+     */
+    database_id?: string | null;
+};
+/**
+ * DatabaseUpdate
+ *
+ * Request body for updating a database config.
+ */
+type DatabaseUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Lambda Function Name
+     */
+    lambda_function_name?: string | null;
+    /**
+     * Lambda Region
+     */
+    lambda_region?: string | null;
+    /**
+     * Secret Arn
+     *
+     * AWS Secrets Manager ARN for credentials
+     */
+    secret_arn?: string | null;
+    /**
+     * Allowed Tables
+     */
+    allowed_tables?: Array<string> | null;
+    /**
+     * Read Only
+     */
+    read_only?: boolean | null;
+    /**
+     * Max Rows
+     */
+    max_rows?: number | null;
+    /**
+     * Status
+     *
+     * active|inactive|error
+     */
+    status?: string | null;
 };
 /**
  * DiscoverRequest
@@ -1740,6 +2011,17 @@ type SessionResponse = {
     fork_depth?: number;
 };
 /**
+ * SetDefaultDatabaseRequest
+ */
+type SetDefaultDatabaseRequest = {
+    /**
+     * Database Id
+     *
+     * Database ID to set as default (None to clear)
+     */
+    database_id?: string | null;
+};
+/**
  * SetDefaultRepoRequest
  */
 type SetDefaultRepoRequest = {
@@ -1919,6 +2201,18 @@ type WriteRequest = {
      * Ifnotexists
      */
     ifNotExists?: boolean;
+    /**
+     * Manage Metadata
+     */
+    manage_metadata?: boolean;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Mission Id
+     */
+    mission_id?: string | null;
 };
 type BulkReadContentData = {
     body: BulkReadRequest;
@@ -2557,6 +2851,150 @@ type RemoveMissionResponses = {
      */
     200: ProjectResponse;
 };
+type GetProjectDatabasesData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/databases';
+};
+type GetProjectDatabasesErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetProjectDatabasesResponses = {
+    /**
+     * Database list returned
+     */
+    200: unknown;
+};
+type AddDatabaseData = {
+    body: AddDatabaseRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/databases';
+};
+type AddDatabaseErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type AddDatabaseResponses = {
+    /**
+     * Database linked successfully
+     */
+    200: ProjectResponse;
+};
+type RemoveDatabaseData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Database Id
+         */
+        database_id: string;
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/databases/{database_id}';
+};
+type RemoveDatabaseErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type RemoveDatabaseResponses = {
+    /**
+     * Database unlinked successfully
+     */
+    200: ProjectResponse;
+};
+type SetDefaultDatabaseData = {
+    body: SetDefaultDatabaseRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Project Id
+         *
+         * Project ID
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/ocxp/project/{project_id}/default-database';
+};
+type SetDefaultDatabaseErrors = {
+    /**
+     * Project not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type SetDefaultDatabaseResponses = {
+    /**
+     * Default database set successfully
+     */
+    200: ProjectResponse;
+};
 type CreateMissionData = {
     body: MissionCreate;
     headers?: {
@@ -2936,6 +3374,343 @@ type GithubGetContentsResponses = {
      */
     200: unknown;
 };
+type ListDatabasesData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Limit
+         *
+         * Maximum number of databases to return
+         */
+        limit?: number;
+    };
+    url: '/ocxp/database';
+};
+type ListDatabasesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListDatabasesResponses = {
+    /**
+     * List of databases returned successfully
+     */
+    200: DatabaseListResponse;
+};
+type CreateDatabaseData = {
+    body: DatabaseCreate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/database';
+};
+type CreateDatabaseErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type CreateDatabaseResponses = {
+    /**
+     * Database created successfully
+     */
+    201: DatabaseConfigResponse;
+};
+type DeleteDatabaseData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Database Id
+         */
+        database_id: string;
+    };
+    query?: never;
+    url: '/ocxp/database/{database_id}';
+};
+type DeleteDatabaseErrors = {
+    /**
+     * Database not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DeleteDatabaseResponses = {
+    /**
+     * Database deleted successfully
+     */
+    200: unknown;
+};
+type GetDatabaseData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Database Id
+         */
+        database_id: string;
+    };
+    query?: never;
+    url: '/ocxp/database/{database_id}';
+};
+type GetDatabaseErrors = {
+    /**
+     * Database not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetDatabaseResponses = {
+    /**
+     * Database found and returned
+     */
+    200: DatabaseConfigResponse;
+};
+type UpdateDatabaseData = {
+    body: DatabaseUpdate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Database Id
+         */
+        database_id: string;
+    };
+    query?: never;
+    url: '/ocxp/database/{database_id}';
+};
+type UpdateDatabaseErrors = {
+    /**
+     * Database not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type UpdateDatabaseResponses = {
+    /**
+     * Database updated successfully
+     */
+    200: DatabaseConfigResponse;
+};
+type TestDatabaseConnectionData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Database Id
+         */
+        database_id: string;
+    };
+    query?: never;
+    url: '/ocxp/database/{database_id}/test';
+};
+type TestDatabaseConnectionErrors = {
+    /**
+     * Database not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type TestDatabaseConnectionResponses = {
+    /**
+     * Connection test completed
+     */
+    200: unknown;
+};
+type GetSchemaData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Pattern
+         *
+         * Filter tables by name pattern
+         */
+        pattern?: string | null;
+        /**
+         * Database Id
+         *
+         * Database ID (default: amc-default)
+         */
+        database_id?: string | null;
+    };
+    url: '/ocxp/context/database/schema';
+};
+type GetSchemaErrors = {
+    /**
+     * Database not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetSchemaResponses = {
+    /**
+     * Schema returned successfully
+     */
+    200: DatabaseSchemaResponse;
+};
+type GetSampleData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Table Name
+         */
+        table_name: string;
+    };
+    query?: {
+        /**
+         * Limit
+         *
+         * Number of sample rows
+         */
+        limit?: number;
+        /**
+         * Database Id
+         *
+         * Database ID (default: amc-default)
+         */
+        database_id?: string | null;
+    };
+    url: '/ocxp/context/database/sample/{table_name}';
+};
+type GetSampleErrors = {
+    /**
+     * Invalid table name
+     */
+    400: unknown;
+    /**
+     * Database or table not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetSampleResponses = {
+    /**
+     * Sample data returned successfully
+     */
+    200: DatabaseSampleResponse;
+};
+type ListTablesData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Database Id
+         *
+         * Database ID (default: amc-default)
+         */
+        database_id?: string | null;
+    };
+    url: '/ocxp/context/database/tables';
+};
+type ListTablesErrors = {
+    /**
+     * Database not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListTablesResponses = {
+    /**
+     * Table list returned successfully
+     */
+    200: unknown;
+};
+type ListDatabases2Data = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/context/database/databases';
+};
+type ListDatabases2Errors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListDatabases2Responses = {
+    /**
+     * Database list returned successfully
+     */
+    200: unknown;
+};
 type GetContentTypesData = {
     body?: never;
     headers?: {
@@ -3197,6 +3972,12 @@ type DeleteContentData = {
          * Confirm recursive deletion
          */
         confirm?: boolean;
+        /**
+         * Manage Metadata
+         *
+         * Also delete .metadata.json sidecars
+         */
+        manage_metadata?: boolean;
     };
     url: '/ocxp/context/{content_type}/{content_id}';
 };
@@ -3674,6 +4455,30 @@ declare const addMission: <ThrowOnError extends boolean = false>(options: Option
  */
 declare const removeMission: <ThrowOnError extends boolean = false>(options: Options<RemoveMissionData, ThrowOnError>) => RequestResult<RemoveMissionResponses, RemoveMissionErrors, ThrowOnError, "fields">;
 /**
+ * Get project databases
+ *
+ * Returns all databases linked to the project.
+ */
+declare const getProjectDatabases: <ThrowOnError extends boolean = false>(options: Options<GetProjectDatabasesData, ThrowOnError>) => RequestResult<GetProjectDatabasesResponses, GetProjectDatabasesErrors, ThrowOnError, "fields">;
+/**
+ * Link database to project
+ *
+ * Links a database configuration to the project for agent context.
+ */
+declare const addDatabase: <ThrowOnError extends boolean = false>(options: Options<AddDatabaseData, ThrowOnError>) => RequestResult<AddDatabaseResponses, AddDatabaseErrors, ThrowOnError, "fields">;
+/**
+ * Unlink database from project
+ *
+ * Removes a database link from the project. The database config is not deleted.
+ */
+declare const removeDatabase: <ThrowOnError extends boolean = false>(options: Options<RemoveDatabaseData, ThrowOnError>) => RequestResult<RemoveDatabaseResponses, RemoveDatabaseErrors, ThrowOnError, "fields">;
+/**
+ * Set default database
+ *
+ * Sets the default database for the project. Used when no specific database_id is provided.
+ */
+declare const setDefaultDatabase: <ThrowOnError extends boolean = false>(options: Options<SetDefaultDatabaseData, ThrowOnError>) => RequestResult<SetDefaultDatabaseResponses, SetDefaultDatabaseErrors, ThrowOnError, "fields">;
+/**
  * Create a new mission
  *
  * Creates a mission with auto-generated UUID and context folder.
@@ -3764,6 +4569,66 @@ declare const githubListBranches: <ThrowOnError extends boolean = false>(options
  * Uses the user's stored GitHub token for private repository access.
  */
 declare const githubGetContents: <ThrowOnError extends boolean = false>(options: Options<GithubGetContentsData, ThrowOnError>) => RequestResult<GithubGetContentsResponses, GithubGetContentsErrors, ThrowOnError, "fields">;
+/**
+ * List all database configurations
+ *
+ * Returns all database configurations in the workspace.
+ */
+declare const listDatabases: <ThrowOnError extends boolean = false>(options?: Options<ListDatabasesData, ThrowOnError>) => RequestResult<ListDatabasesResponses, ListDatabasesErrors, ThrowOnError, "fields">;
+/**
+ * Create a new database configuration
+ *
+ * Creates a database configuration with auto-generated UUID. Use postgres_lambda for Lambda-proxied connections.
+ */
+declare const createDatabase: <ThrowOnError extends boolean = false>(options: Options<CreateDatabaseData, ThrowOnError>) => RequestResult<CreateDatabaseResponses, CreateDatabaseErrors, ThrowOnError, "fields">;
+/**
+ * Delete database configuration
+ *
+ * Permanently deletes a database configuration.
+ */
+declare const deleteDatabase: <ThrowOnError extends boolean = false>(options: Options<DeleteDatabaseData, ThrowOnError>) => RequestResult<DeleteDatabaseResponses, DeleteDatabaseErrors, ThrowOnError, "fields">;
+/**
+ * Get database configuration details
+ *
+ * Returns full database configuration including connection settings and allowed tables.
+ */
+declare const getDatabase: <ThrowOnError extends boolean = false>(options: Options<GetDatabaseData, ThrowOnError>) => RequestResult<GetDatabaseResponses, GetDatabaseErrors, ThrowOnError, "fields">;
+/**
+ * Update database configuration
+ *
+ * Updates database configuration. Only provided fields are updated.
+ */
+declare const updateDatabase: <ThrowOnError extends boolean = false>(options: Options<UpdateDatabaseData, ThrowOnError>) => RequestResult<UpdateDatabaseResponses, UpdateDatabaseErrors, ThrowOnError, "fields">;
+/**
+ * Test database connection
+ *
+ * Tests the database connection and returns status.
+ */
+declare const testDatabaseConnection: <ThrowOnError extends boolean = false>(options: Options<TestDatabaseConnectionData, ThrowOnError>) => RequestResult<TestDatabaseConnectionResponses, TestDatabaseConnectionErrors, ThrowOnError, "fields">;
+/**
+ * Get database schema
+ *
+ * Returns database schema information including tables and their metadata.
+ */
+declare const getSchema: <ThrowOnError extends boolean = false>(options?: Options<GetSchemaData, ThrowOnError>) => RequestResult<GetSchemaResponses, GetSchemaErrors, ThrowOnError, "fields">;
+/**
+ * Get sample data from table
+ *
+ * Returns sample rows from a specified table.
+ */
+declare const getSample: <ThrowOnError extends boolean = false>(options: Options<GetSampleData, ThrowOnError>) => RequestResult<GetSampleResponses, GetSampleErrors, ThrowOnError, "fields">;
+/**
+ * List available tables
+ *
+ * Returns list of tables available in the database.
+ */
+declare const listTables: <ThrowOnError extends boolean = false>(options?: Options<ListTablesData, ThrowOnError>) => RequestResult<ListTablesResponses, ListTablesErrors, ThrowOnError, "fields">;
+/**
+ * List configured databases
+ *
+ * Returns list of database configurations available in the workspace.
+ */
+declare const listDatabases2: <ThrowOnError extends boolean = false>(options?: Options<ListDatabases2Data, ThrowOnError>) => RequestResult<ListDatabases2Responses, ListDatabases2Errors, ThrowOnError, "fields">;
 /**
  * Get content types
  *
@@ -4249,6 +5114,48 @@ declare class OCXPClient {
      * Delete a downloaded repository by its UUID
      */
     deleteRepo(id: string): Promise<RepoDeleteResponse>;
+    /**
+     * List all database configurations in workspace
+     */
+    listDatabases(): Promise<DatabaseListResponse>;
+    /**
+     * Create a new database configuration
+     */
+    createDatabase(config: DatabaseCreate): Promise<DatabaseConfigResponse>;
+    /**
+     * Get database configuration by ID
+     */
+    getDatabase(databaseId: string): Promise<DatabaseConfigResponse>;
+    /**
+     * Update database configuration
+     */
+    updateDatabase(databaseId: string, updates: DatabaseUpdate): Promise<DatabaseConfigResponse>;
+    /**
+     * Delete database configuration
+     */
+    deleteDatabase(databaseId: string): Promise<void>;
+    /**
+     * Test database connection
+     */
+    testDatabaseConnection(databaseId: string): Promise<{
+        success: boolean;
+        message: string;
+        latency_ms?: number;
+    }>;
+    /**
+     * Get database schema (tables and columns)
+     */
+    getDatabaseSchema(databaseId?: string): Promise<DatabaseSchemaResponse>;
+    /**
+     * Get sample data from a table
+     */
+    getDatabaseSample(tableName: string, databaseId?: string, limit?: number): Promise<DatabaseSampleResponse>;
+    /**
+     * List all tables in database
+     */
+    listDatabaseTables(databaseId?: string): Promise<{
+        tables: string[];
+    }>;
     /**
      * List all projects in workspace
      */
@@ -7804,4 +8711,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateSnapshotData, type CreateSnapshotResponses, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetSnapshotStatusData, type GetSnapshotStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDocsData, type ListDocsResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SnapshotRequest, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TokenProvider, type TokenResponse, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getMissionContext, getProject, getRepoDownloadStatus, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDocs, listDownloadedRepos, listProjects, listSessions, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultRepo, unlockContent, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMissionData, type CreateMissionResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateSnapshotData, type CreateSnapshotResponses, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoverRequest, type DiscoverSimilarData, type DiscoverSimilarResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type FindByTicketData, type FindByTicketResponses, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetSnapshotStatusData, type GetSnapshotStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDocsData, type ListDocsResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SnapshotRequest, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateMissionData, type UpdateMissionResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteDatabase, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDatabases, listDatabases2, listDocs, listDownloadedRepos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, removeDatabase, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, unlockContent, updateDatabase, updateMission, updateProject, updateSessionMetadata, writeContent };

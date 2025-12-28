@@ -8,6 +8,9 @@ import {
 } from './client';
 import { client } from './client.gen';
 import type {
+  AddDatabaseData,
+  AddDatabaseErrors,
+  AddDatabaseResponses,
   AddLinkedRepoData,
   AddLinkedRepoErrors,
   AddLinkedRepoResponses,
@@ -29,6 +32,12 @@ import type {
   BulkWriteContentData,
   BulkWriteContentErrors,
   BulkWriteContentResponses,
+  CreateDatabaseData,
+  CreateDatabaseErrors,
+  CreateDatabaseResponses,
+  CreateFolderData,
+  CreateFolderErrors,
+  CreateFolderResponses,
   CreateMission2Data,
   CreateMission2Errors,
   CreateMission2Responses,
@@ -38,12 +47,18 @@ import type {
   CreateProjectData,
   CreateProjectErrors,
   CreateProjectResponses,
+  CreateSessionData,
+  CreateSessionErrors,
+  CreateSessionResponses,
   CreateSnapshotData,
   CreateSnapshotErrors,
   CreateSnapshotResponses,
   DeleteContentData,
   DeleteContentErrors,
   DeleteContentResponses,
+  DeleteDatabaseData,
+  DeleteDatabaseErrors,
+  DeleteDatabaseResponses,
   DeleteGithubTokenData,
   DeleteGithubTokenResponses,
   DeleteMissionData,
@@ -83,6 +98,9 @@ import type {
   GetContextReposResponses,
   GetCurrentUserData,
   GetCurrentUserResponses,
+  GetDatabaseData,
+  GetDatabaseErrors,
+  GetDatabaseResponses,
   GetGithubTokenStatusData,
   GetGithubTokenStatusResponses,
   GetMissionContextData,
@@ -92,11 +110,20 @@ import type {
   GetMissionErrors,
   GetMissionResponses,
   GetProjectData,
+  GetProjectDatabasesData,
+  GetProjectDatabasesErrors,
+  GetProjectDatabasesResponses,
   GetProjectErrors,
   GetProjectResponses,
   GetRepoDownloadStatusData,
   GetRepoDownloadStatusErrors,
   GetRepoDownloadStatusResponses,
+  GetSampleData,
+  GetSampleErrors,
+  GetSampleResponses,
+  GetSchemaData,
+  GetSchemaErrors,
+  GetSchemaResponses,
   GetSessionMessagesData,
   GetSessionMessagesErrors,
   GetSessionMessagesResponses,
@@ -117,6 +144,15 @@ import type {
   ListContentData,
   ListContentErrors,
   ListContentResponses,
+  ListDatabases2Data,
+  ListDatabases2Errors,
+  ListDatabases2Responses,
+  ListDatabasesAliasData,
+  ListDatabasesAliasErrors,
+  ListDatabasesAliasResponses,
+  ListDatabasesData,
+  ListDatabasesErrors,
+  ListDatabasesResponses,
   ListDocsData,
   ListDocsErrors,
   ListDocsResponses,
@@ -135,6 +171,9 @@ import type {
   ListSessionsData,
   ListSessionsErrors,
   ListSessionsResponses,
+  ListTablesData,
+  ListTablesErrors,
+  ListTablesResponses,
   ListWorkspacesData,
   ListWorkspacesResponses,
   LockContentData,
@@ -164,6 +203,9 @@ import type {
   RefreshTokensData,
   RefreshTokensErrors,
   RefreshTokensResponses,
+  RemoveDatabaseData,
+  RemoveDatabaseErrors,
+  RemoveDatabaseResponses,
   RemoveLinkedRepoData,
   RemoveLinkedRepoErrors,
   RemoveLinkedRepoResponses,
@@ -176,15 +218,24 @@ import type {
   SearchContentData,
   SearchContentErrors,
   SearchContentResponses,
+  SetDefaultDatabaseData,
+  SetDefaultDatabaseErrors,
+  SetDefaultDatabaseResponses,
   SetDefaultRepoData,
   SetDefaultRepoErrors,
   SetDefaultRepoResponses,
   SetGithubTokenData,
   SetGithubTokenErrors,
   SetGithubTokenResponses,
+  TestDatabaseConnectionData,
+  TestDatabaseConnectionErrors,
+  TestDatabaseConnectionResponses,
   UnlockContentData,
   UnlockContentErrors,
   UnlockContentResponses,
+  UpdateDatabaseData,
+  UpdateDatabaseErrors,
+  UpdateDatabaseResponses,
   UpdateMission2Data,
   UpdateMission2Errors,
   UpdateMission2Responses,
@@ -289,6 +340,24 @@ export const listSessions = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/session',
     ...options,
+  });
+
+/**
+ * Create session
+ *
+ * Creates a new session linked to a mission in DynamoDB. Used by Brain to establish session-mission relationship.
+ */
+export const createSession = <ThrowOnError extends boolean = false>(
+  options: Options<CreateSessionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateSessionResponses, CreateSessionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/session',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**
@@ -557,6 +626,78 @@ export const removeMission = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/project/{project_id}/missions/{mission_id}',
     ...options,
+  });
+
+/**
+ * Get project databases
+ *
+ * Returns all databases linked to the project.
+ */
+export const getProjectDatabases = <ThrowOnError extends boolean = false>(
+  options: Options<GetProjectDatabasesData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetProjectDatabasesResponses,
+    GetProjectDatabasesErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/databases',
+    ...options,
+  });
+
+/**
+ * Link database to project
+ *
+ * Links a database configuration to the project for agent context.
+ */
+export const addDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<AddDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).post<AddDatabaseResponses, AddDatabaseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/databases',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Unlink database from project
+ *
+ * Removes a database link from the project. The database config is not deleted.
+ */
+export const removeDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<RemoveDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<RemoveDatabaseResponses, RemoveDatabaseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/databases/{database_id}',
+    ...options,
+  });
+
+/**
+ * Set default database
+ *
+ * Sets the default database for the project. Used when no specific database_id is provided.
+ */
+export const setDefaultDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<SetDefaultDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).put<
+    SetDefaultDatabaseResponses,
+    SetDefaultDatabaseErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/default-database',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**
@@ -903,6 +1044,176 @@ export const githubGetContents = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * List all database configurations
+ *
+ * Returns all database configurations in the workspace.
+ */
+export const listDatabases = <ThrowOnError extends boolean = false>(
+  options?: Options<ListDatabasesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListDatabasesResponses, ListDatabasesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database',
+    ...options,
+  });
+
+/**
+ * Create a new database configuration
+ *
+ * Creates a database configuration with auto-generated UUID. Use postgres_lambda for Lambda-proxied connections.
+ */
+export const createDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<CreateDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateDatabaseResponses, CreateDatabaseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all database configurations (alias)
+ *
+ * Alias for GET /ocxp/database. Returns all databases in the workspace.
+ */
+export const listDatabasesAlias = <ThrowOnError extends boolean = false>(
+  options?: Options<ListDatabasesAliasData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListDatabasesAliasResponses,
+    ListDatabasesAliasErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database/list',
+    ...options,
+  });
+
+/**
+ * Delete database configuration
+ *
+ * Permanently deletes a database configuration.
+ */
+export const deleteDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteDatabaseResponses, DeleteDatabaseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database/{database_id}',
+    ...options,
+  });
+
+/**
+ * Get database configuration details
+ *
+ * Returns full database configuration including connection settings and allowed tables.
+ */
+export const getDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<GetDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetDatabaseResponses, GetDatabaseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database/{database_id}',
+    ...options,
+  });
+
+/**
+ * Update database configuration
+ *
+ * Updates database configuration. Only provided fields are updated.
+ */
+export const updateDatabase = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateDatabaseData, ThrowOnError>
+) =>
+  (options.client ?? client).put<UpdateDatabaseResponses, UpdateDatabaseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database/{database_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Test database connection
+ *
+ * Tests the database connection and returns status.
+ */
+export const testDatabaseConnection = <ThrowOnError extends boolean = false>(
+  options: Options<TestDatabaseConnectionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    TestDatabaseConnectionResponses,
+    TestDatabaseConnectionErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/database/{database_id}/test',
+    ...options,
+  });
+
+/**
+ * Get database schema
+ *
+ * Returns database schema information including tables and their metadata.
+ */
+export const getSchema = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSchemaData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetSchemaResponses, GetSchemaErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/database/schema',
+    ...options,
+  });
+
+/**
+ * Get sample data from table
+ *
+ * Returns sample rows from a specified table.
+ */
+export const getSample = <ThrowOnError extends boolean = false>(
+  options: Options<GetSampleData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetSampleResponses, GetSampleErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/database/sample/{table_name}',
+    ...options,
+  });
+
+/**
+ * List available tables
+ *
+ * Returns list of tables available in the database.
+ */
+export const listTables = <ThrowOnError extends boolean = false>(
+  options?: Options<ListTablesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListTablesResponses, ListTablesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/database/tables',
+    ...options,
+  });
+
+/**
+ * List configured databases
+ *
+ * Returns list of database configurations available in the workspace.
+ */
+export const listDatabases2 = <ThrowOnError extends boolean = false>(
+  options?: Options<ListDatabases2Data, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListDatabases2Responses, ListDatabases2Errors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/database/databases',
+    ...options,
+  });
+
+/**
  * Get content types
  *
  * Returns all available content types (mission, context, repo, etc.) with optional item counts.
@@ -1029,6 +1340,24 @@ export const writeContent = <ThrowOnError extends boolean = false>(
   (options.client ?? client).post<WriteContentResponses, WriteContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/{content_type}/{content_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create folder
+ *
+ * Creates a folder with metadata.json for Bedrock KB indexing. The metadata.json serves as a folder marker (S3 doesn't have real folders) and provides KB-filterable attributes.
+ */
+export const createFolder = <ThrowOnError extends boolean = false>(
+  options: Options<CreateFolderData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateFolderResponses, CreateFolderErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/{content_type}/folder/{folder_path}',
     ...options,
     headers: {
       'Content-Type': 'application/json',

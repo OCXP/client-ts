@@ -92,6 +92,24 @@ export {
   getContextRepos,
   addMission,
   removeMission,
+  addDatabase,
+  removeDatabase,
+  setDefaultDatabase,
+  getProjectDatabases,
+
+  // Database Management
+  listDatabases,
+  createDatabase,
+  getDatabase,
+  updateDatabase,
+  deleteDatabase,
+  testDatabaseConnection,
+
+  // Database Context
+  getSchema,
+  getSample,
+  listTables,
+  listDatabases2,
 
   // Sessions
   listSessions,
@@ -250,6 +268,44 @@ export type {
   AddMissionResponses,
   RemoveMissionData,
   RemoveMissionResponses,
+  AddDatabaseData,
+  AddDatabaseResponses,
+  RemoveDatabaseData,
+  RemoveDatabaseResponses,
+  SetDefaultDatabaseData,
+  SetDefaultDatabaseResponses,
+  GetProjectDatabasesData,
+  GetProjectDatabasesResponses,
+
+  // Database Management
+  ListDatabasesData,
+  ListDatabasesResponses,
+  CreateDatabaseData,
+  CreateDatabaseResponses,
+  GetDatabaseData,
+  GetDatabaseResponses,
+  UpdateDatabaseData,
+  UpdateDatabaseResponses,
+  DeleteDatabaseData,
+  DeleteDatabaseResponses,
+  TestDatabaseConnectionData,
+  TestDatabaseConnectionResponses,
+
+  // Database Context
+  GetSchemaData,
+  GetSchemaResponses,
+  GetSampleData,
+  GetSampleResponses,
+  ListTablesData,
+  ListTablesResponses,
+
+  // Database Types
+  DatabaseCreate,
+  DatabaseUpdate,
+  DatabaseConfigResponse,
+  DatabaseListResponse,
+  DatabaseSchemaResponse,
+  DatabaseSampleResponse,
 
   // Sessions
   ListSessionsData,

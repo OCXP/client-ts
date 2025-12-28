@@ -813,7 +813,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig());
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -951,6 +955,34 @@ var removeMission = (options) => (options.client ?? client).delete({
   url: "/ocxp/project/{project_id}/missions/{mission_id}",
   ...options
 });
+var getProjectDatabases = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/databases",
+  ...options
+});
+var addDatabase = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/databases",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var removeDatabase = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/databases/{database_id}",
+  ...options
+});
+var setDefaultDatabase = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/default-database",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var listMissions = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/mission",
@@ -1087,6 +1119,64 @@ var githubGetContents = (options) => (options.client ?? client).post({
     "Content-Type": "application/json",
     ...options.headers
   }
+});
+var listDatabases = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/database",
+  ...options
+});
+var createDatabase = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/database",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteDatabase = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/database/{database_id}",
+  ...options
+});
+var getDatabase = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/database/{database_id}",
+  ...options
+});
+var updateDatabase = (options) => (options.client ?? client).put({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/database/{database_id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var testDatabaseConnection = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/database/{database_id}/test",
+  ...options
+});
+var getSchema = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/context/database/schema",
+  ...options
+});
+var getSample = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/context/database/sample/{table_name}",
+  ...options
+});
+var listTables = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/context/database/tables",
+  ...options
+});
+var listDatabases2 = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/context/database/databases",
+  ...options
 });
 var getContentTypes = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
@@ -1785,6 +1875,115 @@ var OCXPClient = class {
     const response = await deleteRepo({
       client: this.client,
       path: { id },
+      headers
+    });
+    return extractData(response);
+  }
+  // ============== Database Operations ==============
+  /**
+   * List all database configurations in workspace
+   */
+  async listDatabases() {
+    const headers = await this.getHeaders();
+    const response = await listDatabases({
+      client: this.client,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Create a new database configuration
+   */
+  async createDatabase(config) {
+    const headers = await this.getHeaders();
+    const response = await createDatabase({
+      client: this.client,
+      body: config,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get database configuration by ID
+   */
+  async getDatabase(databaseId) {
+    const headers = await this.getHeaders();
+    const response = await getDatabase({
+      client: this.client,
+      path: { database_id: databaseId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Update database configuration
+   */
+  async updateDatabase(databaseId, updates) {
+    const headers = await this.getHeaders();
+    const response = await updateDatabase({
+      client: this.client,
+      path: { database_id: databaseId },
+      body: updates,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Delete database configuration
+   */
+  async deleteDatabase(databaseId) {
+    const headers = await this.getHeaders();
+    await deleteDatabase({
+      client: this.client,
+      path: { database_id: databaseId },
+      headers
+    });
+  }
+  /**
+   * Test database connection
+   */
+  async testDatabaseConnection(databaseId) {
+    const headers = await this.getHeaders();
+    const response = await testDatabaseConnection({
+      client: this.client,
+      path: { database_id: databaseId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get database schema (tables and columns)
+   */
+  async getDatabaseSchema(databaseId) {
+    const headers = await this.getHeaders();
+    const response = await getSchema({
+      client: this.client,
+      query: { database_id: databaseId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get sample data from a table
+   */
+  async getDatabaseSample(tableName, databaseId, limit) {
+    const headers = await this.getHeaders();
+    const response = await getSample({
+      client: this.client,
+      path: { table_name: tableName },
+      query: { database_id: databaseId, limit },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * List all tables in database
+   */
+  async listDatabaseTables(databaseId) {
+    const headers = await this.getHeaders();
+    const response = await listTables({
+      client: this.client,
+      query: { database_id: databaseId },
       headers
     });
     return extractData(response);
@@ -3815,6 +4014,7 @@ exports.WSStreamStartSchema = WSStreamStartSchema;
 exports.WebSocketService = WebSocketService;
 exports.WriteDataSchema = WriteDataSchema;
 exports.WriteResponseSchema = WriteResponseSchema;
+exports.addDatabase = addDatabase;
 exports.addLinkedRepo = addLinkedRepo;
 exports.addMission = addMission;
 exports.archiveSession = archiveSession;
@@ -3824,6 +4024,7 @@ exports.bulkReadContent = bulkReadContent;
 exports.bulkWriteContent = bulkWriteContent;
 exports.createClient = createClient;
 exports.createConfig = createConfig;
+exports.createDatabase = createDatabase;
 exports.createMission = createMission;
 exports.createOCXPClient = createOCXPClient;
 exports.createPathService = createPathService;
@@ -3832,6 +4033,7 @@ exports.createResponseSchema = createResponseSchema;
 exports.createSnapshot = createSnapshot;
 exports.createWebSocketService = createWebSocketService;
 exports.deleteContent = deleteContent;
+exports.deleteDatabase = deleteDatabase;
 exports.deleteProject = deleteProject;
 exports.deleteRepo = deleteRepo;
 exports.discoverSimilar = discoverSimilar;
@@ -3845,9 +4047,13 @@ exports.getContentTree = getContentTree;
 exports.getContentTypes = getContentTypes;
 exports.getContextRepos = getContextRepos;
 exports.getCurrentUser = getCurrentUser;
+exports.getDatabase = getDatabase;
 exports.getMissionContext = getMissionContext;
 exports.getProject = getProject;
+exports.getProjectDatabases = getProjectDatabases;
 exports.getRepoDownloadStatus = getRepoDownloadStatus;
+exports.getSample = getSample;
+exports.getSchema = getSchema;
 exports.getSessionMessages = getSessionMessages;
 exports.getSnapshotStatus = getSnapshotStatus;
 exports.githubCheckAccess = githubCheckAccess;
@@ -3863,10 +4069,13 @@ exports.isOCXPTimeoutError = isOCXPTimeoutError;
 exports.isOCXPValidationError = isOCXPValidationError;
 exports.isValidContentType = isValidContentType;
 exports.listContent = listContent;
+exports.listDatabases = listDatabases;
+exports.listDatabases2 = listDatabases2;
 exports.listDocs = listDocs;
 exports.listDownloadedRepos = listDownloadedRepos;
 exports.listProjects = listProjects;
 exports.listSessions = listSessions;
+exports.listTables = listTables;
 exports.listWorkspaces = listWorkspaces;
 exports.lockContent = lockContent;
 exports.login = login;
@@ -3881,12 +4090,16 @@ exports.queryKnowledgeBase = queryKnowledgeBase;
 exports.ragKnowledgeBase = ragKnowledgeBase;
 exports.readContent = readContent;
 exports.refreshTokens = refreshTokens;
+exports.removeDatabase = removeDatabase;
 exports.removeLinkedRepo = removeLinkedRepo;
 exports.removeMission = removeMission;
 exports.safeParseWSMessage = safeParseWSMessage;
 exports.searchContent = searchContent;
+exports.setDefaultDatabase = setDefaultDatabase;
 exports.setDefaultRepo = setDefaultRepo;
+exports.testDatabaseConnection = testDatabaseConnection;
 exports.unlockContent = unlockContent;
+exports.updateDatabase = updateDatabase;
 exports.updateMission = updateMission;
 exports.updateProject = updateProject;
 exports.updateSessionMetadata = updateSessionMetadata;

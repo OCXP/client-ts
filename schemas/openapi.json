@@ -279,6 +279,65 @@
             "OAuth2PasswordBearer": []
           }
         ]
+      },
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Create session",
+        "description": "Creates a new session linked to a mission in DynamoDB. Used by Brain to establish session-mission relationship.",
+        "operationId": "createSession",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Session already exists"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
       }
     },
     "/ocxp/session/{session_id}/messages": {
@@ -616,7 +675,7 @@
           "Project"
         ],
         "summary": "Create a new project",
-        "description": "Creates a project with the given ID and name. Projects link repos, missions, and sessions for context scoping.",
+        "description": "Creates a project with auto-generated UUID. Projects link repos, missions, and sessions for context scoping.",
         "operationId": "createProject",
         "parameters": [
           {
@@ -650,8 +709,67 @@
               }
             }
           },
-          "409": {
-            "description": "Project with this ID already exists"
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/project/list": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List all projects (alias)",
+        "description": "Alias for GET /ocxp/project. Returns all projects in the workspace.",
+        "operationId": "listProjectsAlias",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum number of projects to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum number of projects to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of projects returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListResponse"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1279,6 +1397,766 @@
         ]
       }
     },
+    "/ocxp/project/{project_id}/databases": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Link database to project",
+        "description": "Links a database configuration to the project for agent context.",
+        "operationId": "addDatabase",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddDatabaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Database linked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Get project databases",
+        "description": "Returns all databases linked to the project.",
+        "operationId": "getProjectDatabases",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database list returned",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/project/{project_id}/databases/{database_id}": {
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Unlink database from project",
+        "description": "Removes a database link from the project. The database config is not deleted.",
+        "operationId": "removeDatabase",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Database Id"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database unlinked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/project/{project_id}/default-database": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Set default database",
+        "description": "Sets the default database for the project. Used when no specific database_id is provided.",
+        "operationId": "setDefaultDatabase",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetDefaultDatabaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default database set successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission": {
+      "get": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "List all missions",
+        "description": "Returns all missions in the workspace, optionally filtered by project.",
+        "operationId": "listMissions",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID",
+              "title": "Project Id"
+            },
+            "description": "Filter by project ID"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status",
+              "title": "Status"
+            },
+            "description": "Filter by status"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum number of missions to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum number of missions to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of missions returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Create a new mission",
+        "description": "Creates a mission with auto-generated UUID and context folder.",
+        "operationId": "createMission",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MissionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mission created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}": {
+      "get": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Get mission details",
+        "description": "Returns full mission details including status, progress, and linked sessions.",
+        "operationId": "getMission",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission found and returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Update mission",
+        "description": "Updates mission metadata. Only provided fields are updated.",
+        "operationId": "updateMission",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MissionUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mission updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Delete mission",
+        "description": "Permanently deletes a mission and its metadata.",
+        "operationId": "deleteMission",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/sessions": {
+      "post": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Add session to mission",
+        "description": "Associates a session with the mission.",
+        "operationId": "addSession",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/sessions/{session_id}": {
+      "delete": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Remove session from mission",
+        "description": "Removes the session association from the mission. The session itself is not deleted.",
+        "operationId": "removeSession",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/kb/query": {
       "post": {
         "tags": [
@@ -1803,7 +2681,7 @@
           "GitHub"
         ],
         "summary": "Github Check Access",
-        "description": "Check GitHub repository access.",
+        "description": "Check GitHub repository access.\n\nUses the user's stored GitHub token for private repository access.\nPublic repositories are accessible without a token.",
         "operationId": "githubCheckAccess",
         "parameters": [
           {
@@ -1859,7 +2737,7 @@
           "GitHub"
         ],
         "summary": "Github List Branches",
-        "description": "List repository branches.",
+        "description": "List repository branches.\n\nUses the user's stored GitHub token for private repository access.",
         "operationId": "githubListBranches",
         "parameters": [
           {
@@ -1915,7 +2793,7 @@
           "GitHub"
         ],
         "summary": "Github Get Contents",
-        "description": "Get repository contents.",
+        "description": "Get repository contents.\n\nUses the user's stored GitHub token for private repository access.",
         "operationId": "githubGetContents",
         "parameters": [
           {
@@ -1965,10 +2843,727 @@
         ]
       }
     },
-    "/ocxp/types": {
+    "/ocxp/database": {
       "get": {
         "tags": [
-          "Content"
+          "Database"
+        ],
+        "summary": "List all database configurations",
+        "description": "Returns all database configurations in the workspace.",
+        "operationId": "listDatabases",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum number of databases to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum number of databases to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of databases returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Create a new database configuration",
+        "description": "Creates a database configuration with auto-generated UUID. Use postgres_lambda for Lambda-proxied connections.",
+        "operationId": "createDatabase",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatabaseCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Database created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/database/list": {
+      "get": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "List all database configurations (alias)",
+        "description": "Alias for GET /ocxp/database. Returns all databases in the workspace.",
+        "operationId": "listDatabasesAlias",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum number of databases to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum number of databases to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of databases returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/database/{database_id}": {
+      "get": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Get database configuration details",
+        "description": "Returns full database configuration including connection settings and allowed tables.",
+        "operationId": "getDatabase",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Database Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database found and returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseConfigResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Update database configuration",
+        "description": "Updates database configuration. Only provided fields are updated.",
+        "operationId": "updateDatabase",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Database Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatabaseUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Database updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseConfigResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Delete database configuration",
+        "description": "Permanently deletes a database configuration.",
+        "operationId": "deleteDatabase",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Database Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/database/{database_id}/test": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Test database connection",
+        "description": "Tests the database connection and returns status.",
+        "operationId": "testDatabaseConnection",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Database Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection test completed",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/database/schema": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "Get database schema",
+        "description": "Returns database schema information including tables and their metadata.",
+        "operationId": "getSchema",
+        "parameters": [
+          {
+            "name": "pattern",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter tables by name pattern",
+              "title": "Pattern"
+            },
+            "description": "Filter tables by name pattern"
+          },
+          {
+            "name": "database_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Database ID (default: amc-default)",
+              "title": "Database Id"
+            },
+            "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schema returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseSchemaResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/database/sample/{table_name}": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "Get sample data from table",
+        "description": "Returns sample rows from a specified table.",
+        "operationId": "getSample",
+        "parameters": [
+          {
+            "name": "table_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Table Name"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Number of sample rows",
+              "default": 5,
+              "title": "Limit"
+            },
+            "description": "Number of sample rows"
+          },
+          {
+            "name": "database_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Database ID (default: amc-default)",
+              "title": "Database Id"
+            },
+            "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sample data returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseSampleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid table name"
+          },
+          "404": {
+            "description": "Database or table not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/database/tables": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "List available tables",
+        "description": "Returns list of tables available in the database.",
+        "operationId": "listTables",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Database ID (default: amc-default)",
+              "title": "Database Id"
+            },
+            "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Table list returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/database/databases": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "List configured databases",
+        "description": "Returns list of database configurations available in the workspace.",
+        "operationId": "listDatabases",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database list returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/types": {
+      "get": {
+        "tags": [
+          "Context"
         ],
         "summary": "Get content types",
         "description": "Returns all available content types (mission, context, repo, etc.) with optional item counts.",
@@ -2025,10 +3620,10 @@
         ]
       }
     },
-    "/ocxp/{content_type}/list": {
+    "/ocxp/context/{content_type}/list": {
       "get": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "List content",
         "description": "Lists all content items of a specific type, optionally filtered by path.",
@@ -2117,10 +3712,10 @@
         ]
       }
     },
-    "/ocxp/{content_type}/query": {
+    "/ocxp/context/{content_type}/query": {
       "post": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Query content",
         "description": "Advanced query with filters on name, path, size, etc. Supports eq, ne, contains, startsWith, gt, lt operators.",
@@ -2187,10 +3782,10 @@
         ]
       }
     },
-    "/ocxp/{content_type}/search": {
+    "/ocxp/context/{content_type}/search": {
       "get": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Search content",
         "description": "Full-text search in content names and paths. Case-insensitive.",
@@ -2269,10 +3864,10 @@
         ]
       }
     },
-    "/ocxp/{content_type}/tree": {
+    "/ocxp/context/{content_type}/tree": {
       "get": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Get content tree",
         "description": "Returns hierarchical tree structure of content with configurable depth.",
@@ -2358,10 +3953,10 @@
         ]
       }
     },
-    "/ocxp/{content_type}/stats": {
+    "/ocxp/context/{content_type}/stats": {
       "get": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Get content statistics",
         "description": "Returns file counts and sizes grouped by extension for a content path.",
@@ -2433,10 +4028,10 @@
         ]
       }
     },
-    "/ocxp/{content_type}/{content_id}": {
+    "/ocxp/context/{content_type}/{content_id}": {
       "get": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Read content",
         "description": "Reads content by type and path. Binary files are base64-encoded.",
@@ -2503,7 +4098,7 @@
       },
       "post": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Write content",
         "description": "Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.",
@@ -2580,7 +4175,7 @@
       },
       "delete": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Delete content",
         "description": "Deletes content. Use recursive=true with confirm=true to delete directories.",
@@ -2629,6 +4224,18 @@
             "description": "Confirm recursive deletion"
           },
           {
+            "name": "manage_metadata",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Also delete .metadata.json sidecars",
+              "default": true,
+              "title": "Manage Metadata"
+            },
+            "description": "Also delete .metadata.json sidecars"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -2673,10 +4280,89 @@
         ]
       }
     },
-    "/ocxp/move": {
+    "/ocxp/context/{content_type}/folder/{folder_path}": {
       "post": {
         "tags": [
-          "Content"
+          "Context"
+        ],
+        "summary": "Create folder",
+        "description": "Creates a folder with metadata.json for Bedrock KB indexing. The metadata.json serves as a folder marker (S3 doesn't have real folders) and provides KB-filterable attributes.",
+        "operationId": "createFolder",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "folder_path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Folder Path"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFolderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Folder created with metadata.json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentWriteResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Folder already exists"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/move": {
+      "post": {
+        "tags": [
+          "Context"
         ],
         "summary": "Move content",
         "description": "Moves content from source to destination path. Use overwrite=true to replace existing.",
@@ -2735,10 +4421,10 @@
         ]
       }
     },
-    "/ocxp/lock": {
+    "/ocxp/context/lock": {
       "post": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Lock content",
         "description": "Acquires an exclusive lock on content for the specified TTL (seconds). Stub endpoint for SDK compatibility.",
@@ -2791,10 +4477,10 @@
         ]
       }
     },
-    "/ocxp/unlock": {
+    "/ocxp/context/unlock": {
       "post": {
         "tags": [
-          "Content"
+          "Context"
         ],
         "summary": "Unlock content",
         "description": "Releases an exclusive lock on content. Stub endpoint for SDK compatibility.",
@@ -3363,6 +5049,103 @@
         ]
       }
     },
+    "/auth/github-token": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get Github Token Status",
+        "description": "Check if user has a GitHub token configured.\n\nReturns whether a token is stored and the associated GitHub username,\nbut never returns the actual token value.",
+        "operationId": "getGithubTokenStatus",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitHubTokenStatusResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Set Github Token",
+        "description": "Save user's GitHub token for server-side repository operations.\n\nThe token is stored securely in DynamoDB linked to the user's Cognito identity.\nThis enables GitHub operations without transmitting the token on every request.",
+        "operationId": "setGithubToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitHubTokenSuccessResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Delete Github Token",
+        "description": "Remove user's stored GitHub token.\n\nDeletes the GitHub token from DynamoDB. The user will need to\nreconfigure their token for future GitHub operations.",
+        "operationId": "deleteGithubToken",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitHubTokenSuccessResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "summary": "Health Check",
@@ -3382,6 +5165,36 @@
   },
   "components": {
     "schemas": {
+      "AddDatabaseRequest": {
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Database Id",
+            "description": "Database config ID (UUID or 'amc-default')"
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Priority",
+            "description": "Priority weight for database selection",
+            "default": 50
+          },
+          "auto_include": {
+            "type": "boolean",
+            "title": "Auto Include",
+            "description": "Automatically include in agent context",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "database_id"
+        ],
+        "title": "AddDatabaseRequest"
+      },
       "AddMissionRequest": {
         "properties": {
           "mission_id": {
@@ -3433,6 +5246,20 @@
           "repo_id"
         ],
         "title": "AddRepoRequest"
+      },
+      "AddSessionRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Session Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id"
+        ],
+        "title": "AddSessionRequest"
       },
       "AuthConfig": {
         "properties": {
@@ -4051,6 +5878,11 @@
             "type": "string",
             "title": "Path"
           },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "default": "file"
+          },
           "size": {
             "anyOf": [
               {
@@ -4080,6 +5912,590 @@
         ],
         "title": "ContentWriteResponse",
         "description": "Response for POST /ocxp/{type}/{id}."
+      },
+      "CreateFolderRequest": {
+        "properties": {
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "CreateFolderRequest",
+        "description": "Request body for folder creation."
+      },
+      "CreateSessionRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "mission_id"
+        ],
+        "title": "CreateSessionRequest",
+        "description": "Request body for POST /ocxp/session - create new session linked to mission."
+      },
+      "DatabaseConfigResponse": {
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "examples": [
+              "acme-corp"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "examples": [
+              "Production DB"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": "",
+            "examples": [
+              "Main PostgreSQL database"
+            ]
+          },
+          "db_type": {
+            "type": "string",
+            "title": "Db Type",
+            "description": "postgres|postgres_lambda|mysql|mariadb",
+            "examples": [
+              "postgres_lambda"
+            ]
+          },
+          "lambda_function_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lambda Function Name",
+            "examples": [
+              "query_database"
+            ]
+          },
+          "lambda_region": {
+            "type": "string",
+            "title": "Lambda Region",
+            "default": "us-west-2",
+            "examples": [
+              "us-west-2"
+            ]
+          },
+          "host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Host",
+            "examples": [
+              "db.example.com"
+            ]
+          },
+          "port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port",
+            "examples": [
+              5432
+            ]
+          },
+          "database_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Name",
+            "examples": [
+              "myapp_prod"
+            ]
+          },
+          "allowed_tables": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Tables",
+            "examples": [
+              [
+                "users",
+                "orders",
+                "products"
+              ]
+            ]
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only",
+            "default": true,
+            "examples": [
+              true
+            ]
+          },
+          "max_rows": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Max Rows",
+            "default": 100,
+            "examples": [
+              100
+            ]
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "active|inactive|error",
+            "default": "active",
+            "examples": [
+              "active"
+            ]
+          },
+          "last_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message",
+            "examples": [
+              "Connection timeout"
+            ]
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "examples": [
+              "2025-01-16T14:00:00Z"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "database_id",
+          "workspace",
+          "name",
+          "db_type"
+        ],
+        "title": "DatabaseConfigResponse",
+        "description": "Full database configuration response."
+      },
+      "DatabaseCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description",
+            "default": ""
+          },
+          "db_type": {
+            "type": "string",
+            "title": "Db Type",
+            "description": "postgres|postgres_lambda|supabase|mysql|mariadb",
+            "default": "postgres_lambda"
+          },
+          "lambda_function_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lambda Function Name",
+            "description": "Lambda function name for postgres_lambda type"
+          },
+          "lambda_region": {
+            "type": "string",
+            "title": "Lambda Region",
+            "default": "us-west-2"
+          },
+          "secret_arn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Secret Arn",
+            "description": "AWS Secrets Manager ARN for credentials"
+          },
+          "allowed_tables": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Tables"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only",
+            "default": true
+          },
+          "max_rows": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Max Rows",
+            "default": 100
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "DatabaseCreate",
+        "description": "Request body for creating a database config."
+      },
+      "DatabaseListResponse": {
+        "properties": {
+          "databases": {
+            "items": {
+              "$ref": "#/components/schemas/DatabaseConfigResponse"
+            },
+            "type": "array",
+            "title": "Databases"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "databases",
+          "count"
+        ],
+        "title": "DatabaseListResponse",
+        "description": "Response for GET /ocxp/database."
+      },
+      "DatabaseSampleResponse": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name",
+            "examples": [
+              "users"
+            ]
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "row_count": {
+            "type": "integer",
+            "title": "Row Count",
+            "default": 0,
+            "examples": [
+              5
+            ]
+          },
+          "database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "table_name"
+        ],
+        "title": "DatabaseSampleResponse",
+        "description": "Response for GET /ocxp/context/database/sample/{table}."
+      },
+      "DatabaseSchemaResponse": {
+        "properties": {
+          "tables": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Tables"
+          },
+          "table_count": {
+            "type": "integer",
+            "title": "Table Count",
+            "default": 0,
+            "examples": [
+              15
+            ]
+          },
+          "database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "DatabaseSchemaResponse",
+        "description": "Response for GET /ocxp/context/database/schema."
+      },
+      "DatabaseUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "lambda_function_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lambda Function Name"
+          },
+          "lambda_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lambda Region"
+          },
+          "secret_arn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Secret Arn",
+            "description": "AWS Secrets Manager ARN for credentials"
+          },
+          "allowed_tables": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allowed Tables"
+          },
+          "read_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read Only"
+          },
+          "max_rows": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Rows"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "active|inactive|error"
+          }
+        },
+        "type": "object",
+        "title": "DatabaseUpdate",
+        "description": "Request body for updating a database config."
       },
       "DiscoverRequest": {
         "properties": {
@@ -4203,6 +6619,17 @@
             "type": "string",
             "title": "Mode",
             "default": "full"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
           }
         },
         "type": "object",
@@ -4276,6 +6703,85 @@
           "repo_url"
         ],
         "title": "GetContentsRequest"
+      },
+      "GitHubTokenRequest": {
+        "properties": {
+          "github_token": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Github Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "github_token"
+        ],
+        "title": "GitHubTokenRequest",
+        "description": "Request to save GitHub token."
+      },
+      "GitHubTokenStatusResponse": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Username"
+          },
+          "scopes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scopes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "configured"
+        ],
+        "title": "GitHubTokenStatusResponse",
+        "description": "GitHub token status response."
+      },
+      "GitHubTokenSuccessResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "title": "GitHubTokenSuccessResponse",
+        "description": "Success response for GitHub token operations."
       },
       "HTTPValidationError": {
         "properties": {
@@ -4694,6 +7200,46 @@
         "title": "MissionContextResponse",
         "description": "Response for GET /tools/mission/{id}/context."
       },
+      "MissionCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Description",
+            "default": ""
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "goals": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Goals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "MissionCreate"
+      },
       "MissionCreateRequest": {
         "properties": {
           "name": {
@@ -4767,6 +7313,259 @@
         ],
         "title": "MissionCreateResponse",
         "description": "Response for POST /tools/mission/create."
+      },
+      "MissionListResponse": {
+        "properties": {
+          "missions": {
+            "items": {
+              "$ref": "#/components/schemas/MissionResponse"
+            },
+            "type": "array",
+            "title": "Missions"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "missions",
+          "count"
+        ],
+        "title": "MissionListResponse",
+        "description": "Response for GET /ocxp/mission."
+      },
+      "MissionResponse": {
+        "properties": {
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "examples": [
+              "acme-corp"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "examples": [
+              "Implement user authentication"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": "",
+            "examples": [
+              "Add OAuth2 login flow"
+            ]
+          },
+          "context_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Path",
+            "examples": [
+              "workspaces/acme-corp/mission/550e8400-e29b-41d4-a716-446655440000/"
+            ]
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "examples": [
+              "project-001"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "draft|active|completed|archived",
+            "default": "draft",
+            "examples": [
+              "draft"
+            ]
+          },
+          "progress": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Progress",
+            "default": 0,
+            "examples": [
+              50
+            ]
+          },
+          "goals": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Goals",
+            "examples": [
+              [
+                "Implement login",
+                "Add OAuth providers"
+              ]
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": "",
+            "examples": [
+              "Consider using Auth0 for OAuth"
+            ]
+          },
+          "session_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Session Ids",
+            "examples": [
+              [
+                "sess-001",
+                "sess-002"
+              ]
+            ]
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "examples": [
+              "2025-01-16T14:00:00Z"
+            ]
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By",
+            "examples": [
+              "user@example.com"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "mission_id",
+          "workspace",
+          "title"
+        ],
+        "title": "MissionResponse",
+        "description": "Full mission response."
+      },
+      "MissionUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "draft|active|completed|archived"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "MissionUpdate"
       },
       "MissionUpdateRequest": {
         "properties": {
@@ -4868,13 +7667,6 @@
       },
       "ProjectCreate": {
         "properties": {
-          "project_id": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9-]*$",
-            "title": "Project Id"
-          },
           "name": {
             "type": "string",
             "maxLength": 200,
@@ -4890,7 +7682,6 @@
         },
         "type": "object",
         "required": [
-          "project_id",
           "name"
         ],
         "title": "ProjectCreate"
@@ -4923,7 +7714,7 @@
             "type": "string",
             "title": "Project Id",
             "examples": [
-              "my-project"
+              "550e8400-e29b-41d4-a716-446655440000"
             ]
           },
           "workspace": {
@@ -4945,6 +7736,20 @@
             "title": "Description",
             "examples": [
               "A sample project for development"
+            ]
+          },
+          "context_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Path",
+            "examples": [
+              "workspaces/acme-corp/project/550e8400-e29b-41d4-a716-446655440000/"
             ]
           },
           "linked_repos": {
@@ -5136,46 +7941,46 @@
       },
       "RefreshRequest": {
         "properties": {
-          "refresh_token": {
+          "refreshToken": {
             "type": "string",
-            "title": "Refresh Token"
+            "title": "Refreshtoken"
           }
         },
         "type": "object",
         "required": [
-          "refresh_token"
+          "refreshToken"
         ],
         "title": "RefreshRequest",
-        "description": "Token refresh request."
+        "description": "Token refresh request - accepts both camelCase and snake_case."
       },
       "RefreshResponse": {
         "properties": {
-          "access_token": {
+          "accessToken": {
             "type": "string",
-            "title": "Access Token"
+            "title": "Accesstoken"
           },
-          "token_type": {
+          "tokenType": {
             "type": "string",
-            "title": "Token Type",
+            "title": "Tokentype",
             "default": "bearer"
           },
-          "expires_in": {
+          "expiresIn": {
             "type": "integer",
-            "title": "Expires In",
+            "title": "Expiresin",
             "default": 3600
           },
-          "id_token": {
+          "idToken": {
             "type": "string",
-            "title": "Id Token"
+            "title": "Idtoken"
           }
         },
         "type": "object",
         "required": [
-          "access_token",
-          "id_token"
+          "accessToken",
+          "idToken"
         ],
         "title": "RefreshResponse",
-        "description": "Token refresh response (no new refresh_token)."
+        "description": "Token refresh response with camelCase output (no new refresh_token)."
       },
       "RepoDeleteResponse": {
         "properties": {
@@ -5386,6 +8191,39 @@
             "examples": [
               "2025-01-15T10:30:00Z"
             ]
+          },
+          "files_count": {
+            "type": "integer",
+            "title": "Files Count",
+            "description": "Number of files indexed",
+            "default": 0,
+            "examples": [
+              42
+            ]
+          },
+          "total_size_bytes": {
+            "type": "integer",
+            "title": "Total Size Bytes",
+            "description": "Total storage size in bytes",
+            "default": 0,
+            "examples": [
+              1048576
+            ]
+          },
+          "s3_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "S3 Path",
+            "description": "S3 storage location",
+            "examples": [
+              "workspaces/prod/repo/owner/my-app/"
+            ]
           }
         },
         "type": "object",
@@ -5461,6 +8299,28 @@
               }
             ],
             "title": "Repo Id"
+          },
+          "files_processed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Files Processed"
+          },
+          "total_files": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Files"
           }
         },
         "type": "object",
@@ -5711,6 +8571,24 @@
         "title": "SessionResponse",
         "description": "Session metadata response."
       },
+      "SetDefaultDatabaseRequest": {
+        "properties": {
+          "database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Id",
+            "description": "Database ID to set as default (None to clear)"
+          }
+        },
+        "type": "object",
+        "title": "SetDefaultDatabaseRequest"
+      },
       "SetDefaultRepoRequest": {
         "properties": {
           "repo_id": {
@@ -5822,37 +8700,37 @@
       },
       "TokenResponse": {
         "properties": {
-          "access_token": {
+          "accessToken": {
             "type": "string",
-            "title": "Access Token"
+            "title": "Accesstoken"
           },
-          "token_type": {
+          "tokenType": {
             "type": "string",
-            "title": "Token Type",
+            "title": "Tokentype",
             "default": "bearer"
           },
-          "expires_in": {
+          "expiresIn": {
             "type": "integer",
-            "title": "Expires In",
+            "title": "Expiresin",
             "default": 3600
           },
-          "id_token": {
+          "idToken": {
             "type": "string",
-            "title": "Id Token"
+            "title": "Idtoken"
           },
-          "refresh_token": {
+          "refreshToken": {
             "type": "string",
-            "title": "Refresh Token"
+            "title": "Refreshtoken"
           }
         },
         "type": "object",
         "required": [
-          "access_token",
-          "id_token",
-          "refresh_token"
+          "accessToken",
+          "idToken",
+          "refreshToken"
         ],
         "title": "TokenResponse",
-        "description": "OAuth2 token response."
+        "description": "OAuth2 token response with camelCase output for plugin compatibility."
       },
       "UserResponse": {
         "properties": {
@@ -5973,6 +8851,33 @@
             "type": "boolean",
             "title": "Ifnotexists",
             "default": false
+          },
+          "manage_metadata": {
+            "type": "boolean",
+            "title": "Manage Metadata",
+            "default": true
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id"
           }
         },
         "type": "object",
