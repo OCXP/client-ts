@@ -700,13 +700,27 @@ export class OCXPClient {
    * Download repository and trigger vectorization
    * @param repoUrl - Full GitHub repository URL
    * @param branch - Optional branch (default: main)
-   * @param mode - Download mode: full or docs_only
+   * @param options - Download options (mode, repo_type, path)
    */
-  async downloadRepository(repoUrl: string, branch?: string, mode?: string): Promise<RepoDownloadResponse> {
+  async downloadRepository(
+    repoUrl: string,
+    branch?: string,
+    options?: {
+      mode?: string;
+      repo_type?: 'code' | 'docs' | 'auto';
+      path?: string;
+    }
+  ): Promise<RepoDownloadResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.downloadRepository({
       client: this.client,
-      body: { repo_url: repoUrl, branch, mode },
+      body: {
+        repo_url: repoUrl,
+        branch,
+        mode: options?.mode,
+        repo_type: options?.repo_type,
+        path: options?.path,
+      },
       headers,
     });
     return extractData(response) as RepoDownloadResponse;
