@@ -1066,6 +1066,10 @@ type DownloadRequest = {
      * Path
      */
     path?: string | null;
+    /**
+     * Repo Type
+     */
+    repo_type?: string;
 };
 /**
  * FindByTicketRequest
@@ -1532,6 +1536,33 @@ type MoveRequest = {
     overwrite?: boolean;
 };
 /**
+ * OAuth2TokenResponse
+ *
+ * OAuth2 standard token response for Swagger UI compatibility (snake_case).
+ */
+type OAuth2TokenResponse = {
+    /**
+     * Access Token
+     */
+    access_token: string;
+    /**
+     * Token Type
+     */
+    token_type?: string;
+    /**
+     * Expires In
+     */
+    expires_in?: number;
+    /**
+     * Id Token
+     */
+    id_token: string;
+    /**
+     * Refresh Token
+     */
+    refresh_token: string;
+};
+/**
  * ProjectCreate
  */
 type ProjectCreate = {
@@ -1763,6 +1794,18 @@ type RepoDownloadResponse = {
      * S3 storage path
      */
     s3_path?: string | null;
+    /**
+     * Detected Type
+     *
+     * Auto-detected repo content type (code, docs, or mixed)
+     */
+    detected_type?: string | null;
+    /**
+     * Detection Method
+     *
+     * How repo type was detected: path_heuristic (from folder name) or github_api (from language analysis)
+     */
+    detection_method?: string | null;
 };
 /**
  * RepoInfo
@@ -1836,6 +1879,12 @@ type RepoInfo = {
      * S3 storage location
      */
     s3_path?: string | null;
+    /**
+     * Repo Type
+     *
+     * Content type: code, docs, or mixed
+     */
+    repo_type?: string | null;
 };
 /**
  * RepoListResponse
@@ -2095,7 +2144,7 @@ type TicketDiscoverResponse = {
 /**
  * TokenResponse
  *
- * OAuth2 token response with camelCase output for plugin compatibility.
+ * Token response with camelCase output for plugin compatibility.
  */
 type TokenResponse = {
     /**
@@ -3668,6 +3717,12 @@ type ListTablesData = {
          * Database ID (default: amc-default)
          */
         database_id?: string | null;
+        /**
+         * Cache Ttl
+         *
+         * Cache TTL in seconds (0=no cache)
+         */
+        cache_ttl?: number;
     };
     url: '/ocxp/context/database/tables';
 };
@@ -4252,7 +4307,7 @@ type LoginForAccessTokenResponses = {
     /**
      * Successful Response
      */
-    200: TokenResponse;
+    200: OAuth2TokenResponse;
 };
 type LoginData = {
     body: LoginRequest;
@@ -4620,7 +4675,7 @@ declare const getSample: <ThrowOnError extends boolean = false>(options: Options
 /**
  * List available tables
  *
- * Returns list of tables available in the database.
+ * Returns list of tables available in the database. Supports caching.
  */
 declare const listTables: <ThrowOnError extends boolean = false>(options?: Options<ListTablesData, ThrowOnError>) => RequestResult<ListTablesResponses, ListTablesErrors, ThrowOnError, "fields">;
 /**
@@ -4726,6 +4781,7 @@ declare const findByTicket: <ThrowOnError extends boolean = false>(options: Opti
  *
  * Authenticates with Cognito using username/password and returns JWT tokens.
  * Use this endpoint to get a token for testing other endpoints in Swagger.
+ * Returns snake_case fields per OAuth2 spec for Swagger compatibility.
  */
 declare const loginForAccessToken: <ThrowOnError extends boolean = false>(options: Options<LoginForAccessTokenData, ThrowOnError>) => RequestResult<LoginForAccessTokenResponses, LoginForAccessTokenErrors, ThrowOnError, "fields">;
 /**

@@ -100,6 +100,9 @@ import type {
   GetCurrentUserResponses,
   GetDatabaseData,
   GetDatabaseErrors,
+  GetDatabaseOverviewData,
+  GetDatabaseOverviewErrors,
+  GetDatabaseOverviewResponses,
   GetDatabaseResponses,
   GetGithubTokenStatusData,
   GetGithubTokenStatusResponses,
@@ -1188,7 +1191,7 @@ export const getSample = <ThrowOnError extends boolean = false>(
 /**
  * List available tables
  *
- * Returns list of tables available in the database.
+ * Returns list of tables available in the database. Supports caching.
  */
 export const listTables = <ThrowOnError extends boolean = false>(
   options?: Options<ListTablesData, ThrowOnError>
@@ -1210,6 +1213,24 @@ export const listDatabases2 = <ThrowOnError extends boolean = false>(
   (options?.client ?? client).get<ListDatabases2Responses, ListDatabases2Errors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/database/databases',
+    ...options,
+  });
+
+/**
+ * Get complete database overview
+ *
+ * Returns complete database structure with tables, columns, and foreign keys in a single call. Supports caching.
+ */
+export const getDatabaseOverview = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDatabaseOverviewData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetDatabaseOverviewResponses,
+    GetDatabaseOverviewErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/database/overview',
     ...options,
   });
 
@@ -1514,6 +1535,7 @@ export const findByTicket = <ThrowOnError extends boolean = false>(
  *
  * Authenticates with Cognito using username/password and returns JWT tokens.
  * Use this endpoint to get a token for testing other endpoints in Swagger.
+ * Returns snake_case fields per OAuth2 spec for Swagger compatibility.
  */
 export const loginForAccessToken = <ThrowOnError extends boolean = false>(
   options: Options<LoginForAccessTokenData, ThrowOnError>

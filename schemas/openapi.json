@@ -3453,7 +3453,7 @@
           "Database Context"
         ],
         "summary": "List available tables",
-        "description": "Returns list of tables available in the database.",
+        "description": "Returns list of tables available in the database. Supports caching.",
         "operationId": "listTables",
         "parameters": [
           {
@@ -3473,6 +3473,20 @@
               "title": "Database Id"
             },
             "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "cache_ttl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 3600,
+              "minimum": 0,
+              "description": "Cache TTL in seconds (0=no cache)",
+              "default": 300,
+              "title": "Cache Ttl"
+            },
+            "description": "Cache TTL in seconds (0=no cache)"
           },
           {
             "name": "X-Workspace",
@@ -3541,6 +3555,89 @@
                 "schema": {}
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/database/overview": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "Get complete database overview",
+        "description": "Returns complete database structure with tables, columns, and foreign keys in a single call. Supports caching.",
+        "operationId": "getDatabaseOverview",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Database ID (default: amc-default)",
+              "title": "Database Id"
+            },
+            "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "cache_ttl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 3600,
+              "minimum": 0,
+              "description": "Cache TTL in seconds (0=no cache)",
+              "default": 300,
+              "title": "Cache Ttl"
+            },
+            "description": "Cache TTL in seconds (0=no cache)"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database overview returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseOverviewResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
           },
           "422": {
             "description": "Validation Error",
@@ -4843,7 +4940,7 @@
           "Auth"
         ],
         "summary": "Login For Access Token",
-        "description": "OAuth2 compatible login endpoint for Swagger UI.\n\nAuthenticates with Cognito using username/password and returns JWT tokens.\nUse this endpoint to get a token for testing other endpoints in Swagger.",
+        "description": "OAuth2 compatible login endpoint for Swagger UI.\n\nAuthenticates with Cognito using username/password and returns JWT tokens.\nUse this endpoint to get a token for testing other endpoints in Swagger.\nReturns snake_case fields per OAuth2 spec for Swagger compatibility.",
         "operationId": "loginForAccessToken",
         "requestBody": {
           "content": {
@@ -4861,7 +4958,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TokenResponse"
+                  "$ref": "#/components/schemas/OAuth2TokenResponse"
                 }
               }
             }
@@ -5528,6 +5625,46 @@
           "repo_url"
         ],
         "title": "CheckAccessRequest"
+      },
+      "ColumnOverview": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "nullable": {
+            "type": "boolean",
+            "title": "Nullable"
+          },
+          "default": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "nullable"
+        ],
+        "title": "ColumnOverview",
+        "description": "Column information for database overview."
       },
       "ContentDeleteResponse": {
         "properties": {
@@ -6291,6 +6428,64 @@
         "title": "DatabaseListResponse",
         "description": "Response for GET /ocxp/database."
       },
+      "DatabaseOverviewResponse": {
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "title": "Database Id"
+          },
+          "database_name": {
+            "type": "string",
+            "title": "Database Name"
+          },
+          "table_count": {
+            "type": "integer",
+            "title": "Table Count"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/TableOverview"
+            },
+            "type": "array",
+            "title": "Tables"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "default": false
+          },
+          "cache_expires_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cache Expires At"
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At"
+          },
+          "query_time_ms": {
+            "type": "number",
+            "title": "Query Time Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "database_id",
+          "database_name",
+          "table_count",
+          "tables",
+          "generated_at",
+          "query_time_ms"
+        ],
+        "title": "DatabaseOverviewResponse",
+        "description": "Complete database overview with schema and metadata."
+      },
       "DatabaseSampleResponse": {
         "properties": {
           "table_name": {
@@ -6630,6 +6825,11 @@
               }
             ],
             "title": "Path"
+          },
+          "repo_type": {
+            "type": "string",
+            "title": "Repo Type",
+            "default": "auto"
           }
         },
         "type": "object",
@@ -6650,6 +6850,30 @@
           "ticket_id"
         ],
         "title": "FindByTicketRequest"
+      },
+      "ForeignKeyInfo": {
+        "properties": {
+          "column": {
+            "type": "string",
+            "title": "Column"
+          },
+          "foreign_table": {
+            "type": "string",
+            "title": "Foreign Table"
+          },
+          "foreign_column": {
+            "type": "string",
+            "title": "Foreign Column"
+          }
+        },
+        "type": "object",
+        "required": [
+          "column",
+          "foreign_table",
+          "foreign_column"
+        ],
+        "title": "ForeignKeyInfo",
+        "description": "Foreign key relationship information."
       },
       "ForkRequest": {
         "properties": {
@@ -7665,6 +7889,40 @@
         ],
         "title": "MoveRequest"
       },
+      "OAuth2TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "default": 3600
+          },
+          "id_token": {
+            "type": "string",
+            "title": "Id Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "id_token",
+          "refresh_token"
+        ],
+        "title": "OAuth2TokenResponse",
+        "description": "OAuth2 standard token response for Swagger UI compatibility (snake_case)."
+      },
       "ProjectCreate": {
         "properties": {
           "name": {
@@ -8080,6 +8338,39 @@
             "examples": [
               "workspaces/public/repo/owner/repo/"
             ]
+          },
+          "detected_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detected Type",
+            "description": "Auto-detected repo content type (code, docs, or mixed)",
+            "examples": [
+              "code",
+              "docs",
+              "mixed"
+            ]
+          },
+          "detection_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detection Method",
+            "description": "How repo type was detected: path_heuristic (from folder name) or github_api (from language analysis)",
+            "examples": [
+              "path_heuristic",
+              "github_api"
+            ]
           }
         },
         "type": "object",
@@ -8223,6 +8514,23 @@
             "description": "S3 storage location",
             "examples": [
               "workspaces/prod/repo/owner/my-app/"
+            ]
+          },
+          "repo_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repo Type",
+            "description": "Content type: code, docs, or mixed",
+            "examples": [
+              "code",
+              "docs",
+              "mixed"
             ]
           }
         },
@@ -8676,6 +8984,46 @@
         ],
         "title": "SnapshotRequest"
       },
+      "TableOverview": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "column_count": {
+            "type": "integer",
+            "title": "Column Count"
+          },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnOverview"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "foreign_keys": {
+            "items": {
+              "$ref": "#/components/schemas/ForeignKeyInfo"
+            },
+            "type": "array",
+            "title": "Foreign Keys",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "column_count",
+          "columns"
+        ],
+        "title": "TableOverview",
+        "description": "Table information with columns and foreign keys."
+      },
       "TicketDiscoverResponse": {
         "properties": {
           "results": {
@@ -8730,7 +9078,7 @@
           "refreshToken"
         ],
         "title": "TokenResponse",
-        "description": "OAuth2 token response with camelCase output for plugin compatibility."
+        "description": "Token response with camelCase output for plugin compatibility."
       },
       "UserResponse": {
         "properties": {

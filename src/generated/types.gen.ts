@@ -251,6 +251,34 @@ export type CheckAccessRequest = {
 };
 
 /**
+ * ColumnOverview
+ *
+ * Column information for database overview.
+ */
+export type ColumnOverview = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Type
+   */
+  type: string;
+  /**
+   * Nullable
+   */
+  nullable: boolean;
+  /**
+   * Default
+   */
+  default?: string | null;
+  /**
+   * Description
+   */
+  description?: string;
+};
+
+/**
  * ContentDeleteResponse
  *
  * Response for DELETE /ocxp/{type}/{id}.
@@ -670,6 +698,46 @@ export type DatabaseListResponse = {
 };
 
 /**
+ * DatabaseOverviewResponse
+ *
+ * Complete database overview with schema and metadata.
+ */
+export type DatabaseOverviewResponse = {
+  /**
+   * Database Id
+   */
+  database_id: string;
+  /**
+   * Database Name
+   */
+  database_name: string;
+  /**
+   * Table Count
+   */
+  table_count: number;
+  /**
+   * Tables
+   */
+  tables: Array<TableOverview>;
+  /**
+   * Cached
+   */
+  cached?: boolean;
+  /**
+   * Cache Expires At
+   */
+  cache_expires_at?: string | null;
+  /**
+   * Generated At
+   */
+  generated_at: string;
+  /**
+   * Query Time Ms
+   */
+  query_time_ms: number;
+};
+
+/**
  * DatabaseSampleResponse
  *
  * Response for GET /ocxp/context/database/sample/{table}.
@@ -847,6 +915,10 @@ export type DownloadRequest = {
    * Path
    */
   path?: string | null;
+  /**
+   * Repo Type
+   */
+  repo_type?: string;
 };
 
 /**
@@ -857,6 +929,26 @@ export type FindByTicketRequest = {
    * Ticket Id
    */
   ticket_id: string;
+};
+
+/**
+ * ForeignKeyInfo
+ *
+ * Foreign key relationship information.
+ */
+export type ForeignKeyInfo = {
+  /**
+   * Column
+   */
+  column: string;
+  /**
+   * Foreign Table
+   */
+  foreign_table: string;
+  /**
+   * Foreign Column
+   */
+  foreign_column: string;
 };
 
 /**
@@ -1436,6 +1528,34 @@ export type MoveRequest = {
 };
 
 /**
+ * OAuth2TokenResponse
+ *
+ * OAuth2 standard token response for Swagger UI compatibility (snake_case).
+ */
+export type OAuth2TokenResponse = {
+  /**
+   * Access Token
+   */
+  access_token: string;
+  /**
+   * Token Type
+   */
+  token_type?: string;
+  /**
+   * Expires In
+   */
+  expires_in?: number;
+  /**
+   * Id Token
+   */
+  id_token: string;
+  /**
+   * Refresh Token
+   */
+  refresh_token: string;
+};
+
+/**
  * ProjectCreate
  */
 export type ProjectCreate = {
@@ -1677,6 +1797,18 @@ export type RepoDownloadResponse = {
    * S3 storage path
    */
   s3_path?: string | null;
+  /**
+   * Detected Type
+   *
+   * Auto-detected repo content type (code, docs, or mixed)
+   */
+  detected_type?: string | null;
+  /**
+   * Detection Method
+   *
+   * How repo type was detected: path_heuristic (from folder name) or github_api (from language analysis)
+   */
+  detection_method?: string | null;
 };
 
 /**
@@ -1751,6 +1883,12 @@ export type RepoInfo = {
    * S3 storage location
    */
   s3_path?: string | null;
+  /**
+   * Repo Type
+   *
+   * Content type: code, docs, or mixed
+   */
+  repo_type?: string | null;
 };
 
 /**
@@ -2004,6 +2142,34 @@ export type SnapshotRequest = {
 };
 
 /**
+ * TableOverview
+ *
+ * Table information with columns and foreign keys.
+ */
+export type TableOverview = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string;
+  /**
+   * Column Count
+   */
+  column_count: number;
+  /**
+   * Columns
+   */
+  columns: Array<ColumnOverview>;
+  /**
+   * Foreign Keys
+   */
+  foreign_keys?: Array<ForeignKeyInfo>;
+};
+
+/**
  * TicketDiscoverResponse
  *
  * Response for POST /tools/discover/ticket.
@@ -2022,7 +2188,7 @@ export type TicketDiscoverResponse = {
 /**
  * TokenResponse
  *
- * OAuth2 token response with camelCase output for plugin compatibility.
+ * Token response with camelCase output for plugin compatibility.
  */
 export type TokenResponse = {
   /**
@@ -4236,6 +4402,12 @@ export type ListTablesData = {
      * Database ID (default: amc-default)
      */
     database_id?: string | null;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
   };
   url: '/ocxp/context/database/tables';
 };
@@ -4288,6 +4460,55 @@ export type ListDatabases2Responses = {
    */
   200: unknown;
 };
+
+export type GetDatabaseOverviewData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Database Id
+     *
+     * Database ID (default: amc-default)
+     */
+    database_id?: string | null;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
+  };
+  url: '/ocxp/context/database/overview';
+};
+
+export type GetDatabaseOverviewErrors = {
+  /**
+   * Database not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetDatabaseOverviewError = GetDatabaseOverviewErrors[keyof GetDatabaseOverviewErrors];
+
+export type GetDatabaseOverviewResponses = {
+  /**
+   * Database overview returned successfully
+   */
+  200: DatabaseOverviewResponse;
+};
+
+export type GetDatabaseOverviewResponse =
+  GetDatabaseOverviewResponses[keyof GetDatabaseOverviewResponses];
 
 export type GetContentTypesData = {
   body?: never;
@@ -5049,7 +5270,7 @@ export type LoginForAccessTokenResponses = {
   /**
    * Successful Response
    */
-  200: TokenResponse;
+  200: OAuth2TokenResponse;
 };
 
 export type LoginForAccessTokenResponse =
