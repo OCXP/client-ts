@@ -822,7 +822,7 @@ var client = createClient(
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/bulk/read",
+  url: "/ocxp/context/{content_type}/bulk/read",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -831,7 +831,7 @@ var bulkReadContent = (options) => (options.client ?? client).post({
 });
 var bulkWriteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/bulk/write",
+  url: "/ocxp/context/{content_type}/bulk/write",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -840,7 +840,7 @@ var bulkWriteContent = (options) => (options.client ?? client).post({
 });
 var bulkDeleteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/bulk/delete",
+  url: "/ocxp/context/{content_type}/bulk/delete",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1069,7 +1069,7 @@ var listDownloadedRepos = (options) => (options?.client ?? client).get({
 });
 var deleteRepo = (options) => (options.client ?? client).delete({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/repo/{id}",
+  url: "/ocxp/repo/{repo_id}",
   ...options
 });
 var createSnapshot = (options) => (options.client ?? client).post({
@@ -1173,7 +1173,7 @@ var listTables = (options) => (options?.client ?? client).get({
   url: "/ocxp/context/database/tables",
   ...options
 });
-var listDatabases2 = (options) => (options?.client ?? client).get({
+var listContextDatabases = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/context/database/databases",
   ...options
@@ -1258,6 +1258,24 @@ var unlockContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var toolCreateMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/tools/mission/create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var toolUpdateMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/tools/mission/{mission_id}/update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var getMissionContext = (options) => (options.client ?? client).get(
   {
     security: [{ scheme: "bearer", type: "http" }],
@@ -1265,24 +1283,6 @@ var getMissionContext = (options) => (options.client ?? client).get(
     ...options
   }
 );
-var discoverSimilar = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/discover",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var findByTicket = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/discover/ticket",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
 var loginForAccessToken = (options) => (options.client ?? client).post({
   ...urlSearchParamsBodySerializer,
   url: "/auth/token",
@@ -1709,33 +1709,6 @@ var OCXPClient = class {
       headers
     });
   }
-  /**
-   * Discover similar content across types
-   */
-  async discover(query, contentTypes, limit) {
-    const headers = await this.getHeaders();
-    const body = {
-      query,
-      content_types: contentTypes,
-      limit
-    };
-    return discoverSimilar({
-      client: this.client,
-      body,
-      headers
-    });
-  }
-  /**
-   * Find content by Jira ticket ID
-   */
-  async findByTicket(ticketId) {
-    const headers = await this.getHeaders();
-    return findByTicket({
-      client: this.client,
-      body: { ticket_id: ticketId },
-      headers
-    });
-  }
   // ============== Locking ==============
   /**
    * Acquire exclusive lock on content
@@ -1833,13 +1806,19 @@ var OCXPClient = class {
    * Download repository and trigger vectorization
    * @param repoUrl - Full GitHub repository URL
    * @param branch - Optional branch (default: main)
-   * @param mode - Download mode: full or docs_only
+   * @param options - Download options (mode, repo_type, path)
    */
-  async downloadRepository(repoUrl, branch, mode) {
+  async downloadRepository(repoUrl, branch, options) {
     const headers = await this.getHeaders();
     const response = await downloadRepository({
       client: this.client,
-      body: { repo_url: repoUrl, branch, mode },
+      body: {
+        repo_url: repoUrl,
+        branch,
+        mode: options?.mode,
+        repo_type: options?.repo_type,
+        path: options?.path
+      },
       headers
     });
     return extractData(response);
@@ -1870,11 +1849,11 @@ var OCXPClient = class {
   /**
    * Delete a downloaded repository by its UUID
    */
-  async deleteRepo(id) {
+  async deleteRepo(repoId) {
     const headers = await this.getHeaders();
     const response = await deleteRepo({
       client: this.client,
-      path: { id },
+      path: { repo_id: repoId },
       headers
     });
     return extractData(response);
@@ -4025,7 +4004,6 @@ exports.bulkWriteContent = bulkWriteContent;
 exports.createClient = createClient;
 exports.createConfig = createConfig;
 exports.createDatabase = createDatabase;
-exports.createMission = createMission;
 exports.createOCXPClient = createOCXPClient;
 exports.createPathService = createPathService;
 exports.createProject = createProject;
@@ -4036,9 +4014,7 @@ exports.deleteContent = deleteContent;
 exports.deleteDatabase = deleteDatabase;
 exports.deleteProject = deleteProject;
 exports.deleteRepo = deleteRepo;
-exports.discoverSimilar = discoverSimilar;
 exports.downloadRepository = downloadRepository;
-exports.findByTicket = findByTicket;
 exports.forkSession = forkSession;
 exports.getAuthConfig = getAuthConfig;
 exports.getCanonicalType = getCanonicalType;
@@ -4069,8 +4045,8 @@ exports.isOCXPTimeoutError = isOCXPTimeoutError;
 exports.isOCXPValidationError = isOCXPValidationError;
 exports.isValidContentType = isValidContentType;
 exports.listContent = listContent;
+exports.listContextDatabases = listContextDatabases;
 exports.listDatabases = listDatabases;
-exports.listDatabases2 = listDatabases2;
 exports.listDocs = listDocs;
 exports.listDownloadedRepos = listDownloadedRepos;
 exports.listProjects = listProjects;
@@ -4098,9 +4074,10 @@ exports.searchContent = searchContent;
 exports.setDefaultDatabase = setDefaultDatabase;
 exports.setDefaultRepo = setDefaultRepo;
 exports.testDatabaseConnection = testDatabaseConnection;
+exports.toolCreateMission = toolCreateMission;
+exports.toolUpdateMission = toolUpdateMission;
 exports.unlockContent = unlockContent;
 exports.updateDatabase = updateDatabase;
-exports.updateMission = updateMission;
 exports.updateProject = updateProject;
 exports.updateSessionMetadata = updateSessionMetadata;
 exports.writeContent = writeContent;

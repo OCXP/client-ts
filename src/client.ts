@@ -9,7 +9,6 @@ import type {
   WriteRequest,
   QueryFilter,
   KbQueryRequest,
-  DiscoverRequest,
   MissionCreate,
   MissionResponse,
   MissionListResponse,
@@ -564,36 +563,6 @@ export class OCXPClient {
     });
   }
 
-  /**
-   * Discover similar content across types
-   */
-  async discover(query: string, contentTypes?: string[], limit?: number) {
-    const headers = await this.getHeaders();
-    const body: DiscoverRequest = {
-      query,
-      content_types: contentTypes,
-      limit,
-    };
-
-    return sdk.discoverSimilar({
-      client: this.client,
-      body,
-      headers,
-    });
-  }
-
-  /**
-   * Find content by Jira ticket ID
-   */
-  async findByTicket(ticketId: string) {
-    const headers = await this.getHeaders();
-    return sdk.findByTicket({
-      client: this.client,
-      body: { ticket_id: ticketId },
-      headers,
-    });
-  }
-
   // ============== Locking ==============
 
   /**
@@ -754,11 +723,11 @@ export class OCXPClient {
   /**
    * Delete a downloaded repository by its UUID
    */
-  async deleteRepo(id: string): Promise<RepoDeleteResponse> {
+  async deleteRepo(repoId: string): Promise<RepoDeleteResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.deleteRepo({
       client: this.client,
-      path: { id },
+      path: { repo_id: repoId },
       headers,
     });
     return extractData(response) as RepoDeleteResponse;

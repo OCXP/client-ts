@@ -109,7 +109,7 @@ export {
   getSchema,
   getSample,
   listTables,
-  listDatabases2,
+  listContextDatabases,
 
   // Sessions
   listSessions,
@@ -124,11 +124,9 @@ export {
   getSnapshotStatus,
 
   // Tools
-  createMission,
-  updateMission,
+  toolCreateMission,
+  toolUpdateMission,
   getMissionContext,
-  discoverSimilar,
-  findByTicket,
 
   // Auth
   loginForAccessToken,
@@ -156,7 +154,6 @@ export type {
   BulkDeleteRequest,
   DownloadRequest,
   KbQueryRequest,
-  DiscoverRequest,
   MissionCreateRequest,
   ProjectCreate,
   ProjectUpdate,
@@ -328,16 +325,12 @@ export type {
   GetSnapshotStatusResponses,
 
   // Tools
-  CreateMissionData,
-  CreateMissionResponses,
-  UpdateMissionData,
-  UpdateMissionResponses,
+  ToolCreateMissionData,
+  ToolCreateMissionResponses,
+  ToolUpdateMissionData,
+  ToolUpdateMissionResponses,
   GetMissionContextData,
   GetMissionContextResponses,
-  DiscoverSimilarData,
-  DiscoverSimilarResponses,
-  FindByTicketData,
-  FindByTicketResponses,
 
   // Auth
   LoginForAccessTokenData,

@@ -38,9 +38,6 @@ import type {
   CreateFolderData,
   CreateFolderErrors,
   CreateFolderResponses,
-  CreateMission2Data,
-  CreateMission2Errors,
-  CreateMission2Responses,
   CreateMissionData,
   CreateMissionErrors,
   CreateMissionResponses,
@@ -70,15 +67,12 @@ import type {
   DeleteRepoData,
   DeleteRepoErrors,
   DeleteRepoResponses,
-  DiscoverSimilarData,
-  DiscoverSimilarErrors,
-  DiscoverSimilarResponses,
+  DiscoverContextData,
+  DiscoverContextErrors,
+  DiscoverContextResponses,
   DownloadRepositoryData,
   DownloadRepositoryErrors,
   DownloadRepositoryResponses,
-  FindByTicketData,
-  FindByTicketErrors,
-  FindByTicketResponses,
   ForkSessionData,
   ForkSessionErrors,
   ForkSessionResponses,
@@ -147,9 +141,9 @@ import type {
   ListContentData,
   ListContentErrors,
   ListContentResponses,
-  ListDatabases2Data,
-  ListDatabases2Errors,
-  ListDatabases2Responses,
+  ListContextDatabasesData,
+  ListContextDatabasesErrors,
+  ListContextDatabasesResponses,
   ListDatabasesAliasData,
   ListDatabasesAliasErrors,
   ListDatabasesAliasResponses,
@@ -233,15 +227,18 @@ import type {
   TestDatabaseConnectionData,
   TestDatabaseConnectionErrors,
   TestDatabaseConnectionResponses,
+  ToolCreateMissionData,
+  ToolCreateMissionErrors,
+  ToolCreateMissionResponses,
+  ToolUpdateMissionData,
+  ToolUpdateMissionErrors,
+  ToolUpdateMissionResponses,
   UnlockContentData,
   UnlockContentErrors,
   UnlockContentResponses,
   UpdateDatabaseData,
   UpdateDatabaseErrors,
   UpdateDatabaseResponses,
-  UpdateMission2Data,
-  UpdateMission2Errors,
-  UpdateMission2Responses,
   UpdateMissionData,
   UpdateMissionErrors,
   UpdateMissionResponses,
@@ -251,6 +248,9 @@ import type {
   UpdateSessionMetadataData,
   UpdateSessionMetadataErrors,
   UpdateSessionMetadataResponses,
+  ValidateResponseData,
+  ValidateResponseErrors,
+  ValidateResponseResponses,
   WriteContentData,
   WriteContentErrors,
   WriteContentResponses,
@@ -283,7 +283,7 @@ export const bulkReadContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<BulkReadContentResponses, BulkReadContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/bulk/read',
+    url: '/ocxp/context/{content_type}/bulk/read',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -301,7 +301,7 @@ export const bulkWriteContent = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<BulkWriteContentResponses, BulkWriteContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/bulk/write',
+    url: '/ocxp/context/{content_type}/bulk/write',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -323,7 +323,107 @@ export const bulkDeleteContent = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/{content_type}/bulk/delete',
+    url: '/ocxp/context/{content_type}/bulk/delete',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Discover Context
+ *
+ * Discover relevant context using smart strategy selection.
+ *
+ * OCXP automatically selects the best retrieval strategy:
+ * - **Semantic search** (default): Fast vector similarity search
+ * - **RAG with LLM answer**: When `include_answer=True`
+ * - **Hybrid search**: When `search_type=HYBRID`
+ *
+ * The response includes:
+ * - **results**: Ranked context snippets with scores
+ * - **answer**: LLM-generated answer (only if include_answer=True)
+ * - **strategy_used**: Which strategy was applied
+ * - **reranked**: Whether results were quality-reranked
+ *
+ * **Replaces:**
+ * - `POST /ocxp/kb/query` - Use this with default options
+ * - `POST /ocxp/kb/rag` - Use this with `include_answer=True`
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "query": "How does authentication work?",
+ * "options": {
+ * "content_type": "code",
+ * "project": "brain",
+ * "include_answer": true,
+ * "max_results": 5
+ * }
+ * }
+ * ```
+ */
+export const discoverContext = <ThrowOnError extends boolean = false>(
+  options: Options<DiscoverContextData, ThrowOnError>
+) =>
+  (options.client ?? client).post<DiscoverContextResponses, DiscoverContextErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/discover',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Validate Response
+ *
+ * Validate AI response against context.
+ *
+ * Checks for:
+ * - **Hallucination**: Claims not supported by context
+ * - **Outdated**: References to stale information
+ * - **Incomplete**: Missing key context
+ * - **Contradiction**: Conflicts with source context
+ *
+ * The response includes:
+ * - **valid**: True if no high-severity issues found
+ * - **confidence**: Confidence in validation (0.0 - 1.0)
+ * - **quality_score**: Overall quality score (0.0 - 1.0)
+ * - **issues**: List of specific issues found
+ * - **verified_claims**: Number of claims verified against context
+ * - **unverified_claims**: Number of claims that couldn't be verified
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "response": "The authentication uses JWT tokens with a 1-hour expiry.",
+ * "context_ids": ["kb-0", "kb-1", "kb-2"],
+ * "query": "How does authentication work?",
+ * "strict_mode": false
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "valid": true,
+ * "confidence": 0.85,
+ * "quality_score": 0.9,
+ * "issues": [],
+ * "verified_claims": 5,
+ * "unverified_claims": 1
+ * }
+ * ```
+ */
+export const validateResponse = <ThrowOnError extends boolean = false>(
+  options: Options<ValidateResponseData, ThrowOnError>
+) =>
+  (options.client ?? client).post<ValidateResponseResponses, ValidateResponseErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/validate',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -816,7 +916,13 @@ export const removeSession = <ThrowOnError extends boolean = false>(
 /**
  * Query Knowledge Base
  *
+ * DEPRECATED: Use POST /ocxp/context/discover instead.
+ *
+ * This endpoint will be removed in v2.0. Migrate to the new unified interface.
+ *
  * Semantic search with optional project scoping and external docs fallback.
+ *
+ * @deprecated
  */
 export const queryKnowledgeBase = <ThrowOnError extends boolean = false>(
   options: Options<QueryKnowledgeBaseData, ThrowOnError>
@@ -838,7 +944,13 @@ export const queryKnowledgeBase = <ThrowOnError extends boolean = false>(
 /**
  * Rag Knowledge Base
  *
+ * DEPRECATED: Use POST /ocxp/context/discover with include_answer=true instead.
+ *
+ * This endpoint will be removed in v2.0. Migrate to the new unified interface.
+ *
  * RAG query with LLM response and citations.
+ *
+ * @deprecated
  */
 export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(
   options: Options<RagKnowledgeBaseData, ThrowOnError>
@@ -914,14 +1026,14 @@ export const listDownloadedRepos = <ThrowOnError extends boolean = false>(
 /**
  * Delete repository
  *
- * Permanently deletes a downloaded repository and its indexed content. Uses the repository UUID.
+ * Permanently deletes a downloaded repository. Uses repo_id (owner/repo format).
  */
 export const deleteRepo = <ThrowOnError extends boolean = false>(
   options: Options<DeleteRepoData, ThrowOnError>
 ) =>
   (options.client ?? client).delete<DeleteRepoResponses, DeleteRepoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/repo/{id}',
+    url: '/ocxp/repo/{repo_id}',
     ...options,
   });
 
@@ -1207,10 +1319,14 @@ export const listTables = <ThrowOnError extends boolean = false>(
  *
  * Returns list of database configurations available in the workspace.
  */
-export const listDatabases2 = <ThrowOnError extends boolean = false>(
-  options?: Options<ListDatabases2Data, ThrowOnError>
+export const listContextDatabases = <ThrowOnError extends boolean = false>(
+  options?: Options<ListContextDatabasesData, ThrowOnError>
 ) =>
-  (options?.client ?? client).get<ListDatabases2Responses, ListDatabases2Errors, ThrowOnError>({
+  (options?.client ?? client).get<
+    ListContextDatabasesResponses,
+    ListContextDatabasesErrors,
+    ThrowOnError
+  >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/database/databases',
     ...options,
@@ -1445,10 +1561,14 @@ export const unlockContent = <ThrowOnError extends boolean = false>(
  *
  * Creates a mission with optional project association and goals list.
  */
-export const createMission2 = <ThrowOnError extends boolean = false>(
-  options: Options<CreateMission2Data, ThrowOnError>
+export const toolCreateMission = <ThrowOnError extends boolean = false>(
+  options: Options<ToolCreateMissionData, ThrowOnError>
 ) =>
-  (options.client ?? client).post<CreateMission2Responses, CreateMission2Errors, ThrowOnError>({
+  (options.client ?? client).post<
+    ToolCreateMissionResponses,
+    ToolCreateMissionErrors,
+    ThrowOnError
+  >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/create',
     ...options,
@@ -1463,10 +1583,14 @@ export const createMission2 = <ThrowOnError extends boolean = false>(
  *
  * Updates mission status, progress percentage, and/or notes.
  */
-export const updateMission2 = <ThrowOnError extends boolean = false>(
-  options: Options<UpdateMission2Data, ThrowOnError>
+export const toolUpdateMission = <ThrowOnError extends boolean = false>(
+  options: Options<ToolUpdateMissionData, ThrowOnError>
 ) =>
-  (options.client ?? client).post<UpdateMission2Responses, UpdateMission2Errors, ThrowOnError>({
+  (options.client ?? client).post<
+    ToolUpdateMissionResponses,
+    ToolUpdateMissionErrors,
+    ThrowOnError
+  >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/tools/mission/{mission_id}/update',
     ...options,
@@ -1491,42 +1615,6 @@ export const getMissionContext = <ThrowOnError extends boolean = false>(
       ...options,
     }
   );
-
-/**
- * Discover similar content
- *
- * Searches the knowledge base for content semantically similar to the query.
- */
-export const discoverSimilar = <ThrowOnError extends boolean = false>(
-  options: Options<DiscoverSimilarData, ThrowOnError>
-) =>
-  (options.client ?? client).post<DiscoverSimilarResponses, DiscoverSimilarErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/tools/discover',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Find content by Jira ticket
- *
- * Searches the knowledge base for content associated with a Jira ticket ID.
- */
-export const findByTicket = <ThrowOnError extends boolean = false>(
-  options: Options<FindByTicketData, ThrowOnError>
-) =>
-  (options.client ?? client).post<FindByTicketResponses, FindByTicketErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/tools/discover/ticket',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
 
 /**
  * Login For Access Token

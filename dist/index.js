@@ -820,7 +820,7 @@ var client = createClient(
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/bulk/read",
+  url: "/ocxp/context/{content_type}/bulk/read",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -829,7 +829,7 @@ var bulkReadContent = (options) => (options.client ?? client).post({
 });
 var bulkWriteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/bulk/write",
+  url: "/ocxp/context/{content_type}/bulk/write",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -838,7 +838,7 @@ var bulkWriteContent = (options) => (options.client ?? client).post({
 });
 var bulkDeleteContent = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/{content_type}/bulk/delete",
+  url: "/ocxp/context/{content_type}/bulk/delete",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1067,7 +1067,7 @@ var listDownloadedRepos = (options) => (options?.client ?? client).get({
 });
 var deleteRepo = (options) => (options.client ?? client).delete({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/repo/{id}",
+  url: "/ocxp/repo/{repo_id}",
   ...options
 });
 var createSnapshot = (options) => (options.client ?? client).post({
@@ -1171,7 +1171,7 @@ var listTables = (options) => (options?.client ?? client).get({
   url: "/ocxp/context/database/tables",
   ...options
 });
-var listDatabases2 = (options) => (options?.client ?? client).get({
+var listContextDatabases = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/context/database/databases",
   ...options
@@ -1256,6 +1256,24 @@ var unlockContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var toolCreateMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/tools/mission/create",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var toolUpdateMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/tools/mission/{mission_id}/update",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var getMissionContext = (options) => (options.client ?? client).get(
   {
     security: [{ scheme: "bearer", type: "http" }],
@@ -1263,24 +1281,6 @@ var getMissionContext = (options) => (options.client ?? client).get(
     ...options
   }
 );
-var discoverSimilar = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/discover",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var findByTicket = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/tools/discover/ticket",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
 var loginForAccessToken = (options) => (options.client ?? client).post({
   ...urlSearchParamsBodySerializer,
   url: "/auth/token",
@@ -1707,33 +1707,6 @@ var OCXPClient = class {
       headers
     });
   }
-  /**
-   * Discover similar content across types
-   */
-  async discover(query, contentTypes, limit) {
-    const headers = await this.getHeaders();
-    const body = {
-      query,
-      content_types: contentTypes,
-      limit
-    };
-    return discoverSimilar({
-      client: this.client,
-      body,
-      headers
-    });
-  }
-  /**
-   * Find content by Jira ticket ID
-   */
-  async findByTicket(ticketId) {
-    const headers = await this.getHeaders();
-    return findByTicket({
-      client: this.client,
-      body: { ticket_id: ticketId },
-      headers
-    });
-  }
   // ============== Locking ==============
   /**
    * Acquire exclusive lock on content
@@ -1831,13 +1804,19 @@ var OCXPClient = class {
    * Download repository and trigger vectorization
    * @param repoUrl - Full GitHub repository URL
    * @param branch - Optional branch (default: main)
-   * @param mode - Download mode: full or docs_only
+   * @param options - Download options (mode, repo_type, path)
    */
-  async downloadRepository(repoUrl, branch, mode) {
+  async downloadRepository(repoUrl, branch, options) {
     const headers = await this.getHeaders();
     const response = await downloadRepository({
       client: this.client,
-      body: { repo_url: repoUrl, branch, mode },
+      body: {
+        repo_url: repoUrl,
+        branch,
+        mode: options?.mode,
+        repo_type: options?.repo_type,
+        path: options?.path
+      },
       headers
     });
     return extractData(response);
@@ -1868,11 +1847,11 @@ var OCXPClient = class {
   /**
    * Delete a downloaded repository by its UUID
    */
-  async deleteRepo(id) {
+  async deleteRepo(repoId) {
     const headers = await this.getHeaders();
     const response = await deleteRepo({
       client: this.client,
-      path: { id },
+      path: { repo_id: repoId },
       headers
     });
     return extractData(response);
@@ -3879,6 +3858,6 @@ var GithubCommitsDataSchema = z.object({
 });
 var GithubCommitsResponseSchema = createResponseSchema(GithubCommitsDataSchema);
 
-export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMission, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteDatabase, deleteProject, deleteRepo, discoverSimilar, downloadRepository, findByTicket, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listDatabases, listDatabases2, listDocs, listDownloadedRepos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, removeDatabase, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, unlockContent, updateDatabase, updateMission, updateProject, updateSessionMetadata, writeContent };
+export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createOCXPClient, createPathService, createProject, createResponseSchema, createSnapshot, createWebSocketService, deleteContent, deleteDatabase, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getSnapshotStatus, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listContextDatabases, listDatabases, listDocs, listDownloadedRepos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, removeDatabase, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

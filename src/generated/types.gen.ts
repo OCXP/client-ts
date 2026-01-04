@@ -504,6 +504,66 @@ export type ContentWriteResponse = {
 };
 
 /**
+ * ContextResult
+ *
+ * Single context result from discovery.
+ *
+ * Contains content snippet, relevance score, and source metadata.
+ */
+export type ContextResult = {
+  /**
+   * Id
+   *
+   * Unique identifier for this result
+   */
+  id: string;
+  /**
+   * Content
+   *
+   * Content snippet (may be truncated)
+   */
+  content: string;
+  /**
+   * Content Type
+   *
+   * Type of content: code, docs, mission, etc.
+   */
+  content_type: string;
+  /**
+   * Location
+   *
+   * Source location (file path, URL, etc.)
+   */
+  location: string;
+  /**
+   * Score
+   *
+   * Relevance score (0.0 - 1.0)
+   */
+  score: number;
+  /**
+   * Source Type
+   *
+   * Source type: kb, context7, aws_docs
+   */
+  source_type?: string;
+  /**
+   * Kb Source
+   *
+   * Which KB returned this: code or docs
+   */
+  kb_source?: string | null;
+  /**
+   * Metadata
+   *
+   * Additional metadata
+   */
+  metadata?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
  * CreateFolderRequest
  *
  * Request body for folder creation.
@@ -838,61 +898,166 @@ export type DatabaseUpdate = {
 };
 
 /**
+ * DiscoverOptions
+ *
+ * Options for context discovery.
+ *
+ * Controls filtering, scoping, and behavior of the discover endpoint.
+ */
+export type DiscoverOptions = {
+  /**
+   * Content Type
+   *
+   * Filter by type: code, docs, mission, etc.
+   */
+  content_type?: string | null;
+  /**
+   * Project
+   *
+   * Scope to project ID
+   */
+  project?: string | null;
+  /**
+   * Mission
+   *
+   * Scope to mission ID
+   */
+  mission?: string | null;
+  /**
+   * Session
+   *
+   * Scope to session ID
+   */
+  session?: string | null;
+  /**
+   * Repos
+   *
+   * Filter to specific repo IDs
+   */
+  repos?: Array<string> | null;
+  /**
+   * Doc Id
+   *
+   * Filter to specific document ID
+   */
+  doc_id?: string | null;
+  /**
+   * Include Answer
+   *
+   * If true, include RAG-generated answer using LLM
+   */
+  include_answer?: boolean;
+  /**
+   * Enable Fallback
+   *
+   * Enable external docs fallback when KB has no/low results
+   */
+  enable_fallback?: boolean;
+  /**
+   * Max Results
+   *
+   * Maximum results to return
+   */
+  max_results?: number;
+  /**
+   * Min Score
+   *
+   * Minimum relevance score threshold
+   */
+  min_score?: number;
+  /**
+   * Search Type
+   *
+   * Search type: SEMANTIC or HYBRID
+   */
+  search_type?: string;
+};
+
+/**
  * DiscoverRequest
+ *
+ * Request for POST /ocxp/context/discover.
+ *
+ * Unified interface replacing /ocxp/kb/query and /ocxp/kb/rag.
+ * OCXP automatically selects the best strategy based on options.
  */
 export type DiscoverRequest = {
   /**
    * Query
+   *
+   * Search query
    */
   query: string;
   /**
-   * Content Types
+   * Discovery options for filtering and behavior
    */
-  content_types?: Array<string> | null;
-  /**
-   * Limit
-   */
-  limit?: number;
+  options?: DiscoverOptions | null;
 };
 
 /**
  * DiscoverResponse
  *
- * Response for POST /tools/discover.
+ * Response from POST /ocxp/context/discover.
+ *
+ * Contains search results and optional RAG-generated answer.
  */
 export type DiscoverResponse = {
   /**
    * Results
+   *
+   * List of context results
    */
-  results: Array<DiscoverResult>;
+  results: Array<ContextResult>;
   /**
-   * Count
+   * Answer
+   *
+   * RAG-generated answer (only if include_answer=True)
    */
-  count: number;
-};
-
-/**
- * DiscoverResult
- *
- * Single discovery result.
- */
-export type DiscoverResult = {
+  answer?: string | null;
   /**
-   * Path
+   * Strategy Used
+   *
+   * Strategy that was used for discovery
    */
-  path: string;
+  strategy_used: 'semantic' | 'rag' | 'hybrid';
   /**
-   * Content Type
+   * Total Found
+   *
+   * Total number of results found
    */
-  content_type: string;
+  total_found: number;
   /**
-   * Score
+   * Reranked
+   *
+   * Whether results were reranked for quality
    */
-  score: number;
+  reranked?: boolean;
   /**
-   * Snippet
+   * Fallback Triggered
+   *
+   * Whether external docs fallback was triggered
    */
-  snippet?: string | null;
+  fallback_triggered?: boolean;
+  /**
+   * Fallback Source
+   *
+   * External source used for fallback
+   */
+  fallback_source?: string | null;
+  /**
+   * Session Id
+   *
+   * Session ID for RAG conversation continuity
+   */
+  session_id?: string | null;
+  /**
+   * Citations
+   *
+   * Citations for RAG answer
+   */
+  citations?: Array<{
+    [key: string]: unknown;
+  }>;
 };
 
 /**
@@ -919,16 +1084,6 @@ export type DownloadRequest = {
    * Repo Type
    */
   repo_type?: string;
-};
-
-/**
- * FindByTicketRequest
- */
-export type FindByTicketRequest = {
-  /**
-   * Ticket Id
-   */
-  ticket_id: string;
 };
 
 /**
@@ -1058,6 +1213,12 @@ export type KbQueryRequest = {
    */
   search_type?: string;
   /**
+   * Content Type
+   *
+   * Knowledge base to query: 'code' for source files, 'docs' for documentation, 'all' for both (merged by score)
+   */
+  content_type?: string;
+  /**
    * Doc Id
    *
    * Filter to specific doc_id
@@ -1181,6 +1342,12 @@ export type KbResultItem = {
    * Source type: kb, context7, aws_docs
    */
   source_type?: string;
+  /**
+   * Kb Source
+   *
+   * Which KB returned this result: 'code' or 'docs'
+   */
+  kb_source?: string | null;
 };
 
 /**
@@ -1692,6 +1859,12 @@ export type RagRequest = {
    */
   query: string;
   /**
+   * Content Type
+   *
+   * Knowledge base to query: 'code' for source files, 'docs' for documentation, 'all' for both
+   */
+  content_type?: string;
+  /**
    * Session Id
    *
    * Session ID for conversation
@@ -2170,22 +2343,6 @@ export type TableOverview = {
 };
 
 /**
- * TicketDiscoverResponse
- *
- * Response for POST /tools/discover/ticket.
- */
-export type TicketDiscoverResponse = {
-  /**
-   * Results
-   */
-  results: Array<DiscoverResult>;
-  /**
-   * Count
-   */
-  count: number;
-};
-
-/**
  * TokenResponse
  *
  * Token response with camelCase output for plugin compatibility.
@@ -2234,6 +2391,86 @@ export type UserResponse = {
 };
 
 /**
+ * ValidateRequest
+ *
+ * Request for POST /ocxp/context/validate.
+ *
+ * Validates AI-generated responses against source context.
+ */
+export type ValidateRequest = {
+  /**
+   * Response
+   *
+   * AI response to validate
+   */
+  response: string;
+  /**
+   * Context Ids
+   *
+   * Context IDs that were used to generate response
+   */
+  context_ids?: Array<string> | null;
+  /**
+   * Query
+   *
+   * Original query for relevance checking
+   */
+  query?: string | null;
+  /**
+   * Strict Mode
+   *
+   * If true, require all claims to be verifiable
+   */
+  strict_mode?: boolean;
+};
+
+/**
+ * ValidateResponse
+ *
+ * Response from POST /ocxp/context/validate.
+ *
+ * Contains validation results with quality scores and issues.
+ */
+export type ValidateResponse = {
+  /**
+   * Valid
+   *
+   * True if no high-severity issues found
+   */
+  valid: boolean;
+  /**
+   * Confidence
+   *
+   * Confidence in validation result (0.0 - 1.0)
+   */
+  confidence: number;
+  /**
+   * Quality Score
+   *
+   * Overall quality score (0.0 - 1.0)
+   */
+  quality_score: number;
+  /**
+   * Issues
+   *
+   * List of issues found
+   */
+  issues?: Array<ValidationIssue>;
+  /**
+   * Verified Claims
+   *
+   * Number of claims that were verified
+   */
+  verified_claims?: number;
+  /**
+   * Unverified Claims
+   *
+   * Number of claims that could not be verified
+   */
+  unverified_claims?: number;
+};
+
+/**
  * ValidationError
  */
 export type ValidationError = {
@@ -2249,6 +2486,44 @@ export type ValidationError = {
    * Error Type
    */
   type: string;
+};
+
+/**
+ * ValidationIssue
+ *
+ * Single validation issue found in AI response.
+ */
+export type ValidationIssue = {
+  /**
+   * Type
+   *
+   * Type of issue found
+   */
+  type: 'hallucination' | 'outdated' | 'incomplete' | 'contradiction';
+  /**
+   * Severity
+   *
+   * Severity of the issue
+   */
+  severity: 'low' | 'medium' | 'high';
+  /**
+   * Description
+   *
+   * Human-readable description of the issue
+   */
+  description: string;
+  /**
+   * Location
+   *
+   * Location in response where issue was found
+   */
+  location?: string | null;
+  /**
+   * Suggestion
+   *
+   * Suggested correction
+   */
+  suggestion?: string | null;
 };
 
 /**
@@ -2328,7 +2603,7 @@ export type BulkReadContentData = {
     content_type: string;
   };
   query?: never;
-  url: '/ocxp/{content_type}/bulk/read';
+  url: '/ocxp/context/{content_type}/bulk/read';
 };
 
 export type BulkReadContentErrors = {
@@ -2364,7 +2639,7 @@ export type BulkWriteContentData = {
     content_type: string;
   };
   query?: never;
-  url: '/ocxp/{content_type}/bulk/write';
+  url: '/ocxp/context/{content_type}/bulk/write';
 };
 
 export type BulkWriteContentErrors = {
@@ -2400,7 +2675,7 @@ export type BulkDeleteContentData = {
     content_type: string;
   };
   query?: never;
-  url: '/ocxp/{content_type}/bulk/delete';
+  url: '/ocxp/context/{content_type}/bulk/delete';
 };
 
 export type BulkDeleteContentErrors = {
@@ -2421,6 +2696,68 @@ export type BulkDeleteContentResponses = {
 
 export type BulkDeleteContentResponse =
   BulkDeleteContentResponses[keyof BulkDeleteContentResponses];
+
+export type DiscoverContextData = {
+  body: DiscoverRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/discover';
+};
+
+export type DiscoverContextErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DiscoverContextError = DiscoverContextErrors[keyof DiscoverContextErrors];
+
+export type DiscoverContextResponses = {
+  /**
+   * Successful Response
+   */
+  200: DiscoverResponse;
+};
+
+export type DiscoverContextResponse = DiscoverContextResponses[keyof DiscoverContextResponses];
+
+export type ValidateResponseData = {
+  body: ValidateRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/validate';
+};
+
+export type ValidateResponseErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ValidateResponseError = ValidateResponseErrors[keyof ValidateResponseErrors];
+
+export type ValidateResponseResponses = {
+  /**
+   * Successful Response
+   */
+  200: ValidateResponse;
+};
+
+export type ValidateResponseResponse = ValidateResponseResponses[keyof ValidateResponseResponses];
 
 export type ListSessionsData = {
   body?: never;
@@ -3802,12 +4139,12 @@ export type DeleteRepoData = {
   };
   path: {
     /**
-     * Id
+     * Repo Id
      */
-    id: string;
+    repo_id: string;
   };
   query?: never;
-  url: '/ocxp/repo/{id}';
+  url: '/ocxp/repo/{repo_id}';
 };
 
 export type DeleteRepoErrors = {
@@ -4432,7 +4769,7 @@ export type ListTablesResponses = {
   200: unknown;
 };
 
-export type ListDatabases2Data = {
+export type ListContextDatabasesData = {
   body?: never;
   headers?: {
     /**
@@ -4445,16 +4782,17 @@ export type ListDatabases2Data = {
   url: '/ocxp/context/database/databases';
 };
 
-export type ListDatabases2Errors = {
+export type ListContextDatabasesErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type ListDatabases2Error = ListDatabases2Errors[keyof ListDatabases2Errors];
+export type ListContextDatabasesError =
+  ListContextDatabasesErrors[keyof ListContextDatabasesErrors];
 
-export type ListDatabases2Responses = {
+export type ListContextDatabasesResponses = {
   /**
    * Database list returned successfully
    */
@@ -5076,7 +5414,7 @@ export type UnlockContentResponses = {
   200: unknown;
 };
 
-export type CreateMission2Data = {
+export type ToolCreateMissionData = {
   body: MissionCreateRequest;
   headers?: {
     /**
@@ -5089,25 +5427,26 @@ export type CreateMission2Data = {
   url: '/tools/mission/create';
 };
 
-export type CreateMission2Errors = {
+export type ToolCreateMissionErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type CreateMission2Error = CreateMission2Errors[keyof CreateMission2Errors];
+export type ToolCreateMissionError = ToolCreateMissionErrors[keyof ToolCreateMissionErrors];
 
-export type CreateMission2Responses = {
+export type ToolCreateMissionResponses = {
   /**
    * Mission created successfully
    */
   201: MissionCreateResponse;
 };
 
-export type CreateMission2Response = CreateMission2Responses[keyof CreateMission2Responses];
+export type ToolCreateMissionResponse =
+  ToolCreateMissionResponses[keyof ToolCreateMissionResponses];
 
-export type UpdateMission2Data = {
+export type ToolUpdateMissionData = {
   body: MissionUpdateRequest;
   headers?: {
     /**
@@ -5125,7 +5464,7 @@ export type UpdateMission2Data = {
   url: '/tools/mission/{mission_id}/update';
 };
 
-export type UpdateMission2Errors = {
+export type ToolUpdateMissionErrors = {
   /**
    * Mission not found
    */
@@ -5136,16 +5475,17 @@ export type UpdateMission2Errors = {
   422: HttpValidationError;
 };
 
-export type UpdateMission2Error = UpdateMission2Errors[keyof UpdateMission2Errors];
+export type ToolUpdateMissionError = ToolUpdateMissionErrors[keyof ToolUpdateMissionErrors];
 
-export type UpdateMission2Responses = {
+export type ToolUpdateMissionResponses = {
   /**
    * Mission updated successfully
    */
   200: MissionUpdateResponse;
 };
 
-export type UpdateMission2Response = UpdateMission2Responses[keyof UpdateMission2Responses];
+export type ToolUpdateMissionResponse =
+  ToolUpdateMissionResponses[keyof ToolUpdateMissionResponses];
 
 export type GetMissionContextData = {
   body?: never;
@@ -5187,68 +5527,6 @@ export type GetMissionContextResponses = {
 
 export type GetMissionContextResponse =
   GetMissionContextResponses[keyof GetMissionContextResponses];
-
-export type DiscoverSimilarData = {
-  body: DiscoverRequest;
-  headers?: {
-    /**
-     * X-Workspace
-     */
-    'X-Workspace'?: string;
-  };
-  path?: never;
-  query?: never;
-  url: '/tools/discover';
-};
-
-export type DiscoverSimilarErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type DiscoverSimilarError = DiscoverSimilarErrors[keyof DiscoverSimilarErrors];
-
-export type DiscoverSimilarResponses = {
-  /**
-   * Discovery results returned
-   */
-  200: DiscoverResponse;
-};
-
-export type DiscoverSimilarResponse = DiscoverSimilarResponses[keyof DiscoverSimilarResponses];
-
-export type FindByTicketData = {
-  body: FindByTicketRequest;
-  headers?: {
-    /**
-     * X-Workspace
-     */
-    'X-Workspace'?: string;
-  };
-  path?: never;
-  query?: never;
-  url: '/tools/discover/ticket';
-};
-
-export type FindByTicketErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type FindByTicketError = FindByTicketErrors[keyof FindByTicketErrors];
-
-export type FindByTicketResponses = {
-  /**
-   * Related content returned
-   */
-  200: TicketDiscoverResponse;
-};
-
-export type FindByTicketResponse = FindByTicketResponses[keyof FindByTicketResponses];
 
 export type LoginForAccessTokenData = {
   body: BodyLoginForAccessToken;

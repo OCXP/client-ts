@@ -2,11 +2,11 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCXP - Open Context Exchange Protocol",
-    "description": "Unified context API with auto-generated OpenAPI",
+    "description": "\n## Context Operations (Recommended)\n\n- `POST /ocxp/context/discover` - Smart context discovery (replaces /kb/query and /kb/rag)\n- `POST /ocxp/context/validate` - Validate AI responses against context\n- `GET /ocxp/context/{type}/{id}` - Load content by ID\n- `POST /ocxp/context/{type}/bulk/*` - Bulk operations (read/write/delete)\n\n## Deprecated Endpoints\n\nThe following endpoints are deprecated and will be removed in v2.0:\n\n- `POST /ocxp/kb/query` - Use `/ocxp/context/discover` instead\n- `POST /ocxp/kb/rag` - Use `/ocxp/context/discover` with `include_answer=true`\n\n## Migration Guide\n\n**Before (deprecated):**\n```json\nPOST /ocxp/kb/query\n{\"query\": \"How does auth work?\", \"max_results\": 5}\n```\n\n**After (recommended):**\n```json\nPOST /ocxp/context/discover\n{\"query\": \"How does auth work?\", \"options\": {\"max_results\": 5}}\n```\n\nFor RAG with LLM answers, add `\"include_answer\": true` to options.\n",
     "version": "2.0.0"
   },
   "paths": {
-    "/ocxp/{content_type}/bulk/read": {
+    "/ocxp/context/{content_type}/bulk/read": {
       "post": {
         "tags": [
           "Bulk"
@@ -73,7 +73,7 @@
         ]
       }
     },
-    "/ocxp/{content_type}/bulk/write": {
+    "/ocxp/context/{content_type}/bulk/write": {
       "post": {
         "tags": [
           "Bulk"
@@ -140,7 +140,7 @@
         ]
       }
     },
-    "/ocxp/{content_type}/bulk/delete": {
+    "/ocxp/context/{content_type}/bulk/delete": {
       "post": {
         "tags": [
           "Bulk"
@@ -185,6 +185,122 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BulkDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/discover": {
+      "post": {
+        "tags": [
+          "Context Discovery"
+        ],
+        "summary": "Discover Context",
+        "description": "Discover relevant context using smart strategy selection.\n\nOCXP automatically selects the best retrieval strategy:\n- **Semantic search** (default): Fast vector similarity search\n- **RAG with LLM answer**: When `include_answer=True`\n- **Hybrid search**: When `search_type=HYBRID`\n\nThe response includes:\n- **results**: Ranked context snippets with scores\n- **answer**: LLM-generated answer (only if include_answer=True)\n- **strategy_used**: Which strategy was applied\n- **reranked**: Whether results were quality-reranked\n\n**Replaces:**\n- `POST /ocxp/kb/query` - Use this with default options\n- `POST /ocxp/kb/rag` - Use this with `include_answer=True`\n\n**Example Request:**\n```json\n{\n    \"query\": \"How does authentication work?\",\n    \"options\": {\n        \"content_type\": \"code\",\n        \"project\": \"brain\",\n        \"include_answer\": true,\n        \"max_results\": 5\n    }\n}\n```",
+        "operationId": "discoverContext",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoverRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoverResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/validate": {
+      "post": {
+        "tags": [
+          "Context Discovery"
+        ],
+        "summary": "Validate Response",
+        "description": "Validate AI response against context.\n\nChecks for:\n- **Hallucination**: Claims not supported by context\n- **Outdated**: References to stale information\n- **Incomplete**: Missing key context\n- **Contradiction**: Conflicts with source context\n\nThe response includes:\n- **valid**: True if no high-severity issues found\n- **confidence**: Confidence in validation (0.0 - 1.0)\n- **quality_score**: Overall quality score (0.0 - 1.0)\n- **issues**: List of specific issues found\n- **verified_claims**: Number of claims verified against context\n- **unverified_claims**: Number of claims that couldn't be verified\n\n**Example Request:**\n```json\n{\n    \"response\": \"The authentication uses JWT tokens with a 1-hour expiry.\",\n    \"context_ids\": [\"kb-0\", \"kb-1\", \"kb-2\"],\n    \"query\": \"How does authentication work?\",\n    \"strict_mode\": false\n}\n```\n\n**Example Response:**\n```json\n{\n    \"valid\": true,\n    \"confidence\": 0.85,\n    \"quality_score\": 0.9,\n    \"issues\": [],\n    \"verified_claims\": 5,\n    \"unverified_claims\": 1\n}\n```",
+        "operationId": "validateResponse",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
                 }
               }
             }
@@ -2163,8 +2279,9 @@
           "KB"
         ],
         "summary": "Query Knowledge Base",
-        "description": "Semantic search with optional project scoping and external docs fallback.",
+        "description": "DEPRECATED: Use POST /ocxp/context/discover instead.\n\nThis endpoint will be removed in v2.0. Migrate to the new unified interface.\n\nSemantic search with optional project scoping and external docs fallback.",
         "operationId": "queryKnowledgeBase",
+        "deprecated": true,
         "parameters": [
           {
             "name": "X-Workspace",
@@ -2221,8 +2338,9 @@
           "KB"
         ],
         "summary": "Rag Knowledge Base",
-        "description": "RAG query with LLM response and citations.",
+        "description": "DEPRECATED: Use POST /ocxp/context/discover with include_answer=true instead.\n\nThis endpoint will be removed in v2.0. Migrate to the new unified interface.\n\nRAG query with LLM response and citations.",
         "operationId": "ragKnowledgeBase",
+        "deprecated": true,
         "parameters": [
           {
             "name": "X-Workspace",
@@ -2442,22 +2560,22 @@
         ]
       }
     },
-    "/ocxp/repo/{id}": {
+    "/ocxp/repo/{repo_id}": {
       "delete": {
         "tags": [
           "Repo"
         ],
         "summary": "Delete repository",
-        "description": "Permanently deletes a downloaded repository and its indexed content. Uses the repository UUID.",
+        "description": "Permanently deletes a downloaded repository. Uses repo_id (owner/repo format).",
         "operationId": "delete_repo",
         "parameters": [
           {
-            "name": "id",
+            "name": "repo_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
-              "title": "Id"
+              "title": "Repo Id"
             }
           },
           {
@@ -3535,7 +3653,7 @@
         ],
         "summary": "List configured databases",
         "description": "Returns list of database configurations available in the workspace.",
-        "operationId": "listDatabases",
+        "operationId": "listContextDatabases",
         "parameters": [
           {
             "name": "X-Workspace",
@@ -4637,7 +4755,7 @@
         ],
         "summary": "Create a new mission",
         "description": "Creates a mission with optional project association and goals list.",
-        "operationId": "createMission",
+        "operationId": "toolCreateMission",
         "parameters": [
           {
             "name": "X-Workspace",
@@ -4695,7 +4813,7 @@
         ],
         "summary": "Update mission status",
         "description": "Updates mission status, progress percentage, and/or notes.",
-        "operationId": "updateMission",
+        "operationId": "toolUpdateMission",
         "parameters": [
           {
             "name": "mission_id",
@@ -4799,122 +4917,6 @@
           },
           "404": {
             "description": "Mission not found"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/tools/discover": {
-      "post": {
-        "tags": [
-          "Tools"
-        ],
-        "summary": "Discover similar content",
-        "description": "Searches the knowledge base for content semantically similar to the query.",
-        "operationId": "discoverSimilar",
-        "parameters": [
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DiscoverRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Discovery results returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DiscoverResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/tools/discover/ticket": {
-      "post": {
-        "tags": [
-          "Tools"
-        ],
-        "summary": "Find content by Jira ticket",
-        "description": "Searches the knowledge base for content associated with a Jira ticket ID.",
-        "operationId": "findByTicket",
-        "parameters": [
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FindByTicketRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Related content returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TicketDiscoverResponse"
-                }
-              }
-            }
           },
           "422": {
             "description": "Validation Error",
@@ -6050,6 +6052,87 @@
         "title": "ContentWriteResponse",
         "description": "Response for POST /ocxp/{type}/{id}."
       },
+      "ContextResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique identifier for this result"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Content snippet (may be truncated)"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "description": "Type of content: code, docs, mission, etc.",
+            "examples": [
+              "code",
+              "docs"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "title": "Location",
+            "description": "Source location (file path, URL, etc.)",
+            "examples": [
+              "src/auth/login.py:45"
+            ]
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "description": "Relevance score (0.0 - 1.0)"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type",
+            "description": "Source type: kb, context7, aws_docs",
+            "default": "kb",
+            "examples": [
+              "kb",
+              "context7",
+              "aws_docs"
+            ]
+          },
+          "kb_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kb Source",
+            "description": "Which KB returned this: code or docs",
+            "examples": [
+              "code",
+              "docs"
+            ]
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Additional metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "content_type",
+          "location",
+          "score"
+        ],
+        "title": "ContextResult",
+        "description": "Single context result from discovery.\n\nContains content snippet, relevance score, and source metadata."
+      },
       "CreateFolderRequest": {
         "properties": {
           "project_id": {
@@ -6692,13 +6775,71 @@
         "title": "DatabaseUpdate",
         "description": "Request body for updating a database config."
       },
-      "DiscoverRequest": {
+      "DiscoverOptions": {
         "properties": {
-          "query": {
-            "type": "string",
-            "title": "Query"
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type",
+            "description": "Filter by type: code, docs, mission, etc.",
+            "examples": [
+              "code",
+              "docs",
+              "all"
+            ]
           },
-          "content_types": {
+          "project": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project",
+            "description": "Scope to project ID",
+            "examples": [
+              "my-project"
+            ]
+          },
+          "mission": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission",
+            "description": "Scope to mission ID",
+            "examples": [
+              "mission-abc123"
+            ]
+          },
+          "session": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session",
+            "description": "Scope to session ID",
+            "examples": [
+              "sess-xyz789"
+            ]
+          },
+          "repos": {
             "anyOf": [
               {
                 "items": {
@@ -6710,66 +6851,16 @@
                 "type": "null"
               }
             ],
-            "title": "Content Types"
-          },
-          "limit": {
-            "type": "integer",
-            "title": "Limit",
-            "default": 10
-          }
-        },
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "title": "DiscoverRequest"
-      },
-      "DiscoverResponse": {
-        "properties": {
-          "results": {
-            "items": {
-              "$ref": "#/components/schemas/DiscoverResult"
-            },
-            "type": "array",
-            "title": "Results"
-          },
-          "count": {
-            "type": "integer",
-            "title": "Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "results",
-          "count"
-        ],
-        "title": "DiscoverResponse",
-        "description": "Response for POST /tools/discover."
-      },
-      "DiscoverResult": {
-        "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
+            "title": "Repos",
+            "description": "Filter to specific repo IDs",
             "examples": [
-              "docs/architecture.md"
+              [
+                "owner/repo1",
+                "owner/repo2"
+              ]
             ]
           },
-          "content_type": {
-            "type": "string",
-            "title": "Content Type",
-            "examples": [
-              "context"
-            ]
-          },
-          "score": {
-            "type": "number",
-            "title": "Score",
-            "examples": [
-              0.92
-            ]
-          },
-          "snippet": {
+          "doc_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -6778,20 +6869,179 @@
                 "type": "null"
               }
             ],
-            "title": "Snippet",
+            "title": "Doc Id",
+            "description": "Filter to specific document ID",
             "examples": [
-              "...relevant content snippet..."
+              "strands-agents"
             ]
+          },
+          "include_answer": {
+            "type": "boolean",
+            "title": "Include Answer",
+            "description": "If true, include RAG-generated answer using LLM",
+            "default": false
+          },
+          "enable_fallback": {
+            "type": "boolean",
+            "title": "Enable Fallback",
+            "description": "Enable external docs fallback when KB has no/low results",
+            "default": true
+          },
+          "max_results": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Max Results",
+            "description": "Maximum results to return",
+            "default": 5
+          },
+          "min_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Min Score",
+            "description": "Minimum relevance score threshold",
+            "default": 0.3
+          },
+          "search_type": {
+            "type": "string",
+            "pattern": "^(SEMANTIC|HYBRID)$",
+            "title": "Search Type",
+            "description": "Search type: SEMANTIC or HYBRID",
+            "default": "SEMANTIC"
+          }
+        },
+        "type": "object",
+        "title": "DiscoverOptions",
+        "description": "Options for context discovery.\n\nControls filtering, scoping, and behavior of the discover endpoint."
+      },
+      "DiscoverRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Query",
+            "description": "Search query",
+            "examples": [
+              "How does authentication work?"
+            ]
+          },
+          "options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiscoverOptions"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Discovery options for filtering and behavior"
           }
         },
         "type": "object",
         "required": [
-          "path",
-          "content_type",
-          "score"
+          "query"
         ],
-        "title": "DiscoverResult",
-        "description": "Single discovery result."
+        "title": "DiscoverRequest",
+        "description": "Request for POST /ocxp/context/discover.\n\nUnified interface replacing /ocxp/kb/query and /ocxp/kb/rag.\nOCXP automatically selects the best strategy based on options."
+      },
+      "DiscoverResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ContextResult"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "List of context results"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer",
+            "description": "RAG-generated answer (only if include_answer=True)"
+          },
+          "strategy_used": {
+            "type": "string",
+            "enum": [
+              "semantic",
+              "rag",
+              "hybrid"
+            ],
+            "title": "Strategy Used",
+            "description": "Strategy that was used for discovery"
+          },
+          "total_found": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Found",
+            "description": "Total number of results found"
+          },
+          "reranked": {
+            "type": "boolean",
+            "title": "Reranked",
+            "description": "Whether results were reranked for quality",
+            "default": false
+          },
+          "fallback_triggered": {
+            "type": "boolean",
+            "title": "Fallback Triggered",
+            "description": "Whether external docs fallback was triggered",
+            "default": false
+          },
+          "fallback_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Source",
+            "description": "External source used for fallback",
+            "examples": [
+              "context7",
+              "aws_docs"
+            ]
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Session ID for RAG conversation continuity"
+          },
+          "citations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Citations",
+            "description": "Citations for RAG answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "strategy_used",
+          "total_found"
+        ],
+        "title": "DiscoverResponse",
+        "description": "Response from POST /ocxp/context/discover.\n\nContains search results and optional RAG-generated answer."
       },
       "DownloadRequest": {
         "properties": {
@@ -6837,19 +7087,6 @@
           "repo_url"
         ],
         "title": "DownloadRequest"
-      },
-      "FindByTicketRequest": {
-        "properties": {
-          "ticket_id": {
-            "type": "string",
-            "title": "Ticket Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "ticket_id"
-        ],
-        "title": "FindByTicketRequest"
       },
       "ForeignKeyInfo": {
         "properties": {
@@ -7040,6 +7277,13 @@
             "pattern": "^(SEMANTIC|HYBRID)$",
             "title": "Search Type",
             "default": "SEMANTIC"
+          },
+          "content_type": {
+            "type": "string",
+            "pattern": "^(code|docs|all)$",
+            "title": "Content Type",
+            "description": "Knowledge base to query: 'code' for source files, 'docs' for documentation, 'all' for both (merged by score)",
+            "default": "docs"
           },
           "doc_id": {
             "anyOf": [
@@ -7238,6 +7482,22 @@
               "kb",
               "context7",
               "aws_docs"
+            ]
+          },
+          "kb_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kb Source",
+            "description": "Which KB returned this result: 'code' or 'docs'",
+            "examples": [
+              "code",
+              "docs"
             ]
           }
         },
@@ -8178,6 +8438,13 @@
             "minLength": 1,
             "title": "Query"
           },
+          "content_type": {
+            "type": "string",
+            "pattern": "^(code|docs|all)$",
+            "title": "Content Type",
+            "description": "Knowledge base to query: 'code' for source files, 'docs' for documentation, 'all' for both",
+            "default": "docs"
+          },
           "session_id": {
             "anyOf": [
               {
@@ -9024,28 +9291,6 @@
         "title": "TableOverview",
         "description": "Table information with columns and foreign keys."
       },
-      "TicketDiscoverResponse": {
-        "properties": {
-          "results": {
-            "items": {
-              "$ref": "#/components/schemas/DiscoverResult"
-            },
-            "type": "array",
-            "title": "Results"
-          },
-          "count": {
-            "type": "integer",
-            "title": "Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "results",
-          "count"
-        ],
-        "title": "TicketDiscoverResponse",
-        "description": "Response for POST /tools/discover/ticket."
-      },
       "TokenResponse": {
         "properties": {
           "accessToken": {
@@ -9104,6 +9349,109 @@
         "title": "UserResponse",
         "description": "User info response."
       },
+      "ValidateRequest": {
+        "properties": {
+          "response": {
+            "type": "string",
+            "maxLength": 50000,
+            "minLength": 1,
+            "title": "Response",
+            "description": "AI response to validate"
+          },
+          "context_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Ids",
+            "description": "Context IDs that were used to generate response"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query",
+            "description": "Original query for relevance checking"
+          },
+          "strict_mode": {
+            "type": "boolean",
+            "title": "Strict Mode",
+            "description": "If true, require all claims to be verifiable",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "response"
+        ],
+        "title": "ValidateRequest",
+        "description": "Request for POST /ocxp/context/validate.\n\nValidates AI-generated responses against source context."
+      },
+      "ValidateResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid",
+            "description": "True if no high-severity issues found"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Confidence in validation result (0.0 - 1.0)"
+          },
+          "quality_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Quality Score",
+            "description": "Overall quality score (0.0 - 1.0)"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssue"
+            },
+            "type": "array",
+            "title": "Issues",
+            "description": "List of issues found"
+          },
+          "verified_claims": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Verified Claims",
+            "description": "Number of claims that were verified",
+            "default": 0
+          },
+          "unverified_claims": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unverified Claims",
+            "description": "Number of claims that could not be verified",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid",
+          "confidence",
+          "quality_score"
+        ],
+        "title": "ValidateResponse",
+        "description": "Response from POST /ocxp/context/validate.\n\nContains validation results with quality scores and issues."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -9136,6 +9484,68 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ValidationIssue": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "hallucination",
+              "outdated",
+              "incomplete",
+              "contradiction"
+            ],
+            "title": "Type",
+            "description": "Type of issue found"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Severity",
+            "description": "Severity of the issue"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Human-readable description of the issue"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location",
+            "description": "Location in response where issue was found"
+          },
+          "suggestion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggestion",
+            "description": "Suggested correction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "severity",
+          "description"
+        ],
+        "title": "ValidationIssue",
+        "description": "Single validation issue found in AI response."
       },
       "WorkspaceItem": {
         "properties": {
