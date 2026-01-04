@@ -7067,12 +7067,12 @@ type ContextReposResponse = z.infer<typeof ContextReposResponseSchema>;
  * Repository download status enum
  */
 declare const RepoStatusEnum: z.ZodEnum<{
+    failed: "failed";
     queued: "queued";
     processing: "processing";
     uploading: "uploading";
     vectorizing: "vectorizing";
     complete: "complete";
-    failed: "failed";
 }>;
 type RepoStatus = z.infer<typeof RepoStatusEnum>;
 /**
@@ -7107,12 +7107,12 @@ declare const RepoDownloadDataSchema: z.ZodObject<{
     job_id: z.ZodString;
     s3_path: z.ZodOptional<z.ZodString>;
     status: z.ZodEnum<{
+        failed: "failed";
         queued: "queued";
         processing: "processing";
         uploading: "uploading";
         vectorizing: "vectorizing";
         complete: "complete";
-        failed: "failed";
     }>;
     files_processed: z.ZodOptional<z.ZodNumber>;
     metadata_files_created: z.ZodOptional<z.ZodNumber>;
@@ -7129,12 +7129,12 @@ declare const RepoDownloadResponseSchema: z.ZodObject<{
         job_id: z.ZodString;
         s3_path: z.ZodOptional<z.ZodString>;
         status: z.ZodEnum<{
+            failed: "failed";
             queued: "queued";
             processing: "processing";
             uploading: "uploading";
             vectorizing: "vectorizing";
             complete: "complete";
-            failed: "failed";
         }>;
         files_processed: z.ZodOptional<z.ZodNumber>;
         metadata_files_created: z.ZodOptional<z.ZodNumber>;
@@ -7159,12 +7159,12 @@ declare const RepoDownloadResponseSchema: z.ZodObject<{
 declare const RepoStatusDataSchema: z.ZodObject<{
     job_id: z.ZodString;
     status: z.ZodEnum<{
+        failed: "failed";
         queued: "queued";
         processing: "processing";
         uploading: "uploading";
         vectorizing: "vectorizing";
         complete: "complete";
-        failed: "failed";
     }>;
     progress: z.ZodOptional<z.ZodNumber>;
     files_processed: z.ZodOptional<z.ZodNumber>;
@@ -7182,12 +7182,12 @@ declare const RepoStatusResponseSchema: z.ZodObject<{
     data: z.ZodOptional<z.ZodObject<{
         job_id: z.ZodString;
         status: z.ZodEnum<{
+            failed: "failed";
             queued: "queued";
             processing: "processing";
             uploading: "uploading";
             vectorizing: "vectorizing";
             complete: "complete";
-            failed: "failed";
         }>;
         progress: z.ZodOptional<z.ZodNumber>;
         files_processed: z.ZodOptional<z.ZodNumber>;
@@ -7630,9 +7630,9 @@ declare const KBIngestDataSchema: z.ZodObject<{
     vectorId: z.ZodOptional<z.ZodString>;
     chunksCreated: z.ZodOptional<z.ZodNumber>;
     status: z.ZodOptional<z.ZodEnum<{
+        failed: "failed";
         processing: "processing";
         complete: "complete";
-        failed: "failed";
         pending: "pending";
     }>>;
 }, z.core.$strip>;
@@ -7647,9 +7647,9 @@ declare const KBIngestResponseSchema: z.ZodObject<{
         vectorId: z.ZodOptional<z.ZodString>;
         chunksCreated: z.ZodOptional<z.ZodNumber>;
         status: z.ZodOptional<z.ZodEnum<{
+            failed: "failed";
             processing: "processing";
             complete: "complete";
-            failed: "failed";
             pending: "pending";
         }>>;
     }, z.core.$strip>>;
@@ -7731,10 +7731,10 @@ type DiscoveryResponse = z.infer<typeof DiscoveryResponseSchema>;
 declare const IngestionJobSchema: z.ZodObject<{
     jobId: z.ZodString;
     status: z.ZodEnum<{
+        failed: "failed";
         queued: "queued";
         processing: "processing";
         complete: "complete";
-        failed: "failed";
     }>;
     progress: z.ZodOptional<z.ZodNumber>;
     documentsProcessed: z.ZodOptional<z.ZodNumber>;
@@ -7752,10 +7752,10 @@ declare const IngestionJobResponseSchema: z.ZodObject<{
     data: z.ZodOptional<z.ZodObject<{
         jobId: z.ZodString;
         status: z.ZodEnum<{
+            failed: "failed";
             queued: "queued";
             processing: "processing";
             complete: "complete";
-            failed: "failed";
         }>;
         progress: z.ZodOptional<z.ZodNumber>;
         documentsProcessed: z.ZodOptional<z.ZodNumber>;

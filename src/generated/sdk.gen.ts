@@ -132,6 +132,9 @@ import type {
   GithubListBranchesResponses,
   HealthCheckData,
   HealthCheckResponses,
+  IngestDocumentsData,
+  IngestDocumentsErrors,
+  IngestDocumentsResponses,
   ListContentData,
   ListContentErrors,
   ListContentResponses,
@@ -415,6 +418,58 @@ export const validateResponse = <ThrowOnError extends boolean = false>(
   (options.client ?? client).post<ValidateResponseResponses, ValidateResponseErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/validate',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Ingest Documents
+ *
+ * Ingest documents directly into Bedrock KB.
+ *
+ * Triggers immediate indexing of specific documents that already exist in S3.
+ * Documents are batched (max 25 per API call) for efficiency.
+ *
+ * **Prerequisites:**
+ * - Documents must already be written to S3 via OCXP content API
+ * - Each document should have a `.metadata.json` sidecar for filtering
+ *
+ * **Use Case:**
+ * Called from Obsidian plugin when user clicks "Index Now" button
+ * to immediately index pending files instead of waiting for 5-min sync.
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "documents": [
+ * {"path": "project/uuid/auth.md"},
+ * {"path": "project/uuid/flows/login.md"}
+ * ]
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "indexed": 2,
+ * "failed": 0,
+ * "skipped": 0,
+ * "results": [
+ * {"path": "project/uuid/auth.md", "status": "indexed"},
+ * {"path": "project/uuid/flows/login.md", "status": "indexed"}
+ * ]
+ * }
+ * ```
+ */
+export const ingestDocuments = <ThrowOnError extends boolean = false>(
+  options: Options<IngestDocumentsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<IngestDocumentsResponses, IngestDocumentsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/ingest',
     ...options,
     headers: {
       'Content-Type': 'application/json',
