@@ -118,11 +118,6 @@ export {
   forkSession,
   archiveSession,
 
-  // Docs
-  createSnapshot,
-  listDocs,
-  getSnapshotStatus,
-
   // Tools
   toolCreateMission,
   toolUpdateMission,
@@ -162,7 +157,6 @@ export type {
   SetDefaultRepoRequest,
   SessionMetadataUpdate,
   ForkRequest,
-  SnapshotRequest,
   CheckAccessRequest,
   ListBranchesRequest,
   GetContentsRequest,
@@ -315,14 +309,6 @@ export type {
   ForkSessionResponses,
   ArchiveSessionData,
   ArchiveSessionResponses,
-
-  // Docs
-  CreateSnapshotData,
-  CreateSnapshotResponses,
-  ListDocsData,
-  ListDocsResponses,
-  GetSnapshotStatusData,
-  GetSnapshotStatusResponses,
 
   // Tools
   ToolCreateMissionData,

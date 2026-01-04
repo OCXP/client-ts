@@ -1088,66 +1088,6 @@ export class OCXPClient {
     });
   }
 
-  // ============== Documentation Snapshots ==============
-
-  /**
-   * Create documentation snapshot
-   * @param sourceUrl - GitHub repository URL
-   * @param options - Snapshot options
-   */
-  async createSnapshot(
-    sourceUrl: string,
-    options?: {
-      branch?: string;
-      paths?: string[];
-      docId?: string;
-      triggerVectorization?: boolean;
-      projectId?: string;
-      missionId?: string;
-    }
-  ): Promise<unknown> {
-    const headers = await this.getHeaders();
-    const response = await sdk.createSnapshot({
-      client: this.client,
-      body: {
-        source_url: sourceUrl,
-        branch: options?.branch || 'main',
-        paths: options?.paths || [],
-        doc_id: options?.docId,
-        trigger_vectorization: options?.triggerVectorization ?? true,
-        project_id: options?.projectId,
-        mission_id: options?.missionId,
-      },
-      headers,
-    });
-    return extractData(response);
-  }
-
-  /**
-   * List documentation snapshots
-   */
-  async listDocs(): Promise<unknown> {
-    const headers = await this.getHeaders();
-    const response = await sdk.listDocs({
-      client: this.client,
-      headers,
-    });
-    return extractData(response);
-  }
-
-  /**
-   * Get snapshot status
-   */
-  async getSnapshotStatus(jobId: string): Promise<unknown> {
-    const headers = await this.getHeaders();
-    const response = await sdk.getSnapshotStatus({
-      client: this.client,
-      path: { job_id: jobId },
-      headers,
-    });
-    return extractData(response);
-  }
-
   // ============== Auth Operations ==============
 
   /**

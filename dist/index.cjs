@@ -1072,27 +1072,6 @@ var deleteRepo = (options) => (options.client ?? client).delete({
   url: "/ocxp/repo/{repo_id}",
   ...options
 });
-var createSnapshot = (options) => (options.client ?? client).post({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/docs/snapshot",
-  ...options,
-  headers: {
-    "Content-Type": "application/json",
-    ...options.headers
-  }
-});
-var listDocs = (options) => (options?.client ?? client).get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/docs/list",
-  ...options
-});
-var getSnapshotStatus = (options) => (options.client ?? client).get(
-  {
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/ocxp/docs/status/{job_id}",
-    ...options
-  }
-);
 var githubCheckAccess = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/github/check-access",
@@ -2180,52 +2159,6 @@ var OCXPClient = class {
       path: { session_id: sessionId },
       headers
     });
-  }
-  // ============== Documentation Snapshots ==============
-  /**
-   * Create documentation snapshot
-   * @param sourceUrl - GitHub repository URL
-   * @param options - Snapshot options
-   */
-  async createSnapshot(sourceUrl, options) {
-    const headers = await this.getHeaders();
-    const response = await createSnapshot({
-      client: this.client,
-      body: {
-        source_url: sourceUrl,
-        branch: options?.branch || "main",
-        paths: options?.paths || [],
-        doc_id: options?.docId,
-        trigger_vectorization: options?.triggerVectorization ?? true,
-        project_id: options?.projectId,
-        mission_id: options?.missionId
-      },
-      headers
-    });
-    return extractData(response);
-  }
-  /**
-   * List documentation snapshots
-   */
-  async listDocs() {
-    const headers = await this.getHeaders();
-    const response = await listDocs({
-      client: this.client,
-      headers
-    });
-    return extractData(response);
-  }
-  /**
-   * Get snapshot status
-   */
-  async getSnapshotStatus(jobId) {
-    const headers = await this.getHeaders();
-    const response = await getSnapshotStatus({
-      client: this.client,
-      path: { job_id: jobId },
-      headers
-    });
-    return extractData(response);
   }
   // ============== Auth Operations ==============
   /**
@@ -4008,7 +3941,6 @@ exports.createOCXPClient = createOCXPClient;
 exports.createPathService = createPathService;
 exports.createProject = createProject;
 exports.createResponseSchema = createResponseSchema;
-exports.createSnapshot = createSnapshot;
 exports.createWebSocketService = createWebSocketService;
 exports.deleteContent = deleteContent;
 exports.deleteDatabase = deleteDatabase;
@@ -4031,7 +3963,6 @@ exports.getRepoDownloadStatus = getRepoDownloadStatus;
 exports.getSample = getSample;
 exports.getSchema = getSchema;
 exports.getSessionMessages = getSessionMessages;
-exports.getSnapshotStatus = getSnapshotStatus;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;
 exports.githubListBranches = githubListBranches;
@@ -4047,7 +3978,6 @@ exports.isValidContentType = isValidContentType;
 exports.listContent = listContent;
 exports.listContextDatabases = listContextDatabases;
 exports.listDatabases = listDatabases;
-exports.listDocs = listDocs;
 exports.listDownloadedRepos = listDownloadedRepos;
 exports.listProjects = listProjects;
 exports.listSessions = listSessions;

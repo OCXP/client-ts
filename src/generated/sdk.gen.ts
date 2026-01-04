@@ -47,9 +47,6 @@ import type {
   CreateSessionData,
   CreateSessionErrors,
   CreateSessionResponses,
-  CreateSnapshotData,
-  CreateSnapshotErrors,
-  CreateSnapshotResponses,
   DeleteContentData,
   DeleteContentErrors,
   DeleteContentResponses,
@@ -124,9 +121,6 @@ import type {
   GetSessionMessagesData,
   GetSessionMessagesErrors,
   GetSessionMessagesResponses,
-  GetSnapshotStatusData,
-  GetSnapshotStatusErrors,
-  GetSnapshotStatusResponses,
   GithubCheckAccessData,
   GithubCheckAccessErrors,
   GithubCheckAccessResponses,
@@ -150,9 +144,6 @@ import type {
   ListDatabasesData,
   ListDatabasesErrors,
   ListDatabasesResponses,
-  ListDocsData,
-  ListDocsErrors,
-  ListDocsResponses,
   ListDownloadedReposData,
   ListDownloadedReposErrors,
   ListDownloadedReposResponses,
@@ -1036,54 +1027,6 @@ export const deleteRepo = <ThrowOnError extends boolean = false>(
     url: '/ocxp/repo/{repo_id}',
     ...options,
   });
-
-/**
- * Create Snapshot
- *
- * Create a documentation snapshot from a GitHub repository.
- */
-export const createSnapshot = <ThrowOnError extends boolean = false>(
-  options: Options<CreateSnapshotData, ThrowOnError>
-) =>
-  (options.client ?? client).post<CreateSnapshotResponses, CreateSnapshotErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/docs/snapshot',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * List Docs
- *
- * List documentation snapshots.
- */
-export const listDocs = <ThrowOnError extends boolean = false>(
-  options?: Options<ListDocsData, ThrowOnError>
-) =>
-  (options?.client ?? client).get<ListDocsResponses, ListDocsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/docs/list',
-    ...options,
-  });
-
-/**
- * Get Snapshot Status
- *
- * Get snapshot job status.
- */
-export const getSnapshotStatus = <ThrowOnError extends boolean = false>(
-  options: Options<GetSnapshotStatusData, ThrowOnError>
-) =>
-  (options.client ?? client).get<GetSnapshotStatusResponses, GetSnapshotStatusErrors, ThrowOnError>(
-    {
-      security: [{ scheme: 'bearer', type: 'http' }],
-      url: '/ocxp/docs/status/{job_id}',
-      ...options,
-    }
-  );
 
 /**
  * Github Check Access
