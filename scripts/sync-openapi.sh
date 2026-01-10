@@ -13,6 +13,13 @@ API_URL="${1:-https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com}"
 
 echo "==> Generating OpenAPI spec from FastAPI..."
 cd "$BRAIN_DIR/functions/ocxp/api"
+
+# Activate virtual environment if it exists
+if [ -d ".venv" ]; then
+  echo "    Using OCXP API virtual environment..."
+  source .venv/bin/activate
+fi
+
 export PYTHONPATH="$BRAIN_DIR/functions/ocxp/api:$PYTHONPATH"
 python -c "
 from app.main import create_app
@@ -22,6 +29,12 @@ spec = app.openapi()
 spec['servers'] = [{'url': '$API_URL'}]
 print(json.dumps(spec, indent=2))
 " > "$BRAIN_DIR/schemas/openapi.json"
+
+# Deactivate venv after generation
+if [ -d ".venv" ]; then
+  deactivate
+fi
+
 echo "    Created: contexthub-brain/schemas/openapi.json"
 
 echo "==> Copying to client-ts..."
