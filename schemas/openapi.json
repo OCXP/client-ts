@@ -323,6 +323,64 @@
         ]
       }
     },
+    "/ocxp/context/ingest": {
+      "post": {
+        "tags": [
+          "Context Discovery"
+        ],
+        "summary": "Ingest Documents",
+        "description": "Ingest documents directly into Bedrock KB.\n\nTriggers immediate indexing of specific documents that already exist in S3.\nDocuments are batched (max 25 per API call) for efficiency.\n\n**Prerequisites:**\n- Documents must already be written to S3 via OCXP content API\n- Each document should have a `.metadata.json` sidecar for filtering\n\n**Use Case:**\nCalled from Obsidian plugin when user clicks \"Index Now\" button\nto immediately index pending files instead of waiting for 5-min sync.\n\n**Example Request:**\n```json\n{\n    \"documents\": [\n        {\"path\": \"project/uuid/auth.md\"},\n        {\"path\": \"project/uuid/flows/login.md\"}\n    ]\n}\n```\n\n**Example Response:**\n```json\n{\n    \"indexed\": 2,\n    \"failed\": 0,\n    \"skipped\": 0,\n    \"results\": [\n        {\"path\": \"project/uuid/auth.md\", \"status\": \"indexed\"},\n        {\"path\": \"project/uuid/flows/login.md\", \"status\": \"indexed\"}\n    ]\n}\n```",
+        "operationId": "ingestDocuments",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/session": {
       "get": {
         "tags": [
@@ -725,6 +783,359 @@
         ]
       }
     },
+    "/ocxp/missions/{mission_id}/checkpoints": {
+      "get": {
+        "tags": [
+          "Checkpoint"
+        ],
+        "summary": "List mission checkpoints",
+        "description": "Returns all checkpoints for a mission from AgentCore Memory, optionally filtered by branch",
+        "operationId": "listMissionCheckpoints",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "branch",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by branch name",
+              "title": "Branch"
+            },
+            "description": "Filter by branch name"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of checkpoints returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/checkpoints/{checkpoint_id}": {
+      "get": {
+        "tags": [
+          "Checkpoint"
+        ],
+        "summary": "Get checkpoint details",
+        "description": "Returns detailed checkpoint information including metadata",
+        "operationId": "getCheckpoint",
+        "parameters": [
+          {
+            "name": "checkpoint_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Checkpoint ID",
+              "title": "Checkpoint Id"
+            },
+            "description": "Checkpoint ID"
+          },
+          {
+            "name": "mission_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkpoint details returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Checkpoint not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/missions/{mission_id}/checkpoints/branches": {
+      "get": {
+        "tags": [
+          "Checkpoint"
+        ],
+        "summary": "List checkpoint branches",
+        "description": "Returns all branches for a mission",
+        "operationId": "listMissionBranches",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of branch names returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/checkpoints/{checkpoint_id}/export": {
+      "post": {
+        "tags": [
+          "Checkpoint"
+        ],
+        "summary": "Export checkpoint as SOP markdown",
+        "description": "Export checkpoint data as a Standard Operating Procedure .md file",
+        "operationId": "exportCheckpointAsSop",
+        "parameters": [
+          {
+            "name": "checkpoint_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Checkpoint event ID",
+              "title": "Checkpoint Id"
+            },
+            "description": "Checkpoint event ID"
+          },
+          {
+            "name": "mission_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Markdown file generated successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Checkpoint not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/checkpoints/{checkpoint_id}/promote": {
+      "post": {
+        "tags": [
+          "Checkpoint"
+        ],
+        "summary": "Promote checkpoint to long-term memory",
+        "description": "Convert checkpoint event to long-term memory record for permanent storage",
+        "operationId": "promoteCheckpointToLongterm",
+        "parameters": [
+          {
+            "name": "checkpoint_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Checkpoint event ID",
+              "title": "Checkpoint Id"
+            },
+            "description": "Checkpoint event ID"
+          },
+          {
+            "name": "mission_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkpoint promoted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Checkpoint not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/project": {
       "get": {
         "tags": [
@@ -734,6 +1145,39 @@
         "description": "Returns all projects in the workspace with their linked repos and missions.",
         "operationId": "listProjects",
         "parameters": [
+          {
+            "name": "project_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by specific project IDs",
+              "title": "Project Ids"
+            },
+            "description": "Filter by specific project IDs"
+          },
+          {
+            "name": "include_metadata",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include full metadata (description, repos, databases)",
+              "default": false,
+              "title": "Include Metadata"
+            },
+            "description": "Include full metadata (description, repos, databases)"
+          },
           {
             "name": "limit",
             "in": "query",
@@ -852,6 +1296,39 @@
         "description": "Alias for GET /ocxp/project. Returns all projects in the workspace.",
         "operationId": "listProjectsAlias",
         "parameters": [
+          {
+            "name": "project_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by specific project IDs",
+              "title": "Project Ids"
+            },
+            "description": "Filter by specific project IDs"
+          },
+          {
+            "name": "include_metadata",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include full metadata (description, repos, databases)",
+              "default": false,
+              "title": "Include Metadata"
+            },
+            "description": "Include full metadata (description, repos, databases)"
+          },
           {
             "name": "limit",
             "in": "query",
@@ -1792,7 +2269,7 @@
           "Mission"
         ],
         "summary": "List all missions",
-        "description": "Returns all missions in the workspace, optionally filtered by project.",
+        "description": "Returns all missions in the workspace, optionally filtered by project or mission IDs.",
         "operationId": "listMissions",
         "parameters": [
           {
@@ -1830,6 +2307,39 @@
               "title": "Status"
             },
             "description": "Filter by status"
+          },
+          {
+            "name": "mission_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by specific mission IDs",
+              "title": "Mission Ids"
+            },
+            "description": "Filter by specific mission IDs"
+          },
+          {
+            "name": "include_metadata",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include full metadata (description, notes, goals)",
+              "default": false,
+              "title": "Include Metadata"
+            },
+            "description": "Include full metadata (description, notes, goals)"
           },
           {
             "name": "limit",
@@ -2372,6 +2882,518 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memos": {
+      "get": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "List security memos",
+        "description": "List security memos for the workspace with optional filters.",
+        "operationId": "listMemos",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MemoStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status (open, acknowledged, resolved, ignored)",
+              "title": "Status"
+            },
+            "description": "Filter by status (open, acknowledged, resolved, ignored)"
+          },
+          {
+            "name": "source_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by source type (repo, project, mission, doc)",
+              "title": "Source Type"
+            },
+            "description": "Filter by source type (repo, project, mission, doc)"
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MemoSeverity"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by minimum severity",
+              "title": "Severity"
+            },
+            "description": "Filter by minimum severity"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum results",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum results"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of memos returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memos/{memo_id}": {
+      "get": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Get memo by ID",
+        "description": "Get a specific security memo by its ID.",
+        "operationId": "getMemo",
+        "parameters": [
+          {
+            "name": "memo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Memo ID",
+              "title": "Memo Id"
+            },
+            "description": "Memo ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Memo returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityMemo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Memo not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Delete memo",
+        "description": "Delete a security memo permanently.",
+        "operationId": "deleteMemo",
+        "parameters": [
+          {
+            "name": "memo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Memo ID",
+              "title": "Memo Id"
+            },
+            "description": "Memo ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Memo deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Memo not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memos/source/{source_type}/{source_id}": {
+      "get": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Get memo for source",
+        "description": "Get security memo for a specific source entity (repo, project, mission, doc).",
+        "operationId": "getMemoForSource",
+        "parameters": [
+          {
+            "name": "source_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Source type (repo, project, mission, doc)",
+              "title": "Source Type"
+            },
+            "description": "Source type (repo, project, mission, doc)"
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Source entity ID",
+              "title": "Source Id"
+            },
+            "description": "Source entity ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Memo returned or null if none exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SecurityMemo"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Getmemoforsource"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memos/{memo_id}/resolve": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Resolve memo",
+        "description": "Mark a security memo as resolved. Sets TTL for auto-deletion.",
+        "operationId": "resolveMemo",
+        "parameters": [
+          {
+            "name": "memo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Memo ID",
+              "title": "Memo Id"
+            },
+            "description": "Memo ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Memo resolved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Memo not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memos/{memo_id}/acknowledge": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Acknowledge memo",
+        "description": "Mark a security memo as acknowledged (developer has seen it).",
+        "operationId": "acknowledgeMemo",
+        "parameters": [
+          {
+            "name": "memo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Memo ID",
+              "title": "Memo Id"
+            },
+            "description": "Memo ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Memo acknowledged successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Memo not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memos/{memo_id}/ignore": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Ignore memo",
+        "description": "Mark a security memo as ignored (false positive or accepted risk).",
+        "operationId": "ignoreMemo",
+        "parameters": [
+          {
+            "name": "memo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Memo ID",
+              "title": "Memo Id"
+            },
+            "description": "Memo ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Memo ignored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Memo not found"
           },
           "422": {
             "description": "Validation Error",
@@ -5269,6 +6291,34 @@
         ],
         "title": "Body_loginForAccessToken"
       },
+      "BranchListResponse": {
+        "properties": {
+          "branches": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Branches",
+            "examples": [
+              [
+                "main",
+                "alternative-research-path"
+              ]
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "branches",
+          "count"
+        ],
+        "title": "BranchListResponse",
+        "description": "Response for GET /ocxp/missions/{id}/checkpoints/branches."
+      },
       "BulkDeleteRequest": {
         "properties": {
           "ids": {
@@ -5454,6 +6504,127 @@
           "repo_url"
         ],
         "title": "CheckAccessRequest"
+      },
+      "CheckpointListResponse": {
+        "properties": {
+          "checkpoints": {
+            "items": {
+              "$ref": "#/components/schemas/CheckpointResponse"
+            },
+            "type": "array",
+            "title": "Checkpoints"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "checkpoints",
+          "count"
+        ],
+        "title": "CheckpointListResponse",
+        "description": "Response for GET /ocxp/missions/{id}/checkpoints."
+      },
+      "CheckpointResponse": {
+        "properties": {
+          "checkpoint_id": {
+            "type": "string",
+            "title": "Checkpoint Id",
+            "examples": [
+              "checkpoint-research-research_complete"
+            ]
+          },
+          "checkpoint_name": {
+            "type": "string",
+            "title": "Checkpoint Name",
+            "examples": [
+              "research_complete"
+            ]
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase",
+            "description": "Mission phase (research, sme_analysis, synthesis)",
+            "examples": [
+              "research"
+            ]
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "examples": [
+              "mission-001"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch",
+            "description": "Branch name for forked execution paths",
+            "examples": [
+              "main",
+              "alternative-research-path"
+            ]
+          },
+          "findings_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Findings Count",
+            "examples": [
+              47
+            ]
+          },
+          "confidence_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Score",
+            "examples": [
+              0.85
+            ]
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "checkpoint_id",
+          "checkpoint_name",
+          "phase",
+          "mission_id",
+          "timestamp"
+        ],
+        "title": "CheckpointResponse",
+        "description": "Single checkpoint response."
       },
       "ColumnOverview": {
         "properties": {
@@ -6736,6 +7907,12 @@
             "title": "Search Type",
             "description": "Search type: SEMANTIC or HYBRID",
             "default": "SEMANTIC"
+          },
+          "enable_query_decomposition": {
+            "type": "boolean",
+            "title": "Enable Query Decomposition",
+            "description": "Enable query decomposition for complex queries (improves recall)",
+            "default": true
           }
         },
         "type": "object",
@@ -6800,7 +7977,8 @@
             "enum": [
               "semantic",
               "rag",
-              "hybrid"
+              "hybrid",
+              "multi-kb-rag"
             ],
             "title": "Strategy Used",
             "description": "Strategy that was used for discovery"
@@ -7083,6 +8261,120 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "IngestDocument": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Content path, e.g., 'project/uuid/file.md'",
+            "examples": [
+              "project/1c3952a0-58a0-41b5-85aa-7a33496b96ab/auth.md"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "title": "IngestDocument",
+        "description": "Single document to ingest into Bedrock KB."
+      },
+      "IngestRequest": {
+        "properties": {
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/IngestDocument"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Documents",
+            "description": "List of documents to ingest (max 100, batched internally)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "documents"
+        ],
+        "title": "IngestRequest",
+        "description": "Request for POST /ocxp/context/ingest.\n\nTriggers direct ingestion of specific documents into Bedrock KB.\nDocuments must already exist in S3 (written via OCXP content API)."
+      },
+      "IngestResponse": {
+        "properties": {
+          "indexed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Indexed",
+            "description": "Number of documents successfully indexed"
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Failed",
+            "description": "Number of documents that failed to index",
+            "default": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Skipped",
+            "description": "Number of documents skipped",
+            "default": 0
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/IngestResult"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "Per-document results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "indexed"
+        ],
+        "title": "IngestResponse",
+        "description": "Response from POST /ocxp/context/ingest.\n\nContains summary of ingestion results."
+      },
+      "IngestResult": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Document path"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "indexed",
+              "failed",
+              "skipped"
+            ],
+            "title": "Status",
+            "description": "Ingestion status"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "status"
+        ],
+        "title": "IngestResult",
+        "description": "Result for a single document ingestion."
       },
       "KBQueryRequest": {
         "properties": {
@@ -7443,6 +8735,98 @@
         "title": "LoginRequest",
         "description": "JSON login request for programmatic clients."
       },
+      "MemoActionResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the action succeeded"
+          },
+          "memo_id": {
+            "type": "string",
+            "title": "Memo Id",
+            "description": "Memo ID"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MemoStatus",
+            "description": "New memo status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "memo_id",
+          "status"
+        ],
+        "title": "MemoActionResponse",
+        "description": "Response for memo status change actions."
+      },
+      "MemoListResponse": {
+        "properties": {
+          "memos": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityMemo"
+            },
+            "type": "array",
+            "title": "Memos"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memos",
+          "count"
+        ],
+        "title": "MemoListResponse",
+        "description": "Response for memo list."
+      },
+      "MemoResolveRequest": {
+        "properties": {
+          "resolved_by": {
+            "type": "string",
+            "title": "Resolved By",
+            "description": "User resolving the memo"
+          },
+          "ttl_days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Ttl Days",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "resolved_by"
+        ],
+        "title": "MemoResolveRequest",
+        "description": "Request to resolve a memo."
+      },
+      "MemoSeverity": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "title": "MemoSeverity",
+        "description": "Severity levels for security findings."
+      },
+      "MemoStatus": {
+        "type": "string",
+        "enum": [
+          "open",
+          "acknowledged",
+          "resolved",
+          "ignored"
+        ],
+        "title": "MemoStatus",
+        "description": "Status of a security memo."
+      },
       "MessageResponse": {
         "properties": {
           "message_id": {
@@ -7524,6 +8908,19 @@
             "maxLength": 5000,
             "title": "Description",
             "default": ""
+          },
+          "ticket_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Id",
+            "description": "External ticket ID (e.g., AMC-556)"
           },
           "project_id": {
             "anyOf": [
@@ -7661,6 +9058,21 @@
             "title": "Workspace",
             "examples": [
               "acme-corp"
+            ]
+          },
+          "ticket_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Id",
+            "description": "External ticket ID (e.g., JIRA ticket)",
+            "examples": [
+              "AMC-556"
             ]
           },
           "title": {
@@ -7836,6 +9248,19 @@
               }
             ],
             "title": "Description"
+          },
+          "ticket_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Id",
+            "description": "External ticket ID (e.g., AMC-556)"
           },
           "status": {
             "anyOf": [
@@ -8732,6 +10157,153 @@
         ],
         "title": "RepoStatusResponse",
         "description": "Response for GET /ocxp/repo/status/{job_id}."
+      },
+      "SecurityFinding": {
+        "properties": {
+          "pattern_type": {
+            "type": "string",
+            "title": "Pattern Type",
+            "description": "Type of pattern detected: password, api_key, aws_secret, etc."
+          },
+          "severity": {
+            "$ref": "#/components/schemas/MemoSeverity",
+            "description": "Severity level of this finding"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location",
+            "description": "File path where finding was detected"
+          },
+          "match_count": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Match Count",
+            "description": "Number of matches found",
+            "default": 1
+          },
+          "first_detected": {
+            "type": "string",
+            "title": "First Detected",
+            "description": "When this finding was first detected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pattern_type",
+          "severity",
+          "location"
+        ],
+        "title": "SecurityFinding",
+        "description": "Single sensitive data finding within a memo."
+      },
+      "SecurityMemo": {
+        "properties": {
+          "memo_id": {
+            "type": "string",
+            "title": "Memo Id",
+            "description": "Unique memo identifier"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "repo",
+              "project",
+              "mission",
+              "doc"
+            ],
+            "title": "Source Type",
+            "description": "Type of source entity"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id",
+            "description": "ID of the source entity (repo_id, project_id, etc.)"
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "description": "Workspace this memo belongs to"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityFinding"
+            },
+            "type": "array",
+            "title": "Findings",
+            "description": "List of security findings"
+          },
+          "total_findings": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Findings",
+            "description": "Total number of findings",
+            "default": 0
+          },
+          "highest_severity": {
+            "$ref": "#/components/schemas/MemoSeverity",
+            "description": "Highest severity among all findings",
+            "default": "low"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MemoStatus",
+            "description": "Current status of the memo",
+            "default": "open"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By",
+            "description": "User who resolved the memo"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At",
+            "description": "When the memo was resolved"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "When the memo was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "When the memo was last updated"
+          },
+          "ttl": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ttl",
+            "description": "TTL for DynamoDB auto-expiration"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_type",
+          "source_id",
+          "workspace"
+        ],
+        "title": "SecurityMemo",
+        "description": "Security memo linked to a source entity.\n\nMemos aggregate findings for a specific source (repo, project, mission)\nand track their resolution status."
       },
       "SessionForkResponse": {
         "properties": {

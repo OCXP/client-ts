@@ -1383,6 +1383,12 @@ type MissionResponse = {
      */
     workspace: string;
     /**
+     * Ticket Id
+     *
+     * External ticket ID (e.g., JIRA ticket)
+     */
+    ticket_id?: string | null;
+    /**
      * Title
      */
     title: string;
@@ -2427,6 +2433,18 @@ type ListProjectsData = {
     };
     path?: never;
     query?: {
+        /**
+         * Project Ids
+         *
+         * Filter by specific project IDs
+         */
+        project_ids?: Array<string> | null;
+        /**
+         * Include Metadata
+         *
+         * Include full metadata (description, repos, databases)
+         */
+        include_metadata?: boolean;
         /**
          * Limit
          *
@@ -5967,11 +5985,11 @@ type Pagination = z.infer<typeof PaginationSchema>;
  * Content type enum - the 8 valid content types
  */
 declare const ContentTypeSchema: z.ZodEnum<{
-    mission: "mission";
+    repo: "repo";
     project: "project";
+    mission: "mission";
     context: "context";
     sop: "sop";
-    repo: "repo";
     artifact: "artifact";
     kb: "kb";
     docs: "docs";

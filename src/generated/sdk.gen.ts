@@ -8,6 +8,9 @@ import {
 } from './client';
 import { client } from './client.gen';
 import type {
+  AcknowledgeMemoData,
+  AcknowledgeMemoErrors,
+  AcknowledgeMemoResponses,
   AddDatabaseData,
   AddDatabaseErrors,
   AddDatabaseResponses,
@@ -55,6 +58,9 @@ import type {
   DeleteDatabaseResponses,
   DeleteGithubTokenData,
   DeleteGithubTokenResponses,
+  DeleteMemoData,
+  DeleteMemoErrors,
+  DeleteMemoResponses,
   DeleteMissionData,
   DeleteMissionErrors,
   DeleteMissionResponses,
@@ -70,11 +76,17 @@ import type {
   DownloadRepositoryData,
   DownloadRepositoryErrors,
   DownloadRepositoryResponses,
+  ExportCheckpointAsSopData,
+  ExportCheckpointAsSopErrors,
+  ExportCheckpointAsSopResponses,
   ForkSessionData,
   ForkSessionErrors,
   ForkSessionResponses,
   GetAuthConfigData,
   GetAuthConfigResponses,
+  GetCheckpointData,
+  GetCheckpointErrors,
+  GetCheckpointResponses,
   GetContentStatsData,
   GetContentStatsErrors,
   GetContentStatsResponses,
@@ -97,6 +109,12 @@ import type {
   GetDatabaseResponses,
   GetGithubTokenStatusData,
   GetGithubTokenStatusResponses,
+  GetMemoData,
+  GetMemoErrors,
+  GetMemoForSourceData,
+  GetMemoForSourceErrors,
+  GetMemoForSourceResponses,
+  GetMemoResponses,
   GetMissionContextData,
   GetMissionContextErrors,
   GetMissionContextResponses,
@@ -132,6 +150,9 @@ import type {
   GithubListBranchesResponses,
   HealthCheckData,
   HealthCheckResponses,
+  IgnoreMemoData,
+  IgnoreMemoErrors,
+  IgnoreMemoResponses,
   IngestDocumentsData,
   IngestDocumentsErrors,
   IngestDocumentsResponses,
@@ -150,6 +171,15 @@ import type {
   ListDownloadedReposData,
   ListDownloadedReposErrors,
   ListDownloadedReposResponses,
+  ListMemosData,
+  ListMemosErrors,
+  ListMemosResponses,
+  ListMissionBranchesData,
+  ListMissionBranchesErrors,
+  ListMissionBranchesResponses,
+  ListMissionCheckpointsData,
+  ListMissionCheckpointsErrors,
+  ListMissionCheckpointsResponses,
   ListMissionsData,
   ListMissionsErrors,
   ListMissionsResponses,
@@ -179,6 +209,9 @@ import type {
   MoveContentData,
   MoveContentErrors,
   MoveContentResponses,
+  PromoteCheckpointToLongtermData,
+  PromoteCheckpointToLongtermErrors,
+  PromoteCheckpointToLongtermResponses,
   QueryContentData,
   QueryContentErrors,
   QueryContentResponses,
@@ -206,6 +239,9 @@ import type {
   RemoveSessionData,
   RemoveSessionErrors,
   RemoveSessionResponses,
+  ResolveMemoData,
+  ResolveMemoErrors,
+  ResolveMemoResponses,
   SearchContentData,
   SearchContentErrors,
   SearchContentResponses,
@@ -582,6 +618,92 @@ export const archiveSession = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * List mission checkpoints
+ *
+ * Returns all checkpoints for a mission from AgentCore Memory, optionally filtered by branch
+ */
+export const listMissionCheckpoints = <ThrowOnError extends boolean = false>(
+  options: Options<ListMissionCheckpointsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    ListMissionCheckpointsResponses,
+    ListMissionCheckpointsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/missions/{mission_id}/checkpoints',
+    ...options,
+  });
+
+/**
+ * Get checkpoint details
+ *
+ * Returns detailed checkpoint information including metadata
+ */
+export const getCheckpoint = <ThrowOnError extends boolean = false>(
+  options: Options<GetCheckpointData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetCheckpointResponses, GetCheckpointErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/checkpoints/{checkpoint_id}',
+    ...options,
+  });
+
+/**
+ * List checkpoint branches
+ *
+ * Returns all branches for a mission
+ */
+export const listMissionBranches = <ThrowOnError extends boolean = false>(
+  options: Options<ListMissionBranchesData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    ListMissionBranchesResponses,
+    ListMissionBranchesErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/missions/{mission_id}/checkpoints/branches',
+    ...options,
+  });
+
+/**
+ * Export checkpoint as SOP markdown
+ *
+ * Export checkpoint data as a Standard Operating Procedure .md file
+ */
+export const exportCheckpointAsSop = <ThrowOnError extends boolean = false>(
+  options: Options<ExportCheckpointAsSopData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    ExportCheckpointAsSopResponses,
+    ExportCheckpointAsSopErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/checkpoints/{checkpoint_id}/export',
+    ...options,
+  });
+
+/**
+ * Promote checkpoint to long-term memory
+ *
+ * Convert checkpoint event to long-term memory record for permanent storage
+ */
+export const promoteCheckpointToLongterm = <ThrowOnError extends boolean = false>(
+  options: Options<PromoteCheckpointToLongtermData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    PromoteCheckpointToLongtermResponses,
+    PromoteCheckpointToLongtermErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/checkpoints/{checkpoint_id}/promote',
+    ...options,
+  });
+
+/**
  * List all projects
  *
  * Returns all projects in the workspace with their linked repos and missions.
@@ -852,7 +974,7 @@ export const setDefaultDatabase = <ThrowOnError extends boolean = false>(
 /**
  * List all missions
  *
- * Returns all missions in the workspace, optionally filtered by project.
+ * Returns all missions in the workspace, optionally filtered by project or mission IDs.
  */
 export const listMissions = <ThrowOnError extends boolean = false>(
   options?: Options<ListMissionsData, ThrowOnError>
@@ -1009,6 +1131,108 @@ export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * List security memos
+ *
+ * List security memos for the workspace with optional filters.
+ */
+export const listMemos = <ThrowOnError extends boolean = false>(
+  options?: Options<ListMemosData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListMemosResponses, ListMemosErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos',
+    ...options,
+  });
+
+/**
+ * Delete memo
+ *
+ * Delete a security memo permanently.
+ */
+export const deleteMemo = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteMemoResponses, DeleteMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos/{memo_id}',
+    ...options,
+  });
+
+/**
+ * Get memo by ID
+ *
+ * Get a specific security memo by its ID.
+ */
+export const getMemo = <ThrowOnError extends boolean = false>(
+  options: Options<GetMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetMemoResponses, GetMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos/{memo_id}',
+    ...options,
+  });
+
+/**
+ * Get memo for source
+ *
+ * Get security memo for a specific source entity (repo, project, mission, doc).
+ */
+export const getMemoForSource = <ThrowOnError extends boolean = false>(
+  options: Options<GetMemoForSourceData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetMemoForSourceResponses, GetMemoForSourceErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos/source/{source_type}/{source_id}',
+    ...options,
+  });
+
+/**
+ * Resolve memo
+ *
+ * Mark a security memo as resolved. Sets TTL for auto-deletion.
+ */
+export const resolveMemo = <ThrowOnError extends boolean = false>(
+  options: Options<ResolveMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).post<ResolveMemoResponses, ResolveMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos/{memo_id}/resolve',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Acknowledge memo
+ *
+ * Mark a security memo as acknowledged (developer has seen it).
+ */
+export const acknowledgeMemo = <ThrowOnError extends boolean = false>(
+  options: Options<AcknowledgeMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).post<AcknowledgeMemoResponses, AcknowledgeMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos/{memo_id}/acknowledge',
+    ...options,
+  });
+
+/**
+ * Ignore memo
+ *
+ * Mark a security memo as ignored (false positive or accepted risk).
+ */
+export const ignoreMemo = <ThrowOnError extends boolean = false>(
+  options: Options<IgnoreMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).post<IgnoreMemoResponses, IgnoreMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos/{memo_id}/ignore',
+    ...options,
   });
 
 /**
