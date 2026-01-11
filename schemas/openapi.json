@@ -2783,6 +2783,81 @@
         ]
       }
     },
+    "/ocxp/mission/{mission_id}/regenerate": {
+      "post": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Regenerate mission",
+        "description": "Archives old generated docs and triggers AgentCore regeneration with updated ticket info.",
+        "operationId": "regenerateMission",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateMissionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Regeneration started successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegenerateMissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "500": {
+            "description": "Archive or regeneration failed"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/kb/query": {
       "post": {
         "tags": [
@@ -9171,6 +9246,31 @@
               ]
             ]
           },
+          "version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Version",
+            "description": "Regeneration version number",
+            "default": 0,
+            "examples": [
+              1
+            ]
+          },
+          "last_regenerated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Regenerated At",
+            "description": "ISO timestamp of last regeneration",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
           "created_at": {
             "anyOf": [
               {
@@ -9758,6 +9858,118 @@
         ],
         "title": "RefreshResponse",
         "description": "Token refresh response with camelCase output (no new refresh_token)."
+      },
+      "RegenerateMissionRequest": {
+        "properties": {
+          "ticket_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Id",
+            "description": "Updated ticket ID"
+          },
+          "ticket_summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Summary",
+            "description": "Updated ticket summary"
+          },
+          "ticket_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Description",
+            "description": "Updated ticket description"
+          },
+          "archive_old_docs": {
+            "type": "boolean",
+            "title": "Archive Old Docs",
+            "description": "Archive old docs before regenerating",
+            "default": true
+          },
+          "auto_increment_version": {
+            "type": "boolean",
+            "title": "Auto Increment Version",
+            "description": "Auto-increment archive version",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "RegenerateMissionRequest",
+        "description": "Request body for mission regeneration."
+      },
+      "RegenerateMissionResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "archive_version": {
+            "type": "integer",
+            "title": "Archive Version"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "started|completed|failed"
+          },
+          "archived_files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Archived Files"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "archive_version",
+          "status"
+        ],
+        "title": "RegenerateMissionResponse",
+        "description": "Response for mission regeneration."
       },
       "RepoDeleteResponse": {
         "properties": {

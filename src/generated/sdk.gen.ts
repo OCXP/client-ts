@@ -227,6 +227,9 @@ import type {
   RefreshTokensData,
   RefreshTokensErrors,
   RefreshTokensResponses,
+  RegenerateMissionData,
+  RegenerateMissionErrors,
+  RegenerateMissionResponses,
   RemoveDatabaseData,
   RemoveDatabaseErrors,
   RemoveDatabaseResponses,
@@ -1079,6 +1082,28 @@ export const removeSession = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/mission/{mission_id}/sessions/{session_id}',
     ...options,
+  });
+
+/**
+ * Regenerate mission
+ *
+ * Archives old generated docs and triggers AgentCore regeneration with updated ticket info.
+ */
+export const regenerateMission = <ThrowOnError extends boolean = false>(
+  options: Options<RegenerateMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    RegenerateMissionResponses,
+    RegenerateMissionErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/regenerate',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**

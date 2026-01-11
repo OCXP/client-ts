@@ -1860,6 +1860,18 @@ export type MissionResponse = {
    */
   session_ids?: Array<string>;
   /**
+   * Version
+   *
+   * Regeneration version number
+   */
+  version?: number;
+  /**
+   * Last Regenerated At
+   *
+   * ISO timestamp of last regeneration
+   */
+  last_regenerated_at?: string | null;
+  /**
    * Created At
    */
   created_at?: string | null;
@@ -2175,6 +2187,78 @@ export type RefreshResponse = {
    * Idtoken
    */
   idToken: string;
+};
+
+/**
+ * RegenerateMissionRequest
+ *
+ * Request body for mission regeneration.
+ */
+export type RegenerateMissionRequest = {
+  /**
+   * Ticket Id
+   *
+   * Updated ticket ID
+   */
+  ticket_id?: string | null;
+  /**
+   * Ticket Summary
+   *
+   * Updated ticket summary
+   */
+  ticket_summary?: string | null;
+  /**
+   * Ticket Description
+   *
+   * Updated ticket description
+   */
+  ticket_description?: string | null;
+  /**
+   * Archive Old Docs
+   *
+   * Archive old docs before regenerating
+   */
+  archive_old_docs?: boolean;
+  /**
+   * Auto Increment Version
+   *
+   * Auto-increment archive version
+   */
+  auto_increment_version?: boolean;
+};
+
+/**
+ * RegenerateMissionResponse
+ *
+ * Response for mission regeneration.
+ */
+export type RegenerateMissionResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Job Id
+   */
+  job_id?: string | null;
+  /**
+   * Archive Version
+   */
+  archive_version: number;
+  /**
+   * Status
+   *
+   * started|completed|failed
+   */
+  status: string;
+  /**
+   * Archived Files
+   */
+  archived_files?: Array<string>;
+  /**
+   * Error
+   */
+  error?: string | null;
 };
 
 /**
@@ -4598,6 +4682,53 @@ export type RemoveSessionResponses = {
 };
 
 export type RemoveSessionResponse = RemoveSessionResponses[keyof RemoveSessionResponses];
+
+export type RegenerateMissionData = {
+  body: RegenerateMissionRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Mission Id
+     *
+     * Mission ID
+     */
+    mission_id: string;
+  };
+  query?: never;
+  url: '/ocxp/mission/{mission_id}/regenerate';
+};
+
+export type RegenerateMissionErrors = {
+  /**
+   * Mission not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Archive or regeneration failed
+   */
+  500: unknown;
+};
+
+export type RegenerateMissionError = RegenerateMissionErrors[keyof RegenerateMissionErrors];
+
+export type RegenerateMissionResponses = {
+  /**
+   * Regeneration started successfully
+   */
+  200: RegenerateMissionResponse;
+};
+
+export type RegenerateMissionResponse2 =
+  RegenerateMissionResponses[keyof RegenerateMissionResponses];
 
 export type QueryKnowledgeBaseData = {
   body: KbQueryRequest;

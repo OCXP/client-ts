@@ -12,6 +12,7 @@ import type {
   MissionCreate,
   MissionResponse,
   MissionListResponse,
+  RegenerateMissionResponse,
   ProjectListResponse,
   ProjectResponse,
   ProjectCreate,
@@ -547,6 +548,35 @@ export class OCXPClient {
       headers,
     });
     return extractData(response) as MissionResponse;
+  }
+
+  /**
+   * Regenerate mission - archives old docs and triggers AgentCore
+   */
+  async regenerateMission(
+    missionId: string,
+    options?: {
+      ticket_id?: string;
+      ticket_summary?: string;
+      ticket_description?: string;
+      archive_old_docs?: boolean;
+      auto_increment_version?: boolean;
+    }
+  ): Promise<RegenerateMissionResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.regenerateMission({
+      client: this.client,
+      path: { mission_id: missionId },
+      body: {
+        ticket_id: options?.ticket_id,
+        ticket_summary: options?.ticket_summary,
+        ticket_description: options?.ticket_description,
+        archive_old_docs: options?.archive_old_docs ?? true,
+        auto_increment_version: options?.auto_increment_version ?? true,
+      },
+      headers,
+    });
+    return extractData(response) as RegenerateMissionResponse;
   }
 
   // ============== Tools ==============
@@ -1327,6 +1357,23 @@ export class MissionNamespace {
    */
   async removeSession(missionId: string, sessionId: string): Promise<MissionResponse> {
     return this.client.removeMissionSession(missionId, sessionId);
+  }
+
+  /**
+   * Regenerate mission - archives old docs and triggers AgentCore
+   * @example ocxp.mission.regenerate('uuid', { ticket_id: 'AMC-123' })
+   */
+  async regenerate(
+    missionId: string,
+    options?: {
+      ticket_id?: string;
+      ticket_summary?: string;
+      ticket_description?: string;
+      archive_old_docs?: boolean;
+      auto_increment_version?: boolean;
+    }
+  ): Promise<RegenerateMissionResponse> {
+    return this.client.regenerateMission(missionId, options);
   }
 
   /**

@@ -1030,6 +1030,15 @@ var removeSession = (options) => (options.client ?? client).delete({
   url: "/ocxp/mission/{mission_id}/sessions/{session_id}",
   ...options
 });
+var regenerateMission = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/mission/{mission_id}/regenerate",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var queryKnowledgeBase = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/kb/query",
@@ -1672,6 +1681,25 @@ var OCXPClient = class {
     const response = await removeSession({
       client: this.client,
       path: { mission_id: missionId, session_id: sessionId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Regenerate mission - archives old docs and triggers AgentCore
+   */
+  async regenerateMission(missionId, options) {
+    const headers = await this.getHeaders();
+    const response = await regenerateMission({
+      client: this.client,
+      path: { mission_id: missionId },
+      body: {
+        ticket_id: options?.ticket_id,
+        ticket_summary: options?.ticket_summary,
+        ticket_description: options?.ticket_description,
+        archive_old_docs: options?.archive_old_docs ?? true,
+        auto_increment_version: options?.auto_increment_version ?? true
+      },
       headers
     });
     return extractData(response);
@@ -2372,6 +2400,13 @@ var MissionNamespace = class {
    */
   async removeSession(missionId, sessionId) {
     return this.client.removeMissionSession(missionId, sessionId);
+  }
+  /**
+   * Regenerate mission - archives old docs and triggers AgentCore
+   * @example ocxp.mission.regenerate('uuid', { ticket_id: 'AMC-123' })
+   */
+  async regenerate(missionId, options) {
+    return this.client.regenerateMission(missionId, options);
   }
   /**
    * Get mission context for agents
@@ -3996,6 +4031,7 @@ exports.queryKnowledgeBase = queryKnowledgeBase;
 exports.ragKnowledgeBase = ragKnowledgeBase;
 exports.readContent = readContent;
 exports.refreshTokens = refreshTokens;
+exports.regenerateMission = regenerateMission;
 exports.removeDatabase = removeDatabase;
 exports.removeLinkedRepo = removeLinkedRepo;
 exports.removeMission = removeMission;

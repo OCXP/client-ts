@@ -123,6 +123,9 @@ export {
   toolUpdateMission,
   getMissionContext,
 
+  // Mission operations
+  regenerateMission,
+
   // Auth
   loginForAccessToken,
   login,
@@ -317,6 +320,12 @@ export type {
   ToolUpdateMissionResponses,
   GetMissionContextData,
   GetMissionContextResponses,
+
+  // Mission operations
+  RegenerateMissionRequest,
+  RegenerateMissionResponse,
+  RegenerateMissionData,
+  RegenerateMissionResponses,
 
   // Auth
   LoginForAccessTokenData,
