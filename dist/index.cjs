@@ -1057,6 +1057,54 @@ var ragKnowledgeBase = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var listMemos = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos",
+  ...options
+});
+var createMemo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteMemo = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos/{memo_id}",
+  ...options
+});
+var getMemo = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos/{memo_id}",
+  ...options
+});
+var getMemoForSource = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos/source/{source_type}/{source_id}",
+  ...options
+});
+var resolveMemo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos/{memo_id}/resolve",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var acknowledgeMemo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos/{memo_id}/acknowledge",
+  ...options
+});
+var ignoreMemo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/memos/{memo_id}/ignore",
+  ...options
+});
 var downloadRepository = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/repo/download",
@@ -1361,6 +1409,12 @@ var OCXPClient = class {
    */
   getWorkspace() {
     return this.workspace;
+  }
+  /**
+   * Get the underlying client for SDK function calls
+   */
+  getClient() {
+    return this.client;
   }
   /**
    * Set the auth token or token provider
@@ -3961,6 +4015,7 @@ exports.WSStreamStartSchema = WSStreamStartSchema;
 exports.WebSocketService = WebSocketService;
 exports.WriteDataSchema = WriteDataSchema;
 exports.WriteResponseSchema = WriteResponseSchema;
+exports.acknowledgeMemo = acknowledgeMemo;
 exports.addDatabase = addDatabase;
 exports.addLinkedRepo = addLinkedRepo;
 exports.addMission = addMission;
@@ -3972,6 +4027,7 @@ exports.bulkWriteContent = bulkWriteContent;
 exports.createClient = createClient;
 exports.createConfig = createConfig;
 exports.createDatabase = createDatabase;
+exports.createMemo = createMemo;
 exports.createOCXPClient = createOCXPClient;
 exports.createPathService = createPathService;
 exports.createProject = createProject;
@@ -3979,6 +4035,7 @@ exports.createResponseSchema = createResponseSchema;
 exports.createWebSocketService = createWebSocketService;
 exports.deleteContent = deleteContent;
 exports.deleteDatabase = deleteDatabase;
+exports.deleteMemo = deleteMemo;
 exports.deleteProject = deleteProject;
 exports.deleteRepo = deleteRepo;
 exports.downloadRepository = downloadRepository;
@@ -3991,6 +4048,8 @@ exports.getContentTypes = getContentTypes;
 exports.getContextRepos = getContextRepos;
 exports.getCurrentUser = getCurrentUser;
 exports.getDatabase = getDatabase;
+exports.getMemo = getMemo;
+exports.getMemoForSource = getMemoForSource;
 exports.getMissionContext = getMissionContext;
 exports.getProject = getProject;
 exports.getProjectDatabases = getProjectDatabases;
@@ -4001,6 +4060,7 @@ exports.getSessionMessages = getSessionMessages;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;
 exports.githubListBranches = githubListBranches;
+exports.ignoreMemo = ignoreMemo;
 exports.isOCXPAuthError = isOCXPAuthError;
 exports.isOCXPConflictError = isOCXPConflictError;
 exports.isOCXPError = isOCXPError;
@@ -4014,6 +4074,7 @@ exports.listContent = listContent;
 exports.listContextDatabases = listContextDatabases;
 exports.listDatabases = listDatabases;
 exports.listDownloadedRepos = listDownloadedRepos;
+exports.listMemos = listMemos;
 exports.listProjects = listProjects;
 exports.listSessions = listSessions;
 exports.listTables = listTables;
@@ -4035,6 +4096,7 @@ exports.regenerateMission = regenerateMission;
 exports.removeDatabase = removeDatabase;
 exports.removeLinkedRepo = removeLinkedRepo;
 exports.removeMission = removeMission;
+exports.resolveMemo = resolveMemo;
 exports.safeParseWSMessage = safeParseWSMessage;
 exports.searchContent = searchContent;
 exports.setDefaultDatabase = setDefaultDatabase;

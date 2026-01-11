@@ -748,6 +748,40 @@ type ContentWriteResponse = {
     etag?: string | null;
 };
 /**
+ * CreateMemoRequest
+ *
+ * Request body for creating a new memo.
+ */
+type CreateMemoRequest = {
+    source_type: SourceType;
+    /**
+     * Source Id
+     *
+     * Format: {mission_id}:v{version}:{file_path} for missions
+     */
+    source_id: string;
+    /**
+     * Workspace
+     */
+    workspace: string;
+    /**
+     * Content
+     */
+    content?: string | null;
+    category?: MemoCategory | null;
+    /**
+     * Metadata
+     */
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Findings
+     */
+    findings?: Array<SecurityFinding> | null;
+    severity?: MemoSeverity;
+};
+/**
  * DatabaseConfigResponse
  *
  * Full database configuration response.
@@ -1275,6 +1309,174 @@ type LoginRequest = {
      */
     password: string;
 };
+/**
+ * Memo
+ *
+ * Memo linked to a source entity.
+ *
+ * Memos aggregate findings for a specific source (repo, project, mission)
+ * and track their resolution status.
+ */
+type Memo = {
+    /**
+     * Memo Id
+     *
+     * Unique memo identifier
+     */
+    memo_id?: string;
+    /**
+     * Type of source entity
+     */
+    source_type: SourceType;
+    /**
+     * Source Id
+     *
+     * ID of the source entity (mission format: {mission_id}:v{version}:{file_path})
+     */
+    source_id: string;
+    /**
+     * Workspace
+     *
+     * Workspace this memo belongs to
+     */
+    workspace: string;
+    /**
+     * Content
+     *
+     * Free-form memo content (for general memos)
+     */
+    content?: string | null;
+    /**
+     * Category of memo (optional for security findings)
+     */
+    category?: MemoCategory | null;
+    /**
+     * Metadata
+     *
+     * Flexible metadata (line numbers, suggested fixes, etc.)
+     */
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Findings
+     *
+     * List of security findings
+     */
+    findings?: Array<SecurityFinding>;
+    /**
+     * Total Findings
+     *
+     * Total number of findings
+     */
+    total_findings?: number;
+    /**
+     * Highest severity among all findings
+     */
+    highest_severity?: MemoSeverity;
+    /**
+     * Current status of the memo
+     */
+    status?: MemoStatus;
+    /**
+     * Resolved By
+     *
+     * User who resolved the memo
+     */
+    resolved_by?: string | null;
+    /**
+     * Resolved At
+     *
+     * When the memo was resolved
+     */
+    resolved_at?: string | null;
+    /**
+     * Created At
+     *
+     * When the memo was created
+     */
+    created_at?: string;
+    /**
+     * Updated At
+     *
+     * When the memo was last updated
+     */
+    updated_at?: string;
+    /**
+     * Ttl
+     *
+     * TTL for DynamoDB auto-expiration
+     */
+    ttl?: number | null;
+};
+/**
+ * MemoActionResponse
+ *
+ * Response from memo action endpoints.
+ */
+type MemoActionResponse = {
+    /**
+     * Success
+     */
+    success: boolean;
+    /**
+     * Message
+     *
+     * Action result message
+     */
+    message: string;
+    memo: Memo;
+};
+/**
+ * MemoCategory
+ *
+ * Category of memo feedback.
+ */
+type MemoCategory = 'agent_error' | 'agent_warning' | 'agent_hitl' | 'user_comment' | 'user_edit' | 'user_delete' | 'security_finding';
+/**
+ * MemoListResponse
+ *
+ * Response for memo list.
+ */
+type MemoListResponse = {
+    /**
+     * Memos
+     */
+    memos: Array<Memo>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * MemoResolveRequest
+ *
+ * Request to resolve a memo.
+ */
+type MemoResolveRequest = {
+    /**
+     * Resolved By
+     *
+     * User resolving the memo
+     */
+    resolved_by: string;
+    /**
+     * Ttl Days
+     */
+    ttl_days?: number;
+};
+/**
+ * MemoSeverity
+ *
+ * Severity levels for security findings.
+ */
+type MemoSeverity = 'low' | 'medium' | 'high' | 'critical';
+/**
+ * MemoStatus
+ *
+ * Status of a memo.
+ */
+type MemoStatus = 'open' | 'acknowledged' | 'resolved' | 'ignored';
 /**
  * MessageResponse
  *
@@ -1982,6 +2184,41 @@ type RepoStatusResponse = {
     total_files?: number | null;
 };
 /**
+ * SecurityFinding
+ *
+ * Single sensitive data finding within a memo.
+ */
+type SecurityFinding = {
+    /**
+     * Pattern Type
+     *
+     * Type of pattern detected: password, api_key, aws_secret, etc.
+     */
+    pattern_type: string;
+    /**
+     * Severity level of this finding
+     */
+    severity: MemoSeverity;
+    /**
+     * Location
+     *
+     * File path where finding was detected
+     */
+    location: string;
+    /**
+     * Match Count
+     *
+     * Number of matches found
+     */
+    match_count?: number;
+    /**
+     * First Detected
+     *
+     * When this finding was first detected
+     */
+    first_detected?: string;
+};
+/**
  * SessionForkResponse
  *
  * Response for POST /ocxp/session/{id}/fork.
@@ -2124,6 +2361,12 @@ type SetDefaultRepoRequest = {
      */
     repo_id?: string | null;
 };
+/**
+ * SourceType
+ *
+ * Type of entity the memo is associated with.
+ */
+type SourceType = 'repo' | 'project' | 'mission' | 'doc';
 /**
  * TokenResponse
  *
@@ -3125,6 +3368,308 @@ type RagKnowledgeBaseResponses = {
      * Successful Response
      */
     200: KbRagResponse;
+};
+type ListMemosData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Status
+         *
+         * Filter by status (open, acknowledged, resolved, ignored)
+         */
+        status?: MemoStatus | null;
+        /**
+         * Source Type
+         *
+         * Filter by source type (repo, project, mission, doc)
+         */
+        source_type?: SourceType | null;
+        /**
+         * Category
+         *
+         * Filter by category
+         */
+        category?: MemoCategory | null;
+        /**
+         * Severity
+         *
+         * Filter by minimum severity
+         */
+        severity?: MemoSeverity | null;
+        /**
+         * Limit
+         *
+         * Maximum results
+         */
+        limit?: number;
+    };
+    url: '/ocxp/memos';
+};
+type ListMemosErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListMemosResponses = {
+    /**
+     * List of memos returned successfully
+     */
+    200: MemoListResponse;
+};
+type ListMemosResponse = ListMemosResponses[keyof ListMemosResponses];
+type CreateMemoData = {
+    body: CreateMemoRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/memos';
+};
+type CreateMemoErrors = {
+    /**
+     * Invalid request
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type CreateMemoResponses = {
+    /**
+     * Memo created successfully
+     */
+    201: Memo;
+};
+type CreateMemoResponse = CreateMemoResponses[keyof CreateMemoResponses];
+type DeleteMemoData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Memo Id
+         *
+         * Memo ID
+         */
+        memo_id: string;
+    };
+    query?: never;
+    url: '/ocxp/memos/{memo_id}';
+};
+type DeleteMemoErrors = {
+    /**
+     * Memo not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type DeleteMemoResponses = {
+    /**
+     * Memo deleted successfully
+     */
+    200: MemoActionResponse;
+};
+type DeleteMemoResponse = DeleteMemoResponses[keyof DeleteMemoResponses];
+type GetMemoData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Memo Id
+         *
+         * Memo ID
+         */
+        memo_id: string;
+    };
+    query?: never;
+    url: '/ocxp/memos/{memo_id}';
+};
+type GetMemoErrors = {
+    /**
+     * Memo not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetMemoResponses = {
+    /**
+     * Memo returned successfully
+     */
+    200: Memo;
+};
+type GetMemoResponse = GetMemoResponses[keyof GetMemoResponses];
+type GetMemoForSourceData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Source Type
+         *
+         * Source type (repo, project, mission, doc)
+         */
+        source_type: string;
+        /**
+         * Source Id
+         *
+         * Source entity ID
+         */
+        source_id: string;
+    };
+    query?: never;
+    url: '/ocxp/memos/source/{source_type}/{source_id}';
+};
+type GetMemoForSourceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetMemoForSourceResponses = {
+    /**
+     * Response Getmemoforsource
+     *
+     * Memo returned or null if none exists
+     */
+    200: Memo | null;
+};
+type GetMemoForSourceResponse = GetMemoForSourceResponses[keyof GetMemoForSourceResponses];
+type ResolveMemoData = {
+    body: MemoResolveRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Memo Id
+         *
+         * Memo ID
+         */
+        memo_id: string;
+    };
+    query?: never;
+    url: '/ocxp/memos/{memo_id}/resolve';
+};
+type ResolveMemoErrors = {
+    /**
+     * Memo not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ResolveMemoResponses = {
+    /**
+     * Memo resolved successfully
+     */
+    200: MemoActionResponse;
+};
+type AcknowledgeMemoData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Memo Id
+         *
+         * Memo ID
+         */
+        memo_id: string;
+    };
+    query?: never;
+    url: '/ocxp/memos/{memo_id}/acknowledge';
+};
+type AcknowledgeMemoErrors = {
+    /**
+     * Memo not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type AcknowledgeMemoResponses = {
+    /**
+     * Memo acknowledged successfully
+     */
+    200: MemoActionResponse;
+};
+type IgnoreMemoData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Memo Id
+         *
+         * Memo ID
+         */
+        memo_id: string;
+    };
+    query?: never;
+    url: '/ocxp/memos/{memo_id}/ignore';
+};
+type IgnoreMemoErrors = {
+    /**
+     * Memo not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type IgnoreMemoResponses = {
+    /**
+     * Memo ignored successfully
+     */
+    200: MemoActionResponse;
 };
 type DownloadRepositoryData = {
     body: DownloadRequest;
@@ -4312,7 +4857,7 @@ declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: 
 /**
  * Bulk Delete Content
  *
- * Bulk delete content.
+ * Bulk delete content using batch operations.
  */
 declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, BulkDeleteContentErrors, ThrowOnError, "fields">;
 /**
@@ -4465,6 +5010,54 @@ declare const queryKnowledgeBase: <ThrowOnError extends boolean = false>(options
  * @deprecated
  */
 declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: Options<RagKnowledgeBaseData, ThrowOnError>) => RequestResult<RagKnowledgeBaseResponses, RagKnowledgeBaseErrors, ThrowOnError, "fields">;
+/**
+ * List memos
+ *
+ * List memos for the workspace with optional filters.
+ */
+declare const listMemos: <ThrowOnError extends boolean = false>(options?: Options<ListMemosData, ThrowOnError>) => RequestResult<ListMemosResponses, ListMemosErrors, ThrowOnError, "fields">;
+/**
+ * Create memo
+ *
+ * Create a new memo (general or security finding).
+ */
+declare const createMemo: <ThrowOnError extends boolean = false>(options: Options<CreateMemoData, ThrowOnError>) => RequestResult<CreateMemoResponses, CreateMemoErrors, ThrowOnError, "fields">;
+/**
+ * Delete memo
+ *
+ * Delete a memo permanently.
+ */
+declare const deleteMemo: <ThrowOnError extends boolean = false>(options: Options<DeleteMemoData, ThrowOnError>) => RequestResult<DeleteMemoResponses, DeleteMemoErrors, ThrowOnError, "fields">;
+/**
+ * Get memo by ID
+ *
+ * Get a specific memo by its ID.
+ */
+declare const getMemo: <ThrowOnError extends boolean = false>(options: Options<GetMemoData, ThrowOnError>) => RequestResult<GetMemoResponses, GetMemoErrors, ThrowOnError, "fields">;
+/**
+ * Get memo for source
+ *
+ * Get memo for a specific source entity (repo, project, mission, doc).
+ */
+declare const getMemoForSource: <ThrowOnError extends boolean = false>(options: Options<GetMemoForSourceData, ThrowOnError>) => RequestResult<GetMemoForSourceResponses, GetMemoForSourceErrors, ThrowOnError, "fields">;
+/**
+ * Resolve memo
+ *
+ * Mark a memo as resolved. Sets TTL for auto-deletion.
+ */
+declare const resolveMemo: <ThrowOnError extends boolean = false>(options: Options<ResolveMemoData, ThrowOnError>) => RequestResult<ResolveMemoResponses, ResolveMemoErrors, ThrowOnError, "fields">;
+/**
+ * Acknowledge memo
+ *
+ * Mark a memo as acknowledged (developer has seen it).
+ */
+declare const acknowledgeMemo: <ThrowOnError extends boolean = false>(options: Options<AcknowledgeMemoData, ThrowOnError>) => RequestResult<AcknowledgeMemoResponses, AcknowledgeMemoErrors, ThrowOnError, "fields">;
+/**
+ * Ignore memo
+ *
+ * Mark a memo as ignored (false positive or accepted risk).
+ */
+declare const ignoreMemo: <ThrowOnError extends boolean = false>(options: Options<IgnoreMemoData, ThrowOnError>) => RequestResult<IgnoreMemoResponses, IgnoreMemoErrors, ThrowOnError, "fields">;
 /**
  * Start repository download
  *
@@ -4775,6 +5368,10 @@ declare class OCXPClient {
      * Get current workspace
      */
     getWorkspace(): string;
+    /**
+     * Get the underlying client for SDK function calls
+     */
+    getClient(): Client;
     /**
      * Set the auth token or token provider
      */
@@ -8635,4 +9232,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
+export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
