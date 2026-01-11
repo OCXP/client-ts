@@ -166,6 +166,13 @@ export class OCXPClient {
   }
 
   /**
+   * Get the underlying client for SDK function calls
+   */
+  getClient(): Client {
+    return this.client;
+  }
+
+  /**
    * Set the auth token or token provider
    */
   setToken(token: string | (() => Promise<string>)): void {

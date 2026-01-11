@@ -191,6 +191,70 @@ export type BulkItemResult = {
 };
 
 /**
+ * BulkMoveItem
+ */
+export type BulkMoveItem = {
+  /**
+   * Source Id
+   */
+  source_id: string;
+  /**
+   * Dest Id
+   */
+  dest_id: string;
+};
+
+/**
+ * BulkMoveItemResult
+ *
+ * Result for a single move operation in bulk move.
+ */
+export type BulkMoveItemResult = {
+  /**
+   * Source Id
+   */
+  source_id: string;
+  /**
+   * Dest Id
+   */
+  dest_id: string;
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Error
+   */
+  error?: string | null;
+};
+
+/**
+ * BulkMoveRequest
+ */
+export type BulkMoveRequest = {
+  /**
+   * Items
+   */
+  items: Array<BulkMoveItem>;
+};
+
+/**
+ * BulkMoveResponse
+ *
+ * Response for POST /ocxp/{type}/bulk/move.
+ */
+export type BulkMoveResponse = {
+  /**
+   * Results
+   */
+  results: Array<BulkMoveItemResult>;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
  * BulkReadRequest
  */
 export type BulkReadRequest = {
@@ -663,6 +727,41 @@ export type CreateFolderRequest = {
    * Description
    */
   description?: string;
+};
+
+/**
+ * CreateMemoRequest
+ *
+ * Request body for creating a new memo.
+ */
+export type CreateMemoRequest = {
+  source_type: SourceType;
+  /**
+   * Source Id
+   *
+   * Format: {mission_id}:v{version}:{file_path} for missions
+   */
+  source_id: string;
+  /**
+   * Workspace
+   */
+  workspace: string;
+  /**
+   * Content
+   */
+  content?: string | null;
+  category?: MemoCategory | null;
+  /**
+   * Metadata
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Findings
+   */
+  findings?: Array<SecurityFinding> | null;
+  severity?: MemoSeverity;
 };
 
 /**
@@ -1604,28 +1703,138 @@ export type LoginRequest = {
 };
 
 /**
+ * Memo
+ *
+ * Memo linked to a source entity.
+ *
+ * Memos aggregate findings for a specific source (repo, project, mission)
+ * and track their resolution status.
+ */
+export type Memo = {
+  /**
+   * Memo Id
+   *
+   * Unique memo identifier
+   */
+  memo_id?: string;
+  /**
+   * Type of source entity
+   */
+  source_type: SourceType;
+  /**
+   * Source Id
+   *
+   * ID of the source entity (mission format: {mission_id}:v{version}:{file_path})
+   */
+  source_id: string;
+  /**
+   * Workspace
+   *
+   * Workspace this memo belongs to
+   */
+  workspace: string;
+  /**
+   * Content
+   *
+   * Free-form memo content (for general memos)
+   */
+  content?: string | null;
+  /**
+   * Category of memo (optional for security findings)
+   */
+  category?: MemoCategory | null;
+  /**
+   * Metadata
+   *
+   * Flexible metadata (line numbers, suggested fixes, etc.)
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Findings
+   *
+   * List of security findings
+   */
+  findings?: Array<SecurityFinding>;
+  /**
+   * Total Findings
+   *
+   * Total number of findings
+   */
+  total_findings?: number;
+  /**
+   * Highest severity among all findings
+   */
+  highest_severity?: MemoSeverity;
+  /**
+   * Current status of the memo
+   */
+  status?: MemoStatus;
+  /**
+   * Resolved By
+   *
+   * User who resolved the memo
+   */
+  resolved_by?: string | null;
+  /**
+   * Resolved At
+   *
+   * When the memo was resolved
+   */
+  resolved_at?: string | null;
+  /**
+   * Created At
+   *
+   * When the memo was created
+   */
+  created_at?: string;
+  /**
+   * Updated At
+   *
+   * When the memo was last updated
+   */
+  updated_at?: string;
+  /**
+   * Ttl
+   *
+   * TTL for DynamoDB auto-expiration
+   */
+  ttl?: number | null;
+};
+
+/**
  * MemoActionResponse
  *
- * Response for memo status change actions.
+ * Response from memo action endpoints.
  */
 export type MemoActionResponse = {
   /**
    * Success
-   *
-   * Whether the action succeeded
    */
   success: boolean;
   /**
-   * Memo Id
+   * Message
    *
-   * Memo ID
+   * Action result message
    */
-  memo_id: string;
-  /**
-   * New memo status
-   */
-  status: MemoStatus;
+  message: string;
+  memo: Memo;
 };
+
+/**
+ * MemoCategory
+ *
+ * Category of memo feedback.
+ */
+export type MemoCategory =
+  | 'agent_error'
+  | 'agent_warning'
+  | 'agent_hitl'
+  | 'user_comment'
+  | 'user_edit'
+  | 'user_delete'
+  | 'security_finding';
 
 /**
  * MemoListResponse
@@ -1636,7 +1845,7 @@ export type MemoListResponse = {
   /**
    * Memos
    */
-  memos: Array<SecurityMemo>;
+  memos: Array<Memo>;
   /**
    * Count
    */
@@ -1671,7 +1880,7 @@ export type MemoSeverity = 'low' | 'medium' | 'high' | 'critical';
 /**
  * MemoStatus
  *
- * Status of a security memo.
+ * Status of a memo.
  */
 export type MemoStatus = 'open' | 'acknowledged' | 'resolved' | 'ignored';
 
@@ -2506,91 +2715,6 @@ export type SecurityFinding = {
 };
 
 /**
- * SecurityMemo
- *
- * Security memo linked to a source entity.
- *
- * Memos aggregate findings for a specific source (repo, project, mission)
- * and track their resolution status.
- */
-export type SecurityMemo = {
-  /**
-   * Memo Id
-   *
-   * Unique memo identifier
-   */
-  memo_id?: string;
-  /**
-   * Source Type
-   *
-   * Type of source entity
-   */
-  source_type: 'repo' | 'project' | 'mission' | 'doc';
-  /**
-   * Source Id
-   *
-   * ID of the source entity (repo_id, project_id, etc.)
-   */
-  source_id: string;
-  /**
-   * Workspace
-   *
-   * Workspace this memo belongs to
-   */
-  workspace: string;
-  /**
-   * Findings
-   *
-   * List of security findings
-   */
-  findings?: Array<SecurityFinding>;
-  /**
-   * Total Findings
-   *
-   * Total number of findings
-   */
-  total_findings?: number;
-  /**
-   * Highest severity among all findings
-   */
-  highest_severity?: MemoSeverity;
-  /**
-   * Current status of the memo
-   */
-  status?: MemoStatus;
-  /**
-   * Resolved By
-   *
-   * User who resolved the memo
-   */
-  resolved_by?: string | null;
-  /**
-   * Resolved At
-   *
-   * When the memo was resolved
-   */
-  resolved_at?: string | null;
-  /**
-   * Created At
-   *
-   * When the memo was created
-   */
-  created_at?: string;
-  /**
-   * Updated At
-   *
-   * When the memo was last updated
-   */
-  updated_at?: string;
-  /**
-   * Ttl
-   *
-   * TTL for DynamoDB auto-expiration
-   */
-  ttl?: number | null;
-};
-
-/**
  * SessionForkResponse
  *
  * Response for POST /ocxp/session/{id}/fork.
@@ -2739,6 +2863,13 @@ export type SetDefaultRepoRequest = {
    */
   repo_id?: string | null;
 };
+
+/**
+ * SourceType
+ *
+ * Type of entity the memo is associated with.
+ */
+export type SourceType = 'repo' | 'project' | 'mission' | 'doc';
 
 /**
  * TableOverview
@@ -3122,6 +3253,42 @@ export type BulkDeleteContentResponses = {
 
 export type BulkDeleteContentResponse =
   BulkDeleteContentResponses[keyof BulkDeleteContentResponses];
+
+export type BulkMoveContentData = {
+  body: BulkMoveRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Content Type
+     */
+    content_type: string;
+  };
+  query?: never;
+  url: '/ocxp/context/{content_type}/bulk/move';
+};
+
+export type BulkMoveContentErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type BulkMoveContentError = BulkMoveContentErrors[keyof BulkMoveContentErrors];
+
+export type BulkMoveContentResponses = {
+  /**
+   * Successful Response
+   */
+  200: BulkMoveResponse;
+};
+
+export type BulkMoveContentResponse = BulkMoveContentResponses[keyof BulkMoveContentResponses];
 
 export type DiscoverContextData = {
   body: DiscoverRequest;
@@ -4814,7 +4981,13 @@ export type ListMemosData = {
      *
      * Filter by source type (repo, project, mission, doc)
      */
-    source_type?: string | null;
+    source_type?: SourceType | null;
+    /**
+     * Category
+     *
+     * Filter by category
+     */
+    category?: MemoCategory | null;
     /**
      * Severity
      *
@@ -4848,6 +5021,41 @@ export type ListMemosResponses = {
 };
 
 export type ListMemosResponse = ListMemosResponses[keyof ListMemosResponses];
+
+export type CreateMemoData = {
+  body: CreateMemoRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/memos';
+};
+
+export type CreateMemoErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateMemoError = CreateMemoErrors[keyof CreateMemoErrors];
+
+export type CreateMemoResponses = {
+  /**
+   * Memo created successfully
+   */
+  201: Memo;
+};
+
+export type CreateMemoResponse = CreateMemoResponses[keyof CreateMemoResponses];
 
 export type DeleteMemoData = {
   body?: never;
@@ -4928,7 +5136,7 @@ export type GetMemoResponses = {
   /**
    * Memo returned successfully
    */
-  200: SecurityMemo;
+  200: Memo;
 };
 
 export type GetMemoResponse = GetMemoResponses[keyof GetMemoResponses];
@@ -4974,7 +5182,7 @@ export type GetMemoForSourceResponses = {
    *
    * Memo returned or null if none exists
    */
-  200: SecurityMemo | null;
+  200: Memo | null;
 };
 
 export type GetMemoForSourceResponse = GetMemoForSourceResponses[keyof GetMemoForSourceResponses];

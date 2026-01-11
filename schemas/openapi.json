@@ -146,7 +146,7 @@
           "Bulk"
         ],
         "summary": "Bulk Delete Content",
-        "description": "Bulk delete content.",
+        "description": "Bulk delete content using batch operations.",
         "operationId": "bulkDeleteContent",
         "parameters": [
           {
@@ -185,6 +185,73 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BulkDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/{content_type}/bulk/move": {
+      "post": {
+        "tags": [
+          "Bulk"
+        ],
+        "summary": "Bulk Move Content",
+        "description": "Bulk move (copy + delete) content.\n\nPerforms batch copy followed by batch delete for efficiency.\nIndividual item failures are reported in results.",
+        "operationId": "bulkMoveContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkMoveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMoveResponse"
                 }
               }
             }
@@ -2977,12 +3044,71 @@
       }
     },
     "/ocxp/memos": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Create memo",
+        "description": "Create a new memo (general or security finding).",
+        "operationId": "createMemo",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMemoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Memo created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Memo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
       "get": {
         "tags": [
           "Security Memos"
         ],
-        "summary": "List security memos",
-        "description": "List security memos for the workspace with optional filters.",
+        "summary": "List memos",
+        "description": "List memos for the workspace with optional filters.",
         "operationId": "listMemos",
         "parameters": [
           {
@@ -3010,7 +3136,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "$ref": "#/components/schemas/SourceType"
                 },
                 {
                   "type": "null"
@@ -3020,6 +3146,24 @@
               "title": "Source Type"
             },
             "description": "Filter by source type (repo, project, mission, doc)"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MemoCategory"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category",
+              "title": "Category"
+            },
+            "description": "Filter by category"
           },
           {
             "name": "severity",
@@ -3098,7 +3242,7 @@
           "Security Memos"
         ],
         "summary": "Get memo by ID",
-        "description": "Get a specific security memo by its ID.",
+        "description": "Get a specific memo by its ID.",
         "operationId": "getMemo",
         "parameters": [
           {
@@ -3128,7 +3272,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SecurityMemo"
+                  "$ref": "#/components/schemas/Memo"
                 }
               }
             }
@@ -3158,7 +3302,7 @@
           "Security Memos"
         ],
         "summary": "Delete memo",
-        "description": "Delete a security memo permanently.",
+        "description": "Delete a memo permanently.",
         "operationId": "deleteMemo",
         "parameters": [
           {
@@ -3220,7 +3364,7 @@
           "Security Memos"
         ],
         "summary": "Get memo for source",
-        "description": "Get security memo for a specific source entity (repo, project, mission, doc).",
+        "description": "Get memo for a specific source entity (repo, project, mission, doc).",
         "operationId": "getMemoForSource",
         "parameters": [
           {
@@ -3263,7 +3407,7 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/SecurityMemo"
+                      "$ref": "#/components/schemas/Memo"
                     },
                     {
                       "type": "null"
@@ -3298,7 +3442,7 @@
           "Security Memos"
         ],
         "summary": "Resolve memo",
-        "description": "Mark a security memo as resolved. Sets TTL for auto-deletion.",
+        "description": "Mark a memo as resolved. Sets TTL for auto-deletion.",
         "operationId": "resolveMemo",
         "parameters": [
           {
@@ -3370,7 +3514,7 @@
           "Security Memos"
         ],
         "summary": "Acknowledge memo",
-        "description": "Mark a security memo as acknowledged (developer has seen it).",
+        "description": "Mark a memo as acknowledged (developer has seen it).",
         "operationId": "acknowledgeMemo",
         "parameters": [
           {
@@ -3432,7 +3576,7 @@
           "Security Memos"
         ],
         "summary": "Ignore memo",
-        "description": "Mark a security memo as ignored (false positive or accepted risk).",
+        "description": "Mark a memo as ignored (false positive or accepted risk).",
         "operationId": "ignoreMemo",
         "parameters": [
           {
@@ -6473,6 +6617,97 @@
         "title": "BulkItemResult",
         "description": "Result for a single item in bulk operation."
       },
+      "BulkMoveItem": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "dest_id": {
+            "type": "string",
+            "title": "Dest Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "dest_id"
+        ],
+        "title": "BulkMoveItem"
+      },
+      "BulkMoveItemResult": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "dest_id": {
+            "type": "string",
+            "title": "Dest Id"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "dest_id",
+          "success"
+        ],
+        "title": "BulkMoveItemResult",
+        "description": "Result for a single move operation in bulk move."
+      },
+      "BulkMoveRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BulkMoveItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "BulkMoveRequest"
+      },
+      "BulkMoveResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkMoveItemResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "count"
+        ],
+        "title": "BulkMoveResponse",
+        "description": "Response for POST /ocxp/{type}/bulk/move."
+      },
       "BulkReadRequest": {
         "properties": {
           "ids": {
@@ -7239,6 +7474,94 @@
         "type": "object",
         "title": "CreateFolderRequest",
         "description": "Request body for folder creation."
+      },
+      "CreateMemoRequest": {
+        "properties": {
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id",
+            "description": "Format: {mission_id}:v{version}:{file_path} for missions"
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemoCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "findings": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SecurityFinding"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Findings"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/MemoSeverity",
+            "default": "medium"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_type",
+          "source_id",
+          "workspace"
+        ],
+        "title": "CreateMemoRequest",
+        "description": "Request body for creating a new memo.",
+        "example": {
+          "category": "agent_warning",
+          "content": "Consider adding rate limiting to the auth endpoint",
+          "metadata": {
+            "line_number": 42,
+            "suggested_fix": "Add @rate_limit decorator"
+          },
+          "severity": "medium",
+          "source_id": "proj-auth-system:v02:docs/architecture.md",
+          "source_type": "mission",
+          "workspace": "prod"
+        }
       },
       "CreateSessionRequest": {
         "properties": {
@@ -8810,37 +9133,187 @@
         "title": "LoginRequest",
         "description": "JSON login request for programmatic clients."
       },
+      "Memo": {
+        "properties": {
+          "memo_id": {
+            "type": "string",
+            "title": "Memo Id",
+            "description": "Unique memo identifier"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType",
+            "description": "Type of source entity"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id",
+            "description": "ID of the source entity (mission format: {mission_id}:v{version}:{file_path})"
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "description": "Workspace this memo belongs to"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content",
+            "description": "Free-form memo content (for general memos)"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemoCategory"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Category of memo (optional for security findings)"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Flexible metadata (line numbers, suggested fixes, etc.)"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityFinding"
+            },
+            "type": "array",
+            "title": "Findings",
+            "description": "List of security findings"
+          },
+          "total_findings": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Findings",
+            "description": "Total number of findings",
+            "default": 0
+          },
+          "highest_severity": {
+            "$ref": "#/components/schemas/MemoSeverity",
+            "description": "Highest severity among all findings",
+            "default": "low"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MemoStatus",
+            "description": "Current status of the memo",
+            "default": "open"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By",
+            "description": "User who resolved the memo"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At",
+            "description": "When the memo was resolved"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "When the memo was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "When the memo was last updated"
+          },
+          "ttl": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ttl",
+            "description": "TTL for DynamoDB auto-expiration"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_type",
+          "source_id",
+          "workspace"
+        ],
+        "title": "Memo",
+        "description": "Memo linked to a source entity.\n\nMemos aggregate findings for a specific source (repo, project, mission)\nand track their resolution status."
+      },
       "MemoActionResponse": {
         "properties": {
           "success": {
             "type": "boolean",
-            "title": "Success",
-            "description": "Whether the action succeeded"
+            "title": "Success"
           },
-          "memo_id": {
+          "message": {
             "type": "string",
-            "title": "Memo Id",
-            "description": "Memo ID"
+            "title": "Message",
+            "description": "Action result message"
           },
-          "status": {
-            "$ref": "#/components/schemas/MemoStatus",
-            "description": "New memo status"
+          "memo": {
+            "$ref": "#/components/schemas/Memo"
           }
         },
         "type": "object",
         "required": [
           "success",
-          "memo_id",
-          "status"
+          "message",
+          "memo"
         ],
         "title": "MemoActionResponse",
-        "description": "Response for memo status change actions."
+        "description": "Response from memo action endpoints."
+      },
+      "MemoCategory": {
+        "type": "string",
+        "enum": [
+          "agent_error",
+          "agent_warning",
+          "agent_hitl",
+          "user_comment",
+          "user_edit",
+          "user_delete",
+          "security_finding"
+        ],
+        "title": "MemoCategory",
+        "description": "Category of memo feedback."
       },
       "MemoListResponse": {
         "properties": {
           "memos": {
             "items": {
-              "$ref": "#/components/schemas/SecurityMemo"
+              "$ref": "#/components/schemas/Memo"
             },
             "type": "array",
             "title": "Memos"
@@ -8900,7 +9373,7 @@
           "ignored"
         ],
         "title": "MemoStatus",
-        "description": "Status of a security memo."
+        "description": "Status of a memo."
       },
       "MessageResponse": {
         "properties": {
@@ -10408,115 +10881,6 @@
         "title": "SecurityFinding",
         "description": "Single sensitive data finding within a memo."
       },
-      "SecurityMemo": {
-        "properties": {
-          "memo_id": {
-            "type": "string",
-            "title": "Memo Id",
-            "description": "Unique memo identifier"
-          },
-          "source_type": {
-            "type": "string",
-            "enum": [
-              "repo",
-              "project",
-              "mission",
-              "doc"
-            ],
-            "title": "Source Type",
-            "description": "Type of source entity"
-          },
-          "source_id": {
-            "type": "string",
-            "title": "Source Id",
-            "description": "ID of the source entity (repo_id, project_id, etc.)"
-          },
-          "workspace": {
-            "type": "string",
-            "title": "Workspace",
-            "description": "Workspace this memo belongs to"
-          },
-          "findings": {
-            "items": {
-              "$ref": "#/components/schemas/SecurityFinding"
-            },
-            "type": "array",
-            "title": "Findings",
-            "description": "List of security findings"
-          },
-          "total_findings": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Total Findings",
-            "description": "Total number of findings",
-            "default": 0
-          },
-          "highest_severity": {
-            "$ref": "#/components/schemas/MemoSeverity",
-            "description": "Highest severity among all findings",
-            "default": "low"
-          },
-          "status": {
-            "$ref": "#/components/schemas/MemoStatus",
-            "description": "Current status of the memo",
-            "default": "open"
-          },
-          "resolved_by": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Resolved By",
-            "description": "User who resolved the memo"
-          },
-          "resolved_at": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Resolved At",
-            "description": "When the memo was resolved"
-          },
-          "created_at": {
-            "type": "string",
-            "title": "Created At",
-            "description": "When the memo was created"
-          },
-          "updated_at": {
-            "type": "string",
-            "title": "Updated At",
-            "description": "When the memo was last updated"
-          },
-          "ttl": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ttl",
-            "description": "TTL for DynamoDB auto-expiration"
-          }
-        },
-        "type": "object",
-        "required": [
-          "source_type",
-          "source_id",
-          "workspace"
-        ],
-        "title": "SecurityMemo",
-        "description": "Security memo linked to a source entity.\n\nMemos aggregate findings for a specific source (repo, project, mission)\nand track their resolution status."
-      },
       "SessionForkResponse": {
         "properties": {
           "session_id": {
@@ -10791,6 +11155,17 @@
         },
         "type": "object",
         "title": "SetDefaultRepoRequest"
+      },
+      "SourceType": {
+        "type": "string",
+        "enum": [
+          "repo",
+          "project",
+          "mission",
+          "doc"
+        ],
+        "title": "SourceType",
+        "description": "Type of entity the memo is associated with."
       },
       "TableOverview": {
         "properties": {

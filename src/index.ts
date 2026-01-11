@@ -126,6 +126,16 @@ export {
   // Mission operations
   regenerateMission,
 
+  // Memo operations
+  listMemos,
+  createMemo,
+  getMemo,
+  getMemoForSource,
+  deleteMemo,
+  resolveMemo,
+  acknowledgeMemo,
+  ignoreMemo,
+
   // Auth
   loginForAccessToken,
   login,
@@ -326,6 +336,36 @@ export type {
   RegenerateMissionResponse,
   RegenerateMissionData,
   RegenerateMissionResponses,
+
+  // Memo operations
+  Memo,
+  MemoActionResponse,
+  MemoCategory,
+  MemoStatus,
+  MemoSeverity,
+  SourceType,
+  CreateMemoRequest,
+  CreateMemoData,
+  CreateMemoResponse,
+  CreateMemoResponses,
+  ListMemosData,
+  ListMemosResponse,
+  ListMemosResponses,
+  GetMemoData,
+  GetMemoResponse,
+  GetMemoResponses,
+  GetMemoForSourceData,
+  GetMemoForSourceResponse,
+  GetMemoForSourceResponses,
+  DeleteMemoData,
+  DeleteMemoResponse,
+  DeleteMemoResponses,
+  ResolveMemoData,
+  ResolveMemoResponses,
+  AcknowledgeMemoData,
+  AcknowledgeMemoResponses,
+  IgnoreMemoData,
+  IgnoreMemoResponses,
 
   // Auth
   LoginForAccessTokenData,

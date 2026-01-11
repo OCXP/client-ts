@@ -29,6 +29,9 @@ import type {
   BulkDeleteContentData,
   BulkDeleteContentErrors,
   BulkDeleteContentResponses,
+  BulkMoveContentData,
+  BulkMoveContentErrors,
+  BulkMoveContentResponses,
   BulkReadContentData,
   BulkReadContentErrors,
   BulkReadContentResponses,
@@ -41,6 +44,9 @@ import type {
   CreateFolderData,
   CreateFolderErrors,
   CreateFolderResponses,
+  CreateMemoData,
+  CreateMemoErrors,
+  CreateMemoResponses,
   CreateMissionData,
   CreateMissionErrors,
   CreateMissionResponses,
@@ -345,7 +351,7 @@ export const bulkWriteContent = <ThrowOnError extends boolean = false>(
 /**
  * Bulk Delete Content
  *
- * Bulk delete content.
+ * Bulk delete content using batch operations.
  */
 export const bulkDeleteContent = <ThrowOnError extends boolean = false>(
   options: Options<BulkDeleteContentData, ThrowOnError>
@@ -357,6 +363,27 @@ export const bulkDeleteContent = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/{content_type}/bulk/delete',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Bulk Move Content
+ *
+ * Bulk move (copy + delete) content.
+ *
+ * Performs batch copy followed by batch delete for efficiency.
+ * Individual item failures are reported in results.
+ */
+export const bulkMoveContent = <ThrowOnError extends boolean = false>(
+  options: Options<BulkMoveContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkMoveContentResponses, BulkMoveContentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/{content_type}/bulk/move',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1159,9 +1186,9 @@ export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * List security memos
+ * List memos
  *
- * List security memos for the workspace with optional filters.
+ * List memos for the workspace with optional filters.
  */
 export const listMemos = <ThrowOnError extends boolean = false>(
   options?: Options<ListMemosData, ThrowOnError>
@@ -1173,9 +1200,27 @@ export const listMemos = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Create memo
+ *
+ * Create a new memo (general or security finding).
+ */
+export const createMemo = <ThrowOnError extends boolean = false>(
+  options: Options<CreateMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateMemoResponses, CreateMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memos',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * Delete memo
  *
- * Delete a security memo permanently.
+ * Delete a memo permanently.
  */
 export const deleteMemo = <ThrowOnError extends boolean = false>(
   options: Options<DeleteMemoData, ThrowOnError>
@@ -1189,7 +1234,7 @@ export const deleteMemo = <ThrowOnError extends boolean = false>(
 /**
  * Get memo by ID
  *
- * Get a specific security memo by its ID.
+ * Get a specific memo by its ID.
  */
 export const getMemo = <ThrowOnError extends boolean = false>(
   options: Options<GetMemoData, ThrowOnError>
@@ -1203,7 +1248,7 @@ export const getMemo = <ThrowOnError extends boolean = false>(
 /**
  * Get memo for source
  *
- * Get security memo for a specific source entity (repo, project, mission, doc).
+ * Get memo for a specific source entity (repo, project, mission, doc).
  */
 export const getMemoForSource = <ThrowOnError extends boolean = false>(
   options: Options<GetMemoForSourceData, ThrowOnError>
@@ -1217,7 +1262,7 @@ export const getMemoForSource = <ThrowOnError extends boolean = false>(
 /**
  * Resolve memo
  *
- * Mark a security memo as resolved. Sets TTL for auto-deletion.
+ * Mark a memo as resolved. Sets TTL for auto-deletion.
  */
 export const resolveMemo = <ThrowOnError extends boolean = false>(
   options: Options<ResolveMemoData, ThrowOnError>
@@ -1235,7 +1280,7 @@ export const resolveMemo = <ThrowOnError extends boolean = false>(
 /**
  * Acknowledge memo
  *
- * Mark a security memo as acknowledged (developer has seen it).
+ * Mark a memo as acknowledged (developer has seen it).
  */
 export const acknowledgeMemo = <ThrowOnError extends boolean = false>(
   options: Options<AcknowledgeMemoData, ThrowOnError>
@@ -1249,7 +1294,7 @@ export const acknowledgeMemo = <ThrowOnError extends boolean = false>(
 /**
  * Ignore memo
  *
- * Mark a security memo as ignored (false positive or accepted risk).
+ * Mark a memo as ignored (false positive or accepted risk).
  */
 export const ignoreMemo = <ThrowOnError extends boolean = false>(
   options: Options<IgnoreMemoData, ThrowOnError>
