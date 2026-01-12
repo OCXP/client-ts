@@ -1935,6 +1935,12 @@ type RegenerateMissionRequest = {
      */
     ticket_description?: string | null;
     /**
+     * Project Id
+     *
+     * Project ID to preserve/set
+     */
+    project_id?: string | null;
+    /**
      * Archive Old Docs
      *
      * Archive old docs before regenerating
@@ -4875,7 +4881,7 @@ declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options:
 /**
  * List all sessions
  *
- * Returns sessions for the workspace filtered by status. Ordered by most recently updated.
+ * Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Ordered by most recently updated.
  */
 declare const listSessions: <ThrowOnError extends boolean = false>(options?: Options<ListSessionsData, ThrowOnError>) => RequestResult<ListSessionsResponses, ListSessionsErrors, ThrowOnError, "fields">;
 /**
@@ -5567,6 +5573,12 @@ declare class OCXPClient {
         auto_increment_version?: boolean;
     }): Promise<RegenerateMissionResponse>;
     /**
+     * Download mission pack as ZIP file
+     * @param missionId - Mission ID
+     * @returns Blob containing ZIP file
+     */
+    downloadMissionPack(missionId: string): Promise<Blob>;
+    /**
      * Get mission context for agents
      */
     getMissionContext(missionId: string): Promise<({
@@ -5905,6 +5917,11 @@ declare class MissionNamespace {
         archive_old_docs?: boolean;
         auto_increment_version?: boolean;
     }): Promise<RegenerateMissionResponse>;
+    /**
+     * Download mission pack as ZIP
+     * @example await ocxp.mission.download('mission-id')
+     */
+    download(missionId: string): Promise<Blob>;
     /**
      * Get mission context for agents
      * @example ocxp.mission.getContext('uuid')

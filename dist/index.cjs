@@ -1758,6 +1758,27 @@ var OCXPClient = class {
     });
     return extractData(response);
   }
+  /**
+   * Download mission pack as ZIP file
+   * @param missionId - Mission ID
+   * @returns Blob containing ZIP file
+   */
+  async downloadMissionPack(missionId) {
+    const headers = await this.getHeaders();
+    const config = this.client.getConfig();
+    const baseUrl = config.baseUrl || "";
+    const response = await fetch(`${baseUrl}/ocxp/mission/${missionId}/download`, {
+      method: "GET",
+      headers: {
+        ...headers,
+        "X-Workspace": this.workspace
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to download mission: ${response.status} ${response.statusText}`);
+    }
+    return await response.blob();
+  }
   // ============== Tools ==============
   /**
    * Get mission context for agents
@@ -2461,6 +2482,13 @@ var MissionNamespace = class {
    */
   async regenerate(missionId, options) {
     return this.client.regenerateMission(missionId, options);
+  }
+  /**
+   * Download mission pack as ZIP
+   * @example await ocxp.mission.download('mission-id')
+   */
+  async download(missionId) {
+    return this.client.downloadMissionPack(missionId);
   }
   /**
    * Get mission context for agents

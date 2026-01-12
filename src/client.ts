@@ -586,6 +586,32 @@ export class OCXPClient {
     return extractData(response) as RegenerateMissionResponse;
   }
 
+  /**
+   * Download mission pack as ZIP file
+   * @param missionId - Mission ID
+   * @returns Blob containing ZIP file
+   */
+  async downloadMissionPack(missionId: string): Promise<Blob> {
+    const headers = await this.getHeaders();
+    const config = this.client.getConfig();
+    const baseUrl = config.baseUrl || '';
+
+    // Use fetch directly for blob response
+    const response = await fetch(`${baseUrl}/ocxp/mission/${missionId}/download`, {
+      method: 'GET',
+      headers: {
+        ...headers,
+        'X-Workspace': this.workspace,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to download mission: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.blob();
+  }
+
   // ============== Tools ==============
 
   /**
@@ -1381,6 +1407,14 @@ export class MissionNamespace {
     }
   ): Promise<RegenerateMissionResponse> {
     return this.client.regenerateMission(missionId, options);
+  }
+
+  /**
+   * Download mission pack as ZIP
+   * @example await ocxp.mission.download('mission-id')
+   */
+  async download(missionId: string): Promise<Blob> {
+    return this.client.downloadMissionPack(missionId);
   }
 
   /**
