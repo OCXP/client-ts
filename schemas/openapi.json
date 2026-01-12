@@ -274,6 +274,164 @@
         ]
       }
     },
+    "/ocxp/admin/metadata/regenerate": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Regenerate metadata for S3 documents",
+        "description": "Regenerates Bedrock KB metadata sidecars for existing S3 documents.\n\n    Use cases:\n    - After schema changes (e.g., adding new metadata fields)\n    - Fixing incorrect metadata from previous versions\n    - Bulk metadata updates for a workspace or project\n\n    Background processing:\n    - If max_files is None or > 1000, job is queued for background processing\n    - Use job_id to check status via /admin/jobs/{job_id} endpoint\n\n    Dry run mode:\n    - Shows what would change without updating S3\n    - Useful for validating changes before applying",
+        "operationId": "regenerateMetadata",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateMetadataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Metadata regeneration completed or queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegenerateMetadataResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/admin/health": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Health check",
+        "description": "Check system health and component status",
+        "operationId": "healthCheck",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/admin/info": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "System information",
+        "description": "Get system configuration and runtime information",
+        "operationId": "systemInfo",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/context/discover": {
       "post": {
         "tags": [
@@ -3043,7 +3201,7 @@
         ]
       }
     },
-    "/ocxp/memos": {
+    "/ocxp/memo": {
       "post": {
         "tags": [
           "Security Memos"
@@ -3184,6 +3342,42 @@
             "description": "Filter by minimum severity"
           },
           {
+            "name": "mission_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by mission ID (extracts from mission source_id)",
+              "title": "Mission Id"
+            },
+            "description": "Filter by mission ID (extracts from mission source_id)"
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID (matches project source_id)",
+              "title": "Project Id"
+            },
+            "description": "Filter by project ID (matches project source_id)"
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -3236,7 +3430,7 @@
         ]
       }
     },
-    "/ocxp/memos/{memo_id}": {
+    "/ocxp/memo/{memo_id}": {
       "get": {
         "tags": [
           "Security Memos"
@@ -3358,7 +3552,7 @@
         ]
       }
     },
-    "/ocxp/memos/source/{source_type}/{source_id}": {
+    "/ocxp/memo/source/{source_type}/{source_id}": {
       "get": {
         "tags": [
           "Security Memos"
@@ -3436,7 +3630,7 @@
         ]
       }
     },
-    "/ocxp/memos/{memo_id}/resolve": {
+    "/ocxp/memo/{memo_id}/resolve": {
       "post": {
         "tags": [
           "Security Memos"
@@ -3508,7 +3702,7 @@
         ]
       }
     },
-    "/ocxp/memos/{memo_id}/acknowledge": {
+    "/ocxp/memo/{memo_id}/acknowledge": {
       "post": {
         "tags": [
           "Security Memos"
@@ -3570,7 +3764,7 @@
         ]
       }
     },
-    "/ocxp/memos/{memo_id}/ignore": {
+    "/ocxp/memo/{memo_id}/ignore": {
       "post": {
         "tags": [
           "Security Memos"
@@ -8660,6 +8854,28 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HealthCheckResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Health status: healthy, degraded, unhealthy"
+          },
+          "checks": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Checks",
+            "description": "Individual health checks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checks"
+        ],
+        "title": "HealthCheckResponse",
+        "description": "Health check response."
+      },
       "IngestDocument": {
         "properties": {
           "path": {
@@ -10331,6 +10547,82 @@
         ],
         "title": "RefreshResponse",
         "description": "Token refresh response with camelCase output (no new refresh_token)."
+      },
+      "RegenerateMetadataRequest": {
+        "properties": {
+          "prefix": {
+            "type": "string",
+            "title": "Prefix",
+            "description": "S3 prefix to scan (e.g., 'workspaces/prod/mission/'). Empty = workspace root",
+            "default": ""
+          },
+          "max_files": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Files",
+            "description": "Maximum files to process (None = unlimited)"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run",
+            "description": "Show what would change without updating S3",
+            "default": false
+          },
+          "trigger_sync": {
+            "type": "boolean",
+            "title": "Trigger Sync",
+            "description": "Trigger Bedrock KB sync after regeneration",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "RegenerateMetadataRequest",
+        "description": "Request to regenerate metadata for S3 documents."
+      },
+      "RegenerateMetadataResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Job status: completed, queued, or error"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable message"
+          },
+          "stats": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Stats",
+            "description": "Statistics: scanned, updated, skipped, errors"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id",
+            "description": "Job ID if queued for background processing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "RegenerateMetadataResponse",
+        "description": "Response from metadata regeneration."
       },
       "RegenerateMissionRequest": {
         "properties": {

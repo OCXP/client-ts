@@ -3404,13 +3404,25 @@ type ListMemosData = {
          */
         severity?: MemoSeverity | null;
         /**
+         * Mission Id
+         *
+         * Filter by mission ID (extracts from mission source_id)
+         */
+        mission_id?: string | null;
+        /**
+         * Project Id
+         *
+         * Filter by project ID (matches project source_id)
+         */
+        project_id?: string | null;
+        /**
          * Limit
          *
          * Maximum results
          */
         limit?: number;
     };
-    url: '/ocxp/memos';
+    url: '/ocxp/memo';
 };
 type ListMemosErrors = {
     /**
@@ -3435,7 +3447,7 @@ type CreateMemoData = {
     };
     path?: never;
     query?: never;
-    url: '/ocxp/memos';
+    url: '/ocxp/memo';
 };
 type CreateMemoErrors = {
     /**
@@ -3471,7 +3483,7 @@ type DeleteMemoData = {
         memo_id: string;
     };
     query?: never;
-    url: '/ocxp/memos/{memo_id}';
+    url: '/ocxp/memo/{memo_id}';
 };
 type DeleteMemoErrors = {
     /**
@@ -3507,7 +3519,7 @@ type GetMemoData = {
         memo_id: string;
     };
     query?: never;
-    url: '/ocxp/memos/{memo_id}';
+    url: '/ocxp/memo/{memo_id}';
 };
 type GetMemoErrors = {
     /**
@@ -3549,7 +3561,7 @@ type GetMemoForSourceData = {
         source_id: string;
     };
     query?: never;
-    url: '/ocxp/memos/source/{source_type}/{source_id}';
+    url: '/ocxp/memo/source/{source_type}/{source_id}';
 };
 type GetMemoForSourceErrors = {
     /**
@@ -3583,7 +3595,7 @@ type ResolveMemoData = {
         memo_id: string;
     };
     query?: never;
-    url: '/ocxp/memos/{memo_id}/resolve';
+    url: '/ocxp/memo/{memo_id}/resolve';
 };
 type ResolveMemoErrors = {
     /**
@@ -3618,7 +3630,7 @@ type AcknowledgeMemoData = {
         memo_id: string;
     };
     query?: never;
-    url: '/ocxp/memos/{memo_id}/acknowledge';
+    url: '/ocxp/memo/{memo_id}/acknowledge';
 };
 type AcknowledgeMemoErrors = {
     /**
@@ -3653,7 +3665,7 @@ type IgnoreMemoData = {
         memo_id: string;
     };
     query?: never;
-    url: '/ocxp/memos/{memo_id}/ignore';
+    url: '/ocxp/memo/{memo_id}/ignore';
 };
 type IgnoreMemoErrors = {
     /**

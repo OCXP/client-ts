@@ -1059,12 +1059,12 @@ var ragKnowledgeBase = (options) => (options.client ?? client).post({
 });
 var listMemos = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos",
+  url: "/ocxp/memo",
   ...options
 });
 var createMemo = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos",
+  url: "/ocxp/memo",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1073,22 +1073,22 @@ var createMemo = (options) => (options.client ?? client).post({
 });
 var deleteMemo = (options) => (options.client ?? client).delete({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos/{memo_id}",
+  url: "/ocxp/memo/{memo_id}",
   ...options
 });
 var getMemo = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos/{memo_id}",
+  url: "/ocxp/memo/{memo_id}",
   ...options
 });
 var getMemoForSource = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos/source/{source_type}/{source_id}",
+  url: "/ocxp/memo/source/{source_type}/{source_id}",
   ...options
 });
 var resolveMemo = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos/{memo_id}/resolve",
+  url: "/ocxp/memo/{memo_id}/resolve",
   ...options,
   headers: {
     "Content-Type": "application/json",
@@ -1097,12 +1097,12 @@ var resolveMemo = (options) => (options.client ?? client).post({
 });
 var acknowledgeMemo = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos/{memo_id}/acknowledge",
+  url: "/ocxp/memo/{memo_id}/acknowledge",
   ...options
 });
 var ignoreMemo = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
-  url: "/ocxp/memos/{memo_id}/ignore",
+  url: "/ocxp/memo/{memo_id}/ignore",
   ...options
 });
 var downloadRepository = (options) => (options.client ?? client).post({

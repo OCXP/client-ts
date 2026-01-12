@@ -154,7 +154,10 @@ import type {
   GithubListBranchesData,
   GithubListBranchesErrors,
   GithubListBranchesResponses,
+  HealthCheck2Data,
+  HealthCheck2Responses,
   HealthCheckData,
+  HealthCheckErrors,
   HealthCheckResponses,
   IgnoreMemoData,
   IgnoreMemoErrors,
@@ -233,6 +236,9 @@ import type {
   RefreshTokensData,
   RefreshTokensErrors,
   RefreshTokensResponses,
+  RegenerateMetadataData,
+  RegenerateMetadataErrors,
+  RegenerateMetadataResponses,
   RegenerateMissionData,
   RegenerateMissionErrors,
   RegenerateMissionResponses,
@@ -263,6 +269,9 @@ import type {
   SetGithubTokenData,
   SetGithubTokenErrors,
   SetGithubTokenResponses,
+  SystemInfoData,
+  SystemInfoErrors,
+  SystemInfoResponses,
   TestDatabaseConnectionData,
   TestDatabaseConnectionErrors,
   TestDatabaseConnectionResponses,
@@ -389,6 +398,69 @@ export const bulkMoveContent = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Regenerate metadata for S3 documents
+ *
+ * Regenerates Bedrock KB metadata sidecars for existing S3 documents.
+ *
+ * Use cases:
+ * - After schema changes (e.g., adding new metadata fields)
+ * - Fixing incorrect metadata from previous versions
+ * - Bulk metadata updates for a workspace or project
+ *
+ * Background processing:
+ * - If max_files is None or > 1000, job is queued for background processing
+ * - Use job_id to check status via /admin/jobs/{job_id} endpoint
+ *
+ * Dry run mode:
+ * - Shows what would change without updating S3
+ * - Useful for validating changes before applying
+ */
+export const regenerateMetadata = <ThrowOnError extends boolean = false>(
+  options: Options<RegenerateMetadataData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    RegenerateMetadataResponses,
+    RegenerateMetadataErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/admin/metadata/regenerate',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Health check
+ *
+ * Check system health and component status
+ */
+export const healthCheck = <ThrowOnError extends boolean = false>(
+  options?: Options<HealthCheckData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<HealthCheckResponses, HealthCheckErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/admin/health',
+    ...options,
+  });
+
+/**
+ * System information
+ *
+ * Get system configuration and runtime information
+ */
+export const systemInfo = <ThrowOnError extends boolean = false>(
+  options?: Options<SystemInfoData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<SystemInfoResponses, SystemInfoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/admin/info',
+    ...options,
   });
 
 /**
@@ -1195,7 +1267,7 @@ export const listMemos = <ThrowOnError extends boolean = false>(
 ) =>
   (options?.client ?? client).get<ListMemosResponses, ListMemosErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos',
+    url: '/ocxp/memo',
     ...options,
   });
 
@@ -1209,7 +1281,7 @@ export const createMemo = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<CreateMemoResponses, CreateMemoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos',
+    url: '/ocxp/memo',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1227,7 +1299,7 @@ export const deleteMemo = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).delete<DeleteMemoResponses, DeleteMemoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos/{memo_id}',
+    url: '/ocxp/memo/{memo_id}',
     ...options,
   });
 
@@ -1241,7 +1313,7 @@ export const getMemo = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<GetMemoResponses, GetMemoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos/{memo_id}',
+    url: '/ocxp/memo/{memo_id}',
     ...options,
   });
 
@@ -1255,7 +1327,7 @@ export const getMemoForSource = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<GetMemoForSourceResponses, GetMemoForSourceErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos/source/{source_type}/{source_id}',
+    url: '/ocxp/memo/source/{source_type}/{source_id}',
     ...options,
   });
 
@@ -1269,7 +1341,7 @@ export const resolveMemo = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<ResolveMemoResponses, ResolveMemoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos/{memo_id}/resolve',
+    url: '/ocxp/memo/{memo_id}/resolve',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1287,7 +1359,7 @@ export const acknowledgeMemo = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<AcknowledgeMemoResponses, AcknowledgeMemoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos/{memo_id}/acknowledge',
+    url: '/ocxp/memo/{memo_id}/acknowledge',
     ...options,
   });
 
@@ -1301,7 +1373,7 @@ export const ignoreMemo = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<IgnoreMemoResponses, IgnoreMemoErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/memos/{memo_id}/ignore',
+    url: '/ocxp/memo/{memo_id}/ignore',
     ...options,
   });
 
@@ -2075,10 +2147,10 @@ export const setGithubToken = <ThrowOnError extends boolean = false>(
 /**
  * Health Check
  */
-export const healthCheck = <ThrowOnError extends boolean = false>(
-  options?: Options<HealthCheckData, ThrowOnError>
+export const healthCheck2 = <ThrowOnError extends boolean = false>(
+  options?: Options<HealthCheck2Data, ThrowOnError>
 ) =>
-  (options?.client ?? client).get<HealthCheckResponses, unknown, ThrowOnError>({
+  (options?.client ?? client).get<HealthCheck2Responses, unknown, ThrowOnError>({
     url: '/health',
     ...options,
   });
