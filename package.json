@@ -38,6 +38,14 @@
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OCXP/client-ts.git"
+  },
+  "homepage": "https://github.com/OCXP/client-ts#readme",
+  "bugs": {
+    "url": "https://github.com/OCXP/client-ts/issues"
+  },
   "dependencies": {
     "zod": "^4.2.1"
   },
