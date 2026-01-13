@@ -40,7 +40,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OCXP/client-ts.git"
+    "url": "git+https://github.com/OCXP/client-ts.git"
   },
   "homepage": "https://github.com/OCXP/client-ts#readme",
   "bugs": {
