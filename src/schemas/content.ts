@@ -158,6 +158,7 @@ export const TreeNodeSchema: z.ZodType<TreeNode> = z.lazy(() =>
     path: z.string(),
     type: z.enum(['file', 'directory']),
     size: z.number().optional(),
+    version_id: z.string().optional(),
     children: z.array(TreeNodeSchema).optional(),
   })
 );
@@ -167,6 +168,7 @@ export interface TreeNode {
   path: string;
   type: 'file' | 'directory';
   size?: number;
+  version_id?: string;  // S3 version ID for files
   children?: TreeNode[];
 }
 

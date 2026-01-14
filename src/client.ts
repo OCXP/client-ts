@@ -329,13 +329,14 @@ export class OCXPClient {
 
   /**
    * Get hierarchical tree structure from S3 context
+   * @param includeVersions - If true, includes S3 version IDs for files
    */
-  async tree(type: ContentTypeValue, path?: string, depth?: number): Promise<ContentTreeResponse> {
+  async tree(type: ContentTypeValue, path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.getContentTree({
       client: this.client,
       path: { content_type: type },
-      query: { path, depth },
+      query: { path, depth, includeVersions },
       headers,
     });
     return extractData(response) as ContentTreeResponse;
@@ -1427,10 +1428,11 @@ export class MissionNamespace {
 
   /**
    * Get mission content tree structure from S3
-   * @example ocxp.mission.tree('subfolder', 5)
+   * @param includeVersions - If true, includes S3 version IDs for files
+   * @example ocxp.mission.tree('mission-id', 5, true)
    */
-  async tree(path?: string, depth?: number): Promise<ContentTreeResponse> {
-    return this.client.tree('mission', path, depth);
+  async tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse> {
+    return this.client.tree('mission', path, depth, includeVersions);
   }
 }
 
@@ -1522,10 +1524,11 @@ export class ProjectNamespace {
 
   /**
    * Get project content tree structure from S3
-   * @example ocxp.project.tree('subfolder', 5)
+   * @param includeVersions - If true, includes S3 version IDs for files
+   * @example ocxp.project.tree('subfolder', 5, true)
    */
-  async tree(path?: string, depth?: number): Promise<ContentTreeResponse> {
-    return this.client.tree('project', path, depth);
+  async tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse> {
+    return this.client.tree('project', path, depth, includeVersions);
   }
 }
 
