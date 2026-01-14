@@ -682,6 +682,10 @@ type ContentTreeNode = {
      */
     name: string;
     /**
+     * Path
+     */
+    path: string;
+    /**
      * Type
      */
     type: string;
@@ -689,6 +693,10 @@ type ContentTreeNode = {
      * Size
      */
     size?: number | null;
+    /**
+     * Version Id
+     */
+    version_id?: string | null;
     /**
      * Children
      */
@@ -4437,6 +4445,12 @@ type GetContentTreeData = {
          * Maximum tree depth
          */
         depth?: number;
+        /**
+         * Includeversions
+         *
+         * Include S3 version IDs for files
+         */
+        includeVersions?: boolean;
     };
     url: '/ocxp/context/{content_type}/tree';
 };
@@ -5497,8 +5511,9 @@ declare class OCXPClient {
     }>;
     /**
      * Get hierarchical tree structure from S3 context
+     * @param includeVersions - If true, includes S3 version IDs for files
      */
-    tree(type: ContentTypeValue, path?: string, depth?: number): Promise<ContentTreeResponse>;
+    tree(type: ContentTypeValue, path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse>;
     /**
      * Get content statistics
      */
@@ -5989,9 +6004,10 @@ declare class MissionNamespace {
     }>;
     /**
      * Get mission content tree structure from S3
-     * @example ocxp.mission.tree('subfolder', 5)
+     * @param includeVersions - If true, includes S3 version IDs for files
+     * @example ocxp.mission.tree('mission-id', 5, true)
      */
-    tree(path?: string, depth?: number): Promise<ContentTreeResponse>;
+    tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse>;
 }
 /**
  * Project namespace for convenient project operations
@@ -6056,9 +6072,10 @@ declare class ProjectNamespace {
     removeMission(projectId: string, missionId: string): Promise<ProjectResponse>;
     /**
      * Get project content tree structure from S3
-     * @example ocxp.project.tree('subfolder', 5)
+     * @param includeVersions - If true, includes S3 version IDs for files
+     * @example ocxp.project.tree('subfolder', 5, true)
      */
-    tree(path?: string, depth?: number): Promise<ContentTreeResponse>;
+    tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse>;
 }
 /**
  * Session namespace for convenient session operations
@@ -7118,6 +7135,7 @@ interface TreeNode {
     path: string;
     type: 'file' | 'directory';
     size?: number;
+    version_id?: string;
     children?: TreeNode[];
 }
 /**

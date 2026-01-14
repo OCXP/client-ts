@@ -579,6 +579,10 @@ export type ContentTreeNode = {
    */
   name: string;
   /**
+   * Path
+   */
+  path: string;
+  /**
    * Type
    */
   type: string;
@@ -586,6 +590,10 @@ export type ContentTreeNode = {
    * Size
    */
   size?: number | null;
+  /**
+   * Version Id
+   */
+  version_id?: string | null;
   /**
    * Children
    */
@@ -6847,6 +6855,12 @@ export type GetContentTreeData = {
      * Maximum tree depth
      */
     depth?: number;
+    /**
+     * Includeversions
+     *
+     * Include S3 version IDs for files
+     */
+    includeVersions?: boolean;
   };
   url: '/ocxp/context/{content_type}/tree';
 };

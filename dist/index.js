@@ -1544,13 +1544,14 @@ var OCXPClient = class {
   // ============== Tree & Stats ==============
   /**
    * Get hierarchical tree structure from S3 context
+   * @param includeVersions - If true, includes S3 version IDs for files
    */
-  async tree(type, path, depth) {
+  async tree(type, path, depth, includeVersions) {
     const headers = await this.getHeaders();
     const response = await getContentTree({
       client: this.client,
       path: { content_type: type },
-      query: { path, depth },
+      query: { path, depth, includeVersions },
       headers
     });
     return extractData(response);
@@ -2497,10 +2498,11 @@ var MissionNamespace = class {
   }
   /**
    * Get mission content tree structure from S3
-   * @example ocxp.mission.tree('subfolder', 5)
+   * @param includeVersions - If true, includes S3 version IDs for files
+   * @example ocxp.mission.tree('mission-id', 5, true)
    */
-  async tree(path, depth) {
-    return this.client.tree("mission", path, depth);
+  async tree(path, depth, includeVersions) {
+    return this.client.tree("mission", path, depth, includeVersions);
   }
 };
 var ProjectNamespace = class {
@@ -2578,10 +2580,11 @@ var ProjectNamespace = class {
   }
   /**
    * Get project content tree structure from S3
-   * @example ocxp.project.tree('subfolder', 5)
+   * @param includeVersions - If true, includes S3 version IDs for files
+   * @example ocxp.project.tree('subfolder', 5, true)
    */
-  async tree(path, depth) {
-    return this.client.tree("project", path, depth);
+  async tree(path, depth, includeVersions) {
+    return this.client.tree("project", path, depth, includeVersions);
   }
 };
 var SessionNamespace = class {
@@ -3410,6 +3413,7 @@ var TreeNodeSchema = z.lazy(
     path: z.string(),
     type: z.enum(["file", "directory"]),
     size: z.number().optional(),
+    version_id: z.string().optional(),
     children: z.array(TreeNodeSchema).optional()
   })
 );

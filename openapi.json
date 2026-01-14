@@ -5627,6 +5627,18 @@
             "description": "Maximum tree depth"
           },
           {
+            "name": "includeVersions",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include S3 version IDs for files",
+              "default": false,
+              "title": "Includeversions"
+            },
+            "description": "Include S3 version IDs for files"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -7788,6 +7800,10 @@
             "type": "string",
             "title": "Name"
           },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
           "type": {
             "type": "string",
             "title": "Type"
@@ -7802,6 +7818,17 @@
               }
             ],
             "title": "Size"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id"
           },
           "children": {
             "anyOf": [
@@ -7826,6 +7853,7 @@
         "type": "object",
         "required": [
           "name",
+          "path",
           "type"
         ],
         "title": "ContentTreeNode",
