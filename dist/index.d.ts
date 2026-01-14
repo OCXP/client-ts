@@ -635,6 +635,18 @@ type ContentReadResponse = {
     metadata?: {
         [key: string]: unknown;
     } | null;
+    /**
+     * Version Id
+     *
+     * S3 version ID
+     */
+    version_id?: string | null;
+    /**
+     * Is Latest
+     *
+     * Whether this is the latest version
+     */
+    is_latest?: boolean | null;
 };
 /**
  * ContentStatsResponse
@@ -746,6 +758,12 @@ type ContentWriteResponse = {
      * Etag
      */
     etag?: string | null;
+    /**
+     * Version Id
+     *
+     * S3 version ID of the written object
+     */
+    version_id?: string | null;
 };
 /**
  * CreateMemoRequest
@@ -1604,6 +1622,8 @@ type MissionResponse = {
     context_path?: string | null;
     /**
      * Project Id
+     *
+     * Project UUID this mission belongs to
      */
     project_id?: string | null;
     /**
@@ -1769,6 +1789,8 @@ type ProjectListResponse = {
 type ProjectResponse = {
     /**
      * Project Id
+     *
+     * Project UUID identifier
      */
     project_id: string;
     /**
@@ -2506,6 +2528,8 @@ type BulkReadContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -2535,6 +2559,8 @@ type BulkWriteContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -2564,6 +2590,8 @@ type BulkDeleteContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -4264,6 +4292,8 @@ type ListContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -4310,6 +4340,8 @@ type QueryContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -4343,6 +4375,8 @@ type SearchContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -4385,6 +4419,8 @@ type GetContentTreeData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -4427,6 +4463,8 @@ type GetContentStatsData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
     };
@@ -4463,6 +4501,8 @@ type DeleteContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
         /**
@@ -4523,6 +4563,8 @@ type ReadContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
         /**
@@ -4530,7 +4572,14 @@ type ReadContentData = {
          */
         content_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Versionid
+         *
+         * S3 version ID to read a specific version
+         */
+        versionId?: string | null;
+    };
     url: '/ocxp/context/{content_type}/{content_id}';
 };
 type ReadContentErrors = {
@@ -4560,6 +4609,8 @@ type WriteContentData = {
     path: {
         /**
          * Content Type
+         *
+         * Content type (mission, project, context, code, etc.)
          */
         content_type: string;
         /**
@@ -5230,7 +5281,7 @@ declare const deleteContent: <ThrowOnError extends boolean = false>(options: Opt
 /**
  * Read content
  *
- * Reads content by type and path. Binary files are base64-encoded.
+ * Reads content by type and path. Binary files are base64-encoded. Use versionId param to read a specific version.
  */
 declare const readContent: <ThrowOnError extends boolean = false>(options: Options<ReadContentData, ThrowOnError>) => RequestResult<ReadContentResponses, ReadContentErrors, ThrowOnError, "fields">;
 /**

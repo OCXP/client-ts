@@ -26,6 +26,9 @@ import type {
   ArchiveSessionData,
   ArchiveSessionErrors,
   ArchiveSessionResponses,
+  BatchResolveOcxpUrisData,
+  BatchResolveOcxpUrisErrors,
+  BatchResolveOcxpUrisResponses,
   BulkDeleteContentData,
   BulkDeleteContentErrors,
   BulkDeleteContentResponses,
@@ -79,6 +82,9 @@ import type {
   DiscoverContextData,
   DiscoverContextErrors,
   DiscoverContextResponses,
+  DownloadMissionPackData,
+  DownloadMissionPackErrors,
+  DownloadMissionPackResponses,
   DownloadRepositoryData,
   DownloadRepositoryErrors,
   DownloadRepositoryResponses,
@@ -204,6 +210,9 @@ import type {
   ListTablesData,
   ListTablesErrors,
   ListTablesResponses,
+  ListVersionsData,
+  ListVersionsErrors,
+  ListVersionsResponses,
   ListWorkspacesData,
   ListWorkspacesResponses,
   LockContentData,
@@ -257,6 +266,9 @@ import type {
   ResolveMemoData,
   ResolveMemoErrors,
   ResolveMemoResponses,
+  ResolveOcxpUriData,
+  ResolveOcxpUriErrors,
+  ResolveOcxpUriResponses,
   SearchContentData,
   SearchContentErrors,
   SearchContentResponses,
@@ -296,6 +308,9 @@ import type {
   UpdateSessionMetadataData,
   UpdateSessionMetadataErrors,
   UpdateSessionMetadataResponses,
+  ValidateOcxpUriData,
+  ValidateOcxpUriErrors,
+  ValidateOcxpUriResponses,
   ValidateResponseData,
   ValidateResponseErrors,
   ValidateResponseResponses,
@@ -320,6 +335,92 @@ export type Options<
    */
   meta?: Record<string, unknown>;
 };
+
+/**
+ * Resolve Ocxp Uri
+ *
+ * Resolve OCXP URI to actual file locations.
+ *
+ * Converts ocxp://workspace/content_type/path to:
+ * - S3 URI (s3://bucket/path)
+ * - Local filesystem path (/vault/path)
+ * - Obsidian URI (obsidian://open?vault=...&file=...)
+ *
+ * Args:
+ * request: Resolution request with URI and mode
+ * workspace: Current workspace from auth context
+ *
+ * Returns:
+ * OCXPResolution with resolved paths and existence check
+ *
+ * Raises:
+ * HTTPException: If URI format is invalid or content type is unknown
+ */
+export const resolveOcxpUri = <ThrowOnError extends boolean = false>(
+  options: Options<ResolveOcxpUriData, ThrowOnError>
+) =>
+  (options.client ?? client).post<ResolveOcxpUriResponses, ResolveOcxpUriErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/resolution/resolve',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Validate Ocxp Uri
+ *
+ * Validate OCXP URI format and content type.
+ *
+ * Args:
+ * request: Validation request with URI
+ *
+ * Returns:
+ * OCXPValidateResponse with validation result
+ */
+export const validateOcxpUri = <ThrowOnError extends boolean = false>(
+  options: Options<ValidateOcxpUriData, ThrowOnError>
+) =>
+  (options.client ?? client).post<ValidateOcxpUriResponses, ValidateOcxpUriErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/resolution/validate',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Batch Resolve Ocxp Uris
+ *
+ * Batch resolve multiple OCXP URIs in a single request.
+ *
+ * Args:
+ * request: Batch resolution request with list of URIs
+ * workspace: Current workspace from auth context
+ *
+ * Returns:
+ * OCXPBatchResolveResponse with results and errors
+ */
+export const batchResolveOcxpUris = <ThrowOnError extends boolean = false>(
+  options: Options<BatchResolveOcxpUrisData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    BatchResolveOcxpUrisResponses,
+    BatchResolveOcxpUrisErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/resolution/batch',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Bulk Read Content
@@ -618,7 +719,7 @@ export const ingestDocuments = <ThrowOnError extends boolean = false>(
 /**
  * List all sessions
  *
- * Returns sessions for the workspace filtered by status. Ordered by most recently updated.
+ * Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Ordered by most recently updated.
  */
 export const listSessions = <ThrowOnError extends boolean = false>(
   options?: Options<ListSessionsData, ThrowOnError>
@@ -1203,6 +1304,30 @@ export const regenerateMission = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Download mission pack as ZIP
+ *
+ * Download complete mission as ZIP file.
+ *
+ * Includes:
+ * - All mission files (PHASES.md, TASKS.md, README.md, documents/)
+ * - Mission metadata JSON
+ * - Preserves folder structure
+ * - Excludes archive/ folders
+ */
+export const downloadMissionPack = <ThrowOnError extends boolean = false>(
+  options: Options<DownloadMissionPackData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    DownloadMissionPackResponses,
+    DownloadMissionPackErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/download',
+    ...options,
   });
 
 /**
@@ -1803,6 +1928,20 @@ export const getContentStats = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * List file versions
+ *
+ * Lists all versions of a file. S3 versioning must be enabled on the bucket.
+ */
+export const listVersions = <ThrowOnError extends boolean = false>(
+  options: Options<ListVersionsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ListVersionsResponses, ListVersionsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/{content_type}/{content_id}/versions',
+    ...options,
+  });
+
+/**
  * Delete content
  *
  * Deletes content. Use recursive=true with confirm=true to delete directories.
@@ -1819,7 +1958,7 @@ export const deleteContent = <ThrowOnError extends boolean = false>(
 /**
  * Read content
  *
- * Reads content by type and path. Binary files are base64-encoded.
+ * Reads content by type and path. Binary files are base64-encoded. Use versionId param to read a specific version.
  */
 export const readContent = <ThrowOnError extends boolean = false>(
   options: Options<ReadContentData, ThrowOnError>

@@ -6,6 +6,172 @@
     "version": "2.0.0"
   },
   "paths": {
+    "/ocxp/resolution/resolve": {
+      "post": {
+        "tags": [
+          "OCXP Resolution",
+          "OCXP Resolution"
+        ],
+        "summary": "Resolve Ocxp Uri",
+        "description": "Resolve OCXP URI to actual file locations.\n\nConverts ocxp://workspace/content_type/path to:\n- S3 URI (s3://bucket/path)\n- Local filesystem path (/vault/path)\n- Obsidian URI (obsidian://open?vault=...&file=...)\n\nArgs:\n    request: Resolution request with URI and mode\n    workspace: Current workspace from auth context\n\nReturns:\n    OCXPResolution with resolved paths and existence check\n\nRaises:\n    HTTPException: If URI format is invalid or content type is unknown",
+        "operationId": "resolveOcxpUri",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OCXPResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPResolution"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/resolution/validate": {
+      "post": {
+        "tags": [
+          "OCXP Resolution",
+          "OCXP Resolution"
+        ],
+        "summary": "Validate Ocxp Uri",
+        "description": "Validate OCXP URI format and content type.\n\nArgs:\n    request: Validation request with URI\n\nReturns:\n    OCXPValidateResponse with validation result",
+        "operationId": "validateOcxpUri",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OCXPValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/resolution/batch": {
+      "post": {
+        "tags": [
+          "OCXP Resolution",
+          "OCXP Resolution"
+        ],
+        "summary": "Batch Resolve Ocxp Uris",
+        "description": "Batch resolve multiple OCXP URIs in a single request.\n\nArgs:\n    request: Batch resolution request with list of URIs\n    workspace: Current workspace from auth context\n\nReturns:\n    OCXPBatchResolveResponse with results and errors",
+        "operationId": "batchResolveOcxpUris",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OCXPBatchResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCXPBatchResolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/context/{content_type}/bulk/read": {
       "post": {
         "tags": [
@@ -21,8 +187,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "X-Workspace",
@@ -88,8 +256,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "X-Workspace",
@@ -155,8 +325,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "X-Workspace",
@@ -222,8 +394,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "X-Workspace",
@@ -612,7 +786,7 @@
           "Session"
         ],
         "summary": "List all sessions",
-        "description": "Returns sessions for the workspace filtered by status. Ordered by most recently updated.",
+        "description": "Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Ordered by most recently updated.",
         "operationId": "listSessions",
         "parameters": [
           {
@@ -3083,6 +3257,59 @@
         ]
       }
     },
+    "/ocxp/mission/{mission_id}/download": {
+      "get": {
+        "tags": [
+          "Mission",
+          "mission"
+        ],
+        "summary": "Download mission pack as ZIP",
+        "description": "Download complete mission as ZIP file.\n\nIncludes:\n- All mission files (PHASES.md, TASKS.md, README.md, documents/)\n- Mission metadata JSON\n- Preserves folder structure\n- Excludes archive/ folders",
+        "operationId": "downloadMissionPack",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/kb/query": {
       "post": {
         "tags": [
@@ -5112,8 +5339,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "path",
@@ -5204,8 +5433,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "X-Workspace",
@@ -5274,8 +5505,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "q",
@@ -5356,8 +5589,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "path",
@@ -5445,8 +5680,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "path",
@@ -5505,14 +5742,14 @@
         ]
       }
     },
-    "/ocxp/context/{content_type}/{content_id}": {
+    "/ocxp/context/{content_type}/{content_id}/versions": {
       "get": {
         "tags": [
           "Context"
         ],
-        "summary": "Read content",
-        "description": "Reads content by type and path. Binary files are base64-encoded.",
-        "operationId": "readContent",
+        "summary": "List file versions",
+        "description": "Lists all versions of a file. S3 versioning must be enabled on the bucket.",
+        "operationId": "listVersions",
         "parameters": [
           {
             "name": "content_type",
@@ -5520,8 +5757,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "content_id",
@@ -5531,6 +5770,109 @@
               "type": "string",
               "title": "Content Id"
             }
+          },
+          {
+            "name": "max_versions",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Maximum versions to return",
+              "default": 100,
+              "title": "Max Versions"
+            },
+            "description": "Maximum versions to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Version list returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/{content_type}/{content_id}": {
+      "get": {
+        "tags": [
+          "Context"
+        ],
+        "summary": "Read content",
+        "description": "Reads content by type and path. Binary files are base64-encoded. Use versionId param to read a specific version.",
+        "operationId": "readContent",
+        "parameters": [
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
+              "title": "Content Type"
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
+          },
+          {
+            "name": "content_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Id"
+            }
+          },
+          {
+            "name": "versionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "S3 version ID to read a specific version",
+              "title": "Versionid"
+            },
+            "description": "S3 version ID to read a specific version"
           },
           {
             "name": "X-Workspace",
@@ -5587,8 +5929,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "content_id",
@@ -5664,8 +6008,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "content_id",
@@ -5772,8 +6118,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "Content type (mission, project, context, code, etc.)",
               "title": "Content Type"
-            }
+            },
+            "description": "Content type (mission, project, context, code, etc.)"
           },
           {
             "name": "folder_path",
@@ -7364,6 +7712,36 @@
               }
             ],
             "title": "Metadata"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id",
+            "description": "S3 version ID",
+            "examples": [
+              "abc123def456"
+            ]
+          },
+          "is_latest": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Latest",
+            "description": "Whether this is the latest version",
+            "examples": [
+              true
+            ]
           }
         },
         "type": "object",
@@ -7545,6 +7923,21 @@
               }
             ],
             "title": "Etag"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id",
+            "description": "S3 version ID of the written object",
+            "examples": [
+              "abc123def456"
+            ]
           }
         },
         "type": "object",
@@ -9871,15 +10264,17 @@
           "project_id": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
               },
               {
                 "type": "null"
               }
             ],
             "title": "Project Id",
+            "description": "Project UUID this mission belongs to",
             "examples": [
-              "project-001"
+              "1c3952a0-58a0-41b5-85aa-7a33496b96ab"
             ]
           },
           "status": {
@@ -10224,6 +10619,227 @@
         "title": "OAuth2TokenResponse",
         "description": "OAuth2 standard token response for Swagger UI compatibility (snake_case)."
       },
+      "OCXPBatchResolveRequest": {
+        "properties": {
+          "uris": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Uris",
+            "description": "List of OCXP URIs to resolve"
+          },
+          "resolution_mode": {
+            "type": "string",
+            "enum": [
+              "s3",
+              "local",
+              "url",
+              "all"
+            ],
+            "title": "Resolution Mode",
+            "default": "all"
+          },
+          "vault_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vault Path"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uris"
+        ],
+        "title": "OCXPBatchResolveRequest",
+        "description": "Request model for batch OCXP URI resolution."
+      },
+      "OCXPBatchResolveResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/OCXPResolution"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "errors": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Errors",
+            "description": "Map of URI -> error message for failed resolutions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results"
+        ],
+        "title": "OCXPBatchResolveResponse",
+        "description": "Response model for batch OCXP URI resolution."
+      },
+      "OCXPResolution": {
+        "properties": {
+          "uri": {
+            "type": "string",
+            "title": "Uri",
+            "description": "Original OCXP URI"
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "description": "Workspace extracted from URI"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "description": "Content type extracted from URI"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "File path extracted from URI"
+          },
+          "resolved": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Resolved",
+            "description": "Resolved URIs/paths by mode"
+          },
+          "exists": {
+            "type": "boolean",
+            "title": "Exists",
+            "description": "Whether the resource exists (S3 check)"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Additional metadata if available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uri",
+          "workspace",
+          "content_type",
+          "path",
+          "resolved",
+          "exists"
+        ],
+        "title": "OCXPResolution",
+        "description": "Response model for OCXP URI resolution."
+      },
+      "OCXPResolveRequest": {
+        "properties": {
+          "uri": {
+            "type": "string",
+            "title": "Uri",
+            "description": "OCXP URI to resolve (e.g., ocxp://prod/code/sonic-web-dev/amc/handlers/auth.ts)"
+          },
+          "resolution_mode": {
+            "type": "string",
+            "enum": [
+              "s3",
+              "local",
+              "url",
+              "all"
+            ],
+            "title": "Resolution Mode",
+            "description": "Resolution mode: s3 (S3 URI), local (filesystem path), url (obsidian://), all (all modes)",
+            "default": "all"
+          },
+          "vault_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vault Path",
+            "description": "Base vault path for local resolution (e.g., /Users/user/vault)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uri"
+        ],
+        "title": "OCXPResolveRequest",
+        "description": "Request model for OCXP URI resolution."
+      },
+      "OCXPValidateRequest": {
+        "properties": {
+          "uri": {
+            "type": "string",
+            "title": "Uri",
+            "description": "OCXP URI to validate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uri"
+        ],
+        "title": "OCXPValidateRequest",
+        "description": "Request model for OCXP URI validation."
+      },
+      "OCXPValidateResponse": {
+        "properties": {
+          "uri": {
+            "type": "string",
+            "title": "Uri"
+          },
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "parsed": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parsed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uri",
+          "valid"
+        ],
+        "title": "OCXPValidateResponse",
+        "description": "Response model for OCXP URI validation."
+      },
       "ProjectCreate": {
         "properties": {
           "name": {
@@ -10271,7 +10887,9 @@
         "properties": {
           "project_id": {
             "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             "title": "Project Id",
+            "description": "Project UUID identifier",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -10664,6 +11282,19 @@
             ],
             "title": "Ticket Description",
             "description": "Updated ticket description"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "Project ID to preserve/set"
           },
           "archive_old_docs": {
             "type": "boolean",
@@ -11754,6 +12385,102 @@
         ],
         "title": "ValidationIssue",
         "description": "Single validation issue found in AI response."
+      },
+      "VersionInfoResponse": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "title": "Version Id",
+            "description": "S3 version ID",
+            "examples": [
+              "abc123def456"
+            ]
+          },
+          "is_latest": {
+            "type": "boolean",
+            "title": "Is Latest",
+            "description": "Whether this is the latest version",
+            "examples": [
+              true
+            ]
+          },
+          "last_modified": {
+            "type": "string",
+            "title": "Last Modified",
+            "description": "ISO timestamp of last modification",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size",
+            "description": "Content size in bytes",
+            "examples": [
+              1024
+            ]
+          },
+          "etag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etag",
+            "description": "ETag of the content",
+            "examples": [
+              "d41d8cd98f00b204"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "is_latest",
+          "last_modified",
+          "size"
+        ],
+        "title": "VersionInfoResponse",
+        "description": "Version information for a single file version."
+      },
+      "VersionListResponse": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "File path",
+            "examples": [
+              "mission/current.md"
+            ]
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/VersionInfoResponse"
+            },
+            "type": "array",
+            "title": "Versions",
+            "description": "List of file versions"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total number of versions",
+            "examples": [
+              5
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "versions",
+          "total"
+        ],
+        "title": "VersionListResponse",
+        "description": "Response for GET /ocxp/{type}/{id}/versions."
       },
       "WorkspaceItem": {
         "properties": {
