@@ -1,6 +1,6 @@
 {
   "name": "@ocxp/client",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "TypeScript client for OCXP protocol - auto-generated from OpenAPI spec",
   "type": "module",
   "main": "./dist/index.cjs",
