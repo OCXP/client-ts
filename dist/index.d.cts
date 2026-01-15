@@ -5720,7 +5720,7 @@ declare class OCXPClient {
      */
     downloadRepository(repoUrl: string, branch?: string, options?: {
         mode?: string;
-        repo_type?: 'code' | 'docs' | 'auto';
+        repo_type?: 'code' | 'docs' | 'auto' | 'prototype';
         path?: string;
     }): Promise<RepoDownloadResponse>;
     /**
