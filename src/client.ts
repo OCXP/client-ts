@@ -44,6 +44,17 @@ import type {
   DatabaseListResponse,
   DatabaseSchemaResponse,
   DatabaseSampleResponse,
+  // Prototype types
+  PrototypeChatListResponse,
+  PrototypeChatPreviewResponse,
+  PrototypeChatLinkRequest,
+  PrototypeChatLinkResponse,
+  PrototypeChatSyncRequest,
+  PrototypeChatSyncResponse,
+  PrototypeChatGetResponse,
+  PrototypeChatSyncAsyncRequest,
+  PrototypeChatSyncAsyncResponse,
+  PrototypeSyncJobStatusResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -1152,6 +1163,114 @@ export class OCXPClient {
     });
   }
 
+  // ============== Prototype Operations ==============
+
+  /**
+   * List all accessible prototype chats from a provider
+   * @param provider - Filter by provider (v0, lovable, bolt)
+   */
+  async listPrototypeChats(provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatListResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.listPrototypeChats({
+      client: this.client,
+      query: { provider },
+      headers,
+    });
+    return extractData(response) as PrototypeChatListResponse;
+  }
+
+  /**
+   * Preview a prototype chat (fetch metadata without linking)
+   * @param chatUrl - Chat URL to preview
+   * @param provider - Prototype provider (optional, auto-detected from URL)
+   */
+  async previewPrototypeChat(chatUrl: string, provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatPreviewResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.previewPrototypeChat({
+      client: this.client,
+      body: { chat_url: chatUrl, provider },
+      headers,
+    });
+    return extractData(response) as PrototypeChatPreviewResponse;
+  }
+
+  /**
+   * Link a prototype chat to a mission
+   * @param data - Link request data
+   */
+  async linkPrototypeChat(data: PrototypeChatLinkRequest): Promise<PrototypeChatLinkResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.linkPrototypeChat({
+      client: this.client,
+      body: data,
+      headers,
+    });
+    return extractData(response) as PrototypeChatLinkResponse;
+  }
+
+  /**
+   * Sync/refresh a linked prototype chat
+   * @param data - Sync request data
+   */
+  async syncPrototypeChat(data: PrototypeChatSyncRequest): Promise<PrototypeChatSyncResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.syncPrototypeChat({
+      client: this.client,
+      body: data,
+      headers,
+    });
+    return extractData(response) as PrototypeChatSyncResponse;
+  }
+
+  /**
+   * Get stored prototype chat data
+   * @param provider - Provider name (v0, lovable, bolt)
+   * @param chatId - Chat ID
+   * @param options - Optional query parameters
+   */
+  async getPrototypeChat(
+    provider: string,
+    chatId: string,
+    options?: { projectId?: string; versionId?: string }
+  ): Promise<PrototypeChatGetResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getPrototypeChat({
+      client: this.client,
+      path: { provider, chat_id: chatId },
+      query: { project_id: options?.projectId, version_id: options?.versionId },
+      headers,
+    });
+    return extractData(response) as PrototypeChatGetResponse;
+  }
+
+  /**
+   * Start async prototype chat sync job
+   * @param data - Async sync request data
+   */
+  async syncPrototypeChatAsync(data: PrototypeChatSyncAsyncRequest): Promise<PrototypeChatSyncAsyncResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.syncPrototypeChatAsync({
+      client: this.client,
+      body: data,
+      headers,
+    });
+    return extractData(response) as PrototypeChatSyncAsyncResponse;
+  }
+
+  /**
+   * Get sync job status
+   * @param jobId - Job ID from async sync response
+   */
+  async getPrototypeSyncStatus(jobId: string): Promise<PrototypeSyncJobStatusResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getSyncStatus({
+      client: this.client,
+      path: { job_id: jobId },
+      headers,
+    });
+    return extractData(response) as PrototypeSyncJobStatusResponse;
+  }
+
   // ============== Auth Operations ==============
 
   /**
@@ -1287,6 +1406,7 @@ export class OCXPClient {
   private _project?: ProjectNamespace;
   private _session?: SessionNamespace;
   private _kb?: KBNamespace;
+  private _prototype?: PrototypeNamespace;
 
   /**
    * Mission namespace for convenient mission operations
@@ -1330,6 +1450,17 @@ export class OCXPClient {
       this._kb = new KBNamespace(this);
     }
     return this._kb;
+  }
+
+  /**
+   * Prototype namespace for convenient prototype chat operations
+   * @example ocxp.prototype.list('v0')
+   */
+  get prototype(): PrototypeNamespace {
+    if (!this._prototype) {
+      this._prototype = new PrototypeNamespace(this);
+    }
+    return this._prototype;
   }
 }
 
@@ -1611,6 +1742,73 @@ export class KBNamespace {
    */
   async rag(query: string, sessionId?: string) {
     return this.client.kbRag(query, sessionId);
+  }
+}
+
+/**
+ * Prototype namespace for convenient prototype chat operations
+ */
+export class PrototypeNamespace {
+  constructor(private client: OCXPClient) {}
+
+  /**
+   * List all accessible prototype chats
+   * @example ocxp.prototype.list('v0')
+   */
+  async list(provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatListResponse> {
+    return this.client.listPrototypeChats(provider);
+  }
+
+  /**
+   * Preview a prototype chat (fetch metadata without linking)
+   * @example ocxp.prototype.preview('https://v0.dev/chat/abc123')
+   */
+  async preview(chatUrl: string, provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatPreviewResponse> {
+    return this.client.previewPrototypeChat(chatUrl, provider);
+  }
+
+  /**
+   * Link a prototype chat to a mission
+   * @example ocxp.prototype.link({ mission_id: 'xyz', chat_url: 'https://v0.dev/chat/abc123' })
+   */
+  async link(data: PrototypeChatLinkRequest): Promise<PrototypeChatLinkResponse> {
+    return this.client.linkPrototypeChat(data);
+  }
+
+  /**
+   * Sync/refresh a linked prototype chat
+   * @example ocxp.prototype.sync({ chat_id: 'abc123', mission_id: 'xyz' })
+   */
+  async sync(data: PrototypeChatSyncRequest): Promise<PrototypeChatSyncResponse> {
+    return this.client.syncPrototypeChat(data);
+  }
+
+  /**
+   * Get stored prototype chat data
+   * @example ocxp.prototype.get('v0', 'abc123')
+   */
+  async get(
+    provider: string,
+    chatId: string,
+    options?: { projectId?: string; versionId?: string }
+  ): Promise<PrototypeChatGetResponse> {
+    return this.client.getPrototypeChat(provider, chatId, options);
+  }
+
+  /**
+   * Start async prototype chat sync job
+   * @example ocxp.prototype.syncAsync({ chat_id: 'abc123', mission_id: 'xyz', download_files: true })
+   */
+  async syncAsync(data: PrototypeChatSyncAsyncRequest): Promise<PrototypeChatSyncAsyncResponse> {
+    return this.client.syncPrototypeChatAsync(data);
+  }
+
+  /**
+   * Get sync job status
+   * @example ocxp.prototype.getSyncStatus('job-id')
+   */
+  async getSyncStatus(jobId: string): Promise<PrototypeSyncJobStatusResponse> {
+    return this.client.getPrototypeSyncStatus(jobId);
   }
 }
 

@@ -845,6 +845,57 @@ var bulkDeleteContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var listPrototypeChats = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/list",
+  ...options
+});
+var previewPrototypeChat = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/preview",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var linkPrototypeChat = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/link",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var syncPrototypeChat = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/sync",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getPrototypeChat = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/{provider}/{chat_id}",
+  ...options
+});
+var syncPrototypeChatAsync = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/sync-async",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getSyncStatus = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/sync-status/{job_id}",
+  ...options
+});
 var listSessions = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/session",
@@ -2262,6 +2313,102 @@ var OCXPClient = class {
       headers
     });
   }
+  // ============== Prototype Operations ==============
+  /**
+   * List all accessible prototype chats from a provider
+   * @param provider - Filter by provider (v0, lovable, bolt)
+   */
+  async listPrototypeChats(provider) {
+    const headers = await this.getHeaders();
+    const response = await listPrototypeChats({
+      client: this.client,
+      query: { provider },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Preview a prototype chat (fetch metadata without linking)
+   * @param chatUrl - Chat URL to preview
+   * @param provider - Prototype provider (optional, auto-detected from URL)
+   */
+  async previewPrototypeChat(chatUrl, provider) {
+    const headers = await this.getHeaders();
+    const response = await previewPrototypeChat({
+      client: this.client,
+      body: { chat_url: chatUrl, provider },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Link a prototype chat to a mission
+   * @param data - Link request data
+   */
+  async linkPrototypeChat(data) {
+    const headers = await this.getHeaders();
+    const response = await linkPrototypeChat({
+      client: this.client,
+      body: data,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Sync/refresh a linked prototype chat
+   * @param data - Sync request data
+   */
+  async syncPrototypeChat(data) {
+    const headers = await this.getHeaders();
+    const response = await syncPrototypeChat({
+      client: this.client,
+      body: data,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get stored prototype chat data
+   * @param provider - Provider name (v0, lovable, bolt)
+   * @param chatId - Chat ID
+   * @param options - Optional query parameters
+   */
+  async getPrototypeChat(provider, chatId, options) {
+    const headers = await this.getHeaders();
+    const response = await getPrototypeChat({
+      client: this.client,
+      path: { provider, chat_id: chatId },
+      query: { project_id: options?.projectId, version_id: options?.versionId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Start async prototype chat sync job
+   * @param data - Async sync request data
+   */
+  async syncPrototypeChatAsync(data) {
+    const headers = await this.getHeaders();
+    const response = await syncPrototypeChatAsync({
+      client: this.client,
+      body: data,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get sync job status
+   * @param jobId - Job ID from async sync response
+   */
+  async getPrototypeSyncStatus(jobId) {
+    const headers = await this.getHeaders();
+    const response = await getSyncStatus({
+      client: this.client,
+      path: { job_id: jobId },
+      headers
+    });
+    return extractData(response);
+  }
   // ============== Auth Operations ==============
   /**
    * Get auth configuration (public endpoint)
@@ -2385,6 +2532,7 @@ var OCXPClient = class {
   _project;
   _session;
   _kb;
+  _prototype;
   /**
    * Mission namespace for convenient mission operations
    * @example ocxp.mission.list({ status: 'pending' })
@@ -2424,6 +2572,16 @@ var OCXPClient = class {
       this._kb = new KBNamespace(this);
     }
     return this._kb;
+  }
+  /**
+   * Prototype namespace for convenient prototype chat operations
+   * @example ocxp.prototype.list('v0')
+   */
+  get prototype() {
+    if (!this._prototype) {
+      this._prototype = new PrototypeNamespace(this);
+    }
+    return this._prototype;
   }
 };
 var MissionNamespace = class {
@@ -2643,6 +2801,60 @@ var KBNamespace = class {
    */
   async rag(query, sessionId) {
     return this.client.kbRag(query, sessionId);
+  }
+};
+var PrototypeNamespace = class {
+  constructor(client2) {
+    this.client = client2;
+  }
+  /**
+   * List all accessible prototype chats
+   * @example ocxp.prototype.list('v0')
+   */
+  async list(provider) {
+    return this.client.listPrototypeChats(provider);
+  }
+  /**
+   * Preview a prototype chat (fetch metadata without linking)
+   * @example ocxp.prototype.preview('https://v0.dev/chat/abc123')
+   */
+  async preview(chatUrl, provider) {
+    return this.client.previewPrototypeChat(chatUrl, provider);
+  }
+  /**
+   * Link a prototype chat to a mission
+   * @example ocxp.prototype.link({ mission_id: 'xyz', chat_url: 'https://v0.dev/chat/abc123' })
+   */
+  async link(data) {
+    return this.client.linkPrototypeChat(data);
+  }
+  /**
+   * Sync/refresh a linked prototype chat
+   * @example ocxp.prototype.sync({ chat_id: 'abc123', mission_id: 'xyz' })
+   */
+  async sync(data) {
+    return this.client.syncPrototypeChat(data);
+  }
+  /**
+   * Get stored prototype chat data
+   * @example ocxp.prototype.get('v0', 'abc123')
+   */
+  async get(provider, chatId, options) {
+    return this.client.getPrototypeChat(provider, chatId, options);
+  }
+  /**
+   * Start async prototype chat sync job
+   * @example ocxp.prototype.syncAsync({ chat_id: 'abc123', mission_id: 'xyz', download_files: true })
+   */
+  async syncAsync(data) {
+    return this.client.syncPrototypeChatAsync(data);
+  }
+  /**
+   * Get sync job status
+   * @example ocxp.prototype.getSyncStatus('job-id')
+   */
+  async getSyncStatus(jobId) {
+    return this.client.getPrototypeSyncStatus(jobId);
   }
 };
 function createOCXPClient(options) {
@@ -3912,6 +4124,6 @@ var GithubCommitsDataSchema = z.object({
 });
 var GithubCommitsResponseSchema = createResponseSchema(GithubCommitsDataSchema);
 
-export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
+export { AddProjectRepoDataSchema, AddProjectRepoResponseSchema, AuthTokenDataSchema, AuthTokenResponseSchema, AuthUserInfoResponseSchema, AuthUserInfoSchema, AuthValidateDataSchema, AuthValidateResponseSchema, ContentTypeInfoSchema, ContentTypeSchema, ContentTypesDataSchema, ContentTypesResponseSchema, ContextReposDataSchema, ContextReposResponseSchema, CreateProjectDataSchema, CreateProjectResponseSchema, CreateSessionDataSchema, CreateSessionResponseSchema, DeleteDataSchema, DeleteProjectDataSchema, DeleteProjectResponseSchema, DeleteResponseSchema, DiscoveryDataSchema, DiscoveryEndpointSchema, DiscoveryResponseSchema, ErrorResponseSchema, ForkSessionDataSchema, ForkSessionResponseSchema, GetProjectDataSchema, GetProjectResponseSchema, GetSessionMessagesDataSchema, GetSessionMessagesResponseSchema, GithubBranchInfoSchema, GithubBranchesDataSchema, GithubBranchesResponseSchema, GithubCommitInfoSchema, GithubCommitsDataSchema, GithubCommitsResponseSchema, GithubDirectoryDataSchema, GithubDirectoryResponseSchema, GithubFileDataSchema, GithubFileInfoSchema, GithubFileResponseSchema, GithubRepoDataSchema, GithubRepoInfoSchema, GithubRepoResponseSchema, IngestionJobResponseSchema, IngestionJobSchema, KBDocumentSchema, KBIngestDataSchema, KBIngestResponseSchema, KBListDataSchema, KBListResponseSchema, KBNamespace, ListDataSchema, ListEntrySchema, ListProjectsDataSchema, ListProjectsResponseSchema, ListResponseSchema, ListSessionsDataSchema, ListSessionsResponseSchema, MetaSchema, MissionNamespace, OCXPAuthError, OCXPClient, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, OCXPRateLimitError, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, PaginationSchema, PresignedUrlDataSchema, PresignedUrlResponseSchema, ProjectMissionSchema, ProjectNamespace, ProjectRepoSchema, ProjectSchema, PrototypeNamespace, QueryDataSchema, QueryFilterSchema, QueryResponseSchema, ReadDataSchema, ReadResponseSchema, RepoDeleteDataSchema, RepoDeleteResponseSchema, RepoDownloadDataSchema, RepoDownloadRequestSchema, RepoDownloadResponseSchema, RepoExistsDataSchema, RepoExistsResponseSchema, RepoListDataSchema, RepoListItemSchema, RepoListResponseSchema, RepoStatusDataSchema, RepoStatusEnum, RepoStatusResponseSchema, SearchDataSchema, SearchResponseSchema, SearchResultItemSchema, SessionMessageSchema, SessionNamespace, SessionSchema, StatsDataSchema, StatsResponseSchema, TreeDataSchema, TreeNodeSchema, TreeResponseSchema, UpdateProjectDataSchema, UpdateProjectResponseSchema, UpdateSessionMetadataDataSchema, UpdateSessionMetadataResponseSchema, VALID_CONTENT_TYPES, VectorSearchDataSchema, VectorSearchResponseSchema, WSBaseMessageSchema, WSChatMessageSchema, WSChatResponseSchema, WSConnectedSchema, WSErrorMessageSchema, WSMessageSchema, WSMessageTypeSchema, WSPingPongSchema, WSStatusSchema, WSStreamChunkSchema, WSStreamEndSchema, WSStreamStartSchema, WebSocketService, WriteDataSchema, WriteResponseSchema, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getPrototypeChat, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getSyncStatus, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, linkPrototypeChat, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listPrototypeChats, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, previewPrototypeChat, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, syncPrototypeChat, syncPrototypeChatAsync, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

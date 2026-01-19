@@ -19,6 +19,7 @@ export {
   ProjectNamespace,
   SessionNamespace,
   KBNamespace,
+  PrototypeNamespace,
 } from './client';
 
 // Path utilities
@@ -135,6 +136,15 @@ export {
   resolveMemo,
   acknowledgeMemo,
   ignoreMemo,
+
+  // Prototype operations
+  listPrototypeChats,
+  previewPrototypeChat,
+  linkPrototypeChat,
+  syncPrototypeChat,
+  getPrototypeChat,
+  syncPrototypeChatAsync,
+  getSyncStatus,
 
   // Auth
   loginForAccessToken,
@@ -366,6 +376,37 @@ export type {
   AcknowledgeMemoResponses,
   IgnoreMemoData,
   IgnoreMemoResponses,
+
+  // Prototype operations
+  PrototypeChatListResponse,
+  PrototypeChatListItem,
+  PrototypeChatPreviewRequest,
+  PrototypeChatPreviewResponse,
+  PrototypeChatLinkRequest,
+  PrototypeChatLinkResponse,
+  PrototypeChatSyncRequest,
+  PrototypeChatSyncResponse,
+  PrototypeChatGetResponse,
+  PrototypeChatSyncAsyncRequest,
+  PrototypeChatSyncAsyncResponse,
+  PrototypeSyncJobStatusResponse,
+  PrototypeChatVersion,
+  PrototypeChatMessage,
+  PrototypePageInfo,
+  ListPrototypeChatsData,
+  ListPrototypeChatsResponses,
+  PreviewPrototypeChatData,
+  PreviewPrototypeChatResponses,
+  LinkPrototypeChatData,
+  LinkPrototypeChatResponses,
+  SyncPrototypeChatData,
+  SyncPrototypeChatResponses,
+  GetPrototypeChatData,
+  GetPrototypeChatResponses,
+  SyncPrototypeChatAsyncData,
+  SyncPrototypeChatAsyncResponses,
+  GetSyncStatusData,
+  GetSyncStatusResponses,
 
   // Auth
   LoginForAccessTokenData,

@@ -371,6 +371,8 @@ type AddRepoRequest = {
 };
 /**
  * AuthConfig
+ *
+ * Public auth configuration for clients.
  */
 type AuthConfig = {
     /**
@@ -378,13 +380,17 @@ type AuthConfig = {
      */
     region: string;
     /**
-     * User Pool Id
+     * Apiendpoint
      */
-    user_pool_id: string;
+    apiEndpoint: string;
     /**
-     * Client Id
+     * Brainarn
      */
-    client_id: string;
+    brainArn: string;
+    /**
+     * Workspaceid
+     */
+    workspaceId?: string;
 };
 /**
  * Body_loginForAccessToken
@@ -423,6 +429,14 @@ type BulkDeleteRequest = {
      * Ids
      */
     ids: Array<string>;
+    /**
+     * Manage Metadata
+     */
+    manage_metadata?: boolean;
+    /**
+     * Auto Index
+     */
+    auto_index?: boolean | null;
 };
 /**
  * BulkDeleteResponse
@@ -507,6 +521,22 @@ type BulkWriteRequest = {
      * Items
      */
     items: Array<BulkWriteItem>;
+    /**
+     * Manage Metadata
+     */
+    manage_metadata?: boolean;
+    /**
+     * Auto Index
+     */
+    auto_index?: boolean | null;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Mission Id
+     */
+    mission_id?: string | null;
 };
 /**
  * BulkWriteResponse
@@ -1856,6 +1886,633 @@ type ProjectUpdate = {
     description?: string | null;
 };
 /**
+ * PrototypeChatGetResponse
+ *
+ * Response from getting a stored prototype chat.
+ */
+type PrototypeChatGetResponse = {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chat Id
+     */
+    chat_id: string;
+    /**
+     * Web Url
+     */
+    web_url: string;
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Messages
+     */
+    messages?: Array<PrototypeChatMessage>;
+    /**
+     * Versions
+     */
+    versions?: Array<PrototypeChatVersion>;
+    /**
+     * Latest Preview Url
+     */
+    latest_preview_url?: string | null;
+    /**
+     * Screenshot Link
+     */
+    screenshot_link?: string | null;
+    /**
+     * Conversation Link
+     */
+    conversation_link?: string | null;
+    /**
+     * File Links
+     */
+    file_links?: Array<string>;
+    /**
+     * Synced At
+     */
+    synced_at?: string | null;
+};
+/**
+ * PrototypeChatLinkRequest
+ *
+ * Request to link a prototype chat to a mission.
+ */
+type PrototypeChatLinkRequest = {
+    /**
+     * Provider
+     *
+     * Prototype provider
+     */
+    provider?: 'v0' | 'lovable' | 'bolt';
+    /**
+     * Chat Id
+     *
+     * Chat ID from provider (extracted from URL if not provided)
+     */
+    chat_id?: string | null;
+    /**
+     * Chat Url
+     *
+     * Chat URL (alternative to chat_id)
+     */
+    chat_url?: string | null;
+    /**
+     * Version Id
+     *
+     * Specific version ID to download files from (default: latest)
+     */
+    version_id?: string | null;
+    /**
+     * Mission Id
+     *
+     * Mission to link this chat to
+     */
+    mission_id: string;
+    /**
+     * Project Id
+     *
+     * Optional project scope
+     */
+    project_id?: string | null;
+    /**
+     * Sync Versions
+     *
+     * Also sync version information (metadata)
+     */
+    sync_versions?: boolean;
+    /**
+     * Download Files
+     *
+     * Download version files to OCXP for use as context
+     */
+    download_files?: boolean;
+    /**
+     * Screenshot Preview
+     *
+     * Screenshot the latest preview URL
+     */
+    screenshot_preview?: boolean;
+};
+/**
+ * PrototypeChatLinkResponse
+ *
+ * Response from linking a prototype chat.
+ *
+ * Field naming aligned with v0's hierarchy: Project > Chat > Version
+ * - chat_name: The chat's name from v0 (not title - v0 only has name)
+ * - project_id: v0 project ID if chat belongs to a project
+ * - project_name: v0 project name (fetched from projects API)
+ */
+type PrototypeChatLinkResponse = {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chat Id
+     */
+    chat_id: string;
+    /**
+     * Chat Name
+     */
+    chat_name?: string | null;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Project Name
+     */
+    project_name?: string | null;
+    /**
+     * Web Url
+     */
+    web_url: string;
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Messages Count
+     */
+    messages_count: number;
+    /**
+     * Versions Count
+     */
+    versions_count: number;
+    /**
+     * Latest Preview Url
+     */
+    latest_preview_url?: string | null;
+    /**
+     * Screenshot Link
+     */
+    screenshot_link?: string | null;
+    /**
+     * Content Links
+     */
+    content_links?: Array<string>;
+    /**
+     * Indexed
+     */
+    indexed?: boolean;
+};
+/**
+ * PrototypeChatListItem
+ *
+ * Individual chat in list response.
+ *
+ * Field naming aligned with v0's hierarchy: Project > Chat > Version
+ * - chat_name: The chat's name from v0 (v0 only has 'name', not 'title')
+ * - project_id: v0 project ID if chat belongs to a project
+ * - project_name: v0 project name (joined from projects list)
+ */
+type PrototypeChatListItem = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Chat Name
+     */
+    chat_name: string;
+    /**
+     * Web Url
+     */
+    web_url: string;
+    /**
+     * Privacy
+     */
+    privacy?: string | null;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    /**
+     * Latest Preview Url
+     */
+    latest_preview_url?: string | null;
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Project Name
+     */
+    project_name?: string | null;
+};
+/**
+ * PrototypeChatListResponse
+ *
+ * Response from listing available chats.
+ */
+type PrototypeChatListResponse = {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chats
+     */
+    chats?: Array<PrototypeChatListItem>;
+    /**
+     * Total
+     */
+    total?: number;
+};
+/**
+ * PrototypeChatMessage
+ *
+ * Individual chat message from a prototype conversation.
+ */
+type PrototypeChatMessage = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Role
+     */
+    role: 'user' | 'assistant';
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+};
+/**
+ * PrototypeChatPreviewRequest
+ *
+ * Request to preview a chat before linking (fetch metadata only).
+ */
+type PrototypeChatPreviewRequest = {
+    /**
+     * Provider
+     */
+    provider?: 'v0' | 'lovable' | 'bolt';
+    /**
+     * Chat Url
+     *
+     * Chat URL to preview
+     */
+    chat_url: string;
+};
+/**
+ * PrototypeChatPreviewResponse
+ *
+ * Response from previewing a chat (no files stored yet).
+ */
+type PrototypeChatPreviewResponse = {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chat Id
+     */
+    chat_id: string;
+    /**
+     * Web Url
+     */
+    web_url: string;
+    /**
+     * Messages Count
+     */
+    messages_count: number;
+    /**
+     * Versions
+     */
+    versions?: Array<PrototypeChatVersion>;
+    /**
+     * Latest Preview Url
+     */
+    latest_preview_url?: string | null;
+    /**
+     * Can Download Files
+     */
+    can_download_files?: boolean;
+};
+/**
+ * PrototypeChatSyncAsyncRequest
+ *
+ * Request to start an async prototype chat sync.
+ */
+type PrototypeChatSyncAsyncRequest = {
+    /**
+     * Provider
+     *
+     * Prototype provider
+     */
+    provider?: 'v0' | 'lovable' | 'bolt';
+    /**
+     * Chat Id
+     *
+     * Chat ID to sync
+     */
+    chat_id: string;
+    /**
+     * Mission Id
+     *
+     * Mission context
+     */
+    mission_id: string;
+    /**
+     * Version Id
+     *
+     * Specific version ID to sync (default: sync all new versions)
+     */
+    version_id?: string | null;
+    /**
+     * Download Files
+     *
+     * Download version files to OCXP
+     */
+    download_files?: boolean;
+    /**
+     * Download Screenshots
+     *
+     * Download v0's built-in screenshot for each version
+     */
+    download_screenshots?: boolean;
+    /**
+     * Screenshot All Pages
+     *
+     * Capture screenshots of all detected pages/routes
+     */
+    screenshot_all_pages?: boolean;
+};
+/**
+ * PrototypeChatSyncAsyncResponse
+ *
+ * Response from starting an async sync job.
+ */
+type PrototypeChatSyncAsyncResponse = {
+    /**
+     * Job Id
+     *
+     * Job ID for tracking progress
+     */
+    job_id: string;
+    /**
+     * Status
+     *
+     * Initial job status
+     */
+    status?: string;
+    /**
+     * Message
+     *
+     * Human-readable status message
+     */
+    message?: string;
+};
+/**
+ * PrototypeChatSyncRequest
+ *
+ * Request to sync/refresh a linked chat.
+ *
+ * Supports:
+ * - Incremental sync: Only downloads new versions (skips already-stored ones)
+ * - Specific version: Downloads a specific version by ID
+ * - Metadata-only: Syncs messages/metadata without downloading files
+ * - Screenshot all pages: Capture screenshots of all detected routes
+ */
+type PrototypeChatSyncRequest = {
+    /**
+     * Provider
+     */
+    provider?: 'v0' | 'lovable' | 'bolt';
+    /**
+     * Chat Id
+     *
+     * Chat ID to sync
+     */
+    chat_id: string;
+    /**
+     * Mission Id
+     *
+     * Mission context
+     */
+    mission_id: string;
+    /**
+     * Version Id
+     *
+     * Specific version ID to sync files from (default: sync all new versions)
+     */
+    version_id?: string | null;
+    /**
+     * Download Files
+     *
+     * Download version files to OCXP (if False, only syncs messages/metadata)
+     */
+    download_files?: boolean;
+    /**
+     * Download Screenshots
+     *
+     * Download v0's built-in screenshot for each version
+     */
+    download_screenshots?: boolean;
+    /**
+     * Screenshot All Pages
+     *
+     * Capture screenshots of all detected pages/routes (not just root)
+     */
+    screenshot_all_pages?: boolean;
+};
+/**
+ * PrototypeChatSyncResponse
+ *
+ * Response from syncing a prototype chat.
+ *
+ * Version tracking fields:
+ * - newly_synced_versions: Versions downloaded during this sync operation
+ * - stored_versions: All versions currently stored in S3
+ * - latest_version_id: Latest version available from the provider
+ * - versions: Full version details including pages and screenshots
+ */
+type PrototypeChatSyncResponse = {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chat Id
+     */
+    chat_id: string;
+    /**
+     * Synced
+     */
+    synced: boolean;
+    /**
+     * New Messages Count
+     */
+    new_messages_count?: number;
+    /**
+     * New Versions Count
+     */
+    new_versions_count?: number;
+    /**
+     * Content Links
+     */
+    content_links?: Array<string>;
+    /**
+     * Newly Synced Versions
+     *
+     * Version IDs downloaded during this sync
+     */
+    newly_synced_versions?: Array<string>;
+    /**
+     * Stored Versions
+     *
+     * All version IDs currently stored in S3
+     */
+    stored_versions?: Array<string>;
+    /**
+     * Latest Version Id
+     *
+     * Latest version ID available from the provider
+     */
+    latest_version_id?: string | null;
+    /**
+     * Versions
+     *
+     * Full version details including detected pages and screenshots
+     */
+    versions?: Array<PrototypeChatVersion>;
+};
+/**
+ * PrototypeChatVersion
+ *
+ * Chat version/iteration with preview and files.
+ */
+type PrototypeChatVersion = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Preview Url
+     */
+    preview_url?: string | null;
+    /**
+     * Screenshot Url
+     *
+     * v0's built-in screenshot URL for this version
+     */
+    screenshot_url?: string | null;
+    /**
+     * Screenshot Link
+     *
+     * OCXP link to downloaded screenshot
+     */
+    screenshot_link?: string | null;
+    /**
+     * Files
+     */
+    files?: Array<string>;
+    /**
+     * Pages
+     *
+     * Detected pages/routes in this version
+     */
+    pages?: Array<PrototypePageInfo>;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+};
+/**
+ * PrototypePageInfo
+ *
+ * Information about a detected page/route in the prototype.
+ */
+type PrototypePageInfo = {
+    /**
+     * Route
+     *
+     * URL route path (e.g., '/', '/dashboard')
+     */
+    route: string;
+    /**
+     * File
+     *
+     * Source file path (e.g., 'app/page.tsx')
+     */
+    file: string;
+    /**
+     * Screenshot Link
+     *
+     * OCXP link to screenshot of this page
+     */
+    screenshot_link?: string | null;
+};
+/**
+ * PrototypeSyncJobStatusResponse
+ *
+ * Response for job status polling endpoint.
+ */
+type PrototypeSyncJobStatusResponse = {
+    /**
+     * Job Id
+     */
+    job_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Progress
+     */
+    progress: number;
+    /**
+     * Current Step
+     */
+    current_step: string;
+    /**
+     * Files Processed
+     */
+    files_processed: number;
+    /**
+     * Files Total
+     */
+    files_total: number;
+    /**
+     * Screenshots Processed
+     */
+    screenshots_processed: number;
+    /**
+     * Screenshots Total
+     */
+    screenshots_total: number;
+    /**
+     * Content Links
+     */
+    content_links?: Array<string>;
+    /**
+     * Error
+     */
+    error?: string | null;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+};
+/**
  * QueryFilter
  */
 type QueryFilter = {
@@ -2517,6 +3174,10 @@ type WriteRequest = {
      */
     manage_metadata?: boolean;
     /**
+     * Auto Index
+     */
+    auto_index?: boolean | null;
+    /**
      * Project Id
      */
     project_id?: string | null;
@@ -2617,6 +3278,184 @@ type BulkDeleteContentResponses = {
      * Successful Response
      */
     200: BulkDeleteResponse;
+};
+type ListPrototypeChatsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Provider
+         */
+        provider?: string;
+    };
+    url: '/ocxp/prototype/chat/list';
+};
+type ListPrototypeChatsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type ListPrototypeChatsResponses = {
+    /**
+     * Successful Response
+     */
+    200: PrototypeChatListResponse;
+};
+type PreviewPrototypeChatData = {
+    body: PrototypeChatPreviewRequest;
+    path?: never;
+    query?: never;
+    url: '/ocxp/prototype/chat/preview';
+};
+type PreviewPrototypeChatErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type PreviewPrototypeChatResponses = {
+    /**
+     * Successful Response
+     */
+    200: PrototypeChatPreviewResponse;
+};
+type LinkPrototypeChatData = {
+    body: PrototypeChatLinkRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/prototype/chat/link';
+};
+type LinkPrototypeChatErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type LinkPrototypeChatResponses = {
+    /**
+     * Successful Response
+     */
+    200: PrototypeChatLinkResponse;
+};
+type SyncPrototypeChatData = {
+    body: PrototypeChatSyncRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/prototype/chat/sync';
+};
+type SyncPrototypeChatErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type SyncPrototypeChatResponses = {
+    /**
+     * Successful Response
+     */
+    200: PrototypeChatSyncResponse;
+};
+type GetPrototypeChatData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Provider
+         */
+        provider: string;
+        /**
+         * Chat Id
+         */
+        chat_id: string;
+    };
+    query?: {
+        /**
+         * Project Id
+         */
+        project_id?: string | null;
+        /**
+         * Version Id
+         */
+        version_id?: string | null;
+    };
+    url: '/ocxp/prototype/chat/{provider}/{chat_id}';
+};
+type GetPrototypeChatErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetPrototypeChatResponses = {
+    /**
+     * Successful Response
+     */
+    200: PrototypeChatGetResponse;
+};
+type SyncPrototypeChatAsyncData = {
+    body: PrototypeChatSyncAsyncRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/prototype/chat/sync-async';
+};
+type SyncPrototypeChatAsyncErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type SyncPrototypeChatAsyncResponses = {
+    /**
+     * Successful Response
+     */
+    202: PrototypeChatSyncAsyncResponse;
+};
+type GetSyncStatusData = {
+    body?: never;
+    path: {
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: never;
+    url: '/ocxp/prototype/chat/sync-status/{job_id}';
+};
+type GetSyncStatusErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+type GetSyncStatusResponses = {
+    /**
+     * Successful Response
+     */
+    200: PrototypeSyncJobStatusResponse;
 };
 type ListSessionsData = {
     body?: never;
@@ -4543,6 +5382,12 @@ type DeleteContentData = {
          * Also delete .metadata.json sidecars
          */
         manage_metadata?: boolean;
+        /**
+         * Auto Index
+         *
+         * Auto-remove from KB (None = use content_type default)
+         */
+        auto_index?: boolean | null;
     };
     url: '/ocxp/context/{content_type}/{content_id}';
 };
@@ -4934,15 +5779,297 @@ declare const bulkReadContent: <ThrowOnError extends boolean = false>(options: O
 /**
  * Bulk Write Content
  *
- * Bulk write content.
+ * Bulk write content with metadata sidecar and KB auto-indexing support.
  */
 declare const bulkWriteContent: <ThrowOnError extends boolean = false>(options: Options<BulkWriteContentData, ThrowOnError>) => RequestResult<BulkWriteContentResponses, BulkWriteContentErrors, ThrowOnError, "fields">;
 /**
  * Bulk Delete Content
  *
- * Bulk delete content using batch operations.
+ * Bulk delete content with KB auto-removal support.
  */
 declare const bulkDeleteContent: <ThrowOnError extends boolean = false>(options: Options<BulkDeleteContentData, ThrowOnError>) => RequestResult<BulkDeleteContentResponses, BulkDeleteContentErrors, ThrowOnError, "fields">;
+/**
+ * List Prototype Chats
+ *
+ * List all accessible prototype chats.
+ *
+ * Returns a list of chats that are accessible with the configured API key.
+ * Use this to discover which chats can be linked to missions.
+ *
+ * **Query Parameters:**
+ * - `provider`: Provider name (v0, lovable, bolt) - default: v0
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chats": [
+ * {
+ * "id": "qFPCm5zzimu",
+ * "name": "Mission Dashboard",
+ * "web_url": "https://v0.app/chat/qFPCm5zzimu",
+ * "privacy": "team",
+ * "latest_preview_url": "https://demo-xxx.vusercontent.net"
+ * }
+ * ],
+ * "total": 5
+ * }
+ * ```
+ */
+declare const listPrototypeChats: <ThrowOnError extends boolean = false>(options?: Options<ListPrototypeChatsData, ThrowOnError>) => RequestResult<ListPrototypeChatsResponses, ListPrototypeChatsErrors, ThrowOnError, "fields">;
+/**
+ * Preview Prototype Chat
+ *
+ * Preview a prototype chat before linking.
+ *
+ * Fetches chat metadata and version list without storing anything.
+ * Use this to show available versions in Obsidian UI before the user
+ * selects which version to link to a mission.
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_url": "https://v0.dev/chat/abc123"
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "web_url": "https://v0.dev/chat/abc123",
+ * "messages_count": 15,
+ * "versions": [
+ * {"id": "v1", "preview_url": "https://abc123.vercel.app", "files": ["page.tsx", "layout.tsx"]},
+ * {"id": "v2", "preview_url": "https://abc123-v2.vercel.app", "files": ["page.tsx", "layout.tsx", "sidebar.tsx"]}
+ * ],
+ * "latest_preview_url": "https://abc123-v2.vercel.app",
+ * "can_download_files": true
+ * }
+ * ```
+ */
+declare const previewPrototypeChat: <ThrowOnError extends boolean = false>(options: Options<PreviewPrototypeChatData, ThrowOnError>) => RequestResult<PreviewPrototypeChatResponses, PreviewPrototypeChatErrors, ThrowOnError, "fields">;
+/**
+ * Link Prototype Chat
+ *
+ * Link a prototype chat to a mission.
+ *
+ * Fetches the full conversation history and optionally downloads version files
+ * from the prototype provider (v0, Lovable, Bolt). Stores everything in OCXP
+ * and optionally screenshots the preview.
+ *
+ * **Workflow for Obsidian:**
+ * 1. User enters chat URL in mission creation form
+ * 2. Obsidian calls `/preview` to get available versions
+ * 3. User selects a version
+ * 4. Obsidian calls `/link` with version_id to download files
+ *
+ * **What gets stored:**
+ * - `conversation.md` - Full chat history as searchable markdown (KB indexed)
+ * - `metadata.json` - Structured metadata for programmatic access
+ * - `versions/{version_id}*.tsx` - Actual code files from selected version
+ * - `screenshots/preview.png` - Screenshot of the preview URL
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_url": "https://v0.dev/chat/abc123",
+ * "version_id": "v2",
+ * "mission_id": "mission-xyz",
+ * "download_files": true,
+ * "screenshot_preview": true
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "web_url": "https://v0.dev/chat/abc123",
+ * "mission_id": "mission-xyz",
+ * "messages_count": 15,
+ * "versions_count": 2,
+ * "latest_preview_url": "https://abc123-v2.vercel.app",
+ * "screenshot_link": "ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/screenshots/preview.png",
+ * "content_links": [
+ * "ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/conversation.md",
+ * "ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/versions/v2/page.tsx"
+ * ],
+ * "indexed": true
+ * }
+ * ```
+ */
+declare const linkPrototypeChat: <ThrowOnError extends boolean = false>(options: Options<LinkPrototypeChatData, ThrowOnError>) => RequestResult<LinkPrototypeChatResponses, LinkPrototypeChatErrors, ThrowOnError, "fields">;
+/**
+ * Sync Prototype Chat
+ *
+ * Sync/refresh a linked prototype chat with latest changes.
+ *
+ * Re-fetches the conversation and version data from the provider
+ * and updates the stored content in OCXP.
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "mission_id": "mission-xyz"
+ * }
+ * ```
+ */
+declare const syncPrototypeChat: <ThrowOnError extends boolean = false>(options: Options<SyncPrototypeChatData, ThrowOnError>) => RequestResult<SyncPrototypeChatResponses, SyncPrototypeChatErrors, ThrowOnError, "fields">;
+/**
+ * Get Prototype Chat
+ *
+ * Get stored prototype chat data from OCXP.
+ *
+ * Returns the stored conversation, versions, and file links for a
+ * previously linked prototype chat.
+ *
+ * **Path Parameters:**
+ * - `provider`: Provider name (v0, lovable, bolt)
+ * - `chat_id`: Chat ID
+ *
+ * **Query Parameters:**
+ * - `project_id`: Project ID (use "no-project" if chat has no project)
+ * - `version_id`: Version ID to retrieve
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "web_url": "https://v0.dev/chat/abc123",
+ * "mission_id": "mission-xyz",
+ * "messages": [...],
+ * "versions": [...],
+ * "conversation_link": "ocxp://prod/prototype/FQV1NSmpVqk/abc123/aVVgJPrZiiE/docs/conversation.md",
+ * "file_links": [
+ * "ocxp://prod/prototype/FQV1NSmpVqk/abc123/aVVgJPrZiiE/code/page.tsx"
+ * ]
+ * }
+ * ```
+ */
+declare const getPrototypeChat: <ThrowOnError extends boolean = false>(options: Options<GetPrototypeChatData, ThrowOnError>) => RequestResult<GetPrototypeChatResponses, GetPrototypeChatErrors, ThrowOnError, "fields">;
+/**
+ * Sync Prototype Chat Async
+ *
+ * Start an async prototype chat sync job (202 Accepted).
+ *
+ * Creates a job and queues it for background processing. Returns immediately
+ * with a job_id that can be used to poll for status or receive WebSocket updates.
+ *
+ * **Benefits:**
+ * - Immediate response (no timeout on long syncs)
+ * - Real-time progress updates via WebSocket
+ * - Resumable on failure (job tracked in DynamoDB)
+ * - Better suited for large chats with many files/screenshots
+ *
+ * **Frontend Integration:**
+ *
+ * Option 1: Polling
+ * ```javascript
+ * const { job_id } = await fetch('/ocxp/prototype/chat/sync-async', {
+ * method: 'POST',
+ * body: JSON.stringify({ chat_id: 'xxx', mission_id: 'yyy' })
+ * }).then(r => r.json());
+ *
+ * // Poll every second
+ * while (status !== 'complete' && status !== 'failed') {
+ * await sleep(1000);
+ * const job = await fetch(`/ocxp/prototype/chat/sync-status/${job_id}`).then(r => r.json());
+ * updateProgressBar(job.progress);
+ * }
+ * ```
+ *
+ * Option 2: WebSocket
+ * ```javascript
+ * ws.onmessage = (msg) => {
+ * if (msg.type === 'prototype_sync_progress') {
+ * updateProgressBar(msg.progress, msg.current_step);
+ * }
+ * if (msg.type === 'prototype_sync_complete') {
+ * handleComplete(msg.content_links);
+ * }
+ * };
+ * ```
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "YivecgytPyg",
+ * "mission_id": "mission-xyz",
+ * "download_files": true,
+ * "download_screenshots": true
+ * }
+ * ```
+ *
+ * **Example Response (202 Accepted):**
+ * ```json
+ * {
+ * "job_id": "job-a1b2c3d4e5f6",
+ * "status": "queued",
+ * "message": "Job queued for processing"
+ * }
+ * ```
+ */
+declare const syncPrototypeChatAsync: <ThrowOnError extends boolean = false>(options: Options<SyncPrototypeChatAsyncData, ThrowOnError>) => RequestResult<SyncPrototypeChatAsyncResponses, SyncPrototypeChatAsyncErrors, ThrowOnError, "fields">;
+/**
+ * Get Sync Status
+ *
+ * Get the current status of an async sync job.
+ *
+ * Use this endpoint to poll for progress updates on a sync job.
+ * For real-time updates, prefer WebSocket subscription instead.
+ *
+ * **Path Parameters:**
+ * - `job_id`: Job identifier from sync-async response
+ *
+ * **Example Response (in progress):**
+ * ```json
+ * {
+ * "job_id": "job-a1b2c3d4e5f6",
+ * "status": "downloading",
+ * "progress": 35,
+ * "current_step": "Downloading files for version 2/5...",
+ * "files_processed": 12,
+ * "files_total": 34,
+ * "screenshots_processed": 1,
+ * "screenshots_total": 5,
+ * "content_links": [],
+ * "error": null,
+ * "created_at": "2024-01-15T10:30:00Z",
+ * "updated_at": "2024-01-15T10:30:15Z"
+ * }
+ * ```
+ *
+ * **Example Response (complete):**
+ * ```json
+ * {
+ * "job_id": "job-a1b2c3d4e5f6",
+ * "status": "complete",
+ * "progress": 100,
+ * "current_step": "Complete",
+ * "files_processed": 34,
+ * "files_total": 34,
+ * "screenshots_processed": 5,
+ * "screenshots_total": 5,
+ * "content_links": [
+ * "ocxp://prod/prototype/FQV1NSmpVqk/chat123/v1/docs/conversation.md",
+ * "ocxp://prod/prototype/FQV1NSmpVqk/chat123/v1/code/page.tsx"
+ * ],
+ * "error": null,
+ * "created_at": "2024-01-15T10:30:00Z",
+ * "updated_at": "2024-01-15T10:31:00Z"
+ * }
+ * ```
+ */
+declare const getSyncStatus: <ThrowOnError extends boolean = false>(options: Options<GetSyncStatusData, ThrowOnError>) => RequestResult<GetSyncStatusResponses, GetSyncStatusErrors, ThrowOnError, "fields">;
 /**
  * List all sessions
  *
@@ -5371,7 +6498,10 @@ declare const refreshTokens: <ThrowOnError extends boolean = false>(options: Opt
 /**
  * Get Auth Config
  *
- * Get Cognito configuration for frontend.
+ * Get public configuration for clients.
+ *
+ * Returns the API endpoint, Brain ARN, and default workspace.
+ * Used by Obsidian plugin and CLI to configure themselves.
  */
 declare const getAuthConfig: <ThrowOnError extends boolean = false>(options?: Options<GetAuthConfigData, ThrowOnError>) => RequestResult<GetAuthConfigResponses, unknown, ThrowOnError, "fields">;
 /**
@@ -5847,6 +6977,47 @@ declare class OCXPClient {
      */
     archiveSession(sessionId: string): Promise<void>;
     /**
+     * List all accessible prototype chats from a provider
+     * @param provider - Filter by provider (v0, lovable, bolt)
+     */
+    listPrototypeChats(provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatListResponse>;
+    /**
+     * Preview a prototype chat (fetch metadata without linking)
+     * @param chatUrl - Chat URL to preview
+     * @param provider - Prototype provider (optional, auto-detected from URL)
+     */
+    previewPrototypeChat(chatUrl: string, provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatPreviewResponse>;
+    /**
+     * Link a prototype chat to a mission
+     * @param data - Link request data
+     */
+    linkPrototypeChat(data: PrototypeChatLinkRequest): Promise<PrototypeChatLinkResponse>;
+    /**
+     * Sync/refresh a linked prototype chat
+     * @param data - Sync request data
+     */
+    syncPrototypeChat(data: PrototypeChatSyncRequest): Promise<PrototypeChatSyncResponse>;
+    /**
+     * Get stored prototype chat data
+     * @param provider - Provider name (v0, lovable, bolt)
+     * @param chatId - Chat ID
+     * @param options - Optional query parameters
+     */
+    getPrototypeChat(provider: string, chatId: string, options?: {
+        projectId?: string;
+        versionId?: string;
+    }): Promise<PrototypeChatGetResponse>;
+    /**
+     * Start async prototype chat sync job
+     * @param data - Async sync request data
+     */
+    syncPrototypeChatAsync(data: PrototypeChatSyncAsyncRequest): Promise<PrototypeChatSyncAsyncResponse>;
+    /**
+     * Get sync job status
+     * @param jobId - Job ID from async sync response
+     */
+    getPrototypeSyncStatus(jobId: string): Promise<PrototypeSyncJobStatusResponse>;
+    /**
      * Get auth configuration (public endpoint)
      */
     getAuthConfig(): Promise<AuthConfig>;
@@ -5899,6 +7070,7 @@ declare class OCXPClient {
     private _project?;
     private _session?;
     private _kb?;
+    private _prototype?;
     /**
      * Mission namespace for convenient mission operations
      * @example ocxp.mission.list({ status: 'pending' })
@@ -5919,6 +7091,11 @@ declare class OCXPClient {
      * @example ocxp.kb.query('search term')
      */
     get kb(): KBNamespace;
+    /**
+     * Prototype namespace for convenient prototype chat operations
+     * @example ocxp.prototype.list('v0')
+     */
+    get prototype(): PrototypeNamespace;
 }
 /**
  * Mission namespace for convenient mission operations
@@ -6140,6 +7317,51 @@ declare class KBNamespace {
      * @example ocxp.kb.rag('What is OCXP?')
      */
     rag(query: string, sessionId?: string): Promise<KbRagResponse>;
+}
+/**
+ * Prototype namespace for convenient prototype chat operations
+ */
+declare class PrototypeNamespace {
+    private client;
+    constructor(client: OCXPClient);
+    /**
+     * List all accessible prototype chats
+     * @example ocxp.prototype.list('v0')
+     */
+    list(provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatListResponse>;
+    /**
+     * Preview a prototype chat (fetch metadata without linking)
+     * @example ocxp.prototype.preview('https://v0.dev/chat/abc123')
+     */
+    preview(chatUrl: string, provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatPreviewResponse>;
+    /**
+     * Link a prototype chat to a mission
+     * @example ocxp.prototype.link({ mission_id: 'xyz', chat_url: 'https://v0.dev/chat/abc123' })
+     */
+    link(data: PrototypeChatLinkRequest): Promise<PrototypeChatLinkResponse>;
+    /**
+     * Sync/refresh a linked prototype chat
+     * @example ocxp.prototype.sync({ chat_id: 'abc123', mission_id: 'xyz' })
+     */
+    sync(data: PrototypeChatSyncRequest): Promise<PrototypeChatSyncResponse>;
+    /**
+     * Get stored prototype chat data
+     * @example ocxp.prototype.get('v0', 'abc123')
+     */
+    get(provider: string, chatId: string, options?: {
+        projectId?: string;
+        versionId?: string;
+    }): Promise<PrototypeChatGetResponse>;
+    /**
+     * Start async prototype chat sync job
+     * @example ocxp.prototype.syncAsync({ chat_id: 'abc123', mission_id: 'xyz', download_files: true })
+     */
+    syncAsync(data: PrototypeChatSyncAsyncRequest): Promise<PrototypeChatSyncAsyncResponse>;
+    /**
+     * Get sync job status
+     * @example ocxp.prototype.getSyncStatus('job-id')
+     */
+    getSyncStatus(jobId: string): Promise<PrototypeSyncJobStatusResponse>;
 }
 /**
  * Create a new OCXP client instance
@@ -9330,4 +10552,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
+export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetPrototypeChatData, type GetPrototypeChatResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetSyncStatusData, type GetSyncStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkPrototypeChatData, type LinkPrototypeChatResponses, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListPrototypeChatsData, type ListPrototypeChatsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type PreviewPrototypeChatData, type PreviewPrototypeChatResponses, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type PrototypeChatGetResponse, type PrototypeChatLinkRequest, type PrototypeChatLinkResponse, type PrototypeChatListItem, type PrototypeChatListResponse, type PrototypeChatMessage, type PrototypeChatPreviewRequest, type PrototypeChatPreviewResponse, type PrototypeChatSyncAsyncRequest, type PrototypeChatSyncAsyncResponse, type PrototypeChatSyncRequest, type PrototypeChatSyncResponse, type PrototypeChatVersion, PrototypeNamespace, type PrototypePageInfo, type PrototypeSyncJobStatusResponse, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncEventMessage, type SyncPrototypeChatAsyncData, type SyncPrototypeChatAsyncResponses, type SyncPrototypeChatData, type SyncPrototypeChatResponses, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getPrototypeChat, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getSyncStatus, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, linkPrototypeChat, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listPrototypeChats, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, previewPrototypeChat, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, syncPrototypeChat, syncPrototypeChatAsync, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };

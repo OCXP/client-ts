@@ -847,6 +847,57 @@ var bulkDeleteContent = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var listPrototypeChats = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/list",
+  ...options
+});
+var previewPrototypeChat = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/preview",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var linkPrototypeChat = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/link",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var syncPrototypeChat = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/sync",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getPrototypeChat = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/{provider}/{chat_id}",
+  ...options
+});
+var syncPrototypeChatAsync = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/sync-async",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var getSyncStatus = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/prototype/chat/sync-status/{job_id}",
+  ...options
+});
 var listSessions = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/session",
@@ -2264,6 +2315,102 @@ var OCXPClient = class {
       headers
     });
   }
+  // ============== Prototype Operations ==============
+  /**
+   * List all accessible prototype chats from a provider
+   * @param provider - Filter by provider (v0, lovable, bolt)
+   */
+  async listPrototypeChats(provider) {
+    const headers = await this.getHeaders();
+    const response = await listPrototypeChats({
+      client: this.client,
+      query: { provider },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Preview a prototype chat (fetch metadata without linking)
+   * @param chatUrl - Chat URL to preview
+   * @param provider - Prototype provider (optional, auto-detected from URL)
+   */
+  async previewPrototypeChat(chatUrl, provider) {
+    const headers = await this.getHeaders();
+    const response = await previewPrototypeChat({
+      client: this.client,
+      body: { chat_url: chatUrl, provider },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Link a prototype chat to a mission
+   * @param data - Link request data
+   */
+  async linkPrototypeChat(data) {
+    const headers = await this.getHeaders();
+    const response = await linkPrototypeChat({
+      client: this.client,
+      body: data,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Sync/refresh a linked prototype chat
+   * @param data - Sync request data
+   */
+  async syncPrototypeChat(data) {
+    const headers = await this.getHeaders();
+    const response = await syncPrototypeChat({
+      client: this.client,
+      body: data,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get stored prototype chat data
+   * @param provider - Provider name (v0, lovable, bolt)
+   * @param chatId - Chat ID
+   * @param options - Optional query parameters
+   */
+  async getPrototypeChat(provider, chatId, options) {
+    const headers = await this.getHeaders();
+    const response = await getPrototypeChat({
+      client: this.client,
+      path: { provider, chat_id: chatId },
+      query: { project_id: options?.projectId, version_id: options?.versionId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Start async prototype chat sync job
+   * @param data - Async sync request data
+   */
+  async syncPrototypeChatAsync(data) {
+    const headers = await this.getHeaders();
+    const response = await syncPrototypeChatAsync({
+      client: this.client,
+      body: data,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get sync job status
+   * @param jobId - Job ID from async sync response
+   */
+  async getPrototypeSyncStatus(jobId) {
+    const headers = await this.getHeaders();
+    const response = await getSyncStatus({
+      client: this.client,
+      path: { job_id: jobId },
+      headers
+    });
+    return extractData(response);
+  }
   // ============== Auth Operations ==============
   /**
    * Get auth configuration (public endpoint)
@@ -2387,6 +2534,7 @@ var OCXPClient = class {
   _project;
   _session;
   _kb;
+  _prototype;
   /**
    * Mission namespace for convenient mission operations
    * @example ocxp.mission.list({ status: 'pending' })
@@ -2426,6 +2574,16 @@ var OCXPClient = class {
       this._kb = new KBNamespace(this);
     }
     return this._kb;
+  }
+  /**
+   * Prototype namespace for convenient prototype chat operations
+   * @example ocxp.prototype.list('v0')
+   */
+  get prototype() {
+    if (!this._prototype) {
+      this._prototype = new PrototypeNamespace(this);
+    }
+    return this._prototype;
   }
 };
 var MissionNamespace = class {
@@ -2645,6 +2803,60 @@ var KBNamespace = class {
    */
   async rag(query, sessionId) {
     return this.client.kbRag(query, sessionId);
+  }
+};
+var PrototypeNamespace = class {
+  constructor(client2) {
+    this.client = client2;
+  }
+  /**
+   * List all accessible prototype chats
+   * @example ocxp.prototype.list('v0')
+   */
+  async list(provider) {
+    return this.client.listPrototypeChats(provider);
+  }
+  /**
+   * Preview a prototype chat (fetch metadata without linking)
+   * @example ocxp.prototype.preview('https://v0.dev/chat/abc123')
+   */
+  async preview(chatUrl, provider) {
+    return this.client.previewPrototypeChat(chatUrl, provider);
+  }
+  /**
+   * Link a prototype chat to a mission
+   * @example ocxp.prototype.link({ mission_id: 'xyz', chat_url: 'https://v0.dev/chat/abc123' })
+   */
+  async link(data) {
+    return this.client.linkPrototypeChat(data);
+  }
+  /**
+   * Sync/refresh a linked prototype chat
+   * @example ocxp.prototype.sync({ chat_id: 'abc123', mission_id: 'xyz' })
+   */
+  async sync(data) {
+    return this.client.syncPrototypeChat(data);
+  }
+  /**
+   * Get stored prototype chat data
+   * @example ocxp.prototype.get('v0', 'abc123')
+   */
+  async get(provider, chatId, options) {
+    return this.client.getPrototypeChat(provider, chatId, options);
+  }
+  /**
+   * Start async prototype chat sync job
+   * @example ocxp.prototype.syncAsync({ chat_id: 'abc123', mission_id: 'xyz', download_files: true })
+   */
+  async syncAsync(data) {
+    return this.client.syncPrototypeChatAsync(data);
+  }
+  /**
+   * Get sync job status
+   * @example ocxp.prototype.getSyncStatus('job-id')
+   */
+  async getSyncStatus(jobId) {
+    return this.client.getPrototypeSyncStatus(jobId);
   }
 };
 function createOCXPClient(options) {
@@ -3996,6 +4208,7 @@ exports.ProjectMissionSchema = ProjectMissionSchema;
 exports.ProjectNamespace = ProjectNamespace;
 exports.ProjectRepoSchema = ProjectRepoSchema;
 exports.ProjectSchema = ProjectSchema;
+exports.PrototypeNamespace = PrototypeNamespace;
 exports.QueryDataSchema = QueryDataSchema;
 exports.QueryFilterSchema = QueryFilterSchema;
 exports.QueryResponseSchema = QueryResponseSchema;
@@ -4085,10 +4298,12 @@ exports.getMemoForSource = getMemoForSource;
 exports.getMissionContext = getMissionContext;
 exports.getProject = getProject;
 exports.getProjectDatabases = getProjectDatabases;
+exports.getPrototypeChat = getPrototypeChat;
 exports.getRepoDownloadStatus = getRepoDownloadStatus;
 exports.getSample = getSample;
 exports.getSchema = getSchema;
 exports.getSessionMessages = getSessionMessages;
+exports.getSyncStatus = getSyncStatus;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;
 exports.githubListBranches = githubListBranches;
@@ -4102,12 +4317,14 @@ exports.isOCXPRateLimitError = isOCXPRateLimitError;
 exports.isOCXPTimeoutError = isOCXPTimeoutError;
 exports.isOCXPValidationError = isOCXPValidationError;
 exports.isValidContentType = isValidContentType;
+exports.linkPrototypeChat = linkPrototypeChat;
 exports.listContent = listContent;
 exports.listContextDatabases = listContextDatabases;
 exports.listDatabases = listDatabases;
 exports.listDownloadedRepos = listDownloadedRepos;
 exports.listMemos = listMemos;
 exports.listProjects = listProjects;
+exports.listPrototypeChats = listPrototypeChats;
 exports.listSessions = listSessions;
 exports.listTables = listTables;
 exports.listWorkspaces = listWorkspaces;
@@ -4119,6 +4336,7 @@ exports.moveContent = moveContent;
 exports.normalizePath = normalizePath;
 exports.parsePath = parsePath;
 exports.parseWSMessage = parseWSMessage;
+exports.previewPrototypeChat = previewPrototypeChat;
 exports.queryContent = queryContent;
 exports.queryKnowledgeBase = queryKnowledgeBase;
 exports.ragKnowledgeBase = ragKnowledgeBase;
@@ -4133,6 +4351,8 @@ exports.safeParseWSMessage = safeParseWSMessage;
 exports.searchContent = searchContent;
 exports.setDefaultDatabase = setDefaultDatabase;
 exports.setDefaultRepo = setDefaultRepo;
+exports.syncPrototypeChat = syncPrototypeChat;
+exports.syncPrototypeChatAsync = syncPrototypeChatAsync;
 exports.testDatabaseConnection = testDatabaseConnection;
 exports.toolCreateMission = toolCreateMission;
 exports.toolUpdateMission = toolUpdateMission;
