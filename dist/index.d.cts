@@ -2302,9 +2302,9 @@ type PrototypeChatSyncRequest = {
     /**
      * Mission Id
      *
-     * Mission context
+     * Mission context (optional - can sync without mission)
      */
-    mission_id: string;
+    mission_id?: string | null;
     /**
      * Version Id
      *

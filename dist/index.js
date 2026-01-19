@@ -811,11 +811,7 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(
-  createConfig({
-    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-  })
-);
+var client = createClient(createConfig());
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({

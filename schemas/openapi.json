@@ -7509,7 +7509,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "^password$"
+                "pattern": "password"
               },
               {
                 "type": "null"
@@ -7523,7 +7523,6 @@
           },
           "password": {
             "type": "string",
-            "format": "password",
             "title": "Password"
           },
           "scope": {
@@ -7551,7 +7550,6 @@
                 "type": "null"
               }
             ],
-            "format": "password",
             "title": "Client Secret"
           }
         },
@@ -12257,9 +12255,16 @@
             "description": "Chat ID to sync"
           },
           "mission_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Mission Id",
-            "description": "Mission context"
+            "description": "Mission context (optional - can sync without mission)"
           },
           "version_id": {
             "anyOf": [
@@ -12294,8 +12299,7 @@
         },
         "type": "object",
         "required": [
-          "chat_id",
-          "mission_id"
+          "chat_id"
         ],
         "title": "PrototypeChatSyncRequest",
         "description": "Request to sync/refresh a linked chat.\n\nSupports:\n- Incremental sync: Only downloads new versions (skips already-stored ones)\n- Specific version: Downloads a specific version by ID\n- Metadata-only: Syncs messages/metadata without downloading files\n- Screenshot all pages: Capture screenshots of all detected routes"
@@ -14297,10 +14301,5 @@
         }
       }
     }
-  },
-  "servers": [
-    {
-      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-    }
-  ]
+  }
 }
