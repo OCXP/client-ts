@@ -145,6 +145,7 @@ export {
   getPrototypeChat,
   syncPrototypeChatAsync,
   getSyncStatus,
+  getStoredVersions,
 
   // Auth
   loginForAccessToken,
@@ -390,6 +391,7 @@ export type {
   PrototypeChatSyncAsyncRequest,
   PrototypeChatSyncAsyncResponse,
   PrototypeSyncJobStatusResponse,
+  PrototypeStoredVersionsResponse,
   PrototypeChatVersion,
   PrototypeChatMessage,
   PrototypePageInfo,
@@ -407,6 +409,8 @@ export type {
   SyncPrototypeChatAsyncResponses,
   GetSyncStatusData,
   GetSyncStatusResponses,
+  GetStoredVersionsData,
+  GetStoredVersionsResponses,
 
   // Auth
   LoginForAccessTokenData,
@@ -453,6 +457,8 @@ export {
   type RepoStatusMessage,
   type NotificationMessage,
   type SyncEventMessage,
+  type PrototypeSyncProgressMessage,
+  type PrototypeSyncCompleteMessage,
 } from './websocket';
 
 // Error types

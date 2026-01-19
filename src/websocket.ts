@@ -3,7 +3,7 @@
  * Provides push notifications for job progress, sync events, etc.
  */
 
-export type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event';
+export type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event' | 'prototype_sync_progress' | 'prototype_sync_complete';
 
 export interface WebSocketMessage {
   type: WebSocketMessageType;
@@ -45,6 +45,25 @@ export interface SyncEventMessage extends WebSocketMessage {
   event: string;
   path?: string;
   content_type?: string;
+}
+
+export interface PrototypeSyncProgressMessage extends WebSocketMessage {
+  type: 'prototype_sync_progress';
+  job_id: string;
+  status: 'queued' | 'fetching' | 'downloading' | 'screenshotting' | 'uploading';
+  progress: number;
+  current_step: string;
+  files_processed: number;
+  files_total: number;
+  screenshots_processed: number;
+  screenshots_total: number;
+}
+
+export interface PrototypeSyncCompleteMessage extends WebSocketMessage {
+  type: 'prototype_sync_complete';
+  job_id: string;
+  content_links: string[];
+  stored_versions: string[];
 }
 
 export interface WebSocketServiceOptions {
@@ -259,6 +278,20 @@ export class WebSocketService {
   }
 
   /**
+   * Subscribe to prototype sync progress updates
+   */
+  onPrototypeSyncProgress(handler: WebSocketEventHandler<PrototypeSyncProgressMessage>): () => void {
+    return this.on('prototype_sync_progress', handler);
+  }
+
+  /**
+   * Subscribe to prototype sync complete notifications
+   */
+  onPrototypeSyncComplete(handler: WebSocketEventHandler<PrototypeSyncCompleteMessage>): () => void {
+    return this.on('prototype_sync_complete', handler);
+  }
+
+  /**
    * Subscribe to connection state changes
    */
   onConnectionStateChange(handler: (state: ConnectionState) => void): () => void {
@@ -278,6 +311,13 @@ export class WebSocketService {
    */
   subscribeToRepo(repoId: string): void {
     this.send({ action: 'subscribe', type: 'repo', id: repoId });
+  }
+
+  /**
+   * Subscribe to prototype sync job updates
+   */
+  subscribeToPrototypeSync(jobId: string): void {
+    this.send({ action: 'subscribe', topic: `prototype_sync:${jobId}` });
   }
 
   /**

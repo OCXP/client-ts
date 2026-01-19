@@ -813,7 +813,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig());
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -875,6 +879,13 @@ var syncPrototypeChat = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var getStoredVersions = (options) => (options.client ?? client).get(
+  {
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/ocxp/prototype/chat/{provider}/{chat_id}/stored-versions",
+    ...options
+  }
+);
 var getPrototypeChat = (options) => (options.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/prototype/chat/{provider}/{chat_id}",
@@ -2407,6 +2418,21 @@ var OCXPClient = class {
     });
     return extractData(response);
   }
+  /**
+   * Get stored versions for a prototype chat (fast DynamoDB query)
+   * Use this for UI button states instead of full sync
+   * @param provider - Provider name (v0, lovable, bolt)
+   * @param chatId - Chat ID
+   */
+  async getStoredVersions(provider, chatId) {
+    const headers = await this.getHeaders();
+    const response = await getStoredVersions({
+      client: this.client,
+      path: { provider, chat_id: chatId },
+      headers
+    });
+    return extractData(response);
+  }
   // ============== Auth Operations ==============
   /**
    * Get auth configuration (public endpoint)
@@ -2854,6 +2880,14 @@ var PrototypeNamespace = class {
   async getSyncStatus(jobId) {
     return this.client.getPrototypeSyncStatus(jobId);
   }
+  /**
+   * Get stored versions for a prototype chat (fast DynamoDB query)
+   * Use this for UI button states instead of full sync
+   * @example ocxp.prototype.getStoredVersions('v0', 'abc123')
+   */
+  async getStoredVersions(provider, chatId) {
+    return this.client.getStoredVersions(provider, chatId);
+  }
 };
 function createOCXPClient(options) {
   return new OCXPClient(options);
@@ -3275,6 +3309,18 @@ var WebSocketService = class {
     return this.on("sync_event", handler);
   }
   /**
+   * Subscribe to prototype sync progress updates
+   */
+  onPrototypeSyncProgress(handler) {
+    return this.on("prototype_sync_progress", handler);
+  }
+  /**
+   * Subscribe to prototype sync complete notifications
+   */
+  onPrototypeSyncComplete(handler) {
+    return this.on("prototype_sync_complete", handler);
+  }
+  /**
    * Subscribe to connection state changes
    */
   onConnectionStateChange(handler) {
@@ -3292,6 +3338,12 @@ var WebSocketService = class {
    */
   subscribeToRepo(repoId) {
     this.send({ action: "subscribe", type: "repo", id: repoId });
+  }
+  /**
+   * Subscribe to prototype sync job updates
+   */
+  subscribeToPrototypeSync(jobId) {
+    this.send({ action: "subscribe", topic: `prototype_sync:${jobId}` });
   }
   /**
    * Send message to server
@@ -4299,6 +4351,7 @@ exports.getRepoDownloadStatus = getRepoDownloadStatus;
 exports.getSample = getSample;
 exports.getSchema = getSchema;
 exports.getSessionMessages = getSessionMessages;
+exports.getStoredVersions = getStoredVersions;
 exports.getSyncStatus = getSyncStatus;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;

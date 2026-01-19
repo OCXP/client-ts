@@ -55,6 +55,7 @@ import type {
   PrototypeChatSyncAsyncRequest,
   PrototypeChatSyncAsyncResponse,
   PrototypeSyncJobStatusResponse,
+  PrototypeStoredVersionsResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -1271,6 +1272,22 @@ export class OCXPClient {
     return extractData(response) as PrototypeSyncJobStatusResponse;
   }
 
+  /**
+   * Get stored versions for a prototype chat (fast DynamoDB query)
+   * Use this for UI button states instead of full sync
+   * @param provider - Provider name (v0, lovable, bolt)
+   * @param chatId - Chat ID
+   */
+  async getStoredVersions(provider: string, chatId: string): Promise<PrototypeStoredVersionsResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getStoredVersions({
+      client: this.client,
+      path: { provider, chat_id: chatId },
+      headers,
+    });
+    return extractData(response) as PrototypeStoredVersionsResponse;
+  }
+
   // ============== Auth Operations ==============
 
   /**
@@ -1809,6 +1826,15 @@ export class PrototypeNamespace {
    */
   async getSyncStatus(jobId: string): Promise<PrototypeSyncJobStatusResponse> {
     return this.client.getPrototypeSyncStatus(jobId);
+  }
+
+  /**
+   * Get stored versions for a prototype chat (fast DynamoDB query)
+   * Use this for UI button states instead of full sync
+   * @example ocxp.prototype.getStoredVersions('v0', 'abc123')
+   */
+  async getStoredVersions(provider: string, chatId: string): Promise<PrototypeStoredVersionsResponse> {
+    return this.client.getStoredVersions(provider, chatId);
   }
 }
 
