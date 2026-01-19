@@ -78,6 +78,8 @@ export type AddSessionRequest = {
 
 /**
  * AuthConfig
+ *
+ * Public auth configuration for clients.
  */
 export type AuthConfig = {
   /**
@@ -85,13 +87,17 @@ export type AuthConfig = {
    */
   region: string;
   /**
-   * User Pool Id
+   * Apiendpoint
    */
-  user_pool_id: string;
+  apiEndpoint: string;
   /**
-   * Client Id
+   * Brainarn
    */
-  client_id: string;
+  brainArn: string;
+  /**
+   * Workspaceid
+   */
+  workspaceId?: string;
 };
 
 /**
@@ -148,6 +154,14 @@ export type BulkDeleteRequest = {
    * Ids
    */
   ids: Array<string>;
+  /**
+   * Manage Metadata
+   */
+  manage_metadata?: boolean;
+  /**
+   * Auto Index
+   */
+  auto_index?: boolean | null;
 };
 
 /**
@@ -302,6 +316,22 @@ export type BulkWriteRequest = {
    * Items
    */
   items: Array<BulkWriteItem>;
+  /**
+   * Manage Metadata
+   */
+  manage_metadata?: boolean;
+  /**
+   * Auto Index
+   */
+  auto_index?: boolean | null;
+  /**
+   * Project Id
+   */
+  project_id?: string | null;
+  /**
+   * Mission Id
+   */
+  mission_id?: string | null;
 };
 
 /**
@@ -2523,6 +2553,648 @@ export type ProjectUpdate = {
 };
 
 /**
+ * PrototypeChatGetResponse
+ *
+ * Response from getting a stored prototype chat.
+ */
+export type PrototypeChatGetResponse = {
+  /**
+   * Provider
+   */
+  provider: string;
+  /**
+   * Chat Id
+   */
+  chat_id: string;
+  /**
+   * Web Url
+   */
+  web_url: string;
+  /**
+   * Mission Id
+   */
+  mission_id: string;
+  /**
+   * Messages
+   */
+  messages?: Array<PrototypeChatMessage>;
+  /**
+   * Versions
+   */
+  versions?: Array<PrototypeChatVersion>;
+  /**
+   * Latest Preview Url
+   */
+  latest_preview_url?: string | null;
+  /**
+   * Screenshot Link
+   */
+  screenshot_link?: string | null;
+  /**
+   * Conversation Link
+   */
+  conversation_link?: string | null;
+  /**
+   * File Links
+   */
+  file_links?: Array<string>;
+  /**
+   * Synced At
+   */
+  synced_at?: string | null;
+};
+
+/**
+ * PrototypeChatLinkRequest
+ *
+ * Request to link a prototype chat to a mission.
+ */
+export type PrototypeChatLinkRequest = {
+  /**
+   * Provider
+   *
+   * Prototype provider
+   */
+  provider?: 'v0' | 'lovable' | 'bolt';
+  /**
+   * Chat Id
+   *
+   * Chat ID from provider (extracted from URL if not provided)
+   */
+  chat_id?: string | null;
+  /**
+   * Chat Url
+   *
+   * Chat URL (alternative to chat_id)
+   */
+  chat_url?: string | null;
+  /**
+   * Version Id
+   *
+   * Specific version ID to download files from (default: latest)
+   */
+  version_id?: string | null;
+  /**
+   * Mission Id
+   *
+   * Mission to link this chat to
+   */
+  mission_id: string;
+  /**
+   * Project Id
+   *
+   * Optional project scope
+   */
+  project_id?: string | null;
+  /**
+   * Sync Versions
+   *
+   * Also sync version information (metadata)
+   */
+  sync_versions?: boolean;
+  /**
+   * Download Files
+   *
+   * Download version files to OCXP for use as context
+   */
+  download_files?: boolean;
+  /**
+   * Screenshot Preview
+   *
+   * Screenshot the latest preview URL
+   */
+  screenshot_preview?: boolean;
+};
+
+/**
+ * PrototypeChatLinkResponse
+ *
+ * Response from linking a prototype chat.
+ *
+ * Field naming aligned with v0's hierarchy: Project > Chat > Version
+ * - chat_name: The chat's name from v0 (not title - v0 only has name)
+ * - project_id: v0 project ID if chat belongs to a project
+ * - project_name: v0 project name (fetched from projects API)
+ */
+export type PrototypeChatLinkResponse = {
+  /**
+   * Provider
+   */
+  provider: string;
+  /**
+   * Chat Id
+   */
+  chat_id: string;
+  /**
+   * Chat Name
+   */
+  chat_name?: string | null;
+  /**
+   * Project Id
+   */
+  project_id?: string | null;
+  /**
+   * Project Name
+   */
+  project_name?: string | null;
+  /**
+   * Web Url
+   */
+  web_url: string;
+  /**
+   * Mission Id
+   */
+  mission_id: string;
+  /**
+   * Messages Count
+   */
+  messages_count: number;
+  /**
+   * Versions Count
+   */
+  versions_count: number;
+  /**
+   * Latest Preview Url
+   */
+  latest_preview_url?: string | null;
+  /**
+   * Screenshot Link
+   */
+  screenshot_link?: string | null;
+  /**
+   * Content Links
+   */
+  content_links?: Array<string>;
+  /**
+   * Indexed
+   */
+  indexed?: boolean;
+};
+
+/**
+ * PrototypeChatListItem
+ *
+ * Individual chat in list response.
+ *
+ * Field naming aligned with v0's hierarchy: Project > Chat > Version
+ * - chat_name: The chat's name from v0 (v0 only has 'name', not 'title')
+ * - project_id: v0 project ID if chat belongs to a project
+ * - project_name: v0 project name (joined from projects list)
+ */
+export type PrototypeChatListItem = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Chat Name
+   */
+  chat_name: string;
+  /**
+   * Web Url
+   */
+  web_url: string;
+  /**
+   * Privacy
+   */
+  privacy?: string | null;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+  /**
+   * Latest Preview Url
+   */
+  latest_preview_url?: string | null;
+  /**
+   * Project Id
+   */
+  project_id?: string | null;
+  /**
+   * Project Name
+   */
+  project_name?: string | null;
+};
+
+/**
+ * PrototypeChatListResponse
+ *
+ * Response from listing available chats.
+ */
+export type PrototypeChatListResponse = {
+  /**
+   * Provider
+   */
+  provider: string;
+  /**
+   * Chats
+   */
+  chats?: Array<PrototypeChatListItem>;
+  /**
+   * Total
+   */
+  total?: number;
+};
+
+/**
+ * PrototypeChatMessage
+ *
+ * Individual chat message from a prototype conversation.
+ */
+export type PrototypeChatMessage = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Role
+   */
+  role: 'user' | 'assistant';
+  /**
+   * Content
+   */
+  content: string;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+};
+
+/**
+ * PrototypeChatPreviewRequest
+ *
+ * Request to preview a chat before linking (fetch metadata only).
+ */
+export type PrototypeChatPreviewRequest = {
+  /**
+   * Provider
+   */
+  provider?: 'v0' | 'lovable' | 'bolt';
+  /**
+   * Chat Url
+   *
+   * Chat URL to preview
+   */
+  chat_url: string;
+};
+
+/**
+ * PrototypeChatPreviewResponse
+ *
+ * Response from previewing a chat (no files stored yet).
+ */
+export type PrototypeChatPreviewResponse = {
+  /**
+   * Provider
+   */
+  provider: string;
+  /**
+   * Chat Id
+   */
+  chat_id: string;
+  /**
+   * Web Url
+   */
+  web_url: string;
+  /**
+   * Messages Count
+   */
+  messages_count: number;
+  /**
+   * Versions
+   */
+  versions?: Array<PrototypeChatVersion>;
+  /**
+   * Latest Preview Url
+   */
+  latest_preview_url?: string | null;
+  /**
+   * Can Download Files
+   */
+  can_download_files?: boolean;
+};
+
+/**
+ * PrototypeChatSyncAsyncRequest
+ *
+ * Request to start an async prototype chat sync.
+ */
+export type PrototypeChatSyncAsyncRequest = {
+  /**
+   * Provider
+   *
+   * Prototype provider
+   */
+  provider?: 'v0' | 'lovable' | 'bolt';
+  /**
+   * Chat Id
+   *
+   * Chat ID to sync
+   */
+  chat_id: string;
+  /**
+   * Mission Id
+   *
+   * Mission context
+   */
+  mission_id: string;
+  /**
+   * Version Id
+   *
+   * Specific version ID to sync (default: sync all new versions)
+   */
+  version_id?: string | null;
+  /**
+   * Download Files
+   *
+   * Download version files to OCXP
+   */
+  download_files?: boolean;
+  /**
+   * Download Screenshots
+   *
+   * Download v0's built-in screenshot for each version
+   */
+  download_screenshots?: boolean;
+  /**
+   * Screenshot All Pages
+   *
+   * Capture screenshots of all detected pages/routes
+   */
+  screenshot_all_pages?: boolean;
+};
+
+/**
+ * PrototypeChatSyncAsyncResponse
+ *
+ * Response from starting an async sync job.
+ */
+export type PrototypeChatSyncAsyncResponse = {
+  /**
+   * Job Id
+   *
+   * Job ID for tracking progress
+   */
+  job_id: string;
+  /**
+   * Status
+   *
+   * Initial job status
+   */
+  status?: string;
+  /**
+   * Message
+   *
+   * Human-readable status message
+   */
+  message?: string;
+};
+
+/**
+ * PrototypeChatSyncRequest
+ *
+ * Request to sync/refresh a linked chat.
+ *
+ * Supports:
+ * - Incremental sync: Only downloads new versions (skips already-stored ones)
+ * - Specific version: Downloads a specific version by ID
+ * - Metadata-only: Syncs messages/metadata without downloading files
+ * - Screenshot all pages: Capture screenshots of all detected routes
+ */
+export type PrototypeChatSyncRequest = {
+  /**
+   * Provider
+   */
+  provider?: 'v0' | 'lovable' | 'bolt';
+  /**
+   * Chat Id
+   *
+   * Chat ID to sync
+   */
+  chat_id: string;
+  /**
+   * Mission Id
+   *
+   * Mission context
+   */
+  mission_id: string;
+  /**
+   * Version Id
+   *
+   * Specific version ID to sync files from (default: sync all new versions)
+   */
+  version_id?: string | null;
+  /**
+   * Download Files
+   *
+   * Download version files to OCXP (if False, only syncs messages/metadata)
+   */
+  download_files?: boolean;
+  /**
+   * Download Screenshots
+   *
+   * Download v0's built-in screenshot for each version
+   */
+  download_screenshots?: boolean;
+  /**
+   * Screenshot All Pages
+   *
+   * Capture screenshots of all detected pages/routes (not just root)
+   */
+  screenshot_all_pages?: boolean;
+};
+
+/**
+ * PrototypeChatSyncResponse
+ *
+ * Response from syncing a prototype chat.
+ *
+ * Version tracking fields:
+ * - newly_synced_versions: Versions downloaded during this sync operation
+ * - stored_versions: All versions currently stored in S3
+ * - latest_version_id: Latest version available from the provider
+ * - versions: Full version details including pages and screenshots
+ */
+export type PrototypeChatSyncResponse = {
+  /**
+   * Provider
+   */
+  provider: string;
+  /**
+   * Chat Id
+   */
+  chat_id: string;
+  /**
+   * Synced
+   */
+  synced: boolean;
+  /**
+   * New Messages Count
+   */
+  new_messages_count?: number;
+  /**
+   * New Versions Count
+   */
+  new_versions_count?: number;
+  /**
+   * Content Links
+   */
+  content_links?: Array<string>;
+  /**
+   * Newly Synced Versions
+   *
+   * Version IDs downloaded during this sync
+   */
+  newly_synced_versions?: Array<string>;
+  /**
+   * Stored Versions
+   *
+   * All version IDs currently stored in S3
+   */
+  stored_versions?: Array<string>;
+  /**
+   * Latest Version Id
+   *
+   * Latest version ID available from the provider
+   */
+  latest_version_id?: string | null;
+  /**
+   * Versions
+   *
+   * Full version details including detected pages and screenshots
+   */
+  versions?: Array<PrototypeChatVersion>;
+};
+
+/**
+ * PrototypeChatVersion
+ *
+ * Chat version/iteration with preview and files.
+ */
+export type PrototypeChatVersion = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Preview Url
+   */
+  preview_url?: string | null;
+  /**
+   * Screenshot Url
+   *
+   * v0's built-in screenshot URL for this version
+   */
+  screenshot_url?: string | null;
+  /**
+   * Screenshot Link
+   *
+   * OCXP link to downloaded screenshot
+   */
+  screenshot_link?: string | null;
+  /**
+   * Files
+   */
+  files?: Array<string>;
+  /**
+   * Pages
+   *
+   * Detected pages/routes in this version
+   */
+  pages?: Array<PrototypePageInfo>;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+};
+
+/**
+ * PrototypePageInfo
+ *
+ * Information about a detected page/route in the prototype.
+ */
+export type PrototypePageInfo = {
+  /**
+   * Route
+   *
+   * URL route path (e.g., '/', '/dashboard')
+   */
+  route: string;
+  /**
+   * File
+   *
+   * Source file path (e.g., 'app/page.tsx')
+   */
+  file: string;
+  /**
+   * Screenshot Link
+   *
+   * OCXP link to screenshot of this page
+   */
+  screenshot_link?: string | null;
+};
+
+/**
+ * PrototypeSyncJobStatusResponse
+ *
+ * Response for job status polling endpoint.
+ */
+export type PrototypeSyncJobStatusResponse = {
+  /**
+   * Job Id
+   */
+  job_id: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Progress
+   */
+  progress: number;
+  /**
+   * Current Step
+   */
+  current_step: string;
+  /**
+   * Files Processed
+   */
+  files_processed: number;
+  /**
+   * Files Total
+   */
+  files_total: number;
+  /**
+   * Screenshots Processed
+   */
+  screenshots_processed: number;
+  /**
+   * Screenshots Total
+   */
+  screenshots_total: number;
+  /**
+   * Content Links
+   */
+  content_links?: Array<string>;
+  /**
+   * Error
+   */
+  error?: string | null;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+};
+
+/**
  * QueryFilter
  */
 export type QueryFilter = {
@@ -3434,6 +4106,110 @@ export type VersionListResponse = {
 };
 
 /**
+ * VisualAnalyseRequest
+ *
+ * Request for POST /ocxp/context/visual/analyse.
+ */
+export type VisualAnalyseRequest = {
+  /**
+   * Question
+   *
+   * Question about image content
+   */
+  question: string;
+  /**
+   * Image Paths
+   *
+   * S3 paths to analyze (e.g., ['workspaces/prod/visual/screenshots/...'])
+   */
+  image_paths?: Array<string> | null;
+  /**
+   * Search Query
+   *
+   * Alternative: search metadata first, then analyze top results
+   */
+  search_query?: string | null;
+  /**
+   * Max Images
+   *
+   * Max images to analyze
+   */
+  max_images?: number;
+  /**
+   * Mission Id
+   *
+   * Optional mission scope filter
+   */
+  mission_id?: string | null;
+  /**
+   * Project Id
+   *
+   * Optional project scope filter
+   */
+  project_id?: string | null;
+};
+
+/**
+ * VisualAnalyseResponse
+ *
+ * Response from POST /ocxp/context/visual/analyse.
+ */
+export type VisualAnalyseResponse = {
+  /**
+   * Answer
+   *
+   * AI analysis of image content
+   */
+  answer: string;
+  /**
+   * Images Analyzed
+   */
+  images_analyzed?: Array<VisualAnalyseResult>;
+  /**
+   * Total Images
+   *
+   * Number of images analyzed
+   */
+  total_images?: number;
+  /**
+   * Model Used
+   */
+  model_used?: string;
+  /**
+   * Mission Id
+   */
+  mission_id?: string | null;
+  /**
+   * Project Id
+   */
+  project_id?: string | null;
+};
+
+/**
+ * VisualAnalyseResult
+ *
+ * Individual image analysis result.
+ */
+export type VisualAnalyseResult = {
+  /**
+   * S3 Path
+   */
+  s3_path: string;
+  /**
+   * Ocxp Link
+   */
+  ocxp_link: string;
+  /**
+   * Analyzed
+   */
+  analyzed: boolean;
+  /**
+   * Error
+   */
+  error?: string | null;
+};
+
+/**
  * WorkspaceItem
  *
  * Workspace item.
@@ -3485,6 +4261,10 @@ export type WriteRequest = {
    * Manage Metadata
    */
   manage_metadata?: boolean;
+  /**
+   * Auto Index
+   */
+  auto_index?: boolean | null;
   /**
    * Project Id
    */
@@ -3929,6 +4709,273 @@ export type IngestDocumentsResponses = {
 };
 
 export type IngestDocumentsResponse = IngestDocumentsResponses[keyof IngestDocumentsResponses];
+
+export type AnalyseVisualContentData = {
+  body: VisualAnalyseRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/visual/analyse';
+};
+
+export type AnalyseVisualContentErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type AnalyseVisualContentError =
+  AnalyseVisualContentErrors[keyof AnalyseVisualContentErrors];
+
+export type AnalyseVisualContentResponses = {
+  /**
+   * Successful Response
+   */
+  200: VisualAnalyseResponse;
+};
+
+export type AnalyseVisualContentResponse =
+  AnalyseVisualContentResponses[keyof AnalyseVisualContentResponses];
+
+export type ListPrototypeChatsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Provider
+     */
+    provider?: string;
+  };
+  url: '/ocxp/prototype/chat/list';
+};
+
+export type ListPrototypeChatsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListPrototypeChatsError = ListPrototypeChatsErrors[keyof ListPrototypeChatsErrors];
+
+export type ListPrototypeChatsResponses = {
+  /**
+   * Successful Response
+   */
+  200: PrototypeChatListResponse;
+};
+
+export type ListPrototypeChatsResponse =
+  ListPrototypeChatsResponses[keyof ListPrototypeChatsResponses];
+
+export type PreviewPrototypeChatData = {
+  body: PrototypeChatPreviewRequest;
+  path?: never;
+  query?: never;
+  url: '/ocxp/prototype/chat/preview';
+};
+
+export type PreviewPrototypeChatErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type PreviewPrototypeChatError =
+  PreviewPrototypeChatErrors[keyof PreviewPrototypeChatErrors];
+
+export type PreviewPrototypeChatResponses = {
+  /**
+   * Successful Response
+   */
+  200: PrototypeChatPreviewResponse;
+};
+
+export type PreviewPrototypeChatResponse =
+  PreviewPrototypeChatResponses[keyof PreviewPrototypeChatResponses];
+
+export type LinkPrototypeChatData = {
+  body: PrototypeChatLinkRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/prototype/chat/link';
+};
+
+export type LinkPrototypeChatErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type LinkPrototypeChatError = LinkPrototypeChatErrors[keyof LinkPrototypeChatErrors];
+
+export type LinkPrototypeChatResponses = {
+  /**
+   * Successful Response
+   */
+  200: PrototypeChatLinkResponse;
+};
+
+export type LinkPrototypeChatResponse =
+  LinkPrototypeChatResponses[keyof LinkPrototypeChatResponses];
+
+export type SyncPrototypeChatData = {
+  body: PrototypeChatSyncRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/prototype/chat/sync';
+};
+
+export type SyncPrototypeChatErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type SyncPrototypeChatError = SyncPrototypeChatErrors[keyof SyncPrototypeChatErrors];
+
+export type SyncPrototypeChatResponses = {
+  /**
+   * Successful Response
+   */
+  200: PrototypeChatSyncResponse;
+};
+
+export type SyncPrototypeChatResponse =
+  SyncPrototypeChatResponses[keyof SyncPrototypeChatResponses];
+
+export type GetPrototypeChatData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chat Id
+     */
+    chat_id: string;
+  };
+  query?: {
+    /**
+     * Project Id
+     */
+    project_id?: string | null;
+    /**
+     * Version Id
+     */
+    version_id?: string | null;
+  };
+  url: '/ocxp/prototype/chat/{provider}/{chat_id}';
+};
+
+export type GetPrototypeChatErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetPrototypeChatError = GetPrototypeChatErrors[keyof GetPrototypeChatErrors];
+
+export type GetPrototypeChatResponses = {
+  /**
+   * Successful Response
+   */
+  200: PrototypeChatGetResponse;
+};
+
+export type GetPrototypeChatResponse = GetPrototypeChatResponses[keyof GetPrototypeChatResponses];
+
+export type SyncPrototypeChatAsyncData = {
+  body: PrototypeChatSyncAsyncRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/prototype/chat/sync-async';
+};
+
+export type SyncPrototypeChatAsyncErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type SyncPrototypeChatAsyncError =
+  SyncPrototypeChatAsyncErrors[keyof SyncPrototypeChatAsyncErrors];
+
+export type SyncPrototypeChatAsyncResponses = {
+  /**
+   * Successful Response
+   */
+  202: PrototypeChatSyncAsyncResponse;
+};
+
+export type SyncPrototypeChatAsyncResponse =
+  SyncPrototypeChatAsyncResponses[keyof SyncPrototypeChatAsyncResponses];
+
+export type GetSyncStatusData = {
+  body?: never;
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string;
+  };
+  query?: never;
+  url: '/ocxp/prototype/chat/sync-status/{job_id}';
+};
+
+export type GetSyncStatusErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetSyncStatusError = GetSyncStatusErrors[keyof GetSyncStatusErrors];
+
+export type GetSyncStatusResponses = {
+  /**
+   * Successful Response
+   */
+  200: PrototypeSyncJobStatusResponse;
+};
+
+export type GetSyncStatusResponse = GetSyncStatusResponses[keyof GetSyncStatusResponses];
 
 export type ListSessionsData = {
   body?: never;
@@ -7020,6 +8067,12 @@ export type DeleteContentData = {
      * Also delete .metadata.json sidecars
      */
     manage_metadata?: boolean;
+    /**
+     * Auto Index
+     *
+     * Auto-remove from KB (None = use content_type default)
+     */
+    auto_index?: boolean | null;
   };
   url: '/ocxp/context/{content_type}/{content_id}';
 };

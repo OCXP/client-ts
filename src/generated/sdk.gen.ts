@@ -23,6 +23,9 @@ import type {
   AddSessionData,
   AddSessionErrors,
   AddSessionResponses,
+  AnalyseVisualContentData,
+  AnalyseVisualContentErrors,
+  AnalyseVisualContentResponses,
   ArchiveSessionData,
   ArchiveSessionErrors,
   ArchiveSessionResponses,
@@ -139,6 +142,9 @@ import type {
   GetProjectDatabasesResponses,
   GetProjectErrors,
   GetProjectResponses,
+  GetPrototypeChatData,
+  GetPrototypeChatErrors,
+  GetPrototypeChatResponses,
   GetRepoDownloadStatusData,
   GetRepoDownloadStatusErrors,
   GetRepoDownloadStatusResponses,
@@ -151,6 +157,9 @@ import type {
   GetSessionMessagesData,
   GetSessionMessagesErrors,
   GetSessionMessagesResponses,
+  GetSyncStatusData,
+  GetSyncStatusErrors,
+  GetSyncStatusResponses,
   GithubCheckAccessData,
   GithubCheckAccessErrors,
   GithubCheckAccessResponses,
@@ -171,6 +180,9 @@ import type {
   IngestDocumentsData,
   IngestDocumentsErrors,
   IngestDocumentsResponses,
+  LinkPrototypeChatData,
+  LinkPrototypeChatErrors,
+  LinkPrototypeChatResponses,
   ListContentData,
   ListContentErrors,
   ListContentResponses,
@@ -204,6 +216,9 @@ import type {
   ListProjectsData,
   ListProjectsErrors,
   ListProjectsResponses,
+  ListPrototypeChatsData,
+  ListPrototypeChatsErrors,
+  ListPrototypeChatsResponses,
   ListSessionsData,
   ListSessionsErrors,
   ListSessionsResponses,
@@ -227,6 +242,9 @@ import type {
   MoveContentData,
   MoveContentErrors,
   MoveContentResponses,
+  PreviewPrototypeChatData,
+  PreviewPrototypeChatErrors,
+  PreviewPrototypeChatResponses,
   PromoteCheckpointToLongtermData,
   PromoteCheckpointToLongtermErrors,
   PromoteCheckpointToLongtermResponses,
@@ -281,6 +299,12 @@ import type {
   SetGithubTokenData,
   SetGithubTokenErrors,
   SetGithubTokenResponses,
+  SyncPrototypeChatAsyncData,
+  SyncPrototypeChatAsyncErrors,
+  SyncPrototypeChatAsyncResponses,
+  SyncPrototypeChatData,
+  SyncPrototypeChatErrors,
+  SyncPrototypeChatResponses,
   SystemInfoData,
   SystemInfoErrors,
   SystemInfoResponses,
@@ -443,7 +467,7 @@ export const bulkReadContent = <ThrowOnError extends boolean = false>(
 /**
  * Bulk Write Content
  *
- * Bulk write content.
+ * Bulk write content with metadata sidecar and KB auto-indexing support.
  */
 export const bulkWriteContent = <ThrowOnError extends boolean = false>(
   options: Options<BulkWriteContentData, ThrowOnError>
@@ -461,7 +485,7 @@ export const bulkWriteContent = <ThrowOnError extends boolean = false>(
 /**
  * Bulk Delete Content
  *
- * Bulk delete content using batch operations.
+ * Bulk delete content with KB auto-removal support.
  */
 export const bulkDeleteContent = <ThrowOnError extends boolean = false>(
   options: Options<BulkDeleteContentData, ThrowOnError>
@@ -714,6 +738,471 @@ export const ingestDocuments = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Analyse Visual Content
+ *
+ * Analyze visual content using direct vision model (Claude 3 Sonnet).
+ *
+ * Two modes:
+ * 1. **Direct paths**: Provide `image_paths` to analyze specific images
+ * 2. **Search + analyze**: Provide `search_query` to find relevant images first
+ *
+ * The endpoint:
+ * - Loads images from S3 (contexthub-visual bucket)
+ * - Sends them to Claude 3 Sonnet vision model
+ * - Returns AI analysis based on actual image content
+ *
+ * **Why Two Stages?**
+ *
+ * The Visual KB uses text embeddings (Titan Text V2), NOT image embeddings.
+ * This means KB search can only find images by metadata (descriptions, tags, filenames),
+ * not by visual similarity or content. This endpoint provides the second stage:
+ * once you have image paths (from discover_visual or directly), analyze the actual pixels.
+ *
+ * **Example Request (direct paths):**
+ * ```json
+ * {
+ * "question": "What UI patterns are shown in these screenshots?",
+ * "image_paths": [
+ * "screenshots/mission-123/login.png",
+ * "screenshots/mission-123/dashboard.png"
+ * ],
+ * "max_images": 5
+ * }
+ * ```
+ *
+ * **Example Request (search + analyze):**
+ * ```json
+ * {
+ * "question": "What authentication methods are visible?",
+ * "search_query": "login authentication forms",
+ * "max_images": 5,
+ * "mission_id": "abc-123"
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "answer": "The screenshots show a login page with email/password fields and a 'Remember me' checkbox. The dashboard includes a navigation sidebar with user profile section...",
+ * "images_analyzed": [
+ * {
+ * "s3_path": "workspaces/prod/visual/screenshots/mission-123/login.png",
+ * "ocxp_link": "ocxp://prod/visual/screenshots/mission-123/login.png",
+ * "analyzed": true
+ * },
+ * {
+ * "s3_path": "workspaces/prod/visual/screenshots/mission-123/dashboard.png",
+ * "ocxp_link": "ocxp://prod/visual/screenshots/mission-123/dashboard.png",
+ * "analyzed": true
+ * }
+ * ],
+ * "total_images": 2,
+ * "model_used": "anthropic.claude-3-sonnet-20240229-v1:0",
+ * "mission_id": "abc-123"
+ * }
+ * ```
+ *
+ * **Image Path Formats:**
+ * - Relative: `screenshots/mission-123/login.png` -> auto-prefixed with workspace
+ * - Visual prefix: `visual/screenshots/...` -> auto-prefixed with workspace
+ * - Full S3 key: `workspaces/prod/visual/screenshots/...` -> used as-is
+ *
+ * **Supported Image Formats:**
+ * - PNG, JPEG, GIF, WebP
+ * - Auto-detected from file extension or magic bytes
+ */
+export const analyseVisualContent = <ThrowOnError extends boolean = false>(
+  options: Options<AnalyseVisualContentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    AnalyseVisualContentResponses,
+    AnalyseVisualContentErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/visual/analyse',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * List Prototype Chats
+ *
+ * List all accessible prototype chats.
+ *
+ * Returns a list of chats that are accessible with the configured API key.
+ * Use this to discover which chats can be linked to missions.
+ *
+ * **Query Parameters:**
+ * - `provider`: Provider name (v0, lovable, bolt) - default: v0
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chats": [
+ * {
+ * "id": "qFPCm5zzimu",
+ * "name": "Mission Dashboard",
+ * "web_url": "https://v0.app/chat/qFPCm5zzimu",
+ * "privacy": "team",
+ * "latest_preview_url": "https://demo-xxx.vusercontent.net"
+ * }
+ * ],
+ * "total": 5
+ * }
+ * ```
+ */
+export const listPrototypeChats = <ThrowOnError extends boolean = false>(
+  options?: Options<ListPrototypeChatsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListPrototypeChatsResponses,
+    ListPrototypeChatsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/list',
+    ...options,
+  });
+
+/**
+ * Preview Prototype Chat
+ *
+ * Preview a prototype chat before linking.
+ *
+ * Fetches chat metadata and version list without storing anything.
+ * Use this to show available versions in Obsidian UI before the user
+ * selects which version to link to a mission.
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_url": "https://v0.dev/chat/abc123"
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "web_url": "https://v0.dev/chat/abc123",
+ * "messages_count": 15,
+ * "versions": [
+ * {"id": "v1", "preview_url": "https://abc123.vercel.app", "files": ["page.tsx", "layout.tsx"]},
+ * {"id": "v2", "preview_url": "https://abc123-v2.vercel.app", "files": ["page.tsx", "layout.tsx", "sidebar.tsx"]}
+ * ],
+ * "latest_preview_url": "https://abc123-v2.vercel.app",
+ * "can_download_files": true
+ * }
+ * ```
+ */
+export const previewPrototypeChat = <ThrowOnError extends boolean = false>(
+  options: Options<PreviewPrototypeChatData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    PreviewPrototypeChatResponses,
+    PreviewPrototypeChatErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/preview',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Link Prototype Chat
+ *
+ * Link a prototype chat to a mission.
+ *
+ * Fetches the full conversation history and optionally downloads version files
+ * from the prototype provider (v0, Lovable, Bolt). Stores everything in OCXP
+ * and optionally screenshots the preview.
+ *
+ * **Workflow for Obsidian:**
+ * 1. User enters chat URL in mission creation form
+ * 2. Obsidian calls `/preview` to get available versions
+ * 3. User selects a version
+ * 4. Obsidian calls `/link` with version_id to download files
+ *
+ * **What gets stored:**
+ * - `conversation.md` - Full chat history as searchable markdown (KB indexed)
+ * - `metadata.json` - Structured metadata for programmatic access
+ * - `versions/{version_id}*.tsx` - Actual code files from selected version
+ * - `screenshots/preview.png` - Screenshot of the preview URL
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_url": "https://v0.dev/chat/abc123",
+ * "version_id": "v2",
+ * "mission_id": "mission-xyz",
+ * "download_files": true,
+ * "screenshot_preview": true
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "web_url": "https://v0.dev/chat/abc123",
+ * "mission_id": "mission-xyz",
+ * "messages_count": 15,
+ * "versions_count": 2,
+ * "latest_preview_url": "https://abc123-v2.vercel.app",
+ * "screenshot_link": "ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/screenshots/preview.png",
+ * "content_links": [
+ * "ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/conversation.md",
+ * "ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/versions/v2/page.tsx"
+ * ],
+ * "indexed": true
+ * }
+ * ```
+ */
+export const linkPrototypeChat = <ThrowOnError extends boolean = false>(
+  options: Options<LinkPrototypeChatData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    LinkPrototypeChatResponses,
+    LinkPrototypeChatErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/link',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Sync Prototype Chat
+ *
+ * Sync/refresh a linked prototype chat with latest changes.
+ *
+ * Re-fetches the conversation and version data from the provider
+ * and updates the stored content in OCXP.
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "mission_id": "mission-xyz"
+ * }
+ * ```
+ */
+export const syncPrototypeChat = <ThrowOnError extends boolean = false>(
+  options: Options<SyncPrototypeChatData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    SyncPrototypeChatResponses,
+    SyncPrototypeChatErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/sync',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get Prototype Chat
+ *
+ * Get stored prototype chat data from OCXP.
+ *
+ * Returns the stored conversation, versions, and file links for a
+ * previously linked prototype chat.
+ *
+ * **Path Parameters:**
+ * - `provider`: Provider name (v0, lovable, bolt)
+ * - `chat_id`: Chat ID
+ *
+ * **Query Parameters:**
+ * - `project_id`: Project ID (use "no-project" if chat has no project)
+ * - `version_id`: Version ID to retrieve
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "abc123",
+ * "web_url": "https://v0.dev/chat/abc123",
+ * "mission_id": "mission-xyz",
+ * "messages": [...],
+ * "versions": [...],
+ * "conversation_link": "ocxp://prod/prototype/FQV1NSmpVqk/abc123/aVVgJPrZiiE/docs/conversation.md",
+ * "file_links": [
+ * "ocxp://prod/prototype/FQV1NSmpVqk/abc123/aVVgJPrZiiE/code/page.tsx"
+ * ]
+ * }
+ * ```
+ */
+export const getPrototypeChat = <ThrowOnError extends boolean = false>(
+  options: Options<GetPrototypeChatData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetPrototypeChatResponses, GetPrototypeChatErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/{provider}/{chat_id}',
+    ...options,
+  });
+
+/**
+ * Sync Prototype Chat Async
+ *
+ * Start an async prototype chat sync job (202 Accepted).
+ *
+ * Creates a job and queues it for background processing. Returns immediately
+ * with a job_id that can be used to poll for status or receive WebSocket updates.
+ *
+ * **Benefits:**
+ * - Immediate response (no timeout on long syncs)
+ * - Real-time progress updates via WebSocket
+ * - Resumable on failure (job tracked in DynamoDB)
+ * - Better suited for large chats with many files/screenshots
+ *
+ * **Frontend Integration:**
+ *
+ * Option 1: Polling
+ * ```javascript
+ * const { job_id } = await fetch('/ocxp/prototype/chat/sync-async', {
+ * method: 'POST',
+ * body: JSON.stringify({ chat_id: 'xxx', mission_id: 'yyy' })
+ * }).then(r => r.json());
+ *
+ * // Poll every second
+ * while (status !== 'complete' && status !== 'failed') {
+ * await sleep(1000);
+ * const job = await fetch(`/ocxp/prototype/chat/sync-status/${job_id}`).then(r => r.json());
+ * updateProgressBar(job.progress);
+ * }
+ * ```
+ *
+ * Option 2: WebSocket
+ * ```javascript
+ * ws.onmessage = (msg) => {
+ * if (msg.type === 'prototype_sync_progress') {
+ * updateProgressBar(msg.progress, msg.current_step);
+ * }
+ * if (msg.type === 'prototype_sync_complete') {
+ * handleComplete(msg.content_links);
+ * }
+ * };
+ * ```
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "YivecgytPyg",
+ * "mission_id": "mission-xyz",
+ * "download_files": true,
+ * "download_screenshots": true
+ * }
+ * ```
+ *
+ * **Example Response (202 Accepted):**
+ * ```json
+ * {
+ * "job_id": "job-a1b2c3d4e5f6",
+ * "status": "queued",
+ * "message": "Job queued for processing"
+ * }
+ * ```
+ */
+export const syncPrototypeChatAsync = <ThrowOnError extends boolean = false>(
+  options: Options<SyncPrototypeChatAsyncData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    SyncPrototypeChatAsyncResponses,
+    SyncPrototypeChatAsyncErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/sync-async',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get Sync Status
+ *
+ * Get the current status of an async sync job.
+ *
+ * Use this endpoint to poll for progress updates on a sync job.
+ * For real-time updates, prefer WebSocket subscription instead.
+ *
+ * **Path Parameters:**
+ * - `job_id`: Job identifier from sync-async response
+ *
+ * **Example Response (in progress):**
+ * ```json
+ * {
+ * "job_id": "job-a1b2c3d4e5f6",
+ * "status": "downloading",
+ * "progress": 35,
+ * "current_step": "Downloading files for version 2/5...",
+ * "files_processed": 12,
+ * "files_total": 34,
+ * "screenshots_processed": 1,
+ * "screenshots_total": 5,
+ * "content_links": [],
+ * "error": null,
+ * "created_at": "2024-01-15T10:30:00Z",
+ * "updated_at": "2024-01-15T10:30:15Z"
+ * }
+ * ```
+ *
+ * **Example Response (complete):**
+ * ```json
+ * {
+ * "job_id": "job-a1b2c3d4e5f6",
+ * "status": "complete",
+ * "progress": 100,
+ * "current_step": "Complete",
+ * "files_processed": 34,
+ * "files_total": 34,
+ * "screenshots_processed": 5,
+ * "screenshots_total": 5,
+ * "content_links": [
+ * "ocxp://prod/prototype/FQV1NSmpVqk/chat123/v1/docs/conversation.md",
+ * "ocxp://prod/prototype/FQV1NSmpVqk/chat123/v1/code/page.tsx"
+ * ],
+ * "error": null,
+ * "created_at": "2024-01-15T10:30:00Z",
+ * "updated_at": "2024-01-15T10:31:00Z"
+ * }
+ * ```
+ */
+export const getSyncStatus = <ThrowOnError extends boolean = false>(
+  options: Options<GetSyncStatusData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetSyncStatusResponses, GetSyncStatusErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/sync-status/{job_id}',
+    ...options,
   });
 
 /**
@@ -2190,7 +2679,10 @@ export const refreshTokens = <ThrowOnError extends boolean = false>(
 /**
  * Get Auth Config
  *
- * Get Cognito configuration for frontend.
+ * Get public configuration for clients.
+ *
+ * Returns the API endpoint, Brain ARN, and default workspace.
+ * Used by Obsidian plugin and CLI to configure themselves.
  */
 export const getAuthConfig = <ThrowOnError extends boolean = false>(
   options?: Options<GetAuthConfigData, ThrowOnError>

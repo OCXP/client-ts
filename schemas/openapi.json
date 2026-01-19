@@ -247,7 +247,7 @@
           "Bulk"
         ],
         "summary": "Bulk Write Content",
-        "description": "Bulk write content.",
+        "description": "Bulk write content with metadata sidecar and KB auto-indexing support.",
         "operationId": "bulkWriteContent",
         "parameters": [
           {
@@ -316,7 +316,7 @@
           "Bulk"
         ],
         "summary": "Bulk Delete Content",
-        "description": "Bulk delete content using batch operations.",
+        "description": "Bulk delete content with KB auto-removal support.",
         "operationId": "bulkDeleteContent",
         "parameters": [
           {
@@ -758,6 +758,480 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IngestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/visual/analyse": {
+      "post": {
+        "tags": [
+          "Visual Analysis"
+        ],
+        "summary": "Analyse Visual Content",
+        "description": "Analyze visual content using direct vision model (Claude 3 Sonnet).\n\nTwo modes:\n1. **Direct paths**: Provide `image_paths` to analyze specific images\n2. **Search + analyze**: Provide `search_query` to find relevant images first\n\nThe endpoint:\n- Loads images from S3 (contexthub-visual bucket)\n- Sends them to Claude 3 Sonnet vision model\n- Returns AI analysis based on actual image content\n\n**Why Two Stages?**\n\nThe Visual KB uses text embeddings (Titan Text V2), NOT image embeddings.\nThis means KB search can only find images by metadata (descriptions, tags, filenames),\nnot by visual similarity or content. This endpoint provides the second stage:\nonce you have image paths (from discover_visual or directly), analyze the actual pixels.\n\n**Example Request (direct paths):**\n```json\n{\n    \"question\": \"What UI patterns are shown in these screenshots?\",\n    \"image_paths\": [\n        \"screenshots/mission-123/login.png\",\n        \"screenshots/mission-123/dashboard.png\"\n    ],\n    \"max_images\": 5\n}\n```\n\n**Example Request (search + analyze):**\n```json\n{\n    \"question\": \"What authentication methods are visible?\",\n    \"search_query\": \"login authentication forms\",\n    \"max_images\": 5,\n    \"mission_id\": \"abc-123\"\n}\n```\n\n**Example Response:**\n```json\n{\n    \"answer\": \"The screenshots show a login page with email/password fields and a 'Remember me' checkbox. The dashboard includes a navigation sidebar with user profile section...\",\n    \"images_analyzed\": [\n        {\n            \"s3_path\": \"workspaces/prod/visual/screenshots/mission-123/login.png\",\n            \"ocxp_link\": \"ocxp://prod/visual/screenshots/mission-123/login.png\",\n            \"analyzed\": true\n        },\n        {\n            \"s3_path\": \"workspaces/prod/visual/screenshots/mission-123/dashboard.png\",\n            \"ocxp_link\": \"ocxp://prod/visual/screenshots/mission-123/dashboard.png\",\n            \"analyzed\": true\n        }\n    ],\n    \"total_images\": 2,\n    \"model_used\": \"anthropic.claude-3-sonnet-20240229-v1:0\",\n    \"mission_id\": \"abc-123\"\n}\n```\n\n**Image Path Formats:**\n- Relative: `screenshots/mission-123/login.png` -> auto-prefixed with workspace\n- Visual prefix: `visual/screenshots/...` -> auto-prefixed with workspace\n- Full S3 key: `workspaces/prod/visual/screenshots/...` -> used as-is\n\n**Supported Image Formats:**\n- PNG, JPEG, GIF, WebP\n- Auto-detected from file extension or magic bytes",
+        "operationId": "analyseVisualContent",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisualAnalyseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisualAnalyseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/list": {
+      "get": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "List Prototype Chats",
+        "description": "List all accessible prototype chats.\n\nReturns a list of chats that are accessible with the configured API key.\nUse this to discover which chats can be linked to missions.\n\n**Query Parameters:**\n- `provider`: Provider name (v0, lovable, bolt) - default: v0\n\n**Example Response:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chats\": [\n        {\n            \"id\": \"qFPCm5zzimu\",\n            \"name\": \"Mission Dashboard\",\n            \"web_url\": \"https://v0.app/chat/qFPCm5zzimu\",\n            \"privacy\": \"team\",\n            \"latest_preview_url\": \"https://demo-xxx.vusercontent.net\"\n        }\n    ],\n    \"total\": 5\n}\n```",
+        "operationId": "listPrototypeChats",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v0",
+              "title": "Provider"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeChatListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/preview": {
+      "post": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Preview Prototype Chat",
+        "description": "Preview a prototype chat before linking.\n\nFetches chat metadata and version list without storing anything.\nUse this to show available versions in Obsidian UI before the user\nselects which version to link to a mission.\n\n**Example Request:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_url\": \"https://v0.dev/chat/abc123\"\n}\n```\n\n**Example Response:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"abc123\",\n    \"web_url\": \"https://v0.dev/chat/abc123\",\n    \"messages_count\": 15,\n    \"versions\": [\n        {\"id\": \"v1\", \"preview_url\": \"https://abc123.vercel.app\", \"files\": [\"page.tsx\", \"layout.tsx\"]},\n        {\"id\": \"v2\", \"preview_url\": \"https://abc123-v2.vercel.app\", \"files\": [\"page.tsx\", \"layout.tsx\", \"sidebar.tsx\"]}\n    ],\n    \"latest_preview_url\": \"https://abc123-v2.vercel.app\",\n    \"can_download_files\": true\n}\n```",
+        "operationId": "previewPrototypeChat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrototypeChatPreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeChatPreviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/link": {
+      "post": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Link Prototype Chat",
+        "description": "Link a prototype chat to a mission.\n\nFetches the full conversation history and optionally downloads version files\nfrom the prototype provider (v0, Lovable, Bolt). Stores everything in OCXP\nand optionally screenshots the preview.\n\n**Workflow for Obsidian:**\n1. User enters chat URL in mission creation form\n2. Obsidian calls `/preview` to get available versions\n3. User selects a version\n4. Obsidian calls `/link` with version_id to download files\n\n**What gets stored:**\n- `conversation.md` - Full chat history as searchable markdown (KB indexed)\n- `metadata.json` - Structured metadata for programmatic access\n- `versions/{version_id}/*.tsx` - Actual code files from selected version\n- `screenshots/preview.png` - Screenshot of the preview URL\n\n**Example Request:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_url\": \"https://v0.dev/chat/abc123\",\n    \"version_id\": \"v2\",\n    \"mission_id\": \"mission-xyz\",\n    \"download_files\": true,\n    \"screenshot_preview\": true\n}\n```\n\n**Example Response:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"abc123\",\n    \"web_url\": \"https://v0.dev/chat/abc123\",\n    \"mission_id\": \"mission-xyz\",\n    \"messages_count\": 15,\n    \"versions_count\": 2,\n    \"latest_preview_url\": \"https://abc123-v2.vercel.app\",\n    \"screenshot_link\": \"ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/screenshots/preview.png\",\n    \"content_links\": [\n        \"ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/conversation.md\",\n        \"ocxp://prod/visual/prototype-chats/mission-xyz/v0/abc123/versions/v2/page.tsx\"\n    ],\n    \"indexed\": true\n}\n```",
+        "operationId": "linkPrototypeChat",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrototypeChatLinkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeChatLinkResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/sync": {
+      "post": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Sync Prototype Chat",
+        "description": "Sync/refresh a linked prototype chat with latest changes.\n\nRe-fetches the conversation and version data from the provider\nand updates the stored content in OCXP.\n\n**Example Request:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"abc123\",\n    \"mission_id\": \"mission-xyz\"\n}\n```",
+        "operationId": "syncPrototypeChat",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrototypeChatSyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeChatSyncResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/{provider}/{chat_id}": {
+      "get": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Get Prototype Chat",
+        "description": "Get stored prototype chat data from OCXP.\n\nReturns the stored conversation, versions, and file links for a\npreviously linked prototype chat.\n\n**Path Parameters:**\n- `provider`: Provider name (v0, lovable, bolt)\n- `chat_id`: Chat ID\n\n**Query Parameters:**\n- `project_id`: Project ID (use \"no-project\" if chat has no project)\n- `version_id`: Version ID to retrieve\n\n**Example Response:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"abc123\",\n    \"web_url\": \"https://v0.dev/chat/abc123\",\n    \"mission_id\": \"mission-xyz\",\n    \"messages\": [...],\n    \"versions\": [...],\n    \"conversation_link\": \"ocxp://prod/prototype/FQV1NSmpVqk/abc123/aVVgJPrZiiE/docs/conversation.md\",\n    \"file_links\": [\n        \"ocxp://prod/prototype/FQV1NSmpVqk/abc123/aVVgJPrZiiE/code/page.tsx\"\n    ]\n}\n```",
+        "operationId": "getPrototypeChat",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeChatGetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/sync-async": {
+      "post": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Sync Prototype Chat Async",
+        "description": "Start an async prototype chat sync job (202 Accepted).\n\nCreates a job and queues it for background processing. Returns immediately\nwith a job_id that can be used to poll for status or receive WebSocket updates.\n\n**Benefits:**\n- Immediate response (no timeout on long syncs)\n- Real-time progress updates via WebSocket\n- Resumable on failure (job tracked in DynamoDB)\n- Better suited for large chats with many files/screenshots\n\n**Frontend Integration:**\n\nOption 1: Polling\n```javascript\nconst { job_id } = await fetch('/ocxp/prototype/chat/sync-async', {\n  method: 'POST',\n  body: JSON.stringify({ chat_id: 'xxx', mission_id: 'yyy' })\n}).then(r => r.json());\n\n// Poll every second\nwhile (status !== 'complete' && status !== 'failed') {\n  await sleep(1000);\n  const job = await fetch(`/ocxp/prototype/chat/sync-status/${job_id}`).then(r => r.json());\n  updateProgressBar(job.progress);\n}\n```\n\nOption 2: WebSocket\n```javascript\nws.onmessage = (msg) => {\n  if (msg.type === 'prototype_sync_progress') {\n    updateProgressBar(msg.progress, msg.current_step);\n  }\n  if (msg.type === 'prototype_sync_complete') {\n    handleComplete(msg.content_links);\n  }\n};\n```\n\n**Example Request:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"YivecgytPyg\",\n    \"mission_id\": \"mission-xyz\",\n    \"download_files\": true,\n    \"download_screenshots\": true\n}\n```\n\n**Example Response (202 Accepted):**\n```json\n{\n    \"job_id\": \"job-a1b2c3d4e5f6\",\n    \"status\": \"queued\",\n    \"message\": \"Job queued for processing\"\n}\n```",
+        "operationId": "syncPrototypeChatAsync",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrototypeChatSyncAsyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeChatSyncAsyncResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/sync-status/{job_id}": {
+      "get": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Get Sync Status",
+        "description": "Get the current status of an async sync job.\n\nUse this endpoint to poll for progress updates on a sync job.\nFor real-time updates, prefer WebSocket subscription instead.\n\n**Path Parameters:**\n- `job_id`: Job identifier from sync-async response\n\n**Example Response (in progress):**\n```json\n{\n    \"job_id\": \"job-a1b2c3d4e5f6\",\n    \"status\": \"downloading\",\n    \"progress\": 35,\n    \"current_step\": \"Downloading files for version 2/5...\",\n    \"files_processed\": 12,\n    \"files_total\": 34,\n    \"screenshots_processed\": 1,\n    \"screenshots_total\": 5,\n    \"content_links\": [],\n    \"error\": null,\n    \"created_at\": \"2024-01-15T10:30:00Z\",\n    \"updated_at\": \"2024-01-15T10:30:15Z\"\n}\n```\n\n**Example Response (complete):**\n```json\n{\n    \"job_id\": \"job-a1b2c3d4e5f6\",\n    \"status\": \"complete\",\n    \"progress\": 100,\n    \"current_step\": \"Complete\",\n    \"files_processed\": 34,\n    \"files_total\": 34,\n    \"screenshots_processed\": 5,\n    \"screenshots_total\": 5,\n    \"content_links\": [\n        \"ocxp://prod/prototype/FQV1NSmpVqk/chat123/v1/docs/conversation.md\",\n        \"ocxp://prod/prototype/FQV1NSmpVqk/chat123/v1/code/page.tsx\"\n    ],\n    \"error\": null,\n    \"created_at\": \"2024-01-15T10:30:00Z\",\n    \"updated_at\": \"2024-01-15T10:31:00Z\"\n}\n```",
+        "operationId": "getSyncStatus",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeSyncJobStatusResponse"
                 }
               }
             }
@@ -6071,6 +6545,24 @@
             "description": "Also delete .metadata.json sidecars"
           },
           {
+            "name": "auto_index",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Auto-remove from KB (None = use content_type default)",
+              "title": "Auto Index"
+            },
+            "description": "Auto-remove from KB (None = use content_type default)"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -6700,7 +7192,7 @@
           "Auth"
         ],
         "summary": "Get Auth Config",
-        "description": "Get Cognito configuration for frontend.",
+        "description": "Get public configuration for clients.\n\nReturns the API endpoint, Brain ARN, and default workspace.\nUsed by Obsidian plugin and CLI to configure themselves.",
         "operationId": "getAuthConfig",
         "responses": {
           "200": {
@@ -6988,22 +7480,28 @@
             "type": "string",
             "title": "Region"
           },
-          "user_pool_id": {
+          "apiEndpoint": {
             "type": "string",
-            "title": "User Pool Id"
+            "title": "Apiendpoint"
           },
-          "client_id": {
+          "brainArn": {
             "type": "string",
-            "title": "Client Id"
+            "title": "Brainarn"
+          },
+          "workspaceId": {
+            "type": "string",
+            "title": "Workspaceid",
+            "default": "prod"
           }
         },
         "type": "object",
         "required": [
           "region",
-          "user_pool_id",
-          "client_id"
+          "apiEndpoint",
+          "brainArn"
         ],
-        "title": "AuthConfig"
+        "title": "AuthConfig",
+        "description": "Public auth configuration for clients."
       },
       "Body_loginForAccessToken": {
         "properties": {
@@ -7100,6 +7598,22 @@
             },
             "type": "array",
             "title": "Ids"
+          },
+          "manage_metadata": {
+            "type": "boolean",
+            "title": "Manage Metadata",
+            "default": true
+          },
+          "auto_index": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Index"
           }
         },
         "type": "object",
@@ -7326,6 +7840,44 @@
             },
             "type": "array",
             "title": "Items"
+          },
+          "manage_metadata": {
+            "type": "boolean",
+            "title": "Manage Metadata",
+            "default": true
+          },
+          "auto_index": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Index"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id"
           }
         },
         "type": "object",
@@ -11074,6 +11626,956 @@
         "type": "object",
         "title": "ProjectUpdate"
       },
+      "PrototypeChatGetResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id"
+          },
+          "web_url": {
+            "type": "string",
+            "title": "Web Url"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypeChatMessage"
+            },
+            "type": "array",
+            "title": "Messages"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypeChatVersion"
+            },
+            "type": "array",
+            "title": "Versions"
+          },
+          "latest_preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Preview Url"
+          },
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link"
+          },
+          "conversation_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Link"
+          },
+          "file_links": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "File Links"
+          },
+          "synced_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Synced At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "chat_id",
+          "web_url",
+          "mission_id"
+        ],
+        "title": "PrototypeChatGetResponse",
+        "description": "Response from getting a stored prototype chat."
+      },
+      "PrototypeChatLinkRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "v0",
+              "lovable",
+              "bolt"
+            ],
+            "title": "Provider",
+            "description": "Prototype provider",
+            "default": "v0"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id",
+            "description": "Chat ID from provider (extracted from URL if not provided)"
+          },
+          "chat_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Url",
+            "description": "Chat URL (alternative to chat_id)"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id",
+            "description": "Specific version ID to download files from (default: latest)"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "description": "Mission to link this chat to"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "Optional project scope"
+          },
+          "sync_versions": {
+            "type": "boolean",
+            "title": "Sync Versions",
+            "description": "Also sync version information (metadata)",
+            "default": true
+          },
+          "download_files": {
+            "type": "boolean",
+            "title": "Download Files",
+            "description": "Download version files to OCXP for use as context",
+            "default": true
+          },
+          "screenshot_preview": {
+            "type": "boolean",
+            "title": "Screenshot Preview",
+            "description": "Screenshot the latest preview URL",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "mission_id"
+        ],
+        "title": "PrototypeChatLinkRequest",
+        "description": "Request to link a prototype chat to a mission."
+      },
+      "PrototypeChatLinkResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id"
+          },
+          "chat_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Name"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "project_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Name"
+          },
+          "web_url": {
+            "type": "string",
+            "title": "Web Url"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "messages_count": {
+            "type": "integer",
+            "title": "Messages Count"
+          },
+          "versions_count": {
+            "type": "integer",
+            "title": "Versions Count"
+          },
+          "latest_preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Preview Url"
+          },
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link"
+          },
+          "content_links": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Content Links"
+          },
+          "indexed": {
+            "type": "boolean",
+            "title": "Indexed",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "chat_id",
+          "web_url",
+          "mission_id",
+          "messages_count",
+          "versions_count"
+        ],
+        "title": "PrototypeChatLinkResponse",
+        "description": "Response from linking a prototype chat.\n\nField naming aligned with v0's hierarchy: Project > Chat > Version\n- chat_name: The chat's name from v0 (not title - v0 only has name)\n- project_id: v0 project ID if chat belongs to a project\n- project_name: v0 project name (fetched from projects API)"
+      },
+      "PrototypeChatListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "chat_name": {
+            "type": "string",
+            "title": "Chat Name"
+          },
+          "web_url": {
+            "type": "string",
+            "title": "Web Url"
+          },
+          "privacy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Privacy"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "latest_preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Preview Url"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "project_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "chat_name",
+          "web_url"
+        ],
+        "title": "PrototypeChatListItem",
+        "description": "Individual chat in list response.\n\nField naming aligned with v0's hierarchy: Project > Chat > Version\n- chat_name: The chat's name from v0 (v0 only has 'name', not 'title')\n- project_id: v0 project ID if chat belongs to a project\n- project_name: v0 project name (joined from projects list)"
+      },
+      "PrototypeChatListResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "chats": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypeChatListItem"
+            },
+            "type": "array",
+            "title": "Chats"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider"
+        ],
+        "title": "PrototypeChatListResponse",
+        "description": "Response from listing available chats."
+      },
+      "PrototypeChatMessage": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "content"
+        ],
+        "title": "PrototypeChatMessage",
+        "description": "Individual chat message from a prototype conversation."
+      },
+      "PrototypeChatPreviewRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "v0",
+              "lovable",
+              "bolt"
+            ],
+            "title": "Provider",
+            "default": "v0"
+          },
+          "chat_url": {
+            "type": "string",
+            "title": "Chat Url",
+            "description": "Chat URL to preview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chat_url"
+        ],
+        "title": "PrototypeChatPreviewRequest",
+        "description": "Request to preview a chat before linking (fetch metadata only)."
+      },
+      "PrototypeChatPreviewResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id"
+          },
+          "web_url": {
+            "type": "string",
+            "title": "Web Url"
+          },
+          "messages_count": {
+            "type": "integer",
+            "title": "Messages Count"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypeChatVersion"
+            },
+            "type": "array",
+            "title": "Versions"
+          },
+          "latest_preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Preview Url"
+          },
+          "can_download_files": {
+            "type": "boolean",
+            "title": "Can Download Files",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "chat_id",
+          "web_url",
+          "messages_count"
+        ],
+        "title": "PrototypeChatPreviewResponse",
+        "description": "Response from previewing a chat (no files stored yet)."
+      },
+      "PrototypeChatSyncAsyncRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "v0",
+              "lovable",
+              "bolt"
+            ],
+            "title": "Provider",
+            "description": "Prototype provider",
+            "default": "v0"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id",
+            "description": "Chat ID to sync"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "description": "Mission context"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id",
+            "description": "Specific version ID to sync (default: sync all new versions)"
+          },
+          "download_files": {
+            "type": "boolean",
+            "title": "Download Files",
+            "description": "Download version files to OCXP",
+            "default": true
+          },
+          "download_screenshots": {
+            "type": "boolean",
+            "title": "Download Screenshots",
+            "description": "Download v0's built-in screenshot for each version",
+            "default": true
+          },
+          "screenshot_all_pages": {
+            "type": "boolean",
+            "title": "Screenshot All Pages",
+            "description": "Capture screenshots of all detected pages/routes",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "chat_id",
+          "mission_id"
+        ],
+        "title": "PrototypeChatSyncAsyncRequest",
+        "description": "Request to start an async prototype chat sync."
+      },
+      "PrototypeChatSyncAsyncResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id",
+            "description": "Job ID for tracking progress"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Initial job status",
+            "default": "queued"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable status message",
+            "default": "Job queued for processing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id"
+        ],
+        "title": "PrototypeChatSyncAsyncResponse",
+        "description": "Response from starting an async sync job."
+      },
+      "PrototypeChatSyncRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "v0",
+              "lovable",
+              "bolt"
+            ],
+            "title": "Provider",
+            "default": "v0"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id",
+            "description": "Chat ID to sync"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "description": "Mission context"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id",
+            "description": "Specific version ID to sync files from (default: sync all new versions)"
+          },
+          "download_files": {
+            "type": "boolean",
+            "title": "Download Files",
+            "description": "Download version files to OCXP (if False, only syncs messages/metadata)",
+            "default": true
+          },
+          "download_screenshots": {
+            "type": "boolean",
+            "title": "Download Screenshots",
+            "description": "Download v0's built-in screenshot for each version",
+            "default": true
+          },
+          "screenshot_all_pages": {
+            "type": "boolean",
+            "title": "Screenshot All Pages",
+            "description": "Capture screenshots of all detected pages/routes (not just root)",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "chat_id",
+          "mission_id"
+        ],
+        "title": "PrototypeChatSyncRequest",
+        "description": "Request to sync/refresh a linked chat.\n\nSupports:\n- Incremental sync: Only downloads new versions (skips already-stored ones)\n- Specific version: Downloads a specific version by ID\n- Metadata-only: Syncs messages/metadata without downloading files\n- Screenshot all pages: Capture screenshots of all detected routes"
+      },
+      "PrototypeChatSyncResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id"
+          },
+          "synced": {
+            "type": "boolean",
+            "title": "Synced"
+          },
+          "new_messages_count": {
+            "type": "integer",
+            "title": "New Messages Count",
+            "default": 0
+          },
+          "new_versions_count": {
+            "type": "integer",
+            "title": "New Versions Count",
+            "default": 0
+          },
+          "content_links": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Content Links"
+          },
+          "newly_synced_versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Newly Synced Versions",
+            "description": "Version IDs downloaded during this sync"
+          },
+          "stored_versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stored Versions",
+            "description": "All version IDs currently stored in S3"
+          },
+          "latest_version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Version Id",
+            "description": "Latest version ID available from the provider"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypeChatVersion"
+            },
+            "type": "array",
+            "title": "Versions",
+            "description": "Full version details including detected pages and screenshots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "chat_id",
+          "synced"
+        ],
+        "title": "PrototypeChatSyncResponse",
+        "description": "Response from syncing a prototype chat.\n\nVersion tracking fields:\n- newly_synced_versions: Versions downloaded during this sync operation\n- stored_versions: All versions currently stored in S3\n- latest_version_id: Latest version available from the provider\n- versions: Full version details including pages and screenshots"
+      },
+      "PrototypeChatVersion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Url"
+          },
+          "screenshot_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Url",
+            "description": "v0's built-in screenshot URL for this version"
+          },
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link",
+            "description": "OCXP link to downloaded screenshot"
+          },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Files"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypePageInfo"
+            },
+            "type": "array",
+            "title": "Pages",
+            "description": "Detected pages/routes in this version"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "PrototypeChatVersion",
+        "description": "Chat version/iteration with preview and files."
+      },
+      "PrototypePageInfo": {
+        "properties": {
+          "route": {
+            "type": "string",
+            "title": "Route",
+            "description": "URL route path (e.g., '/', '/dashboard')"
+          },
+          "file": {
+            "type": "string",
+            "title": "File",
+            "description": "Source file path (e.g., 'app/page.tsx')"
+          },
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link",
+            "description": "OCXP link to screenshot of this page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "route",
+          "file"
+        ],
+        "title": "PrototypePageInfo",
+        "description": "Information about a detected page/route in the prototype."
+      },
+      "PrototypeSyncJobStatusResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "progress": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Progress"
+          },
+          "current_step": {
+            "type": "string",
+            "title": "Current Step"
+          },
+          "files_processed": {
+            "type": "integer",
+            "title": "Files Processed"
+          },
+          "files_total": {
+            "type": "integer",
+            "title": "Files Total"
+          },
+          "screenshots_processed": {
+            "type": "integer",
+            "title": "Screenshots Processed"
+          },
+          "screenshots_total": {
+            "type": "integer",
+            "title": "Screenshots Total"
+          },
+          "content_links": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Content Links"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status",
+          "progress",
+          "current_step",
+          "files_processed",
+          "files_total",
+          "screenshots_processed",
+          "screenshots_total"
+        ],
+        "title": "PrototypeSyncJobStatusResponse",
+        "description": "Response for job status polling endpoint."
+      },
       "QueryFilter": {
         "properties": {
           "field": {
@@ -12510,6 +14012,170 @@
         "title": "VersionListResponse",
         "description": "Response for GET /ocxp/{type}/{id}/versions."
       },
+      "VisualAnalyseRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question",
+            "description": "Question about image content"
+          },
+          "image_paths": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Paths",
+            "description": "S3 paths to analyze (e.g., ['workspaces/prod/visual/screenshots/...'])"
+          },
+          "search_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Query",
+            "description": "Alternative: search metadata first, then analyze top results"
+          },
+          "max_images": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Images",
+            "description": "Max images to analyze",
+            "default": 5
+          },
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id",
+            "description": "Optional mission scope filter"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "Optional project scope filter"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "VisualAnalyseRequest",
+        "description": "Request for POST /ocxp/context/visual/analyse."
+      },
+      "VisualAnalyseResponse": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer",
+            "description": "AI analysis of image content"
+          },
+          "images_analyzed": {
+            "items": {
+              "$ref": "#/components/schemas/VisualAnalyseResult"
+            },
+            "type": "array",
+            "title": "Images Analyzed"
+          },
+          "total_images": {
+            "type": "integer",
+            "title": "Total Images",
+            "description": "Number of images analyzed",
+            "default": 0
+          },
+          "model_used": {
+            "type": "string",
+            "title": "Model Used",
+            "default": "anthropic.claude-3-sonnet-20240229-v1:0"
+          },
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer"
+        ],
+        "title": "VisualAnalyseResponse",
+        "description": "Response from POST /ocxp/context/visual/analyse."
+      },
+      "VisualAnalyseResult": {
+        "properties": {
+          "s3_path": {
+            "type": "string",
+            "title": "S3 Path"
+          },
+          "ocxp_link": {
+            "type": "string",
+            "title": "Ocxp Link"
+          },
+          "analyzed": {
+            "type": "boolean",
+            "title": "Analyzed"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "s3_path",
+          "ocxp_link",
+          "analyzed"
+        ],
+        "title": "VisualAnalyseResult",
+        "description": "Individual image analysis result."
+      },
       "WorkspaceItem": {
         "properties": {
           "id": {
@@ -12577,6 +14243,17 @@
             "type": "boolean",
             "title": "Manage Metadata",
             "default": true
+          },
+          "auto_index": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Index"
           },
           "project_id": {
             "anyOf": [
