@@ -157,6 +157,9 @@ import type {
   GetSessionMessagesData,
   GetSessionMessagesErrors,
   GetSessionMessagesResponses,
+  GetStoredVersionsData,
+  GetStoredVersionsErrors,
+  GetStoredVersionsResponses,
   GetSyncStatusData,
   GetSyncStatusErrors,
   GetSyncStatusResponses,
@@ -1024,6 +1027,70 @@ export const syncPrototypeChat = <ThrowOnError extends boolean = false>(
       ...options.headers,
     },
   });
+
+/**
+ * Get Stored Versions
+ *
+ * Get stored version IDs from DynamoDB (fast, no S3/API calls).
+ *
+ * This is a lightweight endpoint optimized for sub-100ms response times.
+ * Use this to quickly check which versions are already downloaded without
+ * triggering a full sync operation.
+ *
+ * **Path Parameters:**
+ * - `provider`: Provider name (v0, lovable, bolt)
+ * - `chat_id`: Chat ID
+ *
+ * **Query Parameters:**
+ * - `include_details`: If true, returns full version metadata (files, pages, screenshots)
+ *
+ * **Use Cases:**
+ * - Determine "Download" vs "Reload" button state for each version
+ * - Check if "Sync Latest" button should be disabled (latest already stored)
+ * - Get full version details for Files/Pages tabs (when include_details=true)
+ *
+ * **Example Response (include_details=false):**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "YivecgytPyg",
+ * "stored_versions": ["aVVgJPrZiiE", "8xP0kUQqTxe", "cTeBCcjCGbM"],
+ * "latest_version_id": "cTeBCcjCGbM",
+ * "version_details": []
+ * }
+ * ```
+ *
+ * **Example Response (include_details=true):**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "YivecgytPyg",
+ * "stored_versions": ["aVVgJPrZiiE"],
+ * "latest_version_id": "cTeBCcjCGbM",
+ * "version_details": [
+ * {
+ * "id": "aVVgJPrZiiE",
+ * "preview_url": "https://demo.vusercontent.net/...",
+ * "screenshot_link": "ocxp://...",
+ * "files": ["app/page.tsx", "app/layout.tsx"],
+ * "pages": [{"route": "/", "file": "app/page.tsx", "screenshot_link": "ocxp://..."}],
+ * "created_at": "2024-01-15T10:30:00Z",
+ * "synced_at": "2024-01-15T10:35:00Z"
+ * }
+ * ]
+ * }
+ * ```
+ */
+export const getStoredVersions = <ThrowOnError extends boolean = false>(
+  options: Options<GetStoredVersionsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetStoredVersionsResponses, GetStoredVersionsErrors, ThrowOnError>(
+    {
+      security: [{ scheme: 'bearer', type: 'http' }],
+      url: '/ocxp/prototype/chat/{provider}/{chat_id}/stored-versions',
+      ...options,
+    }
+  );
 
 /**
  * Get Prototype Chat
@@ -2681,7 +2748,7 @@ export const refreshTokens = <ThrowOnError extends boolean = false>(
  *
  * Get public configuration for clients.
  *
- * Returns the API endpoint, Brain ARN, and default workspace.
+ * Returns the API endpoint, Brain ARN, WebSocket endpoint, and default workspace.
  * Used by Obsidian plugin and CLI to configure themselves.
  */
 export const getAuthConfig = <ThrowOnError extends boolean = false>(

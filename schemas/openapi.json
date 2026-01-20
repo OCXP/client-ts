@@ -1050,6 +1050,82 @@
         ]
       }
     },
+    "/ocxp/prototype/chat/{provider}/{chat_id}/stored-versions": {
+      "get": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Get Stored Versions",
+        "description": "Get stored version IDs from DynamoDB (fast, no S3/API calls).\n\nThis is a lightweight endpoint optimized for sub-100ms response times.\nUse this to quickly check which versions are already downloaded without\ntriggering a full sync operation.\n\n**Path Parameters:**\n- `provider`: Provider name (v0, lovable, bolt)\n- `chat_id`: Chat ID\n\n**Query Parameters:**\n- `include_details`: If true, returns full version metadata (files, pages, screenshots)\n\n**Use Cases:**\n- Determine \"Download\" vs \"Reload\" button state for each version\n- Check if \"Sync Latest\" button should be disabled (latest already stored)\n- Get full version details for Files/Pages tabs (when include_details=true)\n\n**Example Response (include_details=false):**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"YivecgytPyg\",\n    \"stored_versions\": [\"aVVgJPrZiiE\", \"8xP0kUQqTxe\", \"cTeBCcjCGbM\"],\n    \"latest_version_id\": \"cTeBCcjCGbM\",\n    \"version_details\": []\n}\n```\n\n**Example Response (include_details=true):**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"YivecgytPyg\",\n    \"stored_versions\": [\"aVVgJPrZiiE\"],\n    \"latest_version_id\": \"cTeBCcjCGbM\",\n    \"version_details\": [\n        {\n            \"id\": \"aVVgJPrZiiE\",\n            \"preview_url\": \"https://demo.vusercontent.net/...\",\n            \"screenshot_link\": \"ocxp://...\",\n            \"files\": [\"app/page.tsx\", \"app/layout.tsx\"],\n            \"pages\": [{\"route\": \"/\", \"file\": \"app/page.tsx\", \"screenshot_link\": \"ocxp://...\"}],\n            \"created_at\": \"2024-01-15T10:30:00Z\",\n            \"synced_at\": \"2024-01-15T10:35:00Z\"\n        }\n    ]\n}\n```",
+        "operationId": "getStoredVersions",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          },
+          {
+            "name": "include_details",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Details"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrototypeStoredVersionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/prototype/chat/{provider}/{chat_id}": {
       "get": {
         "tags": [
@@ -7192,7 +7268,7 @@
           "Auth"
         ],
         "summary": "Get Auth Config",
-        "description": "Get public configuration for clients.\n\nReturns the API endpoint, Brain ARN, and default workspace.\nUsed by Obsidian plugin and CLI to configure themselves.",
+        "description": "Get public configuration for clients.\n\nReturns the API endpoint, Brain ARN, WebSocket endpoint, and default workspace.\nUsed by Obsidian plugin and CLI to configure themselves.",
         "operationId": "getAuthConfig",
         "responses": {
           "200": {
@@ -7492,6 +7568,11 @@
             "type": "string",
             "title": "Workspaceid",
             "default": "prod"
+          },
+          "websocketEndpoint": {
+            "type": "string",
+            "title": "Websocketendpoint",
+            "default": ""
           }
         },
         "type": "object",
@@ -7509,7 +7590,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "password"
+                "pattern": "^password$"
               },
               {
                 "type": "null"
@@ -7523,6 +7604,7 @@
           },
           "password": {
             "type": "string",
+            "format": "password",
             "title": "Password"
           },
           "scope": {
@@ -7550,6 +7632,7 @@
                 "type": "null"
               }
             ],
+            "format": "password",
             "title": "Client Secret"
           }
         },
@@ -12489,6 +12572,55 @@
         "title": "PrototypePageInfo",
         "description": "Information about a detected page/route in the prototype."
       },
+      "PrototypeStoredVersionsResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "Provider name (v0, lovable, bolt)"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id",
+            "description": "Chat ID"
+          },
+          "stored_versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stored Versions",
+            "description": "Version IDs already downloaded to S3"
+          },
+          "latest_version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Version Id",
+            "description": "Latest version ID available from the provider (cached)"
+          },
+          "version_details": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypeVersionDetail"
+            },
+            "type": "array",
+            "title": "Version Details",
+            "description": "Full version details when include_details=true (from DynamoDB)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "chat_id"
+        ],
+        "title": "PrototypeStoredVersionsResponse",
+        "description": "Fast response for stored version state (DynamoDB query, no S3/API calls).\n\nUsed by the frontend to quickly determine button states without\ntriggering a full sync operation that makes multiple S3 HEAD requests.\n\nWhen include_details=true is requested, also returns full version metadata\nincluding files, pages, and screenshot links from DynamoDB."
+      },
       "PrototypeSyncJobStatusResponse": {
         "properties": {
           "job_id": {
@@ -12579,6 +12711,85 @@
         ],
         "title": "PrototypeSyncJobStatusResponse",
         "description": "Response for job status polling endpoint."
+      },
+      "PrototypeVersionDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Version ID"
+          },
+          "preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Url",
+            "description": "Demo/preview URL for this version"
+          },
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link",
+            "description": "OCXP link to root screenshot"
+          },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "List of file paths in this version"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PrototypePageInfo"
+            },
+            "type": "array",
+            "title": "Pages",
+            "description": "Detected pages/routes with their screenshot links"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "Version creation timestamp"
+          },
+          "synced_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Synced At",
+            "description": "When this version was synced to OCXP"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "PrototypeVersionDetail",
+        "description": "Full version detail from DynamoDB storage.\n\nContains all metadata for a stored version including files, pages,\nand screenshot links. Used when include_details=true is requested."
       },
       "QueryFilter": {
         "properties": {
@@ -14301,5 +14512,10 @@
         }
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+    }
+  ]
 }

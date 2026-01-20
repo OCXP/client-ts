@@ -1277,12 +1277,19 @@ export class OCXPClient {
    * Use this for UI button states instead of full sync
    * @param provider - Provider name (v0, lovable, bolt)
    * @param chatId - Chat ID
+   * @param options - Optional settings
+   * @param options.includeDetails - If true, returns full version metadata (files, pages, screenshots)
    */
-  async getStoredVersions(provider: string, chatId: string): Promise<PrototypeStoredVersionsResponse> {
+  async getStoredVersions(
+    provider: string,
+    chatId: string,
+    options?: { includeDetails?: boolean }
+  ): Promise<PrototypeStoredVersionsResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.getStoredVersions({
       client: this.client,
       path: { provider, chat_id: chatId },
+      query: options?.includeDetails ? { include_details: true } : undefined,
       headers,
     });
     return extractData(response) as PrototypeStoredVersionsResponse;
@@ -1831,10 +1838,15 @@ export class PrototypeNamespace {
   /**
    * Get stored versions for a prototype chat (fast DynamoDB query)
    * Use this for UI button states instead of full sync
-   * @example ocxp.prototype.getStoredVersions('v0', 'abc123')
+   * @param options.includeDetails - If true, returns full version metadata (files, pages, screenshots)
+   * @example ocxp.prototype.getStoredVersions('v0', 'abc123', { includeDetails: true })
    */
-  async getStoredVersions(provider: string, chatId: string): Promise<PrototypeStoredVersionsResponse> {
-    return this.client.getStoredVersions(provider, chatId);
+  async getStoredVersions(
+    provider: string,
+    chatId: string,
+    options?: { includeDetails?: boolean }
+  ): Promise<PrototypeStoredVersionsResponse> {
+    return this.client.getStoredVersions(provider, chatId, options);
   }
 }
 

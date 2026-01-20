@@ -2423,12 +2423,15 @@ var OCXPClient = class {
    * Use this for UI button states instead of full sync
    * @param provider - Provider name (v0, lovable, bolt)
    * @param chatId - Chat ID
+   * @param options - Optional settings
+   * @param options.includeDetails - If true, returns full version metadata (files, pages, screenshots)
    */
-  async getStoredVersions(provider, chatId) {
+  async getStoredVersions(provider, chatId, options) {
     const headers = await this.getHeaders();
     const response = await getStoredVersions({
       client: this.client,
       path: { provider, chat_id: chatId },
+      query: options?.includeDetails ? { include_details: true } : void 0,
       headers
     });
     return extractData(response);
@@ -2883,10 +2886,11 @@ var PrototypeNamespace = class {
   /**
    * Get stored versions for a prototype chat (fast DynamoDB query)
    * Use this for UI button states instead of full sync
-   * @example ocxp.prototype.getStoredVersions('v0', 'abc123')
+   * @param options.includeDetails - If true, returns full version metadata (files, pages, screenshots)
+   * @example ocxp.prototype.getStoredVersions('v0', 'abc123', { includeDetails: true })
    */
-  async getStoredVersions(provider, chatId) {
-    return this.client.getStoredVersions(provider, chatId);
+  async getStoredVersions(provider, chatId, options) {
+    return this.client.getStoredVersions(provider, chatId, options);
   }
 };
 function createOCXPClient(options) {

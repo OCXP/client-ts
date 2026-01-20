@@ -391,6 +391,10 @@ type AuthConfig = {
      * Workspaceid
      */
     workspaceId?: string;
+    /**
+     * Websocketendpoint
+     */
+    websocketEndpoint?: string;
 };
 /**
  * Body_loginForAccessToken
@@ -2464,6 +2468,9 @@ type PrototypePageInfo = {
  *
  * Used by the frontend to quickly determine button states without
  * triggering a full sync operation that makes multiple S3 HEAD requests.
+ *
+ * When include_details=true is requested, also returns full version metadata
+ * including files, pages, and screenshot links from DynamoDB.
  */
 type PrototypeStoredVersionsResponse = {
     /**
@@ -2490,6 +2497,12 @@ type PrototypeStoredVersionsResponse = {
      * Latest version ID available from the provider (cached)
      */
     latest_version_id?: string | null;
+    /**
+     * Version Details
+     *
+     * Full version details when include_details=true (from DynamoDB)
+     */
+    version_details?: Array<PrototypeVersionDetail>;
 };
 /**
  * PrototypeSyncJobStatusResponse
@@ -2545,6 +2558,58 @@ type PrototypeSyncJobStatusResponse = {
      * Updated At
      */
     updated_at?: string | null;
+};
+/**
+ * PrototypeVersionDetail
+ *
+ * Full version detail from DynamoDB storage.
+ *
+ * Contains all metadata for a stored version including files, pages,
+ * and screenshot links. Used when include_details=true is requested.
+ */
+type PrototypeVersionDetail = {
+    /**
+     * Id
+     *
+     * Version ID
+     */
+    id: string;
+    /**
+     * Preview Url
+     *
+     * Demo/preview URL for this version
+     */
+    preview_url?: string | null;
+    /**
+     * Screenshot Link
+     *
+     * OCXP link to root screenshot
+     */
+    screenshot_link?: string | null;
+    /**
+     * Files
+     *
+     * List of file paths in this version
+     */
+    files?: Array<string>;
+    /**
+     * Pages
+     *
+     * Detected pages/routes with their screenshot links
+     */
+    pages?: Array<PrototypePageInfo>;
+    /**
+     * Created At
+     *
+     * Version creation timestamp
+     */
+    created_at?: string | null;
+    /**
+     * Synced At
+     *
+     * When this version was synced to OCXP
+     */
+    synced_at?: string | null;
 };
 /**
  * QueryFilter
@@ -3420,7 +3485,12 @@ type GetStoredVersionsData = {
          */
         chat_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Include Details
+         */
+        include_details?: boolean;
+    };
     url: '/ocxp/prototype/chat/{provider}/{chat_id}/stored-versions';
 };
 type GetStoredVersionsErrors = {
@@ -6002,17 +6072,43 @@ declare const syncPrototypeChat: <ThrowOnError extends boolean = false>(options:
  * - `provider`: Provider name (v0, lovable, bolt)
  * - `chat_id`: Chat ID
  *
+ * **Query Parameters:**
+ * - `include_details`: If true, returns full version metadata (files, pages, screenshots)
+ *
  * **Use Cases:**
  * - Determine "Download" vs "Reload" button state for each version
  * - Check if "Sync Latest" button should be disabled (latest already stored)
+ * - Get full version details for Files/Pages tabs (when include_details=true)
  *
- * **Example Response:**
+ * **Example Response (include_details=false):**
  * ```json
  * {
  * "provider": "v0",
  * "chat_id": "YivecgytPyg",
  * "stored_versions": ["aVVgJPrZiiE", "8xP0kUQqTxe", "cTeBCcjCGbM"],
- * "latest_version_id": "cTeBCcjCGbM"
+ * "latest_version_id": "cTeBCcjCGbM",
+ * "version_details": []
+ * }
+ * ```
+ *
+ * **Example Response (include_details=true):**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "YivecgytPyg",
+ * "stored_versions": ["aVVgJPrZiiE"],
+ * "latest_version_id": "cTeBCcjCGbM",
+ * "version_details": [
+ * {
+ * "id": "aVVgJPrZiiE",
+ * "preview_url": "https://demo.vusercontent.net/...",
+ * "screenshot_link": "ocxp://...",
+ * "files": ["app/page.tsx", "app/layout.tsx"],
+ * "pages": [{"route": "/", "file": "app/page.tsx", "screenshot_link": "ocxp://..."}],
+ * "created_at": "2024-01-15T10:30:00Z",
+ * "synced_at": "2024-01-15T10:35:00Z"
+ * }
+ * ]
  * }
  * ```
  */
@@ -6595,7 +6691,7 @@ declare const refreshTokens: <ThrowOnError extends boolean = false>(options: Opt
  *
  * Get public configuration for clients.
  *
- * Returns the API endpoint, Brain ARN, and default workspace.
+ * Returns the API endpoint, Brain ARN, WebSocket endpoint, and default workspace.
  * Used by Obsidian plugin and CLI to configure themselves.
  */
 declare const getAuthConfig: <ThrowOnError extends boolean = false>(options?: Options<GetAuthConfigData, ThrowOnError>) => RequestResult<GetAuthConfigResponses, unknown, ThrowOnError, "fields">;
@@ -7117,8 +7213,12 @@ declare class OCXPClient {
      * Use this for UI button states instead of full sync
      * @param provider - Provider name (v0, lovable, bolt)
      * @param chatId - Chat ID
+     * @param options - Optional settings
+     * @param options.includeDetails - If true, returns full version metadata (files, pages, screenshots)
      */
-    getStoredVersions(provider: string, chatId: string): Promise<PrototypeStoredVersionsResponse>;
+    getStoredVersions(provider: string, chatId: string, options?: {
+        includeDetails?: boolean;
+    }): Promise<PrototypeStoredVersionsResponse>;
     /**
      * Get auth configuration (public endpoint)
      */
@@ -7467,9 +7567,12 @@ declare class PrototypeNamespace {
     /**
      * Get stored versions for a prototype chat (fast DynamoDB query)
      * Use this for UI button states instead of full sync
-     * @example ocxp.prototype.getStoredVersions('v0', 'abc123')
+     * @param options.includeDetails - If true, returns full version metadata (files, pages, screenshots)
+     * @example ocxp.prototype.getStoredVersions('v0', 'abc123', { includeDetails: true })
      */
-    getStoredVersions(provider: string, chatId: string): Promise<PrototypeStoredVersionsResponse>;
+    getStoredVersions(provider: string, chatId: string, options?: {
+        includeDetails?: boolean;
+    }): Promise<PrototypeStoredVersionsResponse>;
 }
 /**
  * Create a new OCXP client instance
