@@ -1116,6 +1116,8 @@ type DownloadRequest = {
 type ForkRequest = {
     /**
      * Mission Id
+     *
+     * Mission ID to link forked session to
      */
     mission_id: string;
     /**
@@ -1362,10 +1364,14 @@ type LockRequest = {
 type LoginRequest = {
     /**
      * Username
+     *
+     * Cognito username
      */
     username: string;
     /**
      * Password
+     *
+     * User password
      */
     password: string;
 };
@@ -2610,6 +2616,12 @@ type PrototypeVersionDetail = {
      * When this version was synced to OCXP
      */
     synced_at?: string | null;
+    /**
+     * S3 Base Path
+     *
+     * Base path for tree queries: {project_id}/{chat_id}
+     */
+    s3_base_path?: string | null;
 };
 /**
  * QueryFilter
@@ -3306,9 +3318,17 @@ type BulkReadContentData = {
 };
 type BulkReadContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type BulkReadContentResponses = {
     /**
@@ -3337,9 +3357,17 @@ type BulkWriteContentData = {
 };
 type BulkWriteContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type BulkWriteContentResponses = {
     /**
@@ -3368,9 +3396,17 @@ type BulkDeleteContentData = {
 };
 type BulkDeleteContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type BulkDeleteContentResponses = {
     /**
@@ -3394,6 +3430,10 @@ type ListPrototypeChatsErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListPrototypeChatsResponses = {
     /**
@@ -3409,9 +3449,17 @@ type PreviewPrototypeChatData = {
 };
 type PreviewPrototypeChatErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type PreviewPrototypeChatResponses = {
     /**
@@ -3433,9 +3481,17 @@ type LinkPrototypeChatData = {
 };
 type LinkPrototypeChatErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type LinkPrototypeChatResponses = {
     /**
@@ -3460,6 +3516,10 @@ type SyncPrototypeChatErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type SyncPrototypeChatResponses = {
     /**
@@ -3498,6 +3558,10 @@ type GetStoredVersionsErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetStoredVersionsResponses = {
     /**
@@ -3537,13 +3601,21 @@ type GetPrototypeChatData = {
 };
 type GetPrototypeChatErrors = {
     /**
+     * Chat not found
+     */
+    404: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetPrototypeChatResponses = {
     /**
-     * Successful Response
+     * Chat data returned
      */
     200: PrototypeChatGetResponse;
 };
@@ -3564,6 +3636,10 @@ type SyncPrototypeChatAsyncErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type SyncPrototypeChatAsyncResponses = {
     /**
@@ -3584,13 +3660,21 @@ type GetSyncStatusData = {
 };
 type GetSyncStatusErrors = {
     /**
+     * Job not found
+     */
+    404: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetSyncStatusResponses = {
     /**
-     * Successful Response
+     * Job status returned
      */
     200: PrototypeSyncJobStatusResponse;
 };
@@ -3624,6 +3708,10 @@ type ListSessionsErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListSessionsResponses = {
     /**
@@ -3664,6 +3752,10 @@ type GetSessionMessagesErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetSessionMessagesResponses = {
     /**
@@ -3693,6 +3785,10 @@ type UpdateSessionMetadataErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type UpdateSessionMetadataResponses = {
     /**
@@ -3726,6 +3822,10 @@ type ForkSessionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ForkSessionResponses = {
     /**
@@ -3759,6 +3859,10 @@ type ArchiveSessionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ArchiveSessionResponses = {
     /**
@@ -3802,6 +3906,10 @@ type ListProjectsErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListProjectsResponses = {
     /**
@@ -3826,6 +3934,10 @@ type CreateProjectErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type CreateProjectResponses = {
     /**
@@ -3861,6 +3973,10 @@ type DeleteProjectErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type DeleteProjectResponses = {
     /**
@@ -3896,6 +4012,10 @@ type GetProjectErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetProjectResponses = {
     /**
@@ -3931,6 +4051,10 @@ type UpdateProjectErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type UpdateProjectResponses = {
     /**
@@ -3966,6 +4090,10 @@ type AddLinkedRepoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type AddLinkedRepoResponses = {
     /**
@@ -4005,6 +4133,10 @@ type RemoveLinkedRepoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type RemoveLinkedRepoResponses = {
     /**
@@ -4040,6 +4172,10 @@ type SetDefaultRepoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type SetDefaultRepoResponses = {
     /**
@@ -4075,6 +4211,10 @@ type GetContextReposErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetContextReposResponses = {
     /**
@@ -4110,6 +4250,10 @@ type AddMissionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type AddMissionResponses = {
     /**
@@ -4149,6 +4293,10 @@ type RemoveMissionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type RemoveMissionResponses = {
     /**
@@ -4184,6 +4332,10 @@ type GetProjectDatabasesErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetProjectDatabasesResponses = {
     /**
@@ -4219,6 +4371,10 @@ type AddDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type AddDatabaseResponses = {
     /**
@@ -4258,6 +4414,10 @@ type RemoveDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type RemoveDatabaseResponses = {
     /**
@@ -4293,6 +4453,10 @@ type SetDefaultDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type SetDefaultDatabaseResponses = {
     /**
@@ -4329,6 +4493,10 @@ type RegenerateMissionErrors = {
      */
     422: HttpValidationError;
     /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+    /**
      * Archive or regeneration failed
      */
     500: unknown;
@@ -4356,6 +4524,10 @@ type QueryKnowledgeBaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type QueryKnowledgeBaseResponses = {
     /**
@@ -4380,6 +4552,10 @@ type RagKnowledgeBaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type RagKnowledgeBaseResponses = {
     /**
@@ -4447,6 +4623,10 @@ type ListMemosErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListMemosResponses = {
     /**
@@ -4476,6 +4656,10 @@ type CreateMemoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type CreateMemoResponses = {
     /**
@@ -4512,6 +4696,10 @@ type DeleteMemoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type DeleteMemoResponses = {
     /**
@@ -4548,6 +4736,10 @@ type GetMemoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetMemoResponses = {
     /**
@@ -4586,6 +4778,10 @@ type GetMemoForSourceErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetMemoForSourceResponses = {
     /**
@@ -4624,6 +4820,10 @@ type ResolveMemoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ResolveMemoResponses = {
     /**
@@ -4659,6 +4859,10 @@ type AcknowledgeMemoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type AcknowledgeMemoResponses = {
     /**
@@ -4694,6 +4898,10 @@ type IgnoreMemoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type IgnoreMemoResponses = {
     /**
@@ -4722,6 +4930,10 @@ type DownloadRepositoryErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type DownloadRepositoryResponses = {
     /**
@@ -4755,6 +4967,10 @@ type GetRepoDownloadStatusErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetRepoDownloadStatusResponses = {
     /**
@@ -4779,6 +4995,10 @@ type ListDownloadedReposErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListDownloadedReposResponses = {
     /**
@@ -4812,6 +5032,10 @@ type DeleteRepoErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type DeleteRepoResponses = {
     /**
@@ -4833,9 +5057,17 @@ type GithubCheckAccessData = {
 };
 type GithubCheckAccessErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GithubCheckAccessResponses = {
     /**
@@ -4857,9 +5089,17 @@ type GithubListBranchesData = {
 };
 type GithubListBranchesErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GithubListBranchesResponses = {
     /**
@@ -4881,9 +5121,17 @@ type GithubGetContentsData = {
 };
 type GithubGetContentsErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GithubGetContentsResponses = {
     /**
@@ -4915,6 +5163,10 @@ type ListDatabasesErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListDatabasesResponses = {
     /**
@@ -4939,6 +5191,10 @@ type CreateDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type CreateDatabaseResponses = {
     /**
@@ -4972,6 +5228,10 @@ type DeleteDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type DeleteDatabaseResponses = {
     /**
@@ -5005,6 +5265,10 @@ type GetDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetDatabaseResponses = {
     /**
@@ -5038,6 +5302,10 @@ type UpdateDatabaseErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type UpdateDatabaseResponses = {
     /**
@@ -5071,6 +5339,10 @@ type TestDatabaseConnectionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type TestDatabaseConnectionResponses = {
     /**
@@ -5112,6 +5384,10 @@ type GetSchemaErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetSchemaResponses = {
     /**
@@ -5162,6 +5438,10 @@ type GetSampleErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetSampleResponses = {
     /**
@@ -5203,6 +5483,10 @@ type ListTablesErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListTablesResponses = {
     /**
@@ -5227,6 +5511,10 @@ type ListContextDatabasesErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListContextDatabasesResponses = {
     /**
@@ -5258,6 +5546,10 @@ type GetContentTypesErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetContentTypesResponses = {
     /**
@@ -5299,13 +5591,17 @@ type ListContentData = {
 };
 type ListContentErrors = {
     /**
-     * Invalid content type
+     * Validation error
      */
     400: unknown;
     /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListContentResponses = {
     /**
@@ -5341,6 +5637,10 @@ type QueryContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type QueryContentResponses = {
     /**
@@ -5382,9 +5682,17 @@ type SearchContentData = {
 };
 type SearchContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type SearchContentResponses = {
     /**
@@ -5432,9 +5740,17 @@ type GetContentTreeData = {
 };
 type GetContentTreeErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetContentTreeResponses = {
     /**
@@ -5470,9 +5786,17 @@ type GetContentStatsData = {
 };
 type GetContentStatsErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetContentStatsResponses = {
     /**
@@ -5530,7 +5854,7 @@ type DeleteContentData = {
 };
 type DeleteContentErrors = {
     /**
-     * Recursive delete requires confirmation
+     * Validation error
      */
     400: unknown;
     /**
@@ -5541,6 +5865,10 @@ type DeleteContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type DeleteContentResponses = {
     /**
@@ -5580,6 +5908,10 @@ type ReadContentData = {
 };
 type ReadContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Content not found
      */
     404: unknown;
@@ -5587,6 +5919,10 @@ type ReadContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ReadContentResponses = {
     /**
@@ -5619,6 +5955,10 @@ type WriteContentData = {
 };
 type WriteContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Content already exists or ETag mismatch
      */
     409: unknown;
@@ -5626,6 +5966,10 @@ type WriteContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type WriteContentResponses = {
     /**
@@ -5647,6 +5991,10 @@ type MoveContentData = {
 };
 type MoveContentErrors = {
     /**
+     * Validation error
+     */
+    400: unknown;
+    /**
      * Source not found
      */
     404: unknown;
@@ -5658,6 +6006,10 @@ type MoveContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type MoveContentResponses = {
     /**
@@ -5682,6 +6034,10 @@ type LockContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type LockContentResponses = {
     /**
@@ -5706,6 +6062,10 @@ type UnlockContentErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type UnlockContentResponses = {
     /**
@@ -5730,6 +6090,10 @@ type ToolCreateMissionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ToolCreateMissionResponses = {
     /**
@@ -5763,6 +6127,10 @@ type ToolUpdateMissionErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ToolUpdateMissionResponses = {
     /**
@@ -5796,6 +6164,10 @@ type GetMissionContextErrors = {
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type GetMissionContextResponses = {
     /**
@@ -5811,13 +6183,21 @@ type LoginForAccessTokenData = {
 };
 type LoginForAccessTokenErrors = {
     /**
+     * Invalid credentials or user not found
+     */
+    401: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type LoginForAccessTokenResponses = {
     /**
-     * Successful Response
+     * Successfully authenticated
      */
     200: OAuth2TokenResponse;
 };
@@ -5829,13 +6209,21 @@ type LoginData = {
 };
 type LoginErrors = {
     /**
+     * Invalid credentials or user not found
+     */
+    401: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type LoginResponses = {
     /**
-     * Successful Response
+     * Successfully authenticated
      */
     200: TokenResponse;
 };
@@ -5847,13 +6235,21 @@ type RefreshTokensData = {
 };
 type RefreshTokensErrors = {
     /**
+     * Invalid or expired refresh token
+     */
+    401: unknown;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type RefreshTokensResponses = {
     /**
-     * Successful Response
+     * Tokens refreshed successfully
      */
     200: RefreshResponse;
 };
@@ -5875,6 +6271,12 @@ type GetCurrentUserData = {
     query?: never;
     url: '/auth/me';
 };
+type GetCurrentUserErrors = {
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
 type GetCurrentUserResponses = {
     /**
      * Successful Response
@@ -5886,6 +6288,12 @@ type ListWorkspacesData = {
     path?: never;
     query?: never;
     url: '/auth/workspaces';
+};
+type ListWorkspacesErrors = {
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
 };
 type ListWorkspacesResponses = {
     /**
@@ -6700,13 +7108,13 @@ declare const getAuthConfig: <ThrowOnError extends boolean = false>(options?: Op
  *
  * Get current authenticated user info.
  */
-declare const getCurrentUser: <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => RequestResult<GetCurrentUserResponses, unknown, ThrowOnError, "fields">;
+declare const getCurrentUser: <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => RequestResult<GetCurrentUserResponses, GetCurrentUserErrors, ThrowOnError, "fields">;
 /**
  * List Workspaces
  *
  * List workspaces for authenticated user.
  */
-declare const listWorkspaces: <ThrowOnError extends boolean = false>(options?: Options<ListWorkspacesData, ThrowOnError>) => RequestResult<ListWorkspacesResponses, unknown, ThrowOnError, "fields">;
+declare const listWorkspaces: <ThrowOnError extends boolean = false>(options?: Options<ListWorkspacesData, ThrowOnError>) => RequestResult<ListWorkspacesResponses, ListWorkspacesErrors, ThrowOnError, "fields">;
 
 interface ListEntry$1 {
     name: string;
@@ -6825,7 +7233,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;
@@ -6843,7 +7251,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;
@@ -6856,7 +7264,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;
@@ -6872,7 +7280,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;
@@ -6885,7 +7293,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;
@@ -6989,7 +7397,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;
@@ -7004,7 +7412,7 @@ declare class OCXPClient {
         error: undefined;
     } | {
         data: undefined;
-        error: HttpValidationError;
+        error: unknown;
     }) & {
         request: Request;
         response: Response;

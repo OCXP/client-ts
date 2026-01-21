@@ -355,6 +355,78 @@ export type BulkWriteResponse = {
 };
 
 /**
+ * CapturePageScreenshotsRequest
+ *
+ * Request to capture screenshots for specific pages of a prototype version.
+ *
+ * Use this endpoint to capture screenshots for auto-discovered pages without
+ * triggering a full sync. This is useful when pages are detected from file
+ * structure but screenshots haven't been captured yet.
+ */
+export type CapturePageScreenshotsRequest = {
+  /**
+   * Version Id
+   *
+   * Version ID to capture screenshots for
+   */
+  version_id: string;
+  /**
+   * Routes
+   *
+   * List of routes to screenshot (e.g., ['/', '/dashboard', '/settings'])
+   */
+  routes: Array<string>;
+};
+
+/**
+ * CapturePageScreenshotsResponse
+ *
+ * Response from capturing page screenshots.
+ *
+ * Returns the OCXP links for each captured screenshot, mapped by route.
+ */
+export type CapturePageScreenshotsResponse = {
+  /**
+   * Provider
+   *
+   * Provider name (v0, lovable, bolt)
+   */
+  provider: string;
+  /**
+   * Chat Id
+   *
+   * Chat ID
+   */
+  chat_id: string;
+  /**
+   * Version Id
+   *
+   * Version ID screenshots were captured for
+   */
+  version_id: string;
+  /**
+   * Screenshots
+   *
+   * Map of route to OCXP screenshot link (e.g., {'/': 'ocxp://...', '/dashboard': 'ocxp://...'})
+   */
+  screenshots?: {
+    [key: string]: string;
+  };
+  /**
+   * Captured Count
+   *
+   * Number of screenshots successfully captured
+   */
+  captured_count?: number;
+  /**
+   * Failed Routes
+   *
+   * Routes that failed to capture (e.g., due to timeout or 404)
+   */
+  failed_routes?: Array<string>;
+};
+
+/**
  * CheckAccessRequest
  */
 export type CheckAccessRequest = {
@@ -1359,6 +1431,8 @@ export type ForeignKeyInfo = {
 export type ForkRequest = {
   /**
    * Mission Id
+   *
+   * Mission ID to link forked session to
    */
   mission_id: string;
   /**
@@ -1474,7 +1548,7 @@ export type IngestDocument = {
   /**
    * Path
    *
-   * Content path, e.g., 'project/uuid/file.md'
+   * Content path, e.g., 'project/uuid/file.md'. Must start with alphanumeric and contain only alphanumeric, slashes, underscores, dots, and hyphens.
    */
   path: string;
 };
@@ -1776,10 +1850,14 @@ export type LockRequest = {
 export type LoginRequest = {
   /**
    * Username
+   *
+   * Cognito username
    */
   username: string;
   /**
    * Password
+   *
+   * User password
    */
   password: string;
 };
@@ -2030,6 +2108,8 @@ export type MissionCreate = {
   ticket_id?: string | null;
   /**
    * Project Id
+   *
+   * Project UUID to associate mission with
    */
   project_id?: string | null;
   /**
@@ -3293,6 +3373,12 @@ export type PrototypeVersionDetail = {
    * When this version was synced to OCXP
    */
   synced_at?: string | null;
+  /**
+   * S3 Base Path
+   *
+   * Base path for tree queries: {project_id}/{chat_id}
+   */
+  s3_base_path?: string | null;
 };
 
 /**
@@ -4391,9 +4477,17 @@ export type ResolveOcxpUriData = {
 
 export type ResolveOcxpUriErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ResolveOcxpUriError = ResolveOcxpUriErrors[keyof ResolveOcxpUriErrors];
@@ -4419,6 +4513,10 @@ export type ValidateOcxpUriErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ValidateOcxpUriError = ValidateOcxpUriErrors[keyof ValidateOcxpUriErrors];
@@ -4450,6 +4548,10 @@ export type BatchResolveOcxpUrisErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type BatchResolveOcxpUrisError =
@@ -4487,9 +4589,17 @@ export type BulkReadContentData = {
 
 export type BulkReadContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type BulkReadContentError = BulkReadContentErrors[keyof BulkReadContentErrors];
@@ -4525,9 +4635,17 @@ export type BulkWriteContentData = {
 
 export type BulkWriteContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type BulkWriteContentError = BulkWriteContentErrors[keyof BulkWriteContentErrors];
@@ -4563,9 +4681,17 @@ export type BulkDeleteContentData = {
 
 export type BulkDeleteContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type BulkDeleteContentError = BulkDeleteContentErrors[keyof BulkDeleteContentErrors];
@@ -4602,9 +4728,17 @@ export type BulkMoveContentData = {
 
 export type BulkMoveContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type BulkMoveContentError = BulkMoveContentErrors[keyof BulkMoveContentErrors];
@@ -4644,6 +4778,10 @@ export type RegenerateMetadataErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RegenerateMetadataError = RegenerateMetadataErrors[keyof RegenerateMetadataErrors];
@@ -4676,6 +4814,10 @@ export type HealthCheckErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type HealthCheckError = HealthCheckErrors[keyof HealthCheckErrors];
@@ -4707,6 +4849,10 @@ export type SystemInfoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SystemInfoError = SystemInfoErrors[keyof SystemInfoErrors];
@@ -4736,6 +4882,10 @@ export type DiscoverContextErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DiscoverContextError = DiscoverContextErrors[keyof DiscoverContextErrors];
@@ -4767,6 +4917,10 @@ export type ValidateResponseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ValidateResponseError = ValidateResponseErrors[keyof ValidateResponseErrors];
@@ -4798,6 +4952,10 @@ export type IngestDocumentsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type IngestDocumentsError = IngestDocumentsErrors[keyof IngestDocumentsErrors];
@@ -4829,6 +4987,10 @@ export type AnalyseVisualContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type AnalyseVisualContentError =
@@ -4861,6 +5023,10 @@ export type ListPrototypeChatsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListPrototypeChatsError = ListPrototypeChatsErrors[keyof ListPrototypeChatsErrors];
@@ -4884,9 +5050,17 @@ export type PreviewPrototypeChatData = {
 
 export type PreviewPrototypeChatErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type PreviewPrototypeChatError =
@@ -4917,9 +5091,17 @@ export type LinkPrototypeChatData = {
 
 export type LinkPrototypeChatErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type LinkPrototypeChatError = LinkPrototypeChatErrors[keyof LinkPrototypeChatErrors];
@@ -4952,6 +5134,10 @@ export type SyncPrototypeChatErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SyncPrototypeChatError = SyncPrototypeChatErrors[keyof SyncPrototypeChatErrors];
@@ -4998,6 +5184,10 @@ export type GetStoredVersionsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetStoredVersionsError = GetStoredVersionsErrors[keyof GetStoredVersionsErrors];
@@ -5011,6 +5201,56 @@ export type GetStoredVersionsResponses = {
 
 export type GetStoredVersionsResponse =
   GetStoredVersionsResponses[keyof GetStoredVersionsResponses];
+
+export type CapturePageScreenshotsData = {
+  body: CapturePageScreenshotsRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Chat Id
+     */
+    chat_id: string;
+  };
+  query?: never;
+  url: '/ocxp/prototype/chat/{provider}/{chat_id}/screenshots';
+};
+
+export type CapturePageScreenshotsErrors = {
+  /**
+   * Validation error
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type CapturePageScreenshotsError =
+  CapturePageScreenshotsErrors[keyof CapturePageScreenshotsErrors];
+
+export type CapturePageScreenshotsResponses = {
+  /**
+   * Successful Response
+   */
+  200: CapturePageScreenshotsResponse;
+};
+
+export type CapturePageScreenshotsResponse2 =
+  CapturePageScreenshotsResponses[keyof CapturePageScreenshotsResponses];
 
 export type GetPrototypeChatData = {
   body?: never;
@@ -5045,16 +5285,24 @@ export type GetPrototypeChatData = {
 
 export type GetPrototypeChatErrors = {
   /**
+   * Chat not found
+   */
+  404: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetPrototypeChatError = GetPrototypeChatErrors[keyof GetPrototypeChatErrors];
 
 export type GetPrototypeChatResponses = {
   /**
-   * Successful Response
+   * Chat data returned
    */
   200: PrototypeChatGetResponse;
 };
@@ -5079,6 +5327,10 @@ export type SyncPrototypeChatAsyncErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SyncPrototypeChatAsyncError =
@@ -5108,16 +5360,24 @@ export type GetSyncStatusData = {
 
 export type GetSyncStatusErrors = {
   /**
+   * Job not found
+   */
+  404: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetSyncStatusError = GetSyncStatusErrors[keyof GetSyncStatusErrors];
 
 export type GetSyncStatusResponses = {
   /**
-   * Successful Response
+   * Job status returned
    */
   200: PrototypeSyncJobStatusResponse;
 };
@@ -5155,6 +5415,10 @@ export type ListSessionsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListSessionsError = ListSessionsErrors[keyof ListSessionsErrors];
@@ -5190,6 +5454,10 @@ export type CreateSessionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type CreateSessionError = CreateSessionErrors[keyof CreateSessionErrors];
@@ -5237,6 +5505,10 @@ export type GetSessionMessagesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetSessionMessagesError = GetSessionMessagesErrors[keyof GetSessionMessagesErrors];
@@ -5274,6 +5546,10 @@ export type UpdateSessionMetadataErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type UpdateSessionMetadataError =
@@ -5316,6 +5592,10 @@ export type ForkSessionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ForkSessionError = ForkSessionErrors[keyof ForkSessionErrors];
@@ -5356,6 +5636,10 @@ export type ArchiveSessionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ArchiveSessionError = ArchiveSessionErrors[keyof ArchiveSessionErrors];
@@ -5399,6 +5683,10 @@ export type ListMissionCheckpointsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListMissionCheckpointsError =
@@ -5450,6 +5738,10 @@ export type GetCheckpointErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetCheckpointError = GetCheckpointErrors[keyof GetCheckpointErrors];
@@ -5488,6 +5780,10 @@ export type ListMissionBranchesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListMissionBranchesError = ListMissionBranchesErrors[keyof ListMissionBranchesErrors];
@@ -5538,6 +5834,10 @@ export type ExportCheckpointAsSopErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ExportCheckpointAsSopError =
@@ -5589,6 +5889,10 @@ export type PromoteCheckpointToLongtermErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type PromoteCheckpointToLongtermError =
@@ -5638,6 +5942,10 @@ export type ListProjectsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListProjectsError = ListProjectsErrors[keyof ListProjectsErrors];
@@ -5669,6 +5977,10 @@ export type CreateProjectErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type CreateProjectError = CreateProjectErrors[keyof CreateProjectErrors];
@@ -5719,6 +6031,10 @@ export type ListProjectsAliasErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListProjectsAliasError = ListProjectsAliasErrors[keyof ListProjectsAliasErrors];
@@ -5762,6 +6078,10 @@ export type DeleteProjectErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DeleteProjectError = DeleteProjectErrors[keyof DeleteProjectErrors];
@@ -5802,6 +6122,10 @@ export type GetProjectErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetProjectError = GetProjectErrors[keyof GetProjectErrors];
@@ -5844,6 +6168,10 @@ export type UpdateProjectErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type UpdateProjectError = UpdateProjectErrors[keyof UpdateProjectErrors];
@@ -5886,6 +6214,10 @@ export type AddLinkedRepoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type AddLinkedRepoError = AddLinkedRepoErrors[keyof AddLinkedRepoErrors];
@@ -5932,6 +6264,10 @@ export type RemoveLinkedRepoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RemoveLinkedRepoError = RemoveLinkedRepoErrors[keyof RemoveLinkedRepoErrors];
@@ -5974,6 +6310,10 @@ export type SetDefaultRepoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SetDefaultRepoError = SetDefaultRepoErrors[keyof SetDefaultRepoErrors];
@@ -6016,6 +6356,10 @@ export type GetContextReposErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetContextReposError = GetContextReposErrors[keyof GetContextReposErrors];
@@ -6056,6 +6400,10 @@ export type AddMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type AddMissionError = AddMissionErrors[keyof AddMissionErrors];
@@ -6102,6 +6450,10 @@ export type RemoveMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RemoveMissionError = RemoveMissionErrors[keyof RemoveMissionErrors];
@@ -6144,6 +6496,10 @@ export type GetProjectDatabasesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetProjectDatabasesError = GetProjectDatabasesErrors[keyof GetProjectDatabasesErrors];
@@ -6184,6 +6540,10 @@ export type AddDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type AddDatabaseError = AddDatabaseErrors[keyof AddDatabaseErrors];
@@ -6230,6 +6590,10 @@ export type RemoveDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RemoveDatabaseError = RemoveDatabaseErrors[keyof RemoveDatabaseErrors];
@@ -6272,6 +6636,10 @@ export type SetDefaultDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SetDefaultDatabaseError = SetDefaultDatabaseErrors[keyof SetDefaultDatabaseErrors];
@@ -6335,6 +6703,10 @@ export type ListMissionsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListMissionsError = ListMissionsErrors[keyof ListMissionsErrors];
@@ -6366,6 +6738,10 @@ export type CreateMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type CreateMissionError = CreateMissionErrors[keyof CreateMissionErrors];
@@ -6378,6 +6754,73 @@ export type CreateMissionResponses = {
 };
 
 export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
+
+export type ListMissionsAliasData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Project Id
+     *
+     * Filter by project ID
+     */
+    project_id?: string | null;
+    /**
+     * Status
+     *
+     * Filter by status
+     */
+    status?: string | null;
+    /**
+     * Mission Ids
+     *
+     * Filter by specific mission IDs
+     */
+    mission_ids?: Array<string> | null;
+    /**
+     * Include Metadata
+     *
+     * Include full metadata (description, notes, goals)
+     */
+    include_metadata?: boolean;
+    /**
+     * Limit
+     *
+     * Maximum number of missions to return
+     */
+    limit?: number;
+  };
+  url: '/ocxp/mission/list';
+};
+
+export type ListMissionsAliasErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type ListMissionsAliasError = ListMissionsAliasErrors[keyof ListMissionsAliasErrors];
+
+export type ListMissionsAliasResponses = {
+  /**
+   * List of missions returned successfully
+   */
+  200: MissionListResponse;
+};
+
+export type ListMissionsAliasResponse =
+  ListMissionsAliasResponses[keyof ListMissionsAliasResponses];
 
 export type DeleteMissionData = {
   body?: never;
@@ -6408,6 +6851,10 @@ export type DeleteMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DeleteMissionError = DeleteMissionErrors[keyof DeleteMissionErrors];
@@ -6448,6 +6895,10 @@ export type GetMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetMissionError = GetMissionErrors[keyof GetMissionErrors];
@@ -6490,6 +6941,10 @@ export type UpdateMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type UpdateMissionError = UpdateMissionErrors[keyof UpdateMissionErrors];
@@ -6532,6 +6987,10 @@ export type AddSessionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type AddSessionError = AddSessionErrors[keyof AddSessionErrors];
@@ -6578,6 +7037,10 @@ export type RemoveSessionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RemoveSessionError = RemoveSessionErrors[keyof RemoveSessionErrors];
@@ -6621,6 +7084,10 @@ export type RegenerateMissionErrors = {
    */
   422: HttpValidationError;
   /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+  /**
    * Archive or regeneration failed
    */
   500: unknown;
@@ -6660,16 +7127,24 @@ export type DownloadMissionPackData = {
 
 export type DownloadMissionPackErrors = {
   /**
+   * Mission not found
+   */
+  404: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DownloadMissionPackError = DownloadMissionPackErrors[keyof DownloadMissionPackErrors];
 
 export type DownloadMissionPackResponses = {
   /**
-   * Successful Response
+   * Mission ZIP file returned
    */
   200: unknown;
 };
@@ -6692,6 +7167,10 @@ export type QueryKnowledgeBaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type QueryKnowledgeBaseError = QueryKnowledgeBaseErrors[keyof QueryKnowledgeBaseErrors];
@@ -6724,6 +7203,10 @@ export type RagKnowledgeBaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RagKnowledgeBaseError = RagKnowledgeBaseErrors[keyof RagKnowledgeBaseErrors];
@@ -6798,6 +7281,10 @@ export type ListMemosErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListMemosError = ListMemosErrors[keyof ListMemosErrors];
@@ -6833,6 +7320,10 @@ export type CreateMemoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type CreateMemoError = CreateMemoErrors[keyof CreateMemoErrors];
@@ -6875,6 +7366,10 @@ export type DeleteMemoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DeleteMemoError = DeleteMemoErrors[keyof DeleteMemoErrors];
@@ -6917,6 +7412,10 @@ export type GetMemoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetMemoError = GetMemoErrors[keyof GetMemoErrors];
@@ -6961,6 +7460,10 @@ export type GetMemoForSourceErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetMemoForSourceError = GetMemoForSourceErrors[keyof GetMemoForSourceErrors];
@@ -7005,6 +7508,10 @@ export type ResolveMemoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ResolveMemoError = ResolveMemoErrors[keyof ResolveMemoErrors];
@@ -7047,6 +7554,10 @@ export type AcknowledgeMemoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type AcknowledgeMemoError = AcknowledgeMemoErrors[keyof AcknowledgeMemoErrors];
@@ -7089,6 +7600,10 @@ export type IgnoreMemoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type IgnoreMemoError = IgnoreMemoErrors[keyof IgnoreMemoErrors];
@@ -7124,6 +7639,10 @@ export type DownloadRepositoryErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DownloadRepositoryError = DownloadRepositoryErrors[keyof DownloadRepositoryErrors];
@@ -7165,6 +7684,10 @@ export type GetRepoDownloadStatusErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetRepoDownloadStatusError =
@@ -7198,6 +7721,10 @@ export type ListDownloadedReposErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListDownloadedReposError = ListDownloadedReposErrors[keyof ListDownloadedReposErrors];
@@ -7239,6 +7766,10 @@ export type DeleteRepoErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DeleteRepoError = DeleteRepoErrors[keyof DeleteRepoErrors];
@@ -7267,9 +7798,17 @@ export type GithubCheckAccessData = {
 
 export type GithubCheckAccessErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GithubCheckAccessError = GithubCheckAccessErrors[keyof GithubCheckAccessErrors];
@@ -7296,9 +7835,17 @@ export type GithubListBranchesData = {
 
 export type GithubListBranchesErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GithubListBranchesError = GithubListBranchesErrors[keyof GithubListBranchesErrors];
@@ -7325,9 +7872,17 @@ export type GithubGetContentsData = {
 
 export type GithubGetContentsErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GithubGetContentsError = GithubGetContentsErrors[keyof GithubGetContentsErrors];
@@ -7364,6 +7919,10 @@ export type ListDatabasesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListDatabasesError = ListDatabasesErrors[keyof ListDatabasesErrors];
@@ -7395,6 +7954,10 @@ export type CreateDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type CreateDatabaseError = CreateDatabaseErrors[keyof CreateDatabaseErrors];
@@ -7433,6 +7996,10 @@ export type ListDatabasesAliasErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListDatabasesAliasError = ListDatabasesAliasErrors[keyof ListDatabasesAliasErrors];
@@ -7474,6 +8041,10 @@ export type DeleteDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DeleteDatabaseError = DeleteDatabaseErrors[keyof DeleteDatabaseErrors];
@@ -7512,6 +8083,10 @@ export type GetDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetDatabaseError = GetDatabaseErrors[keyof GetDatabaseErrors];
@@ -7552,6 +8127,10 @@ export type UpdateDatabaseErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type UpdateDatabaseError = UpdateDatabaseErrors[keyof UpdateDatabaseErrors];
@@ -7592,6 +8171,10 @@ export type TestDatabaseConnectionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type TestDatabaseConnectionError =
@@ -7639,6 +8222,10 @@ export type GetSchemaErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetSchemaError = GetSchemaErrors[keyof GetSchemaErrors];
@@ -7696,6 +8283,10 @@ export type GetSampleErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetSampleError = GetSampleErrors[keyof GetSampleErrors];
@@ -7744,6 +8335,10 @@ export type ListTablesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListTablesError = ListTablesErrors[keyof ListTablesErrors];
@@ -7773,6 +8368,10 @@ export type ListContextDatabasesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListContextDatabasesError =
@@ -7820,6 +8419,10 @@ export type GetDatabaseOverviewErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetDatabaseOverviewError = GetDatabaseOverviewErrors[keyof GetDatabaseOverviewErrors];
@@ -7859,6 +8462,10 @@ export type GetContentTypesErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetContentTypesError = GetContentTypesErrors[keyof GetContentTypesErrors];
@@ -7907,13 +8514,17 @@ export type ListContentData = {
 
 export type ListContentErrors = {
   /**
-   * Invalid content type
+   * Validation error
    */
   400: unknown;
   /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListContentError = ListContentErrors[keyof ListContentErrors];
@@ -7956,6 +8567,10 @@ export type QueryContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type QueryContentError = QueryContentErrors[keyof QueryContentErrors];
@@ -8004,9 +8619,17 @@ export type SearchContentData = {
 
 export type SearchContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SearchContentError = SearchContentErrors[keyof SearchContentErrors];
@@ -8061,9 +8684,17 @@ export type GetContentTreeData = {
 
 export type GetContentTreeErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetContentTreeError = GetContentTreeErrors[keyof GetContentTreeErrors];
@@ -8106,9 +8737,17 @@ export type GetContentStatsData = {
 
 export type GetContentStatsErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetContentStatsError = GetContentStatsErrors[keyof GetContentStatsErrors];
@@ -8155,6 +8794,10 @@ export type ListVersionsData = {
 
 export type ListVersionsErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Content not found
    */
   404: unknown;
@@ -8162,6 +8805,10 @@ export type ListVersionsErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListVersionsError = ListVersionsErrors[keyof ListVersionsErrors];
@@ -8226,7 +8873,7 @@ export type DeleteContentData = {
 
 export type DeleteContentErrors = {
   /**
-   * Recursive delete requires confirmation
+   * Validation error
    */
   400: unknown;
   /**
@@ -8237,6 +8884,10 @@ export type DeleteContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type DeleteContentError = DeleteContentErrors[keyof DeleteContentErrors];
@@ -8283,6 +8934,10 @@ export type ReadContentData = {
 
 export type ReadContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Content not found
    */
   404: unknown;
@@ -8290,6 +8945,10 @@ export type ReadContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ReadContentError = ReadContentErrors[keyof ReadContentErrors];
@@ -8329,6 +8988,10 @@ export type WriteContentData = {
 
 export type WriteContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Content already exists or ETag mismatch
    */
   409: unknown;
@@ -8336,6 +8999,10 @@ export type WriteContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type WriteContentError = WriteContentErrors[keyof WriteContentErrors];
@@ -8375,6 +9042,10 @@ export type CreateFolderData = {
 
 export type CreateFolderErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Folder already exists
    */
   409: unknown;
@@ -8382,6 +9053,10 @@ export type CreateFolderErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type CreateFolderError = CreateFolderErrors[keyof CreateFolderErrors];
@@ -8410,6 +9085,10 @@ export type MoveContentData = {
 
 export type MoveContentErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Source not found
    */
   404: unknown;
@@ -8421,6 +9100,10 @@ export type MoveContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type MoveContentError = MoveContentErrors[keyof MoveContentErrors];
@@ -8450,6 +9133,10 @@ export type LockContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type LockContentError = LockContentErrors[keyof LockContentErrors];
@@ -8479,6 +9166,10 @@ export type UnlockContentErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type UnlockContentError = UnlockContentErrors[keyof UnlockContentErrors];
@@ -8508,6 +9199,10 @@ export type ToolCreateMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ToolCreateMissionError = ToolCreateMissionErrors[keyof ToolCreateMissionErrors];
@@ -8549,6 +9244,10 @@ export type ToolUpdateMissionErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ToolUpdateMissionError = ToolUpdateMissionErrors[keyof ToolUpdateMissionErrors];
@@ -8590,6 +9289,10 @@ export type GetMissionContextErrors = {
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetMissionContextError = GetMissionContextErrors[keyof GetMissionContextErrors];
@@ -8613,16 +9316,24 @@ export type LoginForAccessTokenData = {
 
 export type LoginForAccessTokenErrors = {
   /**
+   * Invalid credentials or user not found
+   */
+  401: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type LoginForAccessTokenError = LoginForAccessTokenErrors[keyof LoginForAccessTokenErrors];
 
 export type LoginForAccessTokenResponses = {
   /**
-   * Successful Response
+   * Successfully authenticated
    */
   200: OAuth2TokenResponse;
 };
@@ -8639,16 +9350,24 @@ export type LoginData = {
 
 export type LoginErrors = {
   /**
+   * Invalid credentials or user not found
+   */
+  401: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type LoginError = LoginErrors[keyof LoginErrors];
 
 export type LoginResponses = {
   /**
-   * Successful Response
+   * Successfully authenticated
    */
   200: TokenResponse;
 };
@@ -8664,16 +9383,24 @@ export type RefreshTokensData = {
 
 export type RefreshTokensErrors = {
   /**
+   * Invalid or expired refresh token
+   */
+  401: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type RefreshTokensError = RefreshTokensErrors[keyof RefreshTokensErrors];
 
 export type RefreshTokensResponses = {
   /**
-   * Successful Response
+   * Tokens refreshed successfully
    */
   200: RefreshResponse;
 };
@@ -8703,6 +9430,13 @@ export type GetCurrentUserData = {
   url: '/auth/me';
 };
 
+export type GetCurrentUserErrors = {
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
 export type GetCurrentUserResponses = {
   /**
    * Successful Response
@@ -8717,6 +9451,13 @@ export type ListWorkspacesData = {
   path?: never;
   query?: never;
   url: '/auth/workspaces';
+};
+
+export type ListWorkspacesErrors = {
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type ListWorkspacesResponses = {
@@ -8735,6 +9476,13 @@ export type DeleteGithubTokenData = {
   url: '/auth/github-token';
 };
 
+export type DeleteGithubTokenErrors = {
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
 export type DeleteGithubTokenResponses = {
   /**
    * Successful Response
@@ -8750,6 +9498,13 @@ export type GetGithubTokenStatusData = {
   path?: never;
   query?: never;
   url: '/auth/github-token';
+};
+
+export type GetGithubTokenStatusErrors = {
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type GetGithubTokenStatusResponses = {
@@ -8771,9 +9526,17 @@ export type SetGithubTokenData = {
 
 export type SetGithubTokenErrors = {
   /**
+   * Validation error
+   */
+  400: unknown;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
 };
 
 export type SetGithubTokenError = SetGithubTokenErrors[keyof SetGithubTokenErrors];

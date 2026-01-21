@@ -44,6 +44,9 @@ import type {
   BulkWriteContentData,
   BulkWriteContentErrors,
   BulkWriteContentResponses,
+  CapturePageScreenshotsData,
+  CapturePageScreenshotsErrors,
+  CapturePageScreenshotsResponses,
   CreateDatabaseData,
   CreateDatabaseErrors,
   CreateDatabaseResponses,
@@ -69,6 +72,7 @@ import type {
   DeleteDatabaseErrors,
   DeleteDatabaseResponses,
   DeleteGithubTokenData,
+  DeleteGithubTokenErrors,
   DeleteGithubTokenResponses,
   DeleteMemoData,
   DeleteMemoErrors,
@@ -115,6 +119,7 @@ import type {
   GetContextReposErrors,
   GetContextReposResponses,
   GetCurrentUserData,
+  GetCurrentUserErrors,
   GetCurrentUserResponses,
   GetDatabaseData,
   GetDatabaseErrors,
@@ -123,6 +128,7 @@ import type {
   GetDatabaseOverviewResponses,
   GetDatabaseResponses,
   GetGithubTokenStatusData,
+  GetGithubTokenStatusErrors,
   GetGithubTokenStatusResponses,
   GetMemoData,
   GetMemoErrors,
@@ -210,6 +216,9 @@ import type {
   ListMissionCheckpointsData,
   ListMissionCheckpointsErrors,
   ListMissionCheckpointsResponses,
+  ListMissionsAliasData,
+  ListMissionsAliasErrors,
+  ListMissionsAliasResponses,
   ListMissionsData,
   ListMissionsErrors,
   ListMissionsResponses,
@@ -232,6 +241,7 @@ import type {
   ListVersionsErrors,
   ListVersionsResponses,
   ListWorkspacesData,
+  ListWorkspacesErrors,
   ListWorkspacesResponses,
   LockContentData,
   LockContentErrors,
@@ -1093,6 +1103,69 @@ export const getStoredVersions = <ThrowOnError extends boolean = false>(
   );
 
 /**
+ * Capture Page Screenshots
+ *
+ * Capture screenshots for specific pages of a prototype version.
+ *
+ * Use this endpoint to capture screenshots for auto-discovered pages without
+ * triggering a full sync. This is useful when pages are detected from file
+ * structure but screenshots haven't been captured yet.
+ *
+ * **Path Parameters:**
+ * - `provider`: Provider name (v0, lovable, bolt)
+ * - `chat_id`: Chat ID
+ *
+ * **Request Body:**
+ * - `version_id`: Version ID to capture screenshots for
+ * - `routes`: List of routes to screenshot (e.g., ['/', '/dashboard', '/settings'])
+ *
+ * **Use Cases:**
+ * - Capture screenshots for newly discovered pages after file sync
+ * - Re-capture screenshots after preview URL changes
+ * - Capture screenshots for specific routes without full resync
+ *
+ * **Example Request:**
+ * ```json
+ * {
+ * "version_id": "aVVgJPrZiiE",
+ * "routes": ["/", "/dashboard", "/settings"]
+ * }
+ * ```
+ *
+ * **Example Response:**
+ * ```json
+ * {
+ * "provider": "v0",
+ * "chat_id": "YivecgytPyg",
+ * "version_id": "aVVgJPrZiiE",
+ * "screenshots": {
+ * "/": "ocxp://prod/prototype/FQV1NSmpVqk/YivecgytPyg/aVVgJPrZiiE/visual/screenshots/root.png",
+ * "/dashboard": "ocxp://prod/prototype/FQV1NSmpVqk/YivecgytPyg/aVVgJPrZiiE/visual/screenshots/dashboard.png",
+ * "/settings": "ocxp://prod/prototype/FQV1NSmpVqk/YivecgytPyg/aVVgJPrZiiE/visual/screenshots/settings.png"
+ * },
+ * "captured_count": 3,
+ * "failed_routes": []
+ * }
+ * ```
+ */
+export const capturePageScreenshots = <ThrowOnError extends boolean = false>(
+  options: Options<CapturePageScreenshotsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CapturePageScreenshotsResponses,
+    CapturePageScreenshotsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/prototype/chat/{provider}/{chat_id}/screenshots',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * Get Prototype Chat
  *
  * Get stored prototype chat data from OCXP.
@@ -1760,6 +1833,24 @@ export const createMission = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * List all missions (alias)
+ *
+ * Alias for GET /ocxp/mission. Returns all missions in the workspace.
+ */
+export const listMissionsAlias = <ThrowOnError extends boolean = false>(
+  options?: Options<ListMissionsAliasData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListMissionsAliasResponses,
+    ListMissionsAliasErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/list',
+    ...options,
   });
 
 /**
@@ -2767,7 +2858,7 @@ export const getAuthConfig = <ThrowOnError extends boolean = false>(
 export const getCurrentUser = <ThrowOnError extends boolean = false>(
   options?: Options<GetCurrentUserData, ThrowOnError>
 ) =>
-  (options?.client ?? client).get<GetCurrentUserResponses, unknown, ThrowOnError>({
+  (options?.client ?? client).get<GetCurrentUserResponses, GetCurrentUserErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/auth/me',
     ...options,
@@ -2781,7 +2872,7 @@ export const getCurrentUser = <ThrowOnError extends boolean = false>(
 export const listWorkspaces = <ThrowOnError extends boolean = false>(
   options?: Options<ListWorkspacesData, ThrowOnError>
 ) =>
-  (options?.client ?? client).get<ListWorkspacesResponses, unknown, ThrowOnError>({
+  (options?.client ?? client).get<ListWorkspacesResponses, ListWorkspacesErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/auth/workspaces',
     ...options,
@@ -2798,7 +2889,11 @@ export const listWorkspaces = <ThrowOnError extends boolean = false>(
 export const deleteGithubToken = <ThrowOnError extends boolean = false>(
   options?: Options<DeleteGithubTokenData, ThrowOnError>
 ) =>
-  (options?.client ?? client).delete<DeleteGithubTokenResponses, unknown, ThrowOnError>({
+  (options?.client ?? client).delete<
+    DeleteGithubTokenResponses,
+    DeleteGithubTokenErrors,
+    ThrowOnError
+  >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/auth/github-token',
     ...options,
@@ -2815,7 +2910,11 @@ export const deleteGithubToken = <ThrowOnError extends boolean = false>(
 export const getGithubTokenStatus = <ThrowOnError extends boolean = false>(
   options?: Options<GetGithubTokenStatusData, ThrowOnError>
 ) =>
-  (options?.client ?? client).get<GetGithubTokenStatusResponses, unknown, ThrowOnError>({
+  (options?.client ?? client).get<
+    GetGithubTokenStatusResponses,
+    GetGithubTokenStatusErrors,
+    ThrowOnError
+  >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/auth/github-token',
     ...options,

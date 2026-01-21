@@ -47,6 +47,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -91,6 +117,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OCXPValidateResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -150,6 +187,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OCXPBatchResolveResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -223,6 +271,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -288,6 +362,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BulkWriteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -361,6 +461,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -430,6 +556,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -494,6 +646,17 @@
           "403": {
             "description": "Insufficient permissions"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -542,6 +705,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -585,6 +759,17 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
               }
             }
           },
@@ -642,6 +827,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DiscoverResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -704,6 +900,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -758,6 +965,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IngestResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -820,6 +1038,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -869,6 +1098,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -912,6 +1152,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PrototypeChatPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -974,6 +1240,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1028,6 +1320,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PrototypeChatSyncResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -1104,6 +1407,119 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PrototypeStoredVersionsResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/prototype/chat/{provider}/{chat_id}/screenshots": {
+      "post": {
+        "tags": [
+          "Prototype Chat"
+        ],
+        "summary": "Capture Page Screenshots",
+        "description": "Capture screenshots for specific pages of a prototype version.\n\nUse this endpoint to capture screenshots for auto-discovered pages without\ntriggering a full sync. This is useful when pages are detected from file\nstructure but screenshots haven't been captured yet.\n\n**Path Parameters:**\n- `provider`: Provider name (v0, lovable, bolt)\n- `chat_id`: Chat ID\n\n**Request Body:**\n- `version_id`: Version ID to capture screenshots for\n- `routes`: List of routes to screenshot (e.g., ['/', '/dashboard', '/settings'])\n\n**Use Cases:**\n- Capture screenshots for newly discovered pages after file sync\n- Re-capture screenshots after preview URL changes\n- Capture screenshots for specific routes without full resync\n\n**Example Request:**\n```json\n{\n    \"version_id\": \"aVVgJPrZiiE\",\n    \"routes\": [\"/\", \"/dashboard\", \"/settings\"]\n}\n```\n\n**Example Response:**\n```json\n{\n    \"provider\": \"v0\",\n    \"chat_id\": \"YivecgytPyg\",\n    \"version_id\": \"aVVgJPrZiiE\",\n    \"screenshots\": {\n        \"/\": \"ocxp://prod/prototype/FQV1NSmpVqk/YivecgytPyg/aVVgJPrZiiE/visual/screenshots/root.png\",\n        \"/dashboard\": \"ocxp://prod/prototype/FQV1NSmpVqk/YivecgytPyg/aVVgJPrZiiE/visual/screenshots/dashboard.png\",\n        \"/settings\": \"ocxp://prod/prototype/FQV1NSmpVqk/YivecgytPyg/aVVgJPrZiiE/visual/screenshots/settings.png\"\n    },\n    \"captured_count\": 3,\n    \"failed_routes\": []\n}\n```",
+        "operationId": "capturePageScreenshots",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapturePageScreenshotsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapturePageScreenshotsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -1197,11 +1613,25 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Chat data returned",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PrototypeChatGetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -1264,6 +1694,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1303,11 +1744,25 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Job status returned",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PrototypeSyncJobStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Job not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -1386,6 +1841,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1444,6 +1910,17 @@
           },
           "409": {
             "description": "Session already exists"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1519,6 +1996,17 @@
           "404": {
             "description": "Session not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1582,6 +2070,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -1656,6 +2155,17 @@
           "404": {
             "description": "Parent session not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1713,6 +2223,17 @@
           },
           "404": {
             "description": "Session not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1791,6 +2312,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1864,6 +2396,17 @@
           "404": {
             "description": "Checkpoint not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1919,6 +2462,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BranchListResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -1996,6 +2550,17 @@
           "404": {
             "description": "Checkpoint not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2066,6 +2631,17 @@
           },
           "404": {
             "description": "Checkpoint not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2162,6 +2738,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2214,6 +2801,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -2313,6 +2911,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2374,6 +2983,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2445,6 +3065,17 @@
           "404": {
             "description": "Project not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2502,6 +3133,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2575,6 +3217,17 @@
           "404": {
             "description": "Project not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2645,6 +3298,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2718,6 +3382,17 @@
           "404": {
             "description": "Project not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2777,6 +3452,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2850,6 +3536,17 @@
           "404": {
             "description": "Project not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2920,6 +3617,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2993,6 +3701,17 @@
           "404": {
             "description": "Project not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3050,6 +3769,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3122,6 +3852,17 @@
           "404": {
             "description": "Project not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3193,6 +3934,17 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3325,6 +4077,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3377,6 +4140,159 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MissionResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/list": {
+      "get": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "List all missions (alias)",
+        "description": "Alias for GET /ocxp/mission. Returns all missions in the workspace.",
+        "operationId": "listMissionsAlias",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID",
+              "title": "Project Id"
+            },
+            "description": "Filter by project ID"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status",
+              "title": "Status"
+            },
+            "description": "Filter by status"
+          },
+          {
+            "name": "mission_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by specific mission IDs",
+              "title": "Mission Ids"
+            },
+            "description": "Filter by specific mission IDs"
+          },
+          {
+            "name": "include_metadata",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include full metadata (description, notes, goals)",
+              "default": false,
+              "title": "Include Metadata"
+            },
+            "description": "Include full metadata (description, notes, goals)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum number of missions to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum number of missions to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of missions returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionListResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -3442,6 +4358,17 @@
           },
           "404": {
             "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3513,6 +4440,17 @@
           "404": {
             "description": "Mission not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3570,6 +4508,17 @@
           },
           "404": {
             "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3643,6 +4592,17 @@
           "404": {
             "description": "Mission not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3713,6 +4673,17 @@
           },
           "404": {
             "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3789,6 +4760,17 @@
           "500": {
             "description": "Archive or regeneration failed"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3840,7 +4822,21 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response"
+            "description": "Mission ZIP file returned"
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -3901,6 +4897,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3956,6 +4963,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/KBRagResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -4020,6 +5038,17 @@
           },
           "400": {
             "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -4189,6 +5218,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4251,6 +5291,17 @@
           "404": {
             "description": "Memo not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4310,6 +5361,17 @@
           },
           "404": {
             "description": "Memo not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -4389,6 +5451,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4461,6 +5534,17 @@
           "404": {
             "description": "Memo not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4522,6 +5606,17 @@
           },
           "404": {
             "description": "Memo not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -4585,6 +5680,17 @@
           "404": {
             "description": "Memo not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4646,6 +5752,17 @@
           "400": {
             "description": "Invalid repository URL"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4706,6 +5823,17 @@
           "404": {
             "description": "Job not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4750,6 +5878,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RepoListResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -4814,6 +5953,17 @@
           "404": {
             "description": "Repository not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4867,6 +6017,32 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
               }
             }
           },
@@ -4926,6 +6102,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4979,6 +6181,32 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
               }
             }
           },
@@ -5044,6 +6272,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5096,6 +6335,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DatabaseConfigResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -5162,6 +6412,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5221,6 +6482,17 @@
           },
           "404": {
             "description": "Database not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -5290,6 +6562,17 @@
           "404": {
             "description": "Database not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5345,6 +6628,17 @@
           },
           "404": {
             "description": "Database not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -5403,6 +6697,17 @@
           },
           "404": {
             "description": "Database not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -5490,6 +6795,17 @@
           },
           "404": {
             "description": "Database not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -5586,6 +6902,17 @@
           "404": {
             "description": "Database or table not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5667,6 +6994,17 @@
           "404": {
             "description": "Database not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5710,6 +7048,17 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
               }
             }
           },
@@ -5796,6 +7145,17 @@
           "404": {
             "description": "Database not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5852,6 +7212,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ContentTypesResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -5948,7 +7319,30 @@
             }
           },
           "400": {
-            "description": "Invalid content type"
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -6021,6 +7415,17 @@
           },
           "400": {
             "description": "Invalid filter or content type"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -6102,6 +7507,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ContentListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -6209,6 +7640,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -6282,6 +7739,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ContentStatsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -6370,6 +7853,32 @@
           },
           "404": {
             "description": "Content not found"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -6460,6 +7969,32 @@
           "404": {
             "description": "Content not found"
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -6538,6 +8073,32 @@
           },
           "409": {
             "description": "Content already exists or ETag mismatch"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -6659,11 +8220,34 @@
               }
             }
           },
-          "400": {
-            "description": "Recursive delete requires confirmation"
-          },
           "404": {
             "description": "Content not found"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -6746,6 +8330,32 @@
           "409": {
             "description": "Folder already exists"
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -6808,6 +8418,32 @@
           "409": {
             "description": "Destination exists"
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -6861,6 +8497,17 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
               }
             }
           },
@@ -6920,6 +8567,17 @@
               }
             }
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -6974,6 +8632,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MissionCreateResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -7048,6 +8717,17 @@
           "404": {
             "description": "Mission not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -7108,6 +8788,17 @@
           "404": {
             "description": "Mission not found"
           },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -7146,11 +8837,25 @@
         },
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Successfully authenticated",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OAuth2TokenResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials or user not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -7188,11 +8893,25 @@
         },
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Successfully authenticated",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials or user not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -7235,11 +8954,25 @@
         },
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Tokens refreshed successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RefreshResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired refresh token"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -7302,6 +9035,17 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7329,6 +9073,17 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7353,6 +9108,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GitHubTokenStatusResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -7392,6 +9158,32 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid content type",
+                    "retryable": false
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -7423,6 +9215,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GitHubTokenSuccessResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -7988,6 +9791,79 @@
         ],
         "title": "BulkWriteResponse",
         "description": "Response for POST /ocxp/{type}/bulk/write."
+      },
+      "CapturePageScreenshotsRequest": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "title": "Version Id",
+            "description": "Version ID to capture screenshots for"
+          },
+          "routes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Routes",
+            "description": "List of routes to screenshot (e.g., ['/', '/dashboard', '/settings'])"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "routes"
+        ],
+        "title": "CapturePageScreenshotsRequest",
+        "description": "Request to capture screenshots for specific pages of a prototype version.\n\nUse this endpoint to capture screenshots for auto-discovered pages without\ntriggering a full sync. This is useful when pages are detected from file\nstructure but screenshots haven't been captured yet."
+      },
+      "CapturePageScreenshotsResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "Provider name (v0, lovable, bolt)"
+          },
+          "chat_id": {
+            "type": "string",
+            "title": "Chat Id",
+            "description": "Chat ID"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id",
+            "description": "Version ID screenshots were captured for"
+          },
+          "screenshots": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Screenshots",
+            "description": "Map of route to OCXP screenshot link (e.g., {'/': 'ocxp://...', '/dashboard': 'ocxp://...'})"
+          },
+          "captured_count": {
+            "type": "integer",
+            "title": "Captured Count",
+            "description": "Number of screenshots successfully captured",
+            "default": 0
+          },
+          "failed_routes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failed Routes",
+            "description": "Routes that failed to capture (e.g., due to timeout or 404)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "chat_id",
+          "version_id"
+        ],
+        "title": "CapturePageScreenshotsResponse",
+        "description": "Response from capturing page screenshots.\n\nReturns the OCXP links for each captured screenshot, mapped by route."
       },
       "CheckAccessRequest": {
         "properties": {
@@ -8815,10 +10691,12 @@
         "properties": {
           "session_id": {
             "type": "string",
+            "minLength": 1,
             "title": "Session Id"
           },
           "mission_id": {
             "type": "string",
+            "minLength": 1,
             "title": "Mission Id"
           },
           "title": {
@@ -9767,7 +11645,9 @@
         "properties": {
           "mission_id": {
             "type": "string",
-            "title": "Mission Id"
+            "minLength": 1,
+            "title": "Mission Id",
+            "description": "Mission ID to link forked session to"
           },
           "fork_point": {
             "anyOf": [
@@ -9934,8 +11814,11 @@
         "properties": {
           "path": {
             "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$",
             "title": "Path",
-            "description": "Content path, e.g., 'project/uuid/file.md'",
+            "description": "Content path, e.g., 'project/uuid/file.md'. Must start with alphanumeric and contain only alphanumeric, slashes, underscores, dots, and hyphens.",
             "examples": [
               "project/1c3952a0-58a0-41b5-85aa-7a33496b96ab/auth.md"
             ]
@@ -10388,11 +12271,15 @@
         "properties": {
           "username": {
             "type": "string",
-            "title": "Username"
+            "minLength": 1,
+            "title": "Username",
+            "description": "Cognito username"
           },
           "password": {
             "type": "string",
-            "title": "Password"
+            "minLength": 1,
+            "title": "Password",
+            "description": "User password"
           }
         },
         "type": "object",
@@ -10744,13 +12631,14 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 100
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Project UUID to associate mission with"
           },
           "goals": {
             "items": {
@@ -10770,12 +12658,15 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
             "title": "Name"
           },
           "description": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 5000
               },
               {
                 "type": "null"
@@ -12334,6 +14225,7 @@
           },
           "chat_id": {
             "type": "string",
+            "minLength": 1,
             "title": "Chat Id",
             "description": "Chat ID to sync"
           },
@@ -12782,6 +14674,18 @@
             ],
             "title": "Synced At",
             "description": "When this version was synced to OCXP"
+          },
+          "s3_base_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "S3 Base Path",
+            "description": "Base path for tree queries: {project_id}/{chat_id}"
           }
         },
         "type": "object",
@@ -12872,6 +14776,7 @@
         "properties": {
           "refreshToken": {
             "type": "string",
+            "minLength": 1,
             "title": "Refreshtoken"
           }
         },
