@@ -3616,6 +3616,112 @@ export type RegenerateMissionResponse = {
 };
 
 /**
+ * RepoCommitInfo
+ *
+ * Commit information from GitHub.
+ */
+export type RepoCommitInfo = {
+  /**
+   * Sha
+   *
+   * Short commit SHA (7 chars)
+   */
+  sha: string;
+  /**
+   * Full Sha
+   *
+   * Full commit SHA
+   */
+  full_sha: string;
+  /**
+   * Message
+   *
+   * Commit message (first line)
+   */
+  message: string;
+  /**
+   * Date
+   *
+   * Commit date ISO timestamp
+   */
+  date?: string | null;
+  /**
+   * Author
+   *
+   * Commit author name
+   */
+  author?: string;
+};
+
+/**
+ * RepoCommitStatusResponse
+ *
+ * Response for GET /ocxp/repo/{id}/commits.
+ */
+export type RepoCommitStatusResponse = {
+  /**
+   * Repo Id
+   *
+   * Repository identifier
+   */
+  repo_id: string;
+  /**
+   * Branch
+   *
+   * Branch name
+   */
+  branch: string;
+  /**
+   * Indexed Commit
+   *
+   * Currently indexed commit SHA
+   */
+  indexed_commit?: string | null;
+  /**
+   * Latest Commit
+   *
+   * Latest commit SHA on GitHub
+   */
+  latest_commit?: string | null;
+  /**
+   * Latest Commit Date
+   *
+   * Latest commit date
+   */
+  latest_commit_date?: string | null;
+  /**
+   * Latest Commit Message
+   *
+   * Latest commit message
+   */
+  latest_commit_message?: string | null;
+  /**
+   * Commits Behind
+   *
+   * Number of commits behind (-1 = many)
+   */
+  commits_behind?: number;
+  /**
+   * Is Up To Date
+   *
+   * Whether repo is up to date
+   */
+  is_up_to_date?: boolean;
+  /**
+   * Missing Commits
+   *
+   * List of missing commits
+   */
+  missing_commits?: Array<RepoCommitInfo>;
+  /**
+   * Error
+   *
+   * Error message if lookup failed
+   */
+  error?: string | null;
+};
+
+/**
  * RepoDeleteResponse
  *
  * Response for DELETE /ocxp/repo/{id}.
@@ -3824,6 +3930,88 @@ export type RepoStatusResponse = {
 };
 
 /**
+ * RepoSyncAllResponse
+ *
+ * Response for POST /ocxp/repo/sync-all.
+ */
+export type RepoSyncAllResponse = {
+  /**
+   * Total Repos
+   *
+   * Total repositories checked
+   */
+  total_repos: number;
+  /**
+   * Synced
+   *
+   * Repositories that were synced
+   */
+  synced?: number;
+  /**
+   * Up To Date
+   *
+   * Repositories already up to date
+   */
+  up_to_date?: number;
+  /**
+   * Failed
+   *
+   * Repositories that failed to sync
+   */
+  failed?: number;
+  /**
+   * Jobs
+   *
+   * Job IDs for synced repos
+   */
+  jobs?: Array<string>;
+};
+
+/**
+ * RepoSyncResponse
+ *
+ * Response for POST /ocxp/repo/{id}/sync.
+ */
+export type RepoSyncResponse = {
+  /**
+   * Job Id
+   *
+   * Job ID for status tracking (empty if up_to_date)
+   */
+  job_id?: string;
+  /**
+   * Status
+   *
+   * Sync status
+   */
+  status: string;
+  /**
+   * Message
+   *
+   * Human-readable status message
+   */
+  message: string;
+  /**
+   * Previous Commit
+   *
+   * Previous commit SHA (7 chars)
+   */
+  previous_commit?: string | null;
+  /**
+   * Current Commit
+   *
+   * Current/latest commit SHA (7 chars)
+   */
+  current_commit?: string | null;
+  /**
+   * Changes Detected
+   *
+   * Whether changes were detected
+   */
+  changes_detected?: boolean;
+};
+
+/**
  * SecurityFinding
  *
  * Single sensitive data finding within a memo.
@@ -4015,6 +4203,18 @@ export type SetDefaultRepoRequest = {
  * Type of entity the memo is associated with.
  */
 export type SourceType = 'repo' | 'project' | 'mission' | 'doc';
+
+/**
+ * SyncRequest
+ *
+ * Request body for sync operations.
+ */
+export type SyncRequest = {
+  /**
+   * Force
+   */
+  force?: boolean;
+};
 
 /**
  * TableOverview
@@ -7782,6 +7982,129 @@ export type DeleteRepoResponses = {
 };
 
 export type DeleteRepoResponse = DeleteRepoResponses[keyof DeleteRepoResponses];
+
+export type SyncAllReposData = {
+  body?: SyncRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/repo/sync-all';
+};
+
+export type SyncAllReposErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type SyncAllReposError = SyncAllReposErrors[keyof SyncAllReposErrors];
+
+export type SyncAllReposResponses = {
+  /**
+   * Sync jobs started
+   */
+  202: RepoSyncAllResponse;
+};
+
+export type SyncAllReposResponse = SyncAllReposResponses[keyof SyncAllReposResponses];
+
+export type GetRepoCommitsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+  };
+  query?: never;
+  url: '/ocxp/repo/{repo_id}/commits';
+};
+
+export type GetRepoCommitsErrors = {
+  /**
+   * Repository not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetRepoCommitsError = GetRepoCommitsErrors[keyof GetRepoCommitsErrors];
+
+export type GetRepoCommitsResponses = {
+  /**
+   * Commit status returned
+   */
+  200: RepoCommitStatusResponse;
+};
+
+export type GetRepoCommitsResponse = GetRepoCommitsResponses[keyof GetRepoCommitsResponses];
+
+export type SyncRepoData = {
+  body?: SyncRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+  };
+  query?: never;
+  url: '/ocxp/repo/{repo_id}/sync';
+};
+
+export type SyncRepoErrors = {
+  /**
+   * Repository not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type SyncRepoError = SyncRepoErrors[keyof SyncRepoErrors];
+
+export type SyncRepoResponses = {
+  /**
+   * Sync job started or already up to date
+   */
+  202: RepoSyncResponse;
+};
+
+export type SyncRepoResponse = SyncRepoResponses[keyof SyncRepoResponses];
 
 export type GithubCheckAccessData = {
   body: CheckAccessRequest;

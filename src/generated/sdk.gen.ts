@@ -151,6 +151,9 @@ import type {
   GetPrototypeChatData,
   GetPrototypeChatErrors,
   GetPrototypeChatResponses,
+  GetRepoCommitsData,
+  GetRepoCommitsErrors,
+  GetRepoCommitsResponses,
   GetRepoDownloadStatusData,
   GetRepoDownloadStatusErrors,
   GetRepoDownloadStatusResponses,
@@ -312,12 +315,18 @@ import type {
   SetGithubTokenData,
   SetGithubTokenErrors,
   SetGithubTokenResponses,
+  SyncAllReposData,
+  SyncAllReposErrors,
+  SyncAllReposResponses,
   SyncPrototypeChatAsyncData,
   SyncPrototypeChatAsyncErrors,
   SyncPrototypeChatAsyncResponses,
   SyncPrototypeChatData,
   SyncPrototypeChatErrors,
   SyncPrototypeChatResponses,
+  SyncRepoData,
+  SyncRepoErrors,
+  SyncRepoResponses,
   SystemInfoData,
   SystemInfoErrors,
   SystemInfoResponses,
@@ -2219,6 +2228,56 @@ export const deleteRepo = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/repo/{repo_id}',
     ...options,
+  });
+
+/**
+ * Sync all repositories
+ *
+ * Checks all repositories for changes and triggers re-download for those with new commits. Use force=true to re-sync all regardless of changes.
+ */
+export const syncAllRepos = <ThrowOnError extends boolean = false>(
+  options?: Options<SyncAllReposData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<SyncAllReposResponses, SyncAllReposErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/repo/sync-all',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Get repository commit status
+ *
+ * Returns commit information comparing indexed version with latest GitHub commits. Shows how many commits behind and lists missing commits.
+ */
+export const getRepoCommits = <ThrowOnError extends boolean = false>(
+  options: Options<GetRepoCommitsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetRepoCommitsResponses, GetRepoCommitsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/repo/{repo_id}/commits',
+    ...options,
+  });
+
+/**
+ * Sync repository
+ *
+ * Checks repository for changes and triggers re-download if new commits are found. Use force=true to re-sync regardless of changes.
+ */
+export const syncRepo = <ThrowOnError extends boolean = false>(
+  options: Options<SyncRepoData, ThrowOnError>
+) =>
+  (options.client ?? client).post<SyncRepoResponses, SyncRepoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/repo/{repo_id}/sync',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**

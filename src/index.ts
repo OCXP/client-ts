@@ -14,6 +14,11 @@ export {
   type WriteResult,
   type DeleteResult,
   type ContentTypesResult,
+  // Repo sync types
+  type RepoSyncResponse,
+  type RepoSyncAllResponse,
+  type RepoCommitInfo,
+  type RepoCommitStatusResponse,
   // Namespace classes for convenient API access
   MissionNamespace,
   ProjectNamespace,
@@ -71,6 +76,9 @@ export {
   getRepoDownloadStatus,
   listDownloadedRepos,
   deleteRepo,
+  syncRepo,
+  syncAllRepos,
+  getRepoCommits,
 
   // Knowledge Base
   queryKnowledgeBase,
@@ -245,6 +253,12 @@ export type {
   ListDownloadedReposResponses,
   DeleteRepoData,
   DeleteRepoResponses,
+  SyncRepoData,
+  SyncRepoResponses,
+  SyncAllReposData,
+  SyncAllReposResponses,
+  GetRepoCommitsData,
+  GetRepoCommitsResponses,
 
   // Knowledge Base
   QueryKnowledgeBaseData,

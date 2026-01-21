@@ -5982,6 +5982,231 @@
         ]
       }
     },
+    "/ocxp/repo/sync-all": {
+      "post": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Sync all repositories",
+        "description": "Checks all repositories for changes and triggers re-download for those with new commits. Use force=true to re-sync all regardless of changes.",
+        "operationId": "syncAllRepos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRequest",
+                "default": {
+                  "force": false
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Sync jobs started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepoSyncAllResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/repo/{repo_id}/commits": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get repository commit status",
+        "description": "Returns commit information comparing indexed version with latest GitHub commits. Shows how many commits behind and lists missing commits.",
+        "operationId": "getRepoCommits",
+        "parameters": [
+          {
+            "name": "repo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repo Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Commit status returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepoCommitStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Repository not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/repo/{repo_id}/sync": {
+      "post": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Sync repository",
+        "description": "Checks repository for changes and triggers re-download if new commits are found. Use force=true to re-sync regardless of changes.",
+        "operationId": "syncRepo",
+        "parameters": [
+          {
+            "name": "repo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repo Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRequest",
+                "default": {
+                  "force": false
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Sync job started or already up to date",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepoSyncResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Repository not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/github/check-access": {
       "post": {
         "tags": [
@@ -15017,6 +15242,188 @@
         "title": "RegenerateMissionResponse",
         "description": "Response for mission regeneration."
       },
+      "RepoCommitInfo": {
+        "properties": {
+          "sha": {
+            "type": "string",
+            "title": "Sha",
+            "description": "Short commit SHA (7 chars)",
+            "examples": [
+              "abc1234"
+            ]
+          },
+          "full_sha": {
+            "type": "string",
+            "title": "Full Sha",
+            "description": "Full commit SHA",
+            "examples": [
+              "abc1234567890abcdef1234567890abcdef123456"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Commit message (first line)",
+            "examples": [
+              "Fix bug in auth flow"
+            ]
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date",
+            "description": "Commit date ISO timestamp",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "author": {
+            "type": "string",
+            "title": "Author",
+            "description": "Commit author name",
+            "default": "Unknown",
+            "examples": [
+              "John Doe"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "sha",
+          "full_sha",
+          "message"
+        ],
+        "title": "RepoCommitInfo",
+        "description": "Commit information from GitHub."
+      },
+      "RepoCommitStatusResponse": {
+        "properties": {
+          "repo_id": {
+            "type": "string",
+            "title": "Repo Id",
+            "description": "Repository identifier",
+            "examples": [
+              "owner/my-app"
+            ]
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "Branch name",
+            "examples": [
+              "main"
+            ]
+          },
+          "indexed_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indexed Commit",
+            "description": "Currently indexed commit SHA",
+            "examples": [
+              "abc1234"
+            ]
+          },
+          "latest_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Commit",
+            "description": "Latest commit SHA on GitHub",
+            "examples": [
+              "def5678"
+            ]
+          },
+          "latest_commit_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Commit Date",
+            "description": "Latest commit date",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "latest_commit_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Commit Message",
+            "description": "Latest commit message",
+            "examples": [
+              "Add new feature"
+            ]
+          },
+          "commits_behind": {
+            "type": "integer",
+            "title": "Commits Behind",
+            "description": "Number of commits behind (-1 = many)",
+            "default": 0,
+            "examples": [
+              3
+            ]
+          },
+          "is_up_to_date": {
+            "type": "boolean",
+            "title": "Is Up To Date",
+            "description": "Whether repo is up to date",
+            "default": true
+          },
+          "missing_commits": {
+            "items": {
+              "$ref": "#/components/schemas/RepoCommitInfo"
+            },
+            "type": "array",
+            "title": "Missing Commits",
+            "description": "List of missing commits"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if lookup failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "repo_id",
+          "branch"
+        ],
+        "title": "RepoCommitStatusResponse",
+        "description": "Response for GET /ocxp/repo/{id}/commits."
+      },
       "RepoDeleteResponse": {
         "properties": {
           "id": {
@@ -15416,6 +15823,139 @@
         "title": "RepoStatusResponse",
         "description": "Response for GET /ocxp/repo/status/{job_id}."
       },
+      "RepoSyncAllResponse": {
+        "properties": {
+          "total_repos": {
+            "type": "integer",
+            "title": "Total Repos",
+            "description": "Total repositories checked",
+            "examples": [
+              5
+            ]
+          },
+          "synced": {
+            "type": "integer",
+            "title": "Synced",
+            "description": "Repositories that were synced",
+            "default": 0,
+            "examples": [
+              2
+            ]
+          },
+          "up_to_date": {
+            "type": "integer",
+            "title": "Up To Date",
+            "description": "Repositories already up to date",
+            "default": 0,
+            "examples": [
+              3
+            ]
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "description": "Repositories that failed to sync",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "jobs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Jobs",
+            "description": "Job IDs for synced repos",
+            "examples": [
+              [
+                "job-abc123",
+                "job-def456"
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_repos"
+        ],
+        "title": "RepoSyncAllResponse",
+        "description": "Response for POST /ocxp/repo/sync-all."
+      },
+      "RepoSyncResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id",
+            "description": "Job ID for status tracking (empty if up_to_date)",
+            "default": "",
+            "examples": [
+              "job-abc123"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Sync status",
+            "examples": [
+              "started",
+              "up_to_date",
+              "failed"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable status message",
+            "examples": [
+              "Sync started: abc1234 -> def5678"
+            ]
+          },
+          "previous_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Commit",
+            "description": "Previous commit SHA (7 chars)",
+            "examples": [
+              "abc1234"
+            ]
+          },
+          "current_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Commit",
+            "description": "Current/latest commit SHA (7 chars)",
+            "examples": [
+              "def5678"
+            ]
+          },
+          "changes_detected": {
+            "type": "boolean",
+            "title": "Changes Detected",
+            "description": "Whether changes were detected",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "RepoSyncResponse",
+        "description": "Response for POST /ocxp/repo/{id}/sync."
+      },
       "SecurityFinding": {
         "properties": {
           "pattern_type": {
@@ -15739,6 +16279,18 @@
         ],
         "title": "SourceType",
         "description": "Type of entity the memo is associated with."
+      },
+      "SyncRequest": {
+        "properties": {
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "SyncRequest",
+        "description": "Request body for sync operations."
       },
       "TableOverview": {
         "properties": {

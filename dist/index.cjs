@@ -1187,6 +1187,29 @@ var deleteRepo = (options) => (options.client ?? client).delete({
   url: "/ocxp/repo/{repo_id}",
   ...options
 });
+var syncAllRepos = (options) => (options?.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/repo/sync-all",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options?.headers
+  }
+});
+var getRepoCommits = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/repo/{repo_id}/commits",
+  ...options
+});
+var syncRepo = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/repo/{repo_id}/sync",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var githubCheckAccess = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/github/check-access",
@@ -1993,6 +2016,48 @@ var OCXPClient = class {
   async deleteRepo(repoId) {
     const headers = await this.getHeaders();
     const response = await deleteRepo({
+      client: this.client,
+      path: { repo_id: repoId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Sync a repository with its remote GitHub branch
+   * @param repoId - Repository ID (owner/repo format)
+   * @param force - Force sync even if no changes detected
+   */
+  async syncRepo(repoId, force = false) {
+    const headers = await this.getHeaders();
+    const response = await syncRepo({
+      client: this.client,
+      path: { repo_id: repoId },
+      body: { force },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Sync all repositories with their remote GitHub branches
+   * @param force - Force sync all repos even if no changes
+   */
+  async syncAllRepos(force = false) {
+    const headers = await this.getHeaders();
+    const response = await syncAllRepos({
+      client: this.client,
+      body: { force },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get commit status for a repository
+   * Shows how many commits behind and lists missing commits
+   * @param repoId - Repository ID (owner/repo format)
+   */
+  async getRepoCommitStatus(repoId) {
+    const headers = await this.getHeaders();
+    const response = await getRepoCommits({
       client: this.client,
       path: { repo_id: repoId },
       headers
@@ -4351,6 +4416,7 @@ exports.getMissionContext = getMissionContext;
 exports.getProject = getProject;
 exports.getProjectDatabases = getProjectDatabases;
 exports.getPrototypeChat = getPrototypeChat;
+exports.getRepoCommits = getRepoCommits;
 exports.getRepoDownloadStatus = getRepoDownloadStatus;
 exports.getSample = getSample;
 exports.getSchema = getSchema;
@@ -4404,8 +4470,10 @@ exports.safeParseWSMessage = safeParseWSMessage;
 exports.searchContent = searchContent;
 exports.setDefaultDatabase = setDefaultDatabase;
 exports.setDefaultRepo = setDefaultRepo;
+exports.syncAllRepos = syncAllRepos;
 exports.syncPrototypeChat = syncPrototypeChat;
 exports.syncPrototypeChatAsync = syncPrototypeChatAsync;
+exports.syncRepo = syncRepo;
 exports.testDatabaseConnection = testDatabaseConnection;
 exports.toolCreateMission = toolCreateMission;
 exports.toolUpdateMission = toolUpdateMission;

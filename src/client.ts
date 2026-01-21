@@ -30,6 +30,10 @@ import type {
   RepoStatusResponse,
   RepoListResponse,
   RepoDeleteResponse,
+  RepoSyncResponse,
+  RepoSyncAllResponse,
+  RepoCommitStatusResponse,
+  RepoCommitInfo,
   AuthConfig,
   UserResponse,
   WorkspacesResponse,
@@ -91,6 +95,9 @@ export interface DeleteResult {
   deleted: boolean;
   path: string;
 }
+
+// Repo sync types (re-export from generated types)
+export type { RepoSyncResponse, RepoSyncAllResponse, RepoCommitInfo, RepoCommitStatusResponse };
 
 export interface ContentTypesResult {
   types: Array<{ name: string; description: string }>;
@@ -807,6 +814,51 @@ export class OCXPClient {
       headers,
     });
     return extractData(response) as RepoDeleteResponse;
+  }
+
+  /**
+   * Sync a repository with its remote GitHub branch
+   * @param repoId - Repository ID (owner/repo format)
+   * @param force - Force sync even if no changes detected
+   */
+  async syncRepo(repoId: string, force = false): Promise<RepoSyncResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.syncRepo({
+      client: this.client,
+      path: { repo_id: repoId },
+      body: { force },
+      headers,
+    });
+    return extractData(response) as RepoSyncResponse;
+  }
+
+  /**
+   * Sync all repositories with their remote GitHub branches
+   * @param force - Force sync all repos even if no changes
+   */
+  async syncAllRepos(force = false): Promise<RepoSyncAllResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.syncAllRepos({
+      client: this.client,
+      body: { force },
+      headers,
+    });
+    return extractData(response) as RepoSyncAllResponse;
+  }
+
+  /**
+   * Get commit status for a repository
+   * Shows how many commits behind and lists missing commits
+   * @param repoId - Repository ID (owner/repo format)
+   */
+  async getRepoCommitStatus(repoId: string): Promise<RepoCommitStatusResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getRepoCommits({
+      client: this.client,
+      path: { repo_id: repoId },
+      headers,
+    });
+    return extractData(response) as RepoCommitStatusResponse;
   }
 
   // ============== Database Operations ==============
