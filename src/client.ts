@@ -5,6 +5,7 @@
 
 import { createClient, createConfig, type Client, type ClientOptions } from './generated/client';
 import * as sdk from './generated/sdk.gen';
+import { type ProjectCredentials } from './types';
 import type {
   WriteRequest,
   QueryFilter,
@@ -128,7 +129,15 @@ export interface OCXPClientOptions {
   token?: string | (() => Promise<string>);
 }
 
-export type ContentTypeValue = 'mission' | 'project' | 'context' | 'sop' | 'repo' | 'artifact' | 'kb' | 'docs';
+export type ContentTypeValue =
+  | 'mission'
+  | 'project'
+  | 'context'
+  | 'sop'
+  | 'repo'
+  | 'artifact'
+  | 'kb'
+  | 'docs';
 
 /**
  * OCXPClient provides a high-level interface to the OCXP API
@@ -210,7 +219,10 @@ export class OCXPClient {
       query: { counts },
       headers,
     });
-    const data = extractData(response) as { types: Array<{ name: string; description: string }>; total: number };
+    const data = extractData(response) as {
+      types: Array<{ name: string; description: string }>;
+      total: number;
+    };
     return {
       types: data.types || [],
       total: data.total || 0,
@@ -230,7 +242,12 @@ export class OCXPClient {
       query: { path, limit },
       headers,
     });
-    const data = extractData(response) as { entries: ListEntry[]; cursor?: string; has_more?: boolean; total: number };
+    const data = extractData(response) as {
+      entries: ListEntry[];
+      cursor?: string;
+      has_more?: boolean;
+      total: number;
+    };
     return {
       entries: data.entries || [],
       cursor: data.cursor,
@@ -249,7 +266,13 @@ export class OCXPClient {
       path: { content_type: type, content_id: id },
       headers,
     });
-    const data = extractData(response) as { content: string; size?: number; mtime?: string; encoding?: string; metadata?: Record<string, unknown> };
+    const data = extractData(response) as {
+      content: string;
+      size?: number;
+      mtime?: string;
+      encoding?: string;
+      metadata?: Record<string, unknown>;
+    };
     return {
       content: data.content || '',
       size: data.size,
@@ -350,7 +373,12 @@ export class OCXPClient {
    * Get hierarchical tree structure from S3 context
    * @param includeVersions - If true, includes S3 version IDs for files
    */
-  async tree(type: ContentTypeValue, path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse> {
+  async tree(
+    type: ContentTypeValue,
+    path?: string,
+    depth?: number,
+    includeVersions?: boolean
+  ): Promise<ContentTreeResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.getContentTree({
       client: this.client,
@@ -358,7 +386,7 @@ export class OCXPClient {
       query: { path, depth, includeVersions },
       headers,
     });
-    return extractData(response) as ContentTreeResponse;
+    return extractData(response);
   }
 
   /**
@@ -477,7 +505,11 @@ export class OCXPClient {
   /**
    * List all missions in workspace
    */
-  async listMissions(options?: { projectId?: string; status?: string; limit?: number }): Promise<MissionListResponse> {
+  async listMissions(options?: {
+    projectId?: string;
+    status?: string;
+    limit?: number;
+  }): Promise<MissionListResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.listMissions({
       client: this.client,
@@ -488,13 +520,18 @@ export class OCXPClient {
       },
       headers,
     });
-    return extractData(response) as MissionListResponse;
+    return extractData(response);
   }
 
   /**
    * Create a new mission with auto-generated UUID
    */
-  async createMission(title: string, description?: string, projectId?: string, goals?: string[]): Promise<MissionResponse> {
+  async createMission(
+    title: string,
+    description?: string,
+    projectId?: string,
+    goals?: string[]
+  ): Promise<MissionResponse> {
     const headers = await this.getHeaders();
     const body: MissionCreate = {
       title,
@@ -508,7 +545,7 @@ export class OCXPClient {
       body,
       headers,
     });
-    return extractData(response) as MissionResponse;
+    return extractData(response);
   }
 
   /**
@@ -521,13 +558,22 @@ export class OCXPClient {
       path: { mission_id: missionId },
       headers,
     });
-    return extractData(response) as MissionResponse;
+    return extractData(response);
   }
 
   /**
    * Update mission
    */
-  async updateMission(missionId: string, updates: { title?: string; description?: string; status?: string; progress?: number; notes?: string }): Promise<MissionResponse> {
+  async updateMission(
+    missionId: string,
+    updates: {
+      title?: string;
+      description?: string;
+      status?: string;
+      progress?: number;
+      notes?: string;
+    }
+  ): Promise<MissionResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.updateMission({
       client: this.client,
@@ -535,7 +581,7 @@ export class OCXPClient {
       body: updates,
       headers,
     });
-    return extractData(response) as MissionResponse;
+    return extractData(response);
   }
 
   /**
@@ -561,7 +607,7 @@ export class OCXPClient {
       body: { session_id: sessionId },
       headers,
     });
-    return extractData(response) as MissionResponse;
+    return extractData(response);
   }
 
   /**
@@ -574,7 +620,7 @@ export class OCXPClient {
       path: { mission_id: missionId, session_id: sessionId },
       headers,
     });
-    return extractData(response) as MissionResponse;
+    return extractData(response);
   }
 
   /**
@@ -603,7 +649,7 @@ export class OCXPClient {
       },
       headers,
     });
-    return extractData(response) as RegenerateMissionResponse;
+    return extractData(response);
   }
 
   /**
@@ -775,7 +821,7 @@ export class OCXPClient {
       },
       headers,
     });
-    return extractData(response) as RepoDownloadResponse;
+    return extractData(response);
   }
 
   /**
@@ -788,7 +834,7 @@ export class OCXPClient {
       path: { job_id: jobId },
       headers,
     });
-    return extractData(response) as RepoStatusResponse;
+    return extractData(response);
   }
 
   /**
@@ -800,7 +846,7 @@ export class OCXPClient {
       client: this.client,
       headers,
     });
-    return extractData(response) as RepoListResponse;
+    return extractData(response);
   }
 
   /**
@@ -813,7 +859,7 @@ export class OCXPClient {
       path: { repo_id: repoId },
       headers,
     });
-    return extractData(response) as RepoDeleteResponse;
+    return extractData(response);
   }
 
   /**
@@ -829,7 +875,7 @@ export class OCXPClient {
       body: { force },
       headers,
     });
-    return extractData(response) as RepoSyncResponse;
+    return extractData(response);
   }
 
   /**
@@ -843,7 +889,7 @@ export class OCXPClient {
       body: { force },
       headers,
     });
-    return extractData(response) as RepoSyncAllResponse;
+    return extractData(response);
   }
 
   /**
@@ -858,7 +904,7 @@ export class OCXPClient {
       path: { repo_id: repoId },
       headers,
     });
-    return extractData(response) as RepoCommitStatusResponse;
+    return extractData(response);
   }
 
   // ============== Database Operations ==============
@@ -872,7 +918,7 @@ export class OCXPClient {
       client: this.client,
       headers,
     });
-    return extractData(response) as DatabaseListResponse;
+    return extractData(response);
   }
 
   /**
@@ -885,7 +931,7 @@ export class OCXPClient {
       body: config,
       headers,
     });
-    return extractData(response) as DatabaseConfigResponse;
+    return extractData(response);
   }
 
   /**
@@ -898,13 +944,16 @@ export class OCXPClient {
       path: { database_id: databaseId },
       headers,
     });
-    return extractData(response) as DatabaseConfigResponse;
+    return extractData(response);
   }
 
   /**
    * Update database configuration
    */
-  async updateDatabase(databaseId: string, updates: DatabaseUpdate): Promise<DatabaseConfigResponse> {
+  async updateDatabase(
+    databaseId: string,
+    updates: DatabaseUpdate
+  ): Promise<DatabaseConfigResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.updateDatabase({
       client: this.client,
@@ -912,7 +961,7 @@ export class OCXPClient {
       body: updates,
       headers,
     });
-    return extractData(response) as DatabaseConfigResponse;
+    return extractData(response);
   }
 
   /**
@@ -930,7 +979,9 @@ export class OCXPClient {
   /**
    * Test database connection
    */
-  async testDatabaseConnection(databaseId: string): Promise<{ success: boolean; message: string; latency_ms?: number }> {
+  async testDatabaseConnection(
+    databaseId: string
+  ): Promise<{ success: boolean; message: string; latency_ms?: number }> {
     const headers = await this.getHeaders();
     const response = await sdk.testDatabaseConnection({
       client: this.client,
@@ -950,13 +1001,17 @@ export class OCXPClient {
       query: { database_id: databaseId },
       headers,
     });
-    return extractData(response) as DatabaseSchemaResponse;
+    return extractData(response);
   }
 
   /**
    * Get sample data from a table
    */
-  async getDatabaseSample(tableName: string, databaseId?: string, limit?: number): Promise<DatabaseSampleResponse> {
+  async getDatabaseSample(
+    tableName: string,
+    databaseId?: string,
+    limit?: number
+  ): Promise<DatabaseSampleResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.getSample({
       client: this.client,
@@ -964,7 +1019,7 @@ export class OCXPClient {
       query: { database_id: databaseId, limit },
       headers,
     });
-    return extractData(response) as DatabaseSampleResponse;
+    return extractData(response);
   }
 
   /**
@@ -992,7 +1047,7 @@ export class OCXPClient {
       query: { limit },
       headers,
     });
-    return extractData(response) as ProjectListResponse;
+    return extractData(response);
   }
 
   /**
@@ -1009,7 +1064,7 @@ export class OCXPClient {
       body,
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1022,7 +1077,7 @@ export class OCXPClient {
       path: { project_id: projectId },
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1036,7 +1091,7 @@ export class OCXPClient {
       body: updates,
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1073,7 +1128,7 @@ export class OCXPClient {
       body,
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1086,7 +1141,7 @@ export class OCXPClient {
       path: { project_id: projectId, repo_id: repoId },
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1101,7 +1156,7 @@ export class OCXPClient {
       body,
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1130,7 +1185,7 @@ export class OCXPClient {
       body,
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   /**
@@ -1143,7 +1198,7 @@ export class OCXPClient {
       path: { project_id: projectId, mission_id: missionId },
       headers,
     });
-    return extractData(response) as ProjectResponse;
+    return extractData(response);
   }
 
   // ============== Session Operations ==============
@@ -1158,7 +1213,7 @@ export class OCXPClient {
       query: { limit, status },
       headers,
     });
-    return extractData(response) as SessionListResponse;
+    return extractData(response);
   }
 
   /**
@@ -1172,13 +1227,16 @@ export class OCXPClient {
       query: { limit },
       headers,
     });
-    return extractData(response) as SessionMessagesResponse;
+    return extractData(response);
   }
 
   /**
    * Update session metadata
    */
-  async updateSessionMetadata(sessionId: string, updates: SessionMetadataUpdate): Promise<SessionResponse> {
+  async updateSessionMetadata(
+    sessionId: string,
+    updates: SessionMetadataUpdate
+  ): Promise<SessionResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.updateSessionMetadata({
       client: this.client,
@@ -1186,13 +1244,17 @@ export class OCXPClient {
       body: updates,
       headers,
     });
-    return extractData(response) as SessionResponse;
+    return extractData(response);
   }
 
   /**
    * Fork session
    */
-  async forkSession(sessionId: string, missionId: string, forkPoint?: number): Promise<SessionForkResponse> {
+  async forkSession(
+    sessionId: string,
+    missionId: string,
+    forkPoint?: number
+  ): Promise<SessionForkResponse> {
     const headers = await this.getHeaders();
     const body: ForkRequest = { mission_id: missionId, fork_point: forkPoint };
     const response = await sdk.forkSession({
@@ -1201,7 +1263,7 @@ export class OCXPClient {
       body,
       headers,
     });
-    return extractData(response) as SessionForkResponse;
+    return extractData(response);
   }
 
   /**
@@ -1222,14 +1284,16 @@ export class OCXPClient {
    * List all accessible prototype chats from a provider
    * @param provider - Filter by provider (v0, lovable, bolt)
    */
-  async listPrototypeChats(provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatListResponse> {
+  async listPrototypeChats(
+    provider?: 'v0' | 'lovable' | 'bolt'
+  ): Promise<PrototypeChatListResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.listPrototypeChats({
       client: this.client,
       query: { provider },
       headers,
     });
-    return extractData(response) as PrototypeChatListResponse;
+    return extractData(response);
   }
 
   /**
@@ -1237,14 +1301,17 @@ export class OCXPClient {
    * @param chatUrl - Chat URL to preview
    * @param provider - Prototype provider (optional, auto-detected from URL)
    */
-  async previewPrototypeChat(chatUrl: string, provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatPreviewResponse> {
+  async previewPrototypeChat(
+    chatUrl: string,
+    provider?: 'v0' | 'lovable' | 'bolt'
+  ): Promise<PrototypeChatPreviewResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.previewPrototypeChat({
       client: this.client,
       body: { chat_url: chatUrl, provider },
       headers,
     });
-    return extractData(response) as PrototypeChatPreviewResponse;
+    return extractData(response);
   }
 
   /**
@@ -1258,7 +1325,7 @@ export class OCXPClient {
       body: data,
       headers,
     });
-    return extractData(response) as PrototypeChatLinkResponse;
+    return extractData(response);
   }
 
   /**
@@ -1272,7 +1339,7 @@ export class OCXPClient {
       body: data,
       headers,
     });
-    return extractData(response) as PrototypeChatSyncResponse;
+    return extractData(response);
   }
 
   /**
@@ -1293,21 +1360,23 @@ export class OCXPClient {
       query: { project_id: options?.projectId, version_id: options?.versionId },
       headers,
     });
-    return extractData(response) as PrototypeChatGetResponse;
+    return extractData(response);
   }
 
   /**
    * Start async prototype chat sync job
    * @param data - Async sync request data
    */
-  async syncPrototypeChatAsync(data: PrototypeChatSyncAsyncRequest): Promise<PrototypeChatSyncAsyncResponse> {
+  async syncPrototypeChatAsync(
+    data: PrototypeChatSyncAsyncRequest
+  ): Promise<PrototypeChatSyncAsyncResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.syncPrototypeChatAsync({
       client: this.client,
       body: data,
       headers,
     });
-    return extractData(response) as PrototypeChatSyncAsyncResponse;
+    return extractData(response);
   }
 
   /**
@@ -1321,7 +1390,7 @@ export class OCXPClient {
       path: { job_id: jobId },
       headers,
     });
-    return extractData(response) as PrototypeSyncJobStatusResponse;
+    return extractData(response);
   }
 
   /**
@@ -1344,7 +1413,7 @@ export class OCXPClient {
       query: options?.includeDetails ? { include_details: true } : undefined,
       headers,
     });
-    return extractData(response) as PrototypeStoredVersionsResponse;
+    return extractData(response);
   }
 
   // ============== Auth Operations ==============
@@ -1356,7 +1425,7 @@ export class OCXPClient {
     const response = await sdk.getAuthConfig({
       client: this.client,
     });
-    return extractData(response) as AuthConfig;
+    return extractData(response);
   }
 
   /**
@@ -1368,7 +1437,7 @@ export class OCXPClient {
       client: this.client,
       headers,
     });
-    return extractData(response) as UserResponse;
+    return extractData(response);
   }
 
   /**
@@ -1380,7 +1449,7 @@ export class OCXPClient {
       client: this.client,
       headers,
     });
-    return extractData(response) as WorkspacesResponse;
+    return extractData(response);
   }
 
   /**
@@ -1394,7 +1463,7 @@ export class OCXPClient {
       client: this.client,
       body: { username, password },
     });
-    return extractData(response) as TokenResponse;
+    return extractData(response);
   }
 
   /**
@@ -1407,7 +1476,7 @@ export class OCXPClient {
       client: this.client,
       body: { refreshToken },
     });
-    return extractData(response) as RefreshResponse;
+    return extractData(response);
   }
 
   /**
@@ -1425,7 +1494,7 @@ export class OCXPClient {
       body: { github_token: token },
     });
     if (response.error) {
-      throw new Error(`Failed to set GitHub token: ${typeof response.error === 'object' ? JSON.stringify(response.error) : response.error}`);
+      throw new Error(`Failed to set GitHub token: ${JSON.stringify(response.error)}`);
     }
     // Handle case where response.data might be true (boolean) or object
     if (response.data === true) {
@@ -1440,13 +1509,15 @@ export class OCXPClient {
    */
   async getGitHubTokenStatus(): Promise<{ configured: boolean; username?: string }> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<{ configured: boolean; username?: string }, unknown>({
-      method: 'GET',
-      url: '/auth/github-token',
-      headers,
-    });
+    const response = await this.client.request<{ configured: boolean; username?: string }, unknown>(
+      {
+        method: 'GET',
+        url: '/auth/github-token',
+        headers,
+      }
+    );
     if (response.error) {
-      throw new Error(`Failed to get GitHub token status: ${typeof response.error === 'object' ? JSON.stringify(response.error) : response.error}`);
+      throw new Error(`Failed to get GitHub token status: ${JSON.stringify(response.error)}`);
     }
     const data = response.data;
     if (data && typeof data === 'object' && 'configured' in data) {
@@ -1467,13 +1538,95 @@ export class OCXPClient {
       headers,
     });
     if (response.error) {
-      throw new Error(`Failed to delete GitHub token: ${typeof response.error === 'object' ? JSON.stringify(response.error) : response.error}`);
+      throw new Error(`Failed to delete GitHub token: ${JSON.stringify(response.error)}`);
     }
     // Handle case where response.data might be true (boolean) or object
     if (response.data === true) {
       return { success: true };
     }
     return response.data || { success: true };
+  }
+
+  // ============== Project Credential Operations ==============
+
+  /**
+   * Get project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @returns Project credentials
+   */
+  async getProjectCredentials(projectId: string): Promise<ProjectCredentials> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<ProjectCredentials, unknown>({
+      method: 'GET',
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers,
+    });
+    if (response.error) {
+      throw new Error(`Failed to get credentials: ${JSON.stringify(response.error)}`);
+    }
+    return response.data as ProjectCredentials;
+  }
+
+  /**
+   * Update project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @param updates - Partial credential updates
+   * @returns Updated project credentials
+   */
+  async updateProjectCredentials(
+    projectId: string,
+    updates: Partial<ProjectCredentials>
+  ): Promise<ProjectCredentials> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<ProjectCredentials, unknown>({
+      method: 'PATCH',
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers,
+      body: updates,
+    });
+    if (response.error) {
+      throw new Error(`Failed to update credentials: ${JSON.stringify(response.error)}`);
+    }
+    return response.data as ProjectCredentials;
+  }
+
+  /**
+   * Test project credentials
+   * @param projectId - Project ID
+   * @returns Test result with success flag and optional message
+   */
+  async testProjectCredentials(projectId: string): Promise<{ success: boolean; message?: string }> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<{ success: boolean; message?: string }, unknown>({
+      method: 'POST',
+      url: `/ocxp/project/${projectId}/credentials/test`,
+      headers,
+    });
+    if (response.error) {
+      throw new Error(`Failed to test credentials: ${JSON.stringify(response.error)}`);
+    }
+    const data = response.data;
+    if (data && typeof data === 'object' && 'success' in data) {
+      return data as { success: boolean; message?: string };
+    }
+    return { success: false };
+  }
+
+  /**
+   * Delete project credentials
+   * @param projectId - Project ID
+   * @returns void
+   */
+  async deleteProjectCredentials(projectId: string): Promise<void> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<{ success: boolean }, unknown>({
+      method: 'DELETE',
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers,
+    });
+    if (response.error) {
+      throw new Error(`Failed to delete credentials: ${JSON.stringify(response.error)}`);
+    }
   }
 
   // ============== Namespaced Accessors ==============
@@ -1552,7 +1705,11 @@ export class MissionNamespace {
    * List missions with optional filtering
    * @example ocxp.mission.list({ status: 'active', limit: 10 })
    */
-  async list(options?: { projectId?: string; status?: string; limit?: number }): Promise<MissionListResponse> {
+  async list(options?: {
+    projectId?: string;
+    status?: string;
+    limit?: number;
+  }): Promise<MissionListResponse> {
     return this.client.listMissions(options);
   }
 
@@ -1568,14 +1725,28 @@ export class MissionNamespace {
    * Create a new mission with auto-generated UUID
    * @example ocxp.mission.create({ title: 'My Mission', description: 'Description' })
    */
-  async create(data: { title: string; description?: string; projectId?: string; goals?: string[] }): Promise<MissionResponse> {
+  async create(data: {
+    title: string;
+    description?: string;
+    projectId?: string;
+    goals?: string[];
+  }): Promise<MissionResponse> {
     return this.client.createMission(data.title, data.description, data.projectId, data.goals);
   }
 
   /**
    * Update mission
    */
-  async update(missionId: string, updates: { title?: string; description?: string; status?: string; progress?: number; notes?: string }): Promise<MissionResponse> {
+  async update(
+    missionId: string,
+    updates: {
+      title?: string;
+      description?: string;
+      status?: string;
+      progress?: number;
+      notes?: string;
+    }
+  ): Promise<MissionResponse> {
     return this.client.updateMission(missionId, updates);
   }
 
@@ -1638,7 +1809,11 @@ export class MissionNamespace {
    * @param includeVersions - If true, includes S3 version IDs for files
    * @example ocxp.mission.tree('mission-id', 5, true)
    */
-  async tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse> {
+  async tree(
+    path?: string,
+    depth?: number,
+    includeVersions?: boolean
+  ): Promise<ContentTreeResponse> {
     return this.client.tree('mission', path, depth, includeVersions);
   }
 }
@@ -1690,7 +1865,11 @@ export class ProjectNamespace {
   /**
    * Add a repository to a project
    */
-  async addRepo(projectId: string, repoId: string, options?: { category?: string; priority?: number; autoInclude?: boolean; branch?: string }): Promise<ProjectResponse> {
+  async addRepo(
+    projectId: string,
+    repoId: string,
+    options?: { category?: string; priority?: number; autoInclude?: boolean; branch?: string }
+  ): Promise<ProjectResponse> {
     return this.client.addProjectRepo(projectId, repoId, options);
   }
 
@@ -1734,7 +1913,11 @@ export class ProjectNamespace {
    * @param includeVersions - If true, includes S3 version IDs for files
    * @example ocxp.project.tree('subfolder', 5, true)
    */
-  async tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse> {
+  async tree(
+    path?: string,
+    depth?: number,
+    includeVersions?: boolean
+  ): Promise<ContentTreeResponse> {
     return this.client.tree('project', path, depth, includeVersions);
   }
 }
@@ -1771,7 +1954,11 @@ export class SessionNamespace {
   /**
    * Fork a session
    */
-  async fork(sessionId: string, missionId: string, forkPoint?: number): Promise<SessionForkResponse> {
+  async fork(
+    sessionId: string,
+    missionId: string,
+    forkPoint?: number
+  ): Promise<SessionForkResponse> {
     return this.client.forkSession(sessionId, missionId, forkPoint);
   }
 
@@ -1795,20 +1982,23 @@ export class KBNamespace {
    * @example ocxp.kb.query('authentication', { projectId: 'my-project', missionId: 'CTX-123' })
    * @example ocxp.kb.query('strands agent', { enableFallback: true, persistExternalDocs: true })
    */
-  async query(query: string, options?: {
-    searchType?: 'SEMANTIC' | 'HYBRID';
-    maxResults?: number;
-    docId?: string;
-    repoIds?: string[];
-    projectId?: string;
-    missionId?: string;
-    /** Enable external docs fallback (Context7, AWS Docs) when KB has no/low results. Default: true */
-    enableFallback?: boolean;
-    /** Score threshold (0-1) below which fallback triggers. Default: 0.5 */
-    fallbackThreshold?: number;
-    /** Save external docs to S3 for future KB queries. Default: true */
-    persistExternalDocs?: boolean;
-  }) {
+  async query(
+    query: string,
+    options?: {
+      searchType?: 'SEMANTIC' | 'HYBRID';
+      maxResults?: number;
+      docId?: string;
+      repoIds?: string[];
+      projectId?: string;
+      missionId?: string;
+      /** Enable external docs fallback (Context7, AWS Docs) when KB has no/low results. Default: true */
+      enableFallback?: boolean;
+      /** Score threshold (0-1) below which fallback triggers. Default: 0.5 */
+      fallbackThreshold?: number;
+      /** Save external docs to S3 for future KB queries. Default: true */
+      persistExternalDocs?: boolean;
+    }
+  ) {
     return this.client.kbQuery(query, options);
   }
 
@@ -1839,7 +2029,10 @@ export class PrototypeNamespace {
    * Preview a prototype chat (fetch metadata without linking)
    * @example ocxp.prototype.preview('https://v0.dev/chat/abc123')
    */
-  async preview(chatUrl: string, provider?: 'v0' | 'lovable' | 'bolt'): Promise<PrototypeChatPreviewResponse> {
+  async preview(
+    chatUrl: string,
+    provider?: 'v0' | 'lovable' | 'bolt'
+  ): Promise<PrototypeChatPreviewResponse> {
     return this.client.previewPrototypeChat(chatUrl, provider);
   }
 
