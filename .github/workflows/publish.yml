@@ -21,6 +21,10 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      # Ensure npm 11.5.1 or later for trusted publishing
+      - name: Update npm to latest version
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: npm ci
 
@@ -31,5 +35,6 @@ jobs:
         run: npm test
         continue-on-error: true # Optional: continue even if tests fail
 
+      # Publish uses OIDC - no token needed
       - name: Publish to npm with provenance
         run: npm publish --access public --provenance
