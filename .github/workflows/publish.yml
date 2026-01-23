@@ -36,5 +36,6 @@ jobs:
         continue-on-error: true # Optional: continue even if tests fail
 
       # Publish uses OIDC - no token needed
-      - name: Publish to npm with provenance
-        run: npm publish --access public --provenance
+      # Note: --provenance requires public repository
+      - name: Publish to npm
+        run: npm publish --access public
