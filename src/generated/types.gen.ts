@@ -921,6 +921,133 @@ export type CreateSessionRequest = {
 };
 
 /**
+ * CredentialActionResponse
+ *
+ * Response for credential actions (save/update/delete/test).
+ */
+export type CredentialActionResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Message
+   */
+  message?: string | null;
+};
+
+/**
+ * CredentialCreate
+ *
+ * Request model for creating/saving credentials.
+ */
+export type CredentialCreate = {
+  /**
+   * Url
+   *
+   * Login URL
+   */
+  url: string;
+  /**
+   * Username
+   *
+   * Username or email
+   */
+  username: string;
+  /**
+   * Password
+   *
+   * Password to encrypt
+   */
+  password: string;
+  /**
+   * Login Instructions
+   *
+   * Optional instructions for login process (e.g., click this button, fill captcha)
+   */
+  login_instructions?: string;
+  /**
+   * Workspace
+   *
+   * Workspace identifier
+   */
+  workspace?: string;
+};
+
+/**
+ * CredentialDataResponse
+ *
+ * Credential data model.
+ */
+export type CredentialDataResponse = {
+  /**
+   * Url
+   */
+  url?: string | null;
+  /**
+   * Username
+   */
+  username?: string | null;
+  /**
+   * Password
+   */
+  password?: string | null;
+  /**
+   * Login Instructions
+   */
+  login_instructions?: string | null;
+  /**
+   * Workspace
+   */
+  workspace?: string | null;
+  /**
+   * Project Id
+   */
+  project_id?: string | null;
+};
+
+/**
+ * CredentialGetResponse
+ *
+ * Response for GET /ocxp/project/{project_id}/credentials.
+ */
+export type CredentialGetResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  data?: CredentialDataResponse | null;
+};
+
+/**
+ * CredentialUpdate
+ *
+ * Request model for updating credentials.
+ */
+export type CredentialUpdate = {
+  /**
+   * Url
+   */
+  url?: string | null;
+  /**
+   * Username
+   */
+  username?: string | null;
+  /**
+   * Password
+   */
+  password?: string | null;
+  /**
+   * Login Instructions
+   */
+  login_instructions?: string | null;
+  /**
+   * Workspace
+   */
+  workspace?: string | null;
+};
+
+/**
  * DatabaseConfigResponse
  *
  * Full database configuration response.
@@ -6853,6 +6980,238 @@ export type SetDefaultDatabaseResponses = {
 
 export type SetDefaultDatabaseResponse =
   SetDefaultDatabaseResponses[keyof SetDefaultDatabaseResponses];
+
+export type DeleteCredentialsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/credentials';
+};
+
+export type DeleteCredentialsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+  /**
+   * Failed to delete credentials
+   */
+  500: unknown;
+};
+
+export type DeleteCredentialsError = DeleteCredentialsErrors[keyof DeleteCredentialsErrors];
+
+export type DeleteCredentialsResponses = {
+  /**
+   * Credentials deleted successfully
+   */
+  200: CredentialActionResponse;
+};
+
+export type DeleteCredentialsResponse =
+  DeleteCredentialsResponses[keyof DeleteCredentialsResponses];
+
+export type GetCredentialsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/credentials';
+};
+
+export type GetCredentialsErrors = {
+  /**
+   * No credentials found for project
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetCredentialsError = GetCredentialsErrors[keyof GetCredentialsErrors];
+
+export type GetCredentialsResponses = {
+  /**
+   * Credentials returned successfully
+   */
+  200: CredentialGetResponse;
+};
+
+export type GetCredentialsResponse = GetCredentialsResponses[keyof GetCredentialsResponses];
+
+export type UpdateCredentialsData = {
+  body: CredentialUpdate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/credentials';
+};
+
+export type UpdateCredentialsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+  /**
+   * Failed to update credentials
+   */
+  500: unknown;
+};
+
+export type UpdateCredentialsError = UpdateCredentialsErrors[keyof UpdateCredentialsErrors];
+
+export type UpdateCredentialsResponses = {
+  /**
+   * Credentials updated successfully
+   */
+  200: CredentialActionResponse;
+};
+
+export type UpdateCredentialsResponse =
+  UpdateCredentialsResponses[keyof UpdateCredentialsResponses];
+
+export type SaveCredentialsData = {
+  body: CredentialCreate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/credentials';
+};
+
+export type SaveCredentialsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+  /**
+   * Failed to save credentials
+   */
+  500: unknown;
+};
+
+export type SaveCredentialsError = SaveCredentialsErrors[keyof SaveCredentialsErrors];
+
+export type SaveCredentialsResponses = {
+  /**
+   * Credentials saved successfully
+   */
+  200: CredentialActionResponse;
+};
+
+export type SaveCredentialsResponse = SaveCredentialsResponses[keyof SaveCredentialsResponses];
+
+export type TestCredentialsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/credentials/test';
+};
+
+export type TestCredentialsErrors = {
+  /**
+   * Invalid or missing credentials
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type TestCredentialsError = TestCredentialsErrors[keyof TestCredentialsErrors];
+
+export type TestCredentialsResponses = {
+  /**
+   * Credentials are valid
+   */
+  200: CredentialActionResponse;
+};
+
+export type TestCredentialsResponse = TestCredentialsResponses[keyof TestCredentialsResponses];
 
 export type ListMissionsData = {
   body?: never;

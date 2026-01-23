@@ -1039,6 +1039,39 @@ var setDefaultDatabase = (options) => (options.client ?? client).put({
     ...options.headers
   }
 });
+var deleteCredentials = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/credentials",
+  ...options
+});
+var getCredentials = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/credentials",
+  ...options
+});
+var updateCredentials = (options) => (options.client ?? client).patch({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/credentials",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var saveCredentials = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/credentials",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var testCredentials = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/project/{project_id}/credentials/test",
+  ...options
+});
 var listMissions = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/mission",
@@ -2571,7 +2604,7 @@ var OCXPClient = class {
       body: { github_token: token }
     });
     if (response.error) {
-      throw new Error(`Failed to set GitHub token: ${typeof response.error === "object" ? JSON.stringify(response.error) : response.error}`);
+      throw new Error(`Failed to set GitHub token: ${JSON.stringify(response.error)}`);
     }
     if (response.data === true) {
       return { success: true };
@@ -2584,13 +2617,15 @@ var OCXPClient = class {
    */
   async getGitHubTokenStatus() {
     const headers = await this.getHeaders();
-    const response = await this.client.request({
-      method: "GET",
-      url: "/auth/github-token",
-      headers
-    });
+    const response = await this.client.request(
+      {
+        method: "GET",
+        url: "/auth/github-token",
+        headers
+      }
+    );
     if (response.error) {
-      throw new Error(`Failed to get GitHub token status: ${typeof response.error === "object" ? JSON.stringify(response.error) : response.error}`);
+      throw new Error(`Failed to get GitHub token status: ${JSON.stringify(response.error)}`);
     }
     const data = response.data;
     if (data && typeof data === "object" && "configured" in data) {
@@ -2610,7 +2645,7 @@ var OCXPClient = class {
       headers
     });
     if (response.error) {
-      throw new Error(`Failed to delete GitHub token: ${typeof response.error === "object" ? JSON.stringify(response.error) : response.error}`);
+      throw new Error(`Failed to delete GitHub token: ${JSON.stringify(response.error)}`);
     }
     if (response.data === true) {
       return { success: true };
@@ -2625,13 +2660,43 @@ var OCXPClient = class {
    */
   async getProjectCredentials(projectId) {
     const headers = await this.getHeaders();
-    const response = await this.client.request({
-      method: "GET",
-      url: `/ocxp/project/${projectId}/credentials`,
+    const response = await getCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers
     });
     if (response.error) {
       throw new Error(`Failed to get credentials: ${JSON.stringify(response.error)}`);
+    }
+    const data = response.data;
+    if (!data.data) {
+      throw new Error("No credentials found");
+    }
+    return data.data;
+  }
+  /**
+   * Save project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @param credentials - Credentials to save (url, username, password)
+   * @returns Success response
+   */
+  async saveProjectCredentials(projectId, credentials) {
+    const headers = await this.getHeaders();
+    const body = {
+      url: credentials.url,
+      username: credentials.username,
+      password: credentials.password,
+      login_instructions: credentials.login_instructions || "",
+      workspace: this.workspace
+    };
+    const response = await saveCredentials({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+      body
+    });
+    if (response.error) {
+      throw new Error(`Failed to save credentials: ${JSON.stringify(response.error)}`);
     }
     return response.data;
   }
@@ -2639,15 +2704,22 @@ var OCXPClient = class {
    * Update project credentials for frontend authentication
    * @param projectId - Project ID
    * @param updates - Partial credential updates
-   * @returns Updated project credentials
+   * @returns Success response
    */
   async updateProjectCredentials(projectId, updates) {
     const headers = await this.getHeaders();
-    const response = await this.client.request({
-      method: "PATCH",
-      url: `/ocxp/project/${projectId}/credentials`,
+    const body = {
+      url: updates.url ?? void 0,
+      username: updates.username ?? void 0,
+      password: updates.password ?? void 0,
+      login_instructions: updates.login_instructions ?? void 0,
+      workspace: updates.workspace ?? void 0
+    };
+    const response = await updateCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers,
-      body: updates
+      body
     });
     if (response.error) {
       throw new Error(`Failed to update credentials: ${JSON.stringify(response.error)}`);
@@ -2661,19 +2733,15 @@ var OCXPClient = class {
    */
   async testProjectCredentials(projectId) {
     const headers = await this.getHeaders();
-    const response = await this.client.request({
-      method: "POST",
-      url: `/ocxp/project/${projectId}/credentials/test`,
+    const response = await testCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers
     });
     if (response.error) {
       throw new Error(`Failed to test credentials: ${JSON.stringify(response.error)}`);
     }
-    const data = response.data;
-    if (data && typeof data === "object" && "success" in data) {
-      return data;
-    }
-    return { success: false };
+    return response.data;
   }
   /**
    * Delete project credentials
@@ -2682,9 +2750,9 @@ var OCXPClient = class {
    */
   async deleteProjectCredentials(projectId) {
     const headers = await this.getHeaders();
-    const response = await this.client.request({
-      method: "DELETE",
-      url: `/ocxp/project/${projectId}/credentials`,
+    const response = await deleteCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers
     });
     if (response.error) {

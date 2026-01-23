@@ -3964,6 +3964,385 @@
         ]
       }
     },
+    "/ocxp/project/{project_id}/credentials": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Get project credentials",
+        "description": "Retrieve credentials for a project with decrypted password.",
+        "operationId": "getCredentials",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialGetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No credentials found for project"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Save project credentials",
+        "description": "Save or update credentials for a project with encrypted password.",
+        "operationId": "saveCredentials",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credentials saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialActionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to save credentials"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Update project credentials",
+        "description": "Update specific fields of project credentials.",
+        "operationId": "updateCredentials",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credentials updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialActionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to update credentials"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Delete project credentials",
+        "description": "Delete credentials for a project.",
+        "operationId": "deleteCredentials",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialActionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to delete credentials"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/project/{project_id}/credentials/test": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Test project credentials",
+        "description": "Test if credentials exist and are valid for a project.",
+        "operationId": "testCredentials",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials are valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialActionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing credentials"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/mission": {
       "get": {
         "tags": [
@@ -10948,6 +11327,256 @@
         ],
         "title": "CreateSessionRequest",
         "description": "Request body for POST /ocxp/session - create new session linked to mission."
+      },
+      "CredentialActionResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "examples": [
+              true
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "examples": [
+              "Credentials saved"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "title": "CredentialActionResponse",
+        "description": "Response for credential actions (save/update/delete/test)."
+      },
+      "CredentialCreate": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Login URL"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username",
+            "description": "Username or email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password",
+            "description": "Password to encrypt"
+          },
+          "login_instructions": {
+            "type": "string",
+            "title": "Login Instructions",
+            "description": "Optional instructions for login process (e.g., click this button, fill captcha)",
+            "default": ""
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "description": "Workspace identifier",
+            "default": "prod"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "username",
+          "password"
+        ],
+        "title": "CredentialCreate",
+        "description": "Request model for creating/saving credentials."
+      },
+      "CredentialDataResponse": {
+        "properties": {
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "examples": [
+              "https://example.com/login"
+            ]
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Username",
+            "examples": [
+              "user@example.com"
+            ]
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password",
+            "examples": [
+              "decrypted_password"
+            ]
+          },
+          "login_instructions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Login Instructions",
+            "examples": [
+              "Click the login button, then fill captcha"
+            ]
+          },
+          "workspace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workspace",
+            "examples": [
+              "prod"
+            ]
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "CredentialDataResponse",
+        "description": "Credential data model."
+      },
+      "CredentialGetResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "examples": [
+              true
+            ]
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CredentialDataResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "title": "CredentialGetResponse",
+        "description": "Response for GET /ocxp/project/{project_id}/credentials."
+      },
+      "CredentialUpdate": {
+        "properties": {
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Username"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "login_instructions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Login Instructions"
+          },
+          "workspace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workspace"
+          }
+        },
+        "type": "object",
+        "title": "CredentialUpdate",
+        "description": "Request model for updating credentials."
       },
       "DatabaseConfigResponse": {
         "properties": {

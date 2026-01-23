@@ -955,6 +955,21 @@ type CreateMemoRequest = {
   severity?: MemoSeverity;
 };
 /**
+ * CredentialActionResponse
+ *
+ * Response for credential actions (save/update/delete/test).
+ */
+type CredentialActionResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Message
+   */
+  message?: string | null;
+};
+/**
  * DatabaseConfigResponse
  *
  * Full database configuration response.
@@ -7953,9 +7968,12 @@ declare function mapHttpError(
  * Project Credentials for frontend authentication
  */
 interface ProjectCredentials {
-  url?: string;
-  username?: string;
-  password?: string;
+  url?: string | null;
+  username?: string | null;
+  password?: string | null;
+  login_instructions?: string | null;
+  workspace?: string | null;
+  project_id?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -8686,24 +8704,36 @@ declare class OCXPClient {
    */
   getProjectCredentials(projectId: string): Promise<ProjectCredentials>;
   /**
+   * Save project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @param credentials - Credentials to save (url, username, password)
+   * @returns Success response
+   */
+  saveProjectCredentials(
+    projectId: string,
+    credentials: {
+      url: string;
+      username: string;
+      password: string;
+      login_instructions?: string;
+    }
+  ): Promise<CredentialActionResponse>;
+  /**
    * Update project credentials for frontend authentication
    * @param projectId - Project ID
    * @param updates - Partial credential updates
-   * @returns Updated project credentials
+   * @returns Success response
    */
   updateProjectCredentials(
     projectId: string,
     updates: Partial<ProjectCredentials>
-  ): Promise<ProjectCredentials>;
+  ): Promise<CredentialActionResponse>;
   /**
    * Test project credentials
    * @param projectId - Project ID
    * @returns Test result with success flag and optional message
    */
-  testProjectCredentials(projectId: string): Promise<{
-    success: boolean;
-    message?: string;
-  }>;
+  testProjectCredentials(projectId: string): Promise<CredentialActionResponse>;
   /**
    * Delete project credentials
    * @param projectId - Project ID

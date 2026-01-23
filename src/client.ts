@@ -20,6 +20,10 @@ import type {
   ProjectUpdate,
   AddRepoRequest,
   AddMissionRequest,
+  CredentialGetResponse,
+  CredentialActionResponse,
+  CredentialCreate,
+  CredentialUpdate,
   SetDefaultRepoRequest,
   SessionListResponse,
   SessionResponse,
@@ -1556,15 +1560,19 @@ export class OCXPClient {
    */
   async getProjectCredentials(projectId: string): Promise<ProjectCredentials> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<ProjectCredentials, unknown>({
-      method: 'GET',
-      url: `/ocxp/project/${projectId}/credentials`,
+    const response = await sdk.getCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers,
     });
     if (response.error) {
       throw new Error(`Failed to get credentials: ${JSON.stringify(response.error)}`);
     }
-    return response.data as ProjectCredentials;
+    const data = response.data as CredentialGetResponse;
+    if (!data.data) {
+      throw new Error('No credentials found');
+    }
+    return data.data as ProjectCredentials;
   }
 
   /**
@@ -1575,42 +1583,56 @@ export class OCXPClient {
    */
   async saveProjectCredentials(
     projectId: string,
-    credentials: { url: string; username: string; password: string }
-  ): Promise<{ success: boolean; message?: string }> {
+    credentials: { url: string; username: string; password: string; login_instructions?: string }
+  ): Promise<CredentialActionResponse> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<{ success: boolean; message?: string }, unknown>({
-      method: 'POST',
-      url: `/ocxp/project/${projectId}/credentials`,
+    const body: CredentialCreate = {
+      url: credentials.url,
+      username: credentials.username,
+      password: credentials.password,
+      login_instructions: credentials.login_instructions || '',
+      workspace: this.workspace,
+    };
+    const response = await sdk.saveCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers,
-      body: credentials,
+      body,
     });
     if (response.error) {
       throw new Error(`Failed to save credentials: ${JSON.stringify(response.error)}`);
     }
-    return response.data as { success: boolean; message?: string };
+    return response.data as CredentialActionResponse;
   }
 
   /**
    * Update project credentials for frontend authentication
    * @param projectId - Project ID
    * @param updates - Partial credential updates
-   * @returns Updated project credentials
+   * @returns Success response
    */
   async updateProjectCredentials(
     projectId: string,
     updates: Partial<ProjectCredentials>
-  ): Promise<ProjectCredentials> {
+  ): Promise<CredentialActionResponse> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<ProjectCredentials, unknown>({
-      method: 'PATCH',
-      url: `/ocxp/project/${projectId}/credentials`,
+    const body: CredentialUpdate = {
+      url: updates.url ?? undefined,
+      username: updates.username ?? undefined,
+      password: updates.password ?? undefined,
+      login_instructions: updates.login_instructions ?? undefined,
+      workspace: updates.workspace ?? undefined,
+    };
+    const response = await sdk.updateCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers,
-      body: updates,
+      body,
     });
     if (response.error) {
       throw new Error(`Failed to update credentials: ${JSON.stringify(response.error)}`);
     }
-    return response.data as ProjectCredentials;
+    return response.data as CredentialActionResponse;
   }
 
   /**
@@ -1618,21 +1640,17 @@ export class OCXPClient {
    * @param projectId - Project ID
    * @returns Test result with success flag and optional message
    */
-  async testProjectCredentials(projectId: string): Promise<{ success: boolean; message?: string }> {
+  async testProjectCredentials(projectId: string): Promise<CredentialActionResponse> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<{ success: boolean; message?: string }, unknown>({
-      method: 'POST',
-      url: `/ocxp/project/${projectId}/credentials/test`,
+    const response = await sdk.testCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers,
     });
     if (response.error) {
       throw new Error(`Failed to test credentials: ${JSON.stringify(response.error)}`);
     }
-    const data = response.data;
-    if (data && typeof data === 'object' && 'success' in data) {
-      return data as { success: boolean; message?: string };
-    }
-    return { success: false };
+    return response.data as CredentialActionResponse;
   }
 
   /**
@@ -1642,9 +1660,9 @@ export class OCXPClient {
    */
   async deleteProjectCredentials(projectId: string): Promise<void> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<{ success: boolean }, unknown>({
-      method: 'DELETE',
-      url: `/ocxp/project/${projectId}/credentials`,
+    const response = await sdk.deleteCredentials({
+      client: this.client,
+      path: { project_id: projectId },
       headers,
     });
     if (response.error) {

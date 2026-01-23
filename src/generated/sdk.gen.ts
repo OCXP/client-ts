@@ -68,6 +68,9 @@ import type {
   DeleteContentData,
   DeleteContentErrors,
   DeleteContentResponses,
+  DeleteCredentialsData,
+  DeleteCredentialsErrors,
+  DeleteCredentialsResponses,
   DeleteDatabaseData,
   DeleteDatabaseErrors,
   DeleteDatabaseResponses,
@@ -118,6 +121,9 @@ import type {
   GetContextReposData,
   GetContextReposErrors,
   GetContextReposResponses,
+  GetCredentialsData,
+  GetCredentialsErrors,
+  GetCredentialsResponses,
   GetCurrentUserData,
   GetCurrentUserErrors,
   GetCurrentUserResponses,
@@ -303,6 +309,9 @@ import type {
   ResolveOcxpUriData,
   ResolveOcxpUriErrors,
   ResolveOcxpUriResponses,
+  SaveCredentialsData,
+  SaveCredentialsErrors,
+  SaveCredentialsResponses,
   SearchContentData,
   SearchContentErrors,
   SearchContentResponses,
@@ -330,6 +339,9 @@ import type {
   SystemInfoData,
   SystemInfoErrors,
   SystemInfoResponses,
+  TestCredentialsData,
+  TestCredentialsErrors,
+  TestCredentialsResponses,
   TestDatabaseConnectionData,
   TestDatabaseConnectionErrors,
   TestDatabaseConnectionResponses,
@@ -342,6 +354,9 @@ import type {
   UnlockContentData,
   UnlockContentErrors,
   UnlockContentResponses,
+  UpdateCredentialsData,
+  UpdateCredentialsErrors,
+  UpdateCredentialsResponses,
   UpdateDatabaseData,
   UpdateDatabaseErrors,
   UpdateDatabaseResponses,
@@ -1810,6 +1825,92 @@ export const setDefaultDatabase = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Delete project credentials
+ *
+ * Delete credentials for a project.
+ */
+export const deleteCredentials = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteCredentialsData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<
+    DeleteCredentialsResponses,
+    DeleteCredentialsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/credentials',
+    ...options,
+  });
+
+/**
+ * Get project credentials
+ *
+ * Retrieve credentials for a project with decrypted password.
+ */
+export const getCredentials = <ThrowOnError extends boolean = false>(
+  options: Options<GetCredentialsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetCredentialsResponses, GetCredentialsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/credentials',
+    ...options,
+  });
+
+/**
+ * Update project credentials
+ *
+ * Update specific fields of project credentials.
+ */
+export const updateCredentials = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateCredentialsData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    UpdateCredentialsResponses,
+    UpdateCredentialsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/credentials',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Save project credentials
+ *
+ * Save or update credentials for a project with encrypted password.
+ */
+export const saveCredentials = <ThrowOnError extends boolean = false>(
+  options: Options<SaveCredentialsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<SaveCredentialsResponses, SaveCredentialsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/credentials',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Test project credentials
+ *
+ * Test if credentials exist and are valid for a project.
+ */
+export const testCredentials = <ThrowOnError extends boolean = false>(
+  options: Options<TestCredentialsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<TestCredentialsResponses, TestCredentialsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/credentials/test',
+    ...options,
   });
 
 /**
