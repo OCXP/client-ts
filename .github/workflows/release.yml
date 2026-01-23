@@ -1,0 +1,47 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on version tags
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog entry
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          CHANGELOG_ENTRY=$(awk "/^## \[$VERSION\]/, /^## \[/" CHANGELOG.md 2>/dev/null | head -n -1 || echo "See commits for changes")
+          echo "ENTRY<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_ENTRY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.ENTRY }}
+
+            ## Installation
+
+            ```bash
+            npm install @ocxp/client@${{ steps.version.outputs.VERSION }}
+            ```
+
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.version.outputs.PREV_VERSION }}...v${{ steps.version.outputs.VERSION }}
+          draft: false
+          prerelease: false
