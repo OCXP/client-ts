@@ -1568,6 +1568,29 @@ export class OCXPClient {
   }
 
   /**
+   * Save project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @param credentials - Credentials to save (url, username, password)
+   * @returns Success response
+   */
+  async saveProjectCredentials(
+    projectId: string,
+    credentials: { url: string; username: string; password: string }
+  ): Promise<{ success: boolean; message?: string }> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<{ success: boolean; message?: string }, unknown>({
+      method: 'POST',
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers,
+      body: credentials,
+    });
+    if (response.error) {
+      throw new Error(`Failed to save credentials: ${JSON.stringify(response.error)}`);
+    }
+    return response.data as { success: boolean; message?: string };
+  }
+
+  /**
    * Update project credentials for frontend authentication
    * @param projectId - Project ID
    * @param updates - Partial credential updates
