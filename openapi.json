@@ -5917,7 +5917,7 @@
           "Repo"
         ],
         "summary": "Delete repository",
-        "description": "Permanently deletes a downloaded repository. Uses repo_id (owner/repo format).",
+        "description": "Permanently deletes a downloaded repository. Accepts UUID or owner/repo format.",
         "operationId": "delete_repo",
         "parameters": [
           {
@@ -15427,7 +15427,14 @@
       "RepoDeleteResponse": {
         "properties": {
           "id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Id",
             "description": "Deleted repository UUID",
             "examples": [
@@ -15450,7 +15457,6 @@
         },
         "type": "object",
         "required": [
-          "id",
           "repo_id"
         ],
         "title": "RepoDeleteResponse",

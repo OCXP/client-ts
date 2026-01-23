@@ -2619,6 +2619,80 @@ var OCXPClient = class {
     }
     return response.data || { success: true };
   }
+  // ============== Project Credential Operations ==============
+  /**
+   * Get project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @returns Project credentials
+   */
+  async getProjectCredentials(projectId) {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "GET",
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers
+    });
+    if (response.error) {
+      throw new Error(`Failed to get credentials: ${JSON.stringify(response.error)}`);
+    }
+    return response.data;
+  }
+  /**
+   * Update project credentials for frontend authentication
+   * @param projectId - Project ID
+   * @param updates - Partial credential updates
+   * @returns Updated project credentials
+   */
+  async updateProjectCredentials(projectId, updates) {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "PATCH",
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers,
+      body: updates
+    });
+    if (response.error) {
+      throw new Error(`Failed to update credentials: ${JSON.stringify(response.error)}`);
+    }
+    return response.data;
+  }
+  /**
+   * Test project credentials
+   * @param projectId - Project ID
+   * @returns Test result with success flag and optional message
+   */
+  async testProjectCredentials(projectId) {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "POST",
+      url: `/ocxp/project/${projectId}/credentials/test`,
+      headers
+    });
+    if (response.error) {
+      throw new Error(`Failed to test credentials: ${JSON.stringify(response.error)}`);
+    }
+    const data = response.data;
+    if (data && typeof data === "object" && "success" in data) {
+      return data;
+    }
+    return { success: false };
+  }
+  /**
+   * Delete project credentials
+   * @param projectId - Project ID
+   * @returns void
+   */
+  async deleteProjectCredentials(projectId) {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "DELETE",
+      url: `/ocxp/project/${projectId}/credentials`,
+      headers
+    });
+    if (response.error) {
+      throw new Error(`Failed to delete credentials: ${JSON.stringify(response.error)}`);
+    }
+  }
   // ============== Namespaced Accessors ==============
   _mission;
   _project;

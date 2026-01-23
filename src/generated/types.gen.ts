@@ -3732,7 +3732,7 @@ export type RepoDeleteResponse = {
    *
    * Deleted repository UUID
    */
-  id: string;
+  id?: string | null;
   /**
    * Repo Id
    *

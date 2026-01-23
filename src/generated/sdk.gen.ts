@@ -2219,7 +2219,7 @@ export const listDownloadedRepos = <ThrowOnError extends boolean = false>(
 /**
  * Delete repository
  *
- * Permanently deletes a downloaded repository. Uses repo_id (owner/repo format).
+ * Permanently deletes a downloaded repository. Accepts UUID or owner/repo format.
  */
 export const deleteRepo = <ThrowOnError extends boolean = false>(
   options: Options<DeleteRepoData, ThrowOnError>

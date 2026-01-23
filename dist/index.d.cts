@@ -2899,7 +2899,7 @@ type RepoDeleteResponse = {
      *
      * Deleted repository UUID
      */
-    id: string;
+    id?: string | null;
     /**
      * Repo Id
      *
@@ -7185,7 +7185,7 @@ declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(option
 /**
  * Delete repository
  *
- * Permanently deletes a downloaded repository. Uses repo_id (owner/repo format).
+ * Permanently deletes a downloaded repository. Accepts UUID or owner/repo format.
  */
 declare const deleteRepo: <ThrowOnError extends boolean = false>(options: Options<DeleteRepoData, ThrowOnError>) => RequestResult<DeleteRepoResponses, DeleteRepoErrors, ThrowOnError, "fields">;
 /**
@@ -7430,6 +7430,182 @@ declare const getCurrentUser: <ThrowOnError extends boolean = false>(options?: O
  * List workspaces for authenticated user.
  */
 declare const listWorkspaces: <ThrowOnError extends boolean = false>(options?: Options<ListWorkspacesData, ThrowOnError>) => RequestResult<ListWorkspacesResponses, ListWorkspacesErrors, ThrowOnError, "fields">;
+
+/**
+ * OCXP Error Types
+ *
+ * Typed error classes for the OCXP SDK providing structured error handling
+ * with error codes, HTTP status codes, and detailed context.
+ */
+/**
+ * Error codes for OCXP operations
+ */
+declare enum OCXPErrorCode {
+    /** Network-level error (connection failed, timeout, etc.) */
+    NETWORK_ERROR = "NETWORK_ERROR",
+    /** Request or response validation failed */
+    VALIDATION_ERROR = "VALIDATION_ERROR",
+    /** Authentication or authorization failed */
+    AUTH_ERROR = "AUTH_ERROR",
+    /** Resource not found */
+    NOT_FOUND = "NOT_FOUND",
+    /** Rate limit exceeded */
+    RATE_LIMITED = "RATE_LIMITED",
+    /** Conflict (e.g., etag mismatch) */
+    CONFLICT = "CONFLICT",
+    /** Operation timed out */
+    TIMEOUT = "TIMEOUT",
+    /** Server-side error */
+    SERVER_ERROR = "SERVER_ERROR",
+    /** Unknown error */
+    UNKNOWN = "UNKNOWN"
+}
+/**
+ * Base error class for all OCXP errors
+ */
+declare class OCXPError extends Error {
+    /** Error code for programmatic handling */
+    readonly code: OCXPErrorCode;
+    /** HTTP status code if applicable */
+    readonly statusCode: number;
+    /** Additional error details */
+    readonly details?: Record<string, unknown>;
+    /** Request ID for debugging */
+    readonly requestId?: string;
+    /** Original cause of the error */
+    readonly cause?: Error;
+    constructor(message: string, code?: OCXPErrorCode, statusCode?: number, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+    /**
+     * Convert error to JSON for logging/serialization
+     */
+    toJSON(): Record<string, unknown>;
+}
+/**
+ * Network-level error (connection failed, DNS resolution, etc.)
+ */
+declare class OCXPNetworkError extends OCXPError {
+    constructor(message: string, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Validation error (request or response validation failed)
+ */
+declare class OCXPValidationError extends OCXPError {
+    /** Field-level validation errors */
+    readonly validationErrors?: Record<string, string[]>;
+    constructor(message: string, validationErrors?: Record<string, string[]>, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Authentication or authorization error
+ */
+declare class OCXPAuthError extends OCXPError {
+    constructor(message: string, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Resource not found error
+ */
+declare class OCXPNotFoundError extends OCXPError {
+    /** The resource path that was not found */
+    readonly path?: string;
+    constructor(message: string, path?: string, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Rate limit exceeded error
+ */
+declare class OCXPRateLimitError extends OCXPError {
+    /** Seconds until rate limit resets */
+    readonly retryAfter?: number;
+    constructor(message?: string, retryAfter?: number, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Conflict error (e.g., etag mismatch, concurrent modification)
+ */
+declare class OCXPConflictError extends OCXPError {
+    /** Expected etag value */
+    readonly expectedEtag?: string;
+    /** Actual etag value */
+    readonly actualEtag?: string;
+    constructor(message: string, options?: {
+        expectedEtag?: string;
+        actualEtag?: string;
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Operation timeout error
+ */
+declare class OCXPTimeoutError extends OCXPError {
+    /** Timeout duration in milliseconds */
+    readonly timeoutMs?: number;
+    constructor(message?: string, timeoutMs?: number, options?: {
+        details?: Record<string, unknown>;
+        requestId?: string;
+        cause?: Error;
+    });
+}
+/**
+ * Type guard to check if an error is an OCXPError
+ */
+declare function isOCXPError(error: unknown): error is OCXPError;
+/**
+ * Type guard for specific error types
+ */
+declare function isOCXPNetworkError(error: unknown): error is OCXPNetworkError;
+declare function isOCXPValidationError(error: unknown): error is OCXPValidationError;
+declare function isOCXPAuthError(error: unknown): error is OCXPAuthError;
+declare function isOCXPNotFoundError(error: unknown): error is OCXPNotFoundError;
+declare function isOCXPRateLimitError(error: unknown): error is OCXPRateLimitError;
+declare function isOCXPConflictError(error: unknown): error is OCXPConflictError;
+declare function isOCXPTimeoutError(error: unknown): error is OCXPTimeoutError;
+/**
+ * Map HTTP status code to appropriate OCXP error
+ */
+declare function mapHttpError(statusCode: number, message: string, options?: {
+    details?: Record<string, unknown>;
+    requestId?: string;
+    path?: string;
+    retryAfter?: number;
+}): OCXPError;
+
+/**
+ * OCXP Type Exports
+ */
+
+/**
+ * Project Credentials for frontend authentication
+ */
+interface ProjectCredentials {
+    url?: string;
+    username?: string;
+    password?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
 
 interface ListEntry$1 {
     name: string;
@@ -8009,6 +8185,34 @@ declare class OCXPClient {
     deleteGitHubToken(): Promise<{
         success: boolean;
     }>;
+    /**
+     * Get project credentials for frontend authentication
+     * @param projectId - Project ID
+     * @returns Project credentials
+     */
+    getProjectCredentials(projectId: string): Promise<ProjectCredentials>;
+    /**
+     * Update project credentials for frontend authentication
+     * @param projectId - Project ID
+     * @param updates - Partial credential updates
+     * @returns Updated project credentials
+     */
+    updateProjectCredentials(projectId: string, updates: Partial<ProjectCredentials>): Promise<ProjectCredentials>;
+    /**
+     * Test project credentials
+     * @param projectId - Project ID
+     * @returns Test result with success flag and optional message
+     */
+    testProjectCredentials(projectId: string): Promise<{
+        success: boolean;
+        message?: string;
+    }>;
+    /**
+     * Delete project credentials
+     * @param projectId - Project ID
+     * @returns void
+     */
+    deleteProjectCredentials(projectId: string): Promise<void>;
     private _mission?;
     private _project?;
     private _session?;
@@ -8809,167 +9013,6 @@ declare class WebSocketService {
  * Create WebSocket service with same options pattern as OCXPClient
  */
 declare function createWebSocketService(options: WebSocketServiceOptions): WebSocketService;
-
-/**
- * OCXP Error Types
- *
- * Typed error classes for the OCXP SDK providing structured error handling
- * with error codes, HTTP status codes, and detailed context.
- */
-/**
- * Error codes for OCXP operations
- */
-declare enum OCXPErrorCode {
-    /** Network-level error (connection failed, timeout, etc.) */
-    NETWORK_ERROR = "NETWORK_ERROR",
-    /** Request or response validation failed */
-    VALIDATION_ERROR = "VALIDATION_ERROR",
-    /** Authentication or authorization failed */
-    AUTH_ERROR = "AUTH_ERROR",
-    /** Resource not found */
-    NOT_FOUND = "NOT_FOUND",
-    /** Rate limit exceeded */
-    RATE_LIMITED = "RATE_LIMITED",
-    /** Conflict (e.g., etag mismatch) */
-    CONFLICT = "CONFLICT",
-    /** Operation timed out */
-    TIMEOUT = "TIMEOUT",
-    /** Server-side error */
-    SERVER_ERROR = "SERVER_ERROR",
-    /** Unknown error */
-    UNKNOWN = "UNKNOWN"
-}
-/**
- * Base error class for all OCXP errors
- */
-declare class OCXPError extends Error {
-    /** Error code for programmatic handling */
-    readonly code: OCXPErrorCode;
-    /** HTTP status code if applicable */
-    readonly statusCode: number;
-    /** Additional error details */
-    readonly details?: Record<string, unknown>;
-    /** Request ID for debugging */
-    readonly requestId?: string;
-    /** Original cause of the error */
-    readonly cause?: Error;
-    constructor(message: string, code?: OCXPErrorCode, statusCode?: number, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-    /**
-     * Convert error to JSON for logging/serialization
-     */
-    toJSON(): Record<string, unknown>;
-}
-/**
- * Network-level error (connection failed, DNS resolution, etc.)
- */
-declare class OCXPNetworkError extends OCXPError {
-    constructor(message: string, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Validation error (request or response validation failed)
- */
-declare class OCXPValidationError extends OCXPError {
-    /** Field-level validation errors */
-    readonly validationErrors?: Record<string, string[]>;
-    constructor(message: string, validationErrors?: Record<string, string[]>, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Authentication or authorization error
- */
-declare class OCXPAuthError extends OCXPError {
-    constructor(message: string, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Resource not found error
- */
-declare class OCXPNotFoundError extends OCXPError {
-    /** The resource path that was not found */
-    readonly path?: string;
-    constructor(message: string, path?: string, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Rate limit exceeded error
- */
-declare class OCXPRateLimitError extends OCXPError {
-    /** Seconds until rate limit resets */
-    readonly retryAfter?: number;
-    constructor(message?: string, retryAfter?: number, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Conflict error (e.g., etag mismatch, concurrent modification)
- */
-declare class OCXPConflictError extends OCXPError {
-    /** Expected etag value */
-    readonly expectedEtag?: string;
-    /** Actual etag value */
-    readonly actualEtag?: string;
-    constructor(message: string, options?: {
-        expectedEtag?: string;
-        actualEtag?: string;
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Operation timeout error
- */
-declare class OCXPTimeoutError extends OCXPError {
-    /** Timeout duration in milliseconds */
-    readonly timeoutMs?: number;
-    constructor(message?: string, timeoutMs?: number, options?: {
-        details?: Record<string, unknown>;
-        requestId?: string;
-        cause?: Error;
-    });
-}
-/**
- * Type guard to check if an error is an OCXPError
- */
-declare function isOCXPError(error: unknown): error is OCXPError;
-/**
- * Type guard for specific error types
- */
-declare function isOCXPNetworkError(error: unknown): error is OCXPNetworkError;
-declare function isOCXPValidationError(error: unknown): error is OCXPValidationError;
-declare function isOCXPAuthError(error: unknown): error is OCXPAuthError;
-declare function isOCXPNotFoundError(error: unknown): error is OCXPNotFoundError;
-declare function isOCXPRateLimitError(error: unknown): error is OCXPRateLimitError;
-declare function isOCXPConflictError(error: unknown): error is OCXPConflictError;
-declare function isOCXPTimeoutError(error: unknown): error is OCXPTimeoutError;
-/**
- * Map HTTP status code to appropriate OCXP error
- */
-declare function mapHttpError(statusCode: number, message: string, options?: {
-    details?: Record<string, unknown>;
-    requestId?: string;
-    path?: string;
-    retryAfter?: number;
-}): OCXPError;
 
 /**
  * Common Zod Schemas for OCXP API
