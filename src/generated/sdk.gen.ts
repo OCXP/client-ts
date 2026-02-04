@@ -8,6 +8,9 @@ import {
 } from './client';
 import { client } from './client.gen';
 import type {
+  AcceptProposalData,
+  AcceptProposalErrors,
+  AcceptProposalResponses,
   AcknowledgeMemoData,
   AcknowledgeMemoErrors,
   AcknowledgeMemoResponses,
@@ -23,6 +26,9 @@ import type {
   AddSessionData,
   AddSessionErrors,
   AddSessionResponses,
+  AddTaskData,
+  AddTaskErrors,
+  AddTaskResponses,
   AnalyseVisualContentData,
   AnalyseVisualContentErrors,
   AnalyseVisualContentResponses,
@@ -32,21 +38,48 @@ import type {
   BatchResolveOcxpUrisData,
   BatchResolveOcxpUrisErrors,
   BatchResolveOcxpUrisResponses,
+  BrowsePageData,
+  BrowsePageErrors,
+  BrowsePageResponses,
+  BulkAcknowledgeMemosData,
+  BulkAcknowledgeMemosErrors,
+  BulkAcknowledgeMemosResponses,
+  BulkCreateMemosData,
+  BulkCreateMemosErrors,
+  BulkCreateMemosResponses,
   BulkDeleteContentData,
   BulkDeleteContentErrors,
   BulkDeleteContentResponses,
+  BulkDeleteMemosData,
+  BulkDeleteMemosErrors,
+  BulkDeleteMemosResponses,
   BulkMoveContentData,
   BulkMoveContentErrors,
   BulkMoveContentResponses,
   BulkReadContentData,
   BulkReadContentErrors,
   BulkReadContentResponses,
+  BulkReadMemosData,
+  BulkReadMemosErrors,
+  BulkReadMemosResponses,
+  BulkResolveMemosData,
+  BulkResolveMemosErrors,
+  BulkResolveMemosResponses,
+  BulkUpdateTasksData,
+  BulkUpdateTasksErrors,
+  BulkUpdateTasksResponses,
   BulkWriteContentData,
   BulkWriteContentErrors,
   BulkWriteContentResponses,
   CapturePageScreenshotsData,
   CapturePageScreenshotsErrors,
   CapturePageScreenshotsResponses,
+  CaptureScreenshotData,
+  CaptureScreenshotErrors,
+  CaptureScreenshotResponses,
+  ComparePagesData,
+  ComparePagesErrors,
+  ComparePagesResponses,
   CreateDatabaseData,
   CreateDatabaseErrors,
   CreateDatabaseResponses,
@@ -65,6 +98,9 @@ import type {
   CreateSessionData,
   CreateSessionErrors,
   CreateSessionResponses,
+  CreateWorkflowData,
+  CreateWorkflowErrors,
+  CreateWorkflowResponses,
   DeleteContentData,
   DeleteContentErrors,
   DeleteContentResponses,
@@ -89,18 +125,30 @@ import type {
   DeleteRepoData,
   DeleteRepoErrors,
   DeleteRepoResponses,
+  DeleteTaskData,
+  DeleteTaskErrors,
+  DeleteTaskResponses,
+  DeleteWorkflowData,
+  DeleteWorkflowErrors,
+  DeleteWorkflowResponses,
   DiscoverContextData,
   DiscoverContextErrors,
   DiscoverContextResponses,
   DownloadMissionPackData,
   DownloadMissionPackErrors,
   DownloadMissionPackResponses,
+  DownloadProjectPackData,
+  DownloadProjectPackErrors,
+  DownloadProjectPackResponses,
   DownloadRepositoryData,
   DownloadRepositoryErrors,
   DownloadRepositoryResponses,
   ExportCheckpointAsSopData,
   ExportCheckpointAsSopErrors,
   ExportCheckpointAsSopResponses,
+  ExtractElementsData,
+  ExtractElementsErrors,
+  ExtractElementsResponses,
   ForkSessionData,
   ForkSessionErrors,
   ForkSessionResponses,
@@ -153,10 +201,16 @@ import type {
   GetProjectDatabasesErrors,
   GetProjectDatabasesResponses,
   GetProjectErrors,
+  GetProjectMemosData,
+  GetProjectMemosErrors,
+  GetProjectMemosResponses,
   GetProjectResponses,
   GetPrototypeChatData,
   GetPrototypeChatErrors,
   GetPrototypeChatResponses,
+  GetProvenanceData,
+  GetProvenanceErrors,
+  GetProvenanceResponses,
   GetRepoCommitsData,
   GetRepoCommitsErrors,
   GetRepoCommitsResponses,
@@ -178,6 +232,12 @@ import type {
   GetSyncStatusData,
   GetSyncStatusErrors,
   GetSyncStatusResponses,
+  GetTaskData,
+  GetTaskErrors,
+  GetTaskResponses,
+  GetWorkflowData,
+  GetWorkflowErrors,
+  GetWorkflowResponses,
   GithubCheckAccessData,
   GithubCheckAccessErrors,
   GithubCheckAccessResponses,
@@ -237,6 +297,9 @@ import type {
   ListProjectsData,
   ListProjectsErrors,
   ListProjectsResponses,
+  ListProposalsData,
+  ListProposalsErrors,
+  ListProposalsResponses,
   ListPrototypeChatsData,
   ListPrototypeChatsErrors,
   ListPrototypeChatsResponses,
@@ -246,9 +309,15 @@ import type {
   ListTablesData,
   ListTablesErrors,
   ListTablesResponses,
+  ListTasksData,
+  ListTasksErrors,
+  ListTasksResponses,
   ListVersionsData,
   ListVersionsErrors,
   ListVersionsResponses,
+  ListWorkflowsData,
+  ListWorkflowsErrors,
+  ListWorkflowsResponses,
   ListWorkspacesData,
   ListWorkspacesErrors,
   ListWorkspacesResponses,
@@ -291,6 +360,9 @@ import type {
   RegenerateMissionData,
   RegenerateMissionErrors,
   RegenerateMissionResponses,
+  RejectProposalData,
+  RejectProposalErrors,
+  RejectProposalResponses,
   RemoveDatabaseData,
   RemoveDatabaseErrors,
   RemoveDatabaseResponses,
@@ -324,9 +396,15 @@ import type {
   SetGithubTokenData,
   SetGithubTokenErrors,
   SetGithubTokenResponses,
+  StartWorkflowData,
+  StartWorkflowErrors,
+  StartWorkflowResponses,
   SyncAllReposData,
   SyncAllReposErrors,
   SyncAllReposResponses,
+  SyncMissionsData,
+  SyncMissionsErrors,
+  SyncMissionsResponses,
   SyncPrototypeChatAsyncData,
   SyncPrototypeChatAsyncErrors,
   SyncPrototypeChatAsyncResponses,
@@ -351,6 +429,9 @@ import type {
   ToolUpdateMissionData,
   ToolUpdateMissionErrors,
   ToolUpdateMissionResponses,
+  TriggerRebuildData,
+  TriggerRebuildErrors,
+  TriggerRebuildResponses,
   UnlockContentData,
   UnlockContentErrors,
   UnlockContentResponses,
@@ -360,6 +441,9 @@ import type {
   UpdateDatabaseData,
   UpdateDatabaseErrors,
   UpdateDatabaseResponses,
+  UpdateMemoData,
+  UpdateMemoErrors,
+  UpdateMemoResponses,
   UpdateMissionData,
   UpdateMissionErrors,
   UpdateMissionResponses,
@@ -369,6 +453,9 @@ import type {
   UpdateSessionMetadataData,
   UpdateSessionMetadataErrors,
   UpdateSessionMetadataResponses,
+  UpdateTaskData,
+  UpdateTaskErrors,
+  UpdateTaskResponses,
   ValidateOcxpUriData,
   ValidateOcxpUriErrors,
   ValidateOcxpUriResponses,
@@ -861,6 +948,108 @@ export const analyseVisualContent = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/visual/analyse',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Capture Screenshot
+ *
+ * Capture a screenshot of a webpage.
+ *
+ * Uses browser automation to navigate to URL and capture screenshot.
+ * Screenshot is stored in OCXP visual storage.
+ *
+ * In mock mode (BROWSER_MOCK_MODE=true), returns a placeholder screenshot
+ * for stress testing without requiring Lambda/AgentCore.
+ */
+export const captureScreenshot = <ThrowOnError extends boolean = false>(
+  options: Options<CaptureScreenshotData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CaptureScreenshotResponses,
+    CaptureScreenshotErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/visual/screenshot',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Browse Page
+ *
+ * Browse a webpage with optional interactions.
+ *
+ * Navigates to URL, performs actions (fill forms, click buttons),
+ * and optionally extracts content and captures screenshot.
+ *
+ * In mock mode (BROWSER_MOCK_MODE=true), returns placeholder responses
+ * for stress testing without requiring Lambda/AgentCore.
+ */
+export const browsePage = <ThrowOnError extends boolean = false>(
+  options: Options<BrowsePageData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BrowsePageResponses, BrowsePageErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/visual/browse',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Extract Elements
+ *
+ * Extract elements from a webpage.
+ *
+ * Navigates to URL and extracts specified element types
+ * (links, forms, buttons, images, headings, or all).
+ *
+ * In mock mode (BROWSER_MOCK_MODE=true), returns placeholder elements
+ * for stress testing without requiring Lambda/AgentCore.
+ */
+export const extractElements = <ThrowOnError extends boolean = false>(
+  options: Options<ExtractElementsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<ExtractElementsResponses, ExtractElementsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/visual/extract',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Compare Pages
+ *
+ * Compare two webpages.
+ *
+ * Captures both pages and compares them based on compare_type:
+ * - visual: Screenshot similarity
+ * - structure: DOM structure comparison
+ * - content: Text content comparison
+ *
+ * In mock mode (BROWSER_MOCK_MODE=true), returns placeholder comparison
+ * for stress testing without requiring Lambda/AgentCore.
+ */
+export const comparePages = <ThrowOnError extends boolean = false>(
+  options: Options<ComparePagesData, ThrowOnError>
+) =>
+  (options.client ?? client).post<ComparePagesResponses, ComparePagesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/visual/compare',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1756,6 +1945,20 @@ export const removeMission = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Sync project missions
+ *
+ * Validates active_mission_ids against mission metadata table and removes orphaned IDs.
+ */
+export const syncMissions = <ThrowOnError extends boolean = false>(
+  options: Options<SyncMissionsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<SyncMissionsResponses, SyncMissionsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/missions/sync',
+    ...options,
+  });
+
+/**
  * Get project databases
  *
  * Returns all databases linked to the project.
@@ -1825,6 +2028,29 @@ export const setDefaultDatabase = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Download project pack as ZIP
+ *
+ * Download complete project as ZIP file.
+ *
+ * Includes:
+ * - All project files (docs, configs, etc.)
+ * - Preserves folder structure
+ * - Excludes archive/ folders and .metadata.json files
+ */
+export const downloadProjectPack = <ThrowOnError extends boolean = false>(
+  options: Options<DownloadProjectPackData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    DownloadProjectPackResponses,
+    DownloadProjectPackErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/project/{project_id}/download',
+    ...options,
   });
 
 /**
@@ -1902,7 +2128,7 @@ export const saveCredentials = <ThrowOnError extends boolean = false>(
 /**
  * Test project credentials
  *
- * Test if credentials exist and are valid for a project.
+ * Test credentials with actual browser-based login attempt. Returns detailed results including screenshot.
  */
 export const testCredentials = <ThrowOnError extends boolean = false>(
   options: Options<TestCredentialsData, ThrowOnError>
@@ -2088,6 +2314,80 @@ export const downloadMissionPack = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Trigger smart re-execution from feedback
+ *
+ * Processes user feedback memos and triggers intelligent re-execution. AI classifies feedback to determine whether new research is needed or just document regeneration. Returns proposals for user approval.
+ */
+export const triggerRebuild = <ThrowOnError extends boolean = false>(
+  options: Options<TriggerRebuildData, ThrowOnError>
+) =>
+  (options.client ?? client).post<TriggerRebuildResponses, TriggerRebuildErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/rebuild',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * List pending agent proposals
+ *
+ * Returns all pending agent proposals (agent_edit, agent_delete, agent_comment) for the mission that are awaiting user approval.
+ */
+export const listProposals = <ThrowOnError extends boolean = false>(
+  options: Options<ListProposalsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ListProposalsResponses, ListProposalsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/proposals',
+    ...options,
+  });
+
+/**
+ * Accept an agent proposal
+ *
+ * Accepts the proposal and applies the suggested change.
+ */
+export const acceptProposal = <ThrowOnError extends boolean = false>(
+  options: Options<AcceptProposalData, ThrowOnError>
+) =>
+  (options.client ?? client).post<AcceptProposalResponses, AcceptProposalErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/proposals/{proposal_id}/accept',
+    ...options,
+  });
+
+/**
+ * Reject an agent proposal
+ *
+ * Rejects the proposal without applying changes.
+ */
+export const rejectProposal = <ThrowOnError extends boolean = false>(
+  options: Options<RejectProposalData, ThrowOnError>
+) =>
+  (options.client ?? client).post<RejectProposalResponses, RejectProposalErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/proposals/{proposal_id}/reject',
+    ...options,
+  });
+
+/**
+ * Query task-to-document provenance
+ *
+ * Returns provenance records showing which tasks generated which document sections. Can filter by document path or line number to find the source task.
+ */
+export const getProvenance = <ThrowOnError extends boolean = false>(
+  options: Options<GetProvenanceData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetProvenanceResponses, GetProvenanceErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/provenance',
+    ...options,
+  });
+
+/**
  * Query Knowledge Base
  *
  * DEPRECATED: Use POST /ocxp/context/discover instead.
@@ -2172,6 +2472,121 @@ export const createMemo = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Bulk delete memos
+ *
+ * Delete multiple memos in a single request (max 25).
+ */
+export const bulkDeleteMemos = <ThrowOnError extends boolean = false>(
+  options: Options<BulkDeleteMemosData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<BulkDeleteMemosResponses, BulkDeleteMemosErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/bulk',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Bulk create memos
+ *
+ * Create multiple memos in a single request (max 25).
+ */
+export const bulkCreateMemos = <ThrowOnError extends boolean = false>(
+  options: Options<BulkCreateMemosData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkCreateMemosResponses, BulkCreateMemosErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/bulk',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Bulk read memos
+ *
+ * Read multiple memos by IDs in a single request (max 25).
+ */
+export const bulkReadMemos = <ThrowOnError extends boolean = false>(
+  options: Options<BulkReadMemosData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkReadMemosResponses, BulkReadMemosErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/bulk/read',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Bulk acknowledge memos
+ *
+ * Acknowledge multiple memos in a single request (max 25).
+ */
+export const bulkAcknowledgeMemos = <ThrowOnError extends boolean = false>(
+  options: Options<BulkAcknowledgeMemosData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    BulkAcknowledgeMemosResponses,
+    BulkAcknowledgeMemosErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/bulk/acknowledge',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Bulk resolve memos
+ *
+ * Resolve multiple memos in a single request (max 25).
+ */
+export const bulkResolveMemos = <ThrowOnError extends boolean = false>(
+  options: Options<BulkResolveMemosData, ThrowOnError>
+) =>
+  (options.client ?? client).post<BulkResolveMemosResponses, BulkResolveMemosErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/bulk/resolve',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get all memos for a project
+ *
+ * Load all memos for a project in a single request. This includes:
+ * - Memos directly on the project (source_type=project)
+ * - Memos on all missions belonging to the project (source_type=mission)
+ *
+ * This is much more efficient than loading memos per-mission individually.
+ *
+ * Use mission_status to filter which missions' memos to include (e.g., "open,in_progress"
+ * to only get memos from active missions).
+ */
+export const getProjectMemos = <ThrowOnError extends boolean = false>(
+  options: Options<GetProjectMemosData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetProjectMemosResponses, GetProjectMemosErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/project/{project_id}',
+    ...options,
+  });
+
+/**
  * Delete memo
  *
  * Delete a memo permanently.
@@ -2197,6 +2612,24 @@ export const getMemo = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/memo/{memo_id}',
     ...options,
+  });
+
+/**
+ * Update memo
+ *
+ * Update a memo's metadata and/or content.
+ */
+export const updateMemo = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMemoData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<UpdateMemoResponses, UpdateMemoErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/memo/{memo_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**
@@ -2257,6 +2690,176 @@ export const ignoreMemo = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/memo/{memo_id}/ignore',
     ...options,
+  });
+
+/**
+ * List workflows
+ *
+ * List workflows for a mission with optional status filter.
+ */
+export const listWorkflows = <ThrowOnError extends boolean = false>(
+  options: Options<ListWorkflowsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ListWorkflowsResponses, ListWorkflowsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow',
+    ...options,
+  });
+
+/**
+ * Create workflow with tasks
+ *
+ * Create a new workflow with optional initial tasks. Tasks are stored as memos.
+ */
+export const createWorkflow = <ThrowOnError extends boolean = false>(
+  options: Options<CreateWorkflowData, ThrowOnError>
+) =>
+  (options.client ?? client).post<CreateWorkflowResponses, CreateWorkflowErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete workflow
+ *
+ * Delete a workflow and all its task memos.
+ */
+export const deleteWorkflow = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteWorkflowData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteWorkflowResponses, DeleteWorkflowErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}',
+    ...options,
+  });
+
+/**
+ * Get workflow with tasks
+ *
+ * Get a workflow with all its tasks in strands-compatible format.
+ */
+export const getWorkflow = <ThrowOnError extends boolean = false>(
+  options: Options<GetWorkflowData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetWorkflowResponses, GetWorkflowErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}',
+    ...options,
+  });
+
+/**
+ * Start workflow
+ *
+ * Mark workflow as running.
+ */
+export const startWorkflow = <ThrowOnError extends boolean = false>(
+  options: Options<StartWorkflowData, ThrowOnError>
+) =>
+  (options.client ?? client).post<StartWorkflowResponses, StartWorkflowErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/start',
+    ...options,
+  });
+
+/**
+ * List workflow tasks
+ *
+ * List all tasks for a workflow.
+ */
+export const listTasks = <ThrowOnError extends boolean = false>(
+  options: Options<ListTasksData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ListTasksResponses, ListTasksErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/tasks',
+    ...options,
+  });
+
+/**
+ * Add task to workflow
+ *
+ * Add a new task to an existing workflow.
+ */
+export const addTask = <ThrowOnError extends boolean = false>(
+  options: Options<AddTaskData, ThrowOnError>
+) =>
+  (options.client ?? client).post<AddTaskResponses, AddTaskErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/tasks',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Bulk update tasks
+ *
+ * Update multiple task statuses in a single request for O(1) performance.
+ */
+export const bulkUpdateTasks = <ThrowOnError extends boolean = false>(
+  options: Options<BulkUpdateTasksData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<BulkUpdateTasksResponses, BulkUpdateTasksErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/tasks/bulk',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete task
+ *
+ * Delete a specific task from a workflow.
+ */
+export const deleteTask = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteTaskData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteTaskResponses, DeleteTaskErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}',
+    ...options,
+  });
+
+/**
+ * Get task
+ *
+ * Get a specific task from a workflow.
+ */
+export const getTask = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetTaskResponses, GetTaskErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}',
+    ...options,
+  });
+
+/**
+ * Update task
+ *
+ * Update a task's status, result, or error.
+ */
+export const updateTask = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateTaskData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<UpdateTaskResponses, UpdateTaskErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**
@@ -2779,7 +3382,7 @@ export const readContent = <ThrowOnError extends boolean = false>(
 /**
  * Write content
  *
- * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
+ * Writes content to storage with robust verification. Supports ETag for optimistic locking, ifNotExists for creation-only, and wait_for_index/verify_access for synchronous KB indexing verification.
  */
 export const writeContent = <ThrowOnError extends boolean = false>(
   options: Options<WriteContentData, ThrowOnError>

@@ -445,7 +445,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BulkDeleteRequest"
+                "$ref": "#/components/schemas/app__routers__bulk__BulkDeleteRequest"
               }
             }
           }
@@ -1034,6 +1034,282 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VisualAnalyseResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/visual/screenshot": {
+      "post": {
+        "tags": [
+          "Visual Browse"
+        ],
+        "summary": "Capture Screenshot",
+        "description": "Capture a screenshot of a webpage.\n\nUses browser automation to navigate to URL and capture screenshot.\nScreenshot is stored in OCXP visual storage.\n\nIn mock mode (BROWSER_MOCK_MODE=true), returns a placeholder screenshot\nfor stress testing without requiring Lambda/AgentCore.",
+        "operationId": "captureScreenshot",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScreenshotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenshotResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/visual/browse": {
+      "post": {
+        "tags": [
+          "Visual Browse"
+        ],
+        "summary": "Browse Page",
+        "description": "Browse a webpage with optional interactions.\n\nNavigates to URL, performs actions (fill forms, click buttons),\nand optionally extracts content and captures screenshot.\n\nIn mock mode (BROWSER_MOCK_MODE=true), returns placeholder responses\nfor stress testing without requiring Lambda/AgentCore.",
+        "operationId": "browsePage",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrowseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowseResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/visual/extract": {
+      "post": {
+        "tags": [
+          "Visual Browse"
+        ],
+        "summary": "Extract Elements",
+        "description": "Extract elements from a webpage.\n\nNavigates to URL and extracts specified element types\n(links, forms, buttons, images, headings, or all).\n\nIn mock mode (BROWSER_MOCK_MODE=true), returns placeholder elements\nfor stress testing without requiring Lambda/AgentCore.",
+        "operationId": "extractElements",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/visual/compare": {
+      "post": {
+        "tags": [
+          "Visual Browse"
+        ],
+        "summary": "Compare Pages",
+        "description": "Compare two webpages.\n\nCaptures both pages and compares them based on compare_type:\n- visual: Screenshot similarity\n- structure: DOM structure comparison\n- content: Text content comparison\n\nIn mock mode (BROWSER_MOCK_MODE=true), returns placeholder comparison\nfor stress testing without requiring Lambda/AgentCore.",
+        "operationId": "comparePages",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareResponse"
                 }
               }
             }
@@ -3647,6 +3923,79 @@
         ]
       }
     },
+    "/ocxp/project/{project_id}/missions/sync": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Sync project missions",
+        "description": "Validates active_mission_ids against mission metadata table and removes orphaned IDs.",
+        "operationId": "syncMissions",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sync completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncMissionsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/project/{project_id}/databases": {
       "post": {
         "tags": [
@@ -3931,6 +4280,73 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/project/{project_id}/download": {
+      "get": {
+        "tags": [
+          "Project",
+          "project"
+        ],
+        "summary": "Download project pack as ZIP",
+        "description": "Download complete project as ZIP file.\n\nIncludes:\n- All project files (docs, configs, etc.)\n- Preserves folder structure\n- Excludes archive/ folders and .metadata.json files",
+        "operationId": "downloadProjectPack",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project ZIP file returned"
           },
           "404": {
             "description": "Project not found"
@@ -4276,7 +4692,7 @@
           "Project"
         ],
         "summary": "Test project credentials",
-        "description": "Test if credentials exist and are valid for a project.",
+        "description": "Test credentials with actual browser-based login attempt. Returns detailed results including screenshot.",
         "operationId": "testCredentials",
         "parameters": [
           {
@@ -4291,6 +4707,16 @@
             "description": "Project ID"
           },
           {
+            "name": "perform_browser_test",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Perform Browser Test"
+            }
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -4302,17 +4728,17 @@
         ],
         "responses": {
           "200": {
-            "description": "Credentials are valid",
+            "description": "Test completed (check success field for result)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CredentialActionResponse"
+                  "$ref": "#/components/schemas/CredentialTestResponse"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid or missing credentials"
+          "500": {
+            "description": "Test failed with error"
           },
           "429": {
             "description": "Rate limit exceeded",
@@ -5235,6 +5661,489 @@
         ]
       }
     },
+    "/ocxp/mission/{mission_id}/rebuild": {
+      "post": {
+        "tags": [
+          "Rebuild"
+        ],
+        "summary": "Trigger smart re-execution from feedback",
+        "description": "Processes user feedback memos and triggers intelligent re-execution. AI classifies feedback to determine whether new research is needed or just document regeneration. Returns proposals for user approval.",
+        "operationId": "triggerRebuild",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RebuildRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rebuild initiated, proposals ready for review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebuildResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Rebuild processing, check back later"
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/proposals": {
+      "get": {
+        "tags": [
+          "Rebuild"
+        ],
+        "summary": "List pending agent proposals",
+        "description": "Returns all pending agent proposals (agent_edit, agent_delete, agent_comment) for the mission that are awaiting user approval.",
+        "operationId": "listProposals",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status: pending, accepted, rejected",
+              "default": "pending",
+              "title": "Status"
+            },
+            "description": "Filter by status: pending, accepted, rejected"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of pending proposals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/proposals/{proposal_id}/accept": {
+      "post": {
+        "tags": [
+          "Rebuild"
+        ],
+        "summary": "Accept an agent proposal",
+        "description": "Accepts the proposal and applies the suggested change.",
+        "operationId": "acceptProposal",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          },
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proposal accepted and applied",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Mission or proposal not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/proposals/{proposal_id}/reject": {
+      "post": {
+        "tags": [
+          "Rebuild"
+        ],
+        "summary": "Reject an agent proposal",
+        "description": "Rejects the proposal without applying changes.",
+        "operationId": "rejectProposal",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          },
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional reason for rejection",
+              "title": "Reason"
+            },
+            "description": "Optional reason for rejection"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proposal rejected",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Mission or proposal not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/provenance": {
+      "get": {
+        "tags": [
+          "Rebuild"
+        ],
+        "summary": "Query task-to-document provenance",
+        "description": "Returns provenance records showing which tasks generated which document sections. Can filter by document path or line number to find the source task.",
+        "operationId": "getProvenance",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Mission ID"
+          },
+          {
+            "name": "document_path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by document path",
+              "title": "Document Path"
+            },
+            "description": "Filter by document path"
+          },
+          {
+            "name": "line_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Find provenance for specific line number (requires document_path)",
+              "title": "Line Number"
+            },
+            "description": "Find provenance for specific line number (requires document_path)"
+          },
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by task ID",
+              "title": "Task Id"
+            },
+            "description": "Filter by task ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provenance records returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvenanceListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/kb/query": {
       "post": {
         "tags": [
@@ -5626,6 +6535,502 @@
         ]
       }
     },
+    "/ocxp/memo/bulk": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Bulk create memos",
+        "description": "Create multiple memos in a single request (max 25).",
+        "operationId": "bulkCreateMemos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkCreateMemoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Memos created (check results for individual status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMemoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Bulk delete memos",
+        "description": "Delete multiple memos in a single request (max 25).",
+        "operationId": "bulkDeleteMemos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/domain__memo_models__BulkDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Memos deleted (check results for individual status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMemoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memo/bulk/read": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Bulk read memos",
+        "description": "Read multiple memos by IDs in a single request (max 25).",
+        "operationId": "bulkReadMemos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkMemoIdsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Memos read (check results for individual status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMemoReadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memo/bulk/acknowledge": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Bulk acknowledge memos",
+        "description": "Acknowledge multiple memos in a single request (max 25).",
+        "operationId": "bulkAcknowledgeMemos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkAcknowledgeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Memos acknowledged (check results for individual status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMemoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memo/bulk/resolve": {
+      "post": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Bulk resolve memos",
+        "description": "Resolve multiple memos in a single request (max 25).",
+        "operationId": "bulkResolveMemos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Memos resolved (check results for individual status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMemoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/memo/project/{project_id}": {
+      "get": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Get all memos for a project",
+        "description": "Load all memos for a project in a single request. This includes:\n    - Memos directly on the project (source_type=project)\n    - Memos on all missions belonging to the project (source_type=mission)\n\n    This is much more efficient than loading memos per-mission individually.\n\n    Use mission_status to filter which missions' memos to include (e.g., \"open,in_progress\"\n    to only get memos from active missions).",
+        "operationId": "getProjectMemos",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project ID",
+              "title": "Project Id"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MemoStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by memo status",
+              "title": "Status"
+            },
+            "description": "Filter by memo status"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MemoCategory"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category",
+              "title": "Category"
+            },
+            "description": "Filter by category"
+          },
+          {
+            "name": "mission_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated mission statuses to include (e.g., 'open,in_progress')",
+              "title": "Mission Status"
+            },
+            "description": "Comma-separated mission statuses to include (e.g., 'open,in_progress')"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Maximum results",
+              "default": 500,
+              "title": "Limit"
+            },
+            "description": "Maximum results"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All project memos returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMemosResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/memo/{memo_id}": {
       "get": {
         "tags": [
@@ -5659,6 +7064,87 @@
         "responses": {
           "200": {
             "description": "Memo returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Memo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Memo not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Security Memos"
+        ],
+        "summary": "Update memo",
+        "description": "Update a memo's metadata and/or content.",
+        "operationId": "updateMemo",
+        "parameters": [
+          {
+            "name": "memo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Memo ID",
+              "title": "Memo Id"
+            },
+            "description": "Memo ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Memo updated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -6058,6 +7544,890 @@
           },
           "404": {
             "description": "Memo not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/workflow": {
+      "post": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Create workflow with tasks",
+        "description": "Create a new workflow with optional initial tasks. Tasks are stored as memos.",
+        "operationId": "createWorkflow",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Workflow created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "List workflows",
+        "description": "List workflows for a mission with optional status filter.",
+        "operationId": "listWorkflows",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Filter by mission ID",
+              "title": "Mission Id"
+            },
+            "description": "Filter by mission ID"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/WorkflowStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by workflow status",
+              "title": "Status"
+            },
+            "description": "Filter by workflow status"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Maximum results",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum results"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of workflows returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowListResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/workflow/{workflow_id}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Get workflow with tasks",
+        "description": "Get a workflow with all its tasks in strands-compatible format.",
+        "operationId": "getWorkflow",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workflow returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Delete workflow",
+        "description": "Delete a workflow and all its task memos.",
+        "operationId": "deleteWorkflow",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workflow deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/workflow/{workflow_id}/start": {
+      "post": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Start workflow",
+        "description": "Mark workflow as running.",
+        "operationId": "startWorkflow",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workflow started successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/workflow/{workflow_id}/tasks": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "List workflow tasks",
+        "description": "List all tasks for a workflow.",
+        "operationId": "listTasks",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tasks returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Add task to workflow",
+        "description": "Add a new task to an existing workflow.",
+        "operationId": "addTask",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowTaskCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Task added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/workflow/{workflow_id}/tasks/bulk": {
+      "patch": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Bulk update tasks",
+        "description": "Update multiple task statuses in a single request for O(1) performance.",
+        "operationId": "bulkUpdateTasks",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkTaskUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tasks updated (check results for per-task status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkTaskUpdateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/workflow/{workflow_id}/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Get task",
+        "description": "Get a specific task from a workflow.",
+        "operationId": "getTask",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Task ID",
+              "title": "Task Id"
+            },
+            "description": "Task ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow or task not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Update task",
+        "description": "Update a task's status, result, or error.",
+        "operationId": "updateTask",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Task ID",
+              "title": "Task Id"
+            },
+            "description": "Task ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow or task not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Delete task",
+        "description": "Delete a specific task from a workflow.",
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Workflow ID",
+              "title": "Workflow Id"
+            },
+            "description": "Workflow ID"
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Task ID",
+              "title": "Task Id"
+            },
+            "description": "Task ID"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow or task not found"
           },
           "429": {
             "description": "Rate limit exceeded",
@@ -8621,7 +10991,7 @@
           "Context"
         ],
         "summary": "Write content",
-        "description": "Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.",
+        "description": "Writes content to storage with robust verification. Supports ETag for optimistic locking, ifNotExists for creation-only, and wait_for_index/verify_access for synchronous KB indexing verification.",
         "operationId": "writeContent",
         "parameters": [
           {
@@ -8642,6 +11012,22 @@
             "schema": {
               "type": "string",
               "title": "Content Id"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-User-Id"
             }
           },
           {
@@ -10078,37 +12464,283 @@
         "title": "BranchListResponse",
         "description": "Response for GET /ocxp/missions/{id}/checkpoints/branches."
       },
-      "BulkDeleteRequest": {
+      "BrowseAction": {
         "properties": {
-          "ids": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ids"
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "description": "Action type: fill, click, wait, scroll"
           },
-          "manage_metadata": {
-            "type": "boolean",
-            "title": "Manage Metadata",
-            "default": true
-          },
-          "auto_index": {
+          "target": {
             "anyOf": [
               {
-                "type": "boolean"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Auto Index"
+            "title": "Target",
+            "description": "Element target (text, selector, @ref)"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Value for fill actions"
+          },
+          "timeout": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout",
+            "description": "Timeout in milliseconds"
           }
         },
         "type": "object",
         "required": [
-          "ids"
+          "action"
         ],
-        "title": "BulkDeleteRequest"
+        "title": "BrowseAction",
+        "description": "Browser action to perform."
+      },
+      "BrowseRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "URL to browse"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/BrowseAction"
+            },
+            "type": "array",
+            "title": "Actions",
+            "description": "Actions to perform"
+          },
+          "extract_content": {
+            "type": "boolean",
+            "title": "Extract Content",
+            "description": "Extract page content",
+            "default": true
+          },
+          "take_screenshot": {
+            "type": "boolean",
+            "title": "Take Screenshot",
+            "description": "Take screenshot after actions",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "BrowseRequest",
+        "description": "Browse with actions request."
+      },
+      "BrowseResponse": {
+        "properties": {
+          "page_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Title",
+            "description": "Page title"
+          },
+          "page_url": {
+            "type": "string",
+            "title": "Page Url",
+            "description": "Final page URL after actions"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content",
+            "description": "Extracted page content"
+          },
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link",
+            "description": "OCXP link to screenshot"
+          },
+          "action_results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Action Results"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Status message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page_url"
+        ],
+        "title": "BrowseResponse",
+        "description": "Browse response."
+      },
+      "BulkAcknowledgeRequest": {
+        "properties": {
+          "memo_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 25,
+            "minItems": 1,
+            "title": "Memo Ids",
+            "description": "List of memo IDs to acknowledge (max 25)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_ids"
+        ],
+        "title": "BulkAcknowledgeRequest",
+        "description": "Request for bulk acknowledge operation."
+      },
+      "BulkCreateMemoItem": {
+        "properties": {
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id",
+            "description": "Format: {mission_id}:v{version}:{file_path} for missions"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemoCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/MemoSeverity",
+            "default": "medium"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_type",
+          "source_id"
+        ],
+        "title": "BulkCreateMemoItem",
+        "description": "Single item in a bulk memo create request."
+      },
+      "BulkCreateMemoRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BulkCreateMemoItem"
+            },
+            "type": "array",
+            "maxItems": 25,
+            "minItems": 1,
+            "title": "Items",
+            "description": "List of memos to create (max 25)"
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "description": "Workspace (overridden from context)",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "BulkCreateMemoRequest",
+        "description": "Request for bulk creating memos.",
+        "example": {
+          "items": [
+            {
+              "category": "workflow_task",
+              "content": "Research authentication patterns",
+              "severity": "medium",
+              "source_id": "proj-auth:v01:tasks/gap_1_research",
+              "source_type": "mission"
+            },
+            {
+              "category": "workflow_task",
+              "content": "Validate research output",
+              "severity": "medium",
+              "source_id": "proj-auth:v01:tasks/gap_1_validate",
+              "source_type": "mission"
+            }
+          ]
+        }
       },
       "BulkDeleteResponse": {
         "properties": {
@@ -10172,6 +12804,177 @@
         ],
         "title": "BulkItemResult",
         "description": "Result for a single item in bulk operation."
+      },
+      "BulkMemoIdsRequest": {
+        "properties": {
+          "memo_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 25,
+            "minItems": 1,
+            "title": "Memo Ids",
+            "description": "List of memo IDs to operate on (max 25)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_ids"
+        ],
+        "title": "BulkMemoIdsRequest",
+        "description": "Request for bulk operations by memo IDs."
+      },
+      "BulkMemoReadResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkMemoReadResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Total items processed"
+          },
+          "succeeded": {
+            "type": "integer",
+            "title": "Succeeded",
+            "description": "Number of memos found"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "description": "Number of memos not found"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "count",
+          "succeeded",
+          "failed"
+        ],
+        "title": "BulkMemoReadResponse",
+        "description": "Response for bulk memo read."
+      },
+      "BulkMemoReadResult": {
+        "properties": {
+          "memo_id": {
+            "type": "string",
+            "title": "Memo Id"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "memo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Memo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_id",
+          "success"
+        ],
+        "title": "BulkMemoReadResult",
+        "description": "Result for a single memo in bulk read operation."
+      },
+      "BulkMemoResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkMemoResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Total items processed"
+          },
+          "succeeded": {
+            "type": "integer",
+            "title": "Succeeded",
+            "description": "Number of successful operations"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "description": "Number of failed operations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "count",
+          "succeeded",
+          "failed"
+        ],
+        "title": "BulkMemoResponse",
+        "description": "Response for bulk memo operations."
+      },
+      "BulkMemoResult": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "memo_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memo Id"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "success"
+        ],
+        "title": "BulkMemoResult",
+        "description": "Result for a single memo in bulk operation."
       },
       "BulkMoveItem": {
         "properties": {
@@ -10301,6 +13104,130 @@
         ],
         "title": "BulkReadResponse",
         "description": "Response for POST /ocxp/{type}/bulk/read."
+      },
+      "BulkResolveRequest": {
+        "properties": {
+          "memo_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 25,
+            "minItems": 1,
+            "title": "Memo Ids",
+            "description": "List of memo IDs to resolve (max 25)"
+          },
+          "resolved_by": {
+            "type": "string",
+            "title": "Resolved By",
+            "description": "User/agent resolving the memos"
+          },
+          "ttl_days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Ttl Days",
+            "description": "Days until auto-deletion",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_ids",
+          "resolved_by"
+        ],
+        "title": "BulkResolveRequest",
+        "description": "Request for bulk resolve operation."
+      },
+      "BulkTaskUpdateRequest": {
+        "properties": {
+          "updates": {
+            "items": {
+              "$ref": "#/components/schemas/TaskUpdate"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Updates",
+            "description": "List of task updates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "updates"
+        ],
+        "title": "BulkTaskUpdateRequest",
+        "description": "Request to bulk update multiple tasks.",
+        "example": {
+          "updates": [
+            {
+              "result": "...",
+              "task_id": "gap_1_research",
+              "task_status": "completed"
+            },
+            {
+              "task_id": "gap_2_research",
+              "task_status": "in_progress"
+            }
+          ]
+        }
+      },
+      "BulkTaskUpdateResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkTaskUpdateResult"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "updated_count": {
+            "type": "integer",
+            "title": "Updated Count"
+          },
+          "failed_count": {
+            "type": "integer",
+            "title": "Failed Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "updated_count",
+          "failed_count"
+        ],
+        "title": "BulkTaskUpdateResponse",
+        "description": "Response from bulk task update."
+      },
+      "BulkTaskUpdateResult": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "success"
+        ],
+        "title": "BulkTaskUpdateResult",
+        "description": "Result for a single task in bulk update."
       },
       "BulkWriteItem": {
         "properties": {
@@ -10642,6 +13569,92 @@
         ],
         "title": "ColumnOverview",
         "description": "Column information for database overview."
+      },
+      "CompareRequest": {
+        "properties": {
+          "url1": {
+            "type": "string",
+            "title": "Url1",
+            "description": "First URL"
+          },
+          "url2": {
+            "type": "string",
+            "title": "Url2",
+            "description": "Second URL"
+          },
+          "compare_type": {
+            "type": "string",
+            "title": "Compare Type",
+            "description": "Type: visual, structure, content",
+            "default": "visual"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url1",
+          "url2"
+        ],
+        "title": "CompareRequest",
+        "description": "Page comparison request."
+      },
+      "CompareResponse": {
+        "properties": {
+          "page1": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Page1",
+            "description": "Page 1 info"
+          },
+          "page2": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Page2",
+            "description": "Page 2 info"
+          },
+          "similarity_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity Score",
+            "description": "Similarity score 0-1"
+          },
+          "differences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Differences",
+            "description": "List of differences"
+          },
+          "compare_type": {
+            "type": "string",
+            "title": "Compare Type",
+            "description": "Comparison type used"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Status message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "compare_type"
+        ],
+        "title": "CompareResponse",
+        "description": "Page comparison response."
       },
       "ContentDeleteResponse": {
         "properties": {
@@ -11079,6 +14092,102 @@
             "examples": [
               "abc123def456"
             ]
+          },
+          "indexed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indexed",
+            "description": "KB indexing status: True=indexed, False=failed, None=skipped"
+          },
+          "verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified",
+            "description": "Full verification status: True=S3+KB verified, False=failed, None=skipped"
+          },
+          "s3_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "S3 Verified",
+            "description": "S3 read verification"
+          },
+          "kb_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kb Verified",
+            "description": "KB discover verification"
+          },
+          "index_time_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index Time Ms",
+            "description": "Time spent on KB indexing in milliseconds"
+          },
+          "verify_time_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verify Time Ms",
+            "description": "Time spent on verification in milliseconds"
+          },
+          "retries": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retries",
+            "description": "Number of retry attempts (0 = first attempt succeeded)"
+          },
+          "verification_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Error",
+            "description": "Error details if verification failed"
           }
         },
         "type": "object",
@@ -11515,6 +14624,81 @@
         ],
         "title": "CredentialGetResponse",
         "description": "Response for GET /ocxp/project/{project_id}/credentials."
+      },
+      "CredentialTestResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether login was successful",
+            "examples": [
+              true
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Human-readable result message",
+            "examples": [
+              "Login successful"
+            ]
+          },
+          "screenshot_base64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Base64",
+            "description": "Base64-encoded screenshot of login result"
+          },
+          "error_details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Details",
+            "description": "Detailed error information",
+            "examples": [
+              "Could not find username field"
+            ]
+          },
+          "login_time_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Login Time Ms",
+            "description": "Time taken for login attempt in milliseconds",
+            "examples": [
+              2500
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "title": "CredentialTestResponse",
+        "description": "Enhanced response for credential testing with browser automation."
       },
       "CredentialUpdate": {
         "properties": {
@@ -12471,6 +15655,81 @@
         ],
         "title": "DownloadRequest"
       },
+      "ExtractRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "URL to extract from"
+          },
+          "element_type": {
+            "type": "string",
+            "title": "Element Type",
+            "description": "Type: all, links, forms, buttons, images, headings",
+            "default": "all"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "ExtractRequest",
+        "description": "Element extraction request."
+      },
+      "ExtractResponse": {
+        "properties": {
+          "page_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Title",
+            "description": "Page title"
+          },
+          "page_url": {
+            "type": "string",
+            "title": "Page Url",
+            "description": "Page URL"
+          },
+          "elements": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Elements",
+            "description": "Extracted elements"
+          },
+          "element_count": {
+            "type": "integer",
+            "title": "Element Count",
+            "description": "Number of elements found",
+            "default": 0
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Status message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page_url"
+        ],
+        "title": "ExtractResponse",
+        "description": "Element extraction response."
+      },
       "ForeignKeyInfo": {
         "properties": {
           "column": {
@@ -13312,10 +16571,14 @@
           "agent_error",
           "agent_warning",
           "agent_hitl",
+          "agent_comment",
+          "agent_edit",
+          "agent_delete",
           "user_comment",
           "user_edit",
           "user_delete",
-          "security_finding"
+          "security_finding",
+          "workflow_task"
         ],
         "title": "MemoCategory",
         "description": "Category of memo feedback."
@@ -13385,6 +16648,38 @@
         ],
         "title": "MemoStatus",
         "description": "Status of a memo."
+      },
+      "MemoUpdateRequest": {
+        "properties": {
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Metadata to merge into memo"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content",
+            "description": "New content for the memo"
+          }
+        },
+        "type": "object",
+        "title": "MemoUpdateRequest",
+        "description": "Request to update a memo's metadata."
       },
       "MessageResponse": {
         "properties": {
@@ -14289,6 +17584,41 @@
         "title": "ProjectListResponse",
         "description": "Response for GET /ocxp/project."
       },
+      "ProjectMemosResponse": {
+        "properties": {
+          "memos": {
+            "items": {
+              "$ref": "#/components/schemas/Memo"
+            },
+            "type": "array",
+            "title": "Memos",
+            "description": "All memos for the project"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Total memo count",
+            "default": 0
+          },
+          "mission_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Mission Ids",
+            "description": "Mission IDs included"
+          },
+          "mission_count": {
+            "type": "integer",
+            "title": "Mission Count",
+            "description": "Number of missions in project",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ProjectMemosResponse",
+        "description": "Response for project memos bulk load."
+      },
       "ProjectResponse": {
         "properties": {
           "project_id": {
@@ -14451,6 +17781,111 @@
         },
         "type": "object",
         "title": "ProjectUpdate"
+      },
+      "ProposalListResponse": {
+        "properties": {
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ProposalResponse"
+            },
+            "type": "array",
+            "title": "Proposals"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ProposalListResponse",
+        "description": "Response for listing proposals."
+      },
+      "ProposalResponse": {
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "title": "Proposal Id",
+            "description": "Unique proposal identifier"
+          },
+          "memo_id": {
+            "type": "string",
+            "title": "Memo Id",
+            "description": "Associated memo ID"
+          },
+          "proposal_type": {
+            "type": "string",
+            "enum": [
+              "agent_edit",
+              "agent_delete",
+              "agent_comment"
+            ],
+            "title": "Proposal Type",
+            "description": "Type of proposal"
+          },
+          "parent_feedback_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Feedback Id",
+            "description": "ID of user feedback that triggered this proposal"
+          },
+          "document_path": {
+            "type": "string",
+            "title": "Document Path",
+            "description": "Path to affected document"
+          },
+          "section_heading": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Heading",
+            "description": "Section heading if applicable"
+          },
+          "proposed_change": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Proposed Change",
+            "description": "The actual change being proposed"
+          },
+          "impact_explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Explanation",
+            "description": "Explanation of why this change is being proposed"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "ISO timestamp when proposal was created"
+          }
+        },
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "memo_id",
+          "proposal_type",
+          "document_path",
+          "created_at"
+        ],
+        "title": "ProposalResponse",
+        "description": "Response model for a single agent proposal."
       },
       "PrototypeChatGetResponse": {
         "properties": {
@@ -15549,6 +18984,136 @@
         "title": "PrototypeVersionDetail",
         "description": "Full version detail from DynamoDB storage.\n\nContains all metadata for a stored version including files, pages,\nand screenshot links. Used when include_details=true is requested."
       },
+      "ProvenanceListResponse": {
+        "properties": {
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/ProvenanceRecord"
+            },
+            "type": "array",
+            "title": "Records"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ProvenanceListResponse",
+        "description": "Response for provenance queries."
+      },
+      "ProvenanceRecord": {
+        "properties": {
+          "provenance_id": {
+            "type": "string",
+            "title": "Provenance Id",
+            "description": "Unique provenance identifier"
+          },
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "Task that generated this content"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "description": "Mission identifier"
+          },
+          "document_path": {
+            "type": "string",
+            "title": "Document Path",
+            "description": "Path to generated document"
+          },
+          "section_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Id",
+            "description": "Section identifier"
+          },
+          "section_heading": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Heading",
+            "description": "Section heading"
+          },
+          "line_start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Start",
+            "description": "Start line (0-indexed)"
+          },
+          "line_end": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line End",
+            "description": "End line (0-indexed)"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash",
+            "description": "SHA256 of section content"
+          },
+          "document_version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Version Id",
+            "description": "S3 version ID"
+          },
+          "mission_version": {
+            "type": "integer",
+            "title": "Mission Version",
+            "description": "Mission regeneration version",
+            "default": 1
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At",
+            "description": "ISO timestamp when content was generated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provenance_id",
+          "task_id",
+          "mission_id",
+          "document_path",
+          "content_hash",
+          "generated_at"
+        ],
+        "title": "ProvenanceRecord",
+        "description": "Response model for a provenance record."
+      },
       "QueryFilter": {
         "properties": {
           "field": {
@@ -15625,6 +19190,107 @@
           "query"
         ],
         "title": "RAGRequest"
+      },
+      "RebuildRequest": {
+        "properties": {
+          "feedback_memo_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Feedback Memo Ids",
+            "description": "List of memo IDs containing user feedback to process"
+          },
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "affected_only",
+              "full",
+              "classify_first"
+            ],
+            "title": "Strategy",
+            "description": "Rebuild strategy: 'affected_only' - rebuild only tasks that generated feedback targets, 'full' - rebuild entire workflow, 'classify_first' - AI classifies feedback to determine optimal approach",
+            "default": "classify_first"
+          },
+          "cascade": {
+            "type": "boolean",
+            "title": "Cascade",
+            "description": "Whether to also rebuild dependent tasks",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "feedback_memo_ids"
+        ],
+        "title": "RebuildRequest",
+        "description": "Request body for triggering a rebuild from feedback."
+      },
+      "RebuildResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "proposals_ready",
+              "research_needed",
+              "processing",
+              "error"
+            ],
+            "title": "Status",
+            "description": "Current status of the rebuild operation"
+          },
+          "proposals": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Proposals",
+            "description": "List of agent proposals for user review"
+          },
+          "new_gaps": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "New Gaps",
+            "description": "New research gaps identified (if any)"
+          },
+          "affected_tasks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Affected Tasks",
+            "description": "List of task IDs that will be re-executed"
+          },
+          "estimated_changes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Estimated Changes",
+            "description": "Summary of estimated changes"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if status is 'error'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "RebuildResponse",
+        "description": "Response for rebuild request."
       },
       "RefreshRequest": {
         "properties": {
@@ -16591,6 +20257,112 @@
         "title": "RepoSyncResponse",
         "description": "Response for POST /ocxp/repo/{id}/sync."
       },
+      "SMEType": {
+        "type": "string",
+        "enum": [
+          "CODEBASE",
+          "CONTEXT",
+          "DATABASE",
+          "VISUAL"
+        ],
+        "title": "SMEType",
+        "description": "Subject Matter Expert types for task routing."
+      },
+      "ScreenshotRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "URL to screenshot"
+          },
+          "viewport_width": {
+            "type": "integer",
+            "title": "Viewport Width",
+            "description": "Browser viewport width",
+            "default": 1920
+          },
+          "viewport_height": {
+            "type": "integer",
+            "title": "Viewport Height",
+            "description": "Browser viewport height",
+            "default": 1080
+          },
+          "full_page": {
+            "type": "boolean",
+            "title": "Full Page",
+            "description": "Capture full page or viewport only",
+            "default": true
+          },
+          "wait_until": {
+            "type": "string",
+            "title": "Wait Until",
+            "description": "Wait condition",
+            "default": "networkidle"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "ScreenshotRequest",
+        "description": "Screenshot capture request."
+      },
+      "ScreenshotResponse": {
+        "properties": {
+          "screenshot_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshot Link",
+            "description": "OCXP link to screenshot"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Captured URL"
+          },
+          "viewport": {
+            "type": "string",
+            "title": "Viewport",
+            "description": "Viewport dimensions"
+          },
+          "full_page": {
+            "type": "boolean",
+            "title": "Full Page",
+            "description": "Whether full page was captured"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Status message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "viewport",
+          "full_page"
+        ],
+        "title": "ScreenshotResponse",
+        "description": "Screenshot capture response."
+      },
       "SecurityFinding": {
         "properties": {
           "pattern_type": {
@@ -16910,10 +20682,51 @@
           "repo",
           "project",
           "mission",
-          "doc"
+          "doc",
+          "workflow"
         ],
         "title": "SourceType",
         "description": "Type of entity the memo is associated with."
+      },
+      "SyncMissionsResponse": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "before_count": {
+            "type": "integer",
+            "title": "Before Count",
+            "description": "Number of mission IDs before sync"
+          },
+          "after_count": {
+            "type": "integer",
+            "title": "After Count",
+            "description": "Number of valid mission IDs after sync"
+          },
+          "removed_count": {
+            "type": "integer",
+            "title": "Removed Count",
+            "description": "Number of orphaned IDs removed"
+          },
+          "removed_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Removed Ids",
+            "description": "IDs that were removed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "before_count",
+          "after_count",
+          "removed_count"
+        ],
+        "title": "SyncMissionsResponse",
+        "description": "Response model for mission sync operation."
       },
       "SyncRequest": {
         "properties": {
@@ -16966,6 +20779,211 @@
         ],
         "title": "TableOverview",
         "description": "Table information with columns and foreign keys."
+      },
+      "TaskListResponse": {
+        "properties": {
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskResponse"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tasks",
+          "count"
+        ],
+        "title": "TaskListResponse",
+        "description": "Response for task list."
+      },
+      "TaskResponse": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskStatus"
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority"
+          },
+          "timeout": {
+            "type": "integer",
+            "title": "Timeout"
+          },
+          "dependencies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dependencies"
+          },
+          "sme_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SMEType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "skill_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Path"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "retry_count": {
+            "type": "integer",
+            "title": "Retry Count",
+            "default": 0
+          },
+          "memo_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memo Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "description",
+          "status",
+          "priority",
+          "timeout",
+          "dependencies"
+        ],
+        "title": "TaskResponse",
+        "description": "Task data in workflow response (strands-compatible format)."
+      },
+      "TaskStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "in_progress",
+          "completed",
+          "failed",
+          "skipped"
+        ],
+        "title": "TaskStatus",
+        "description": "Status of a workflow task."
+      },
+      "TaskUpdate": {
+        "properties": {
+          "task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Id",
+            "description": "Task ID (required for bulk updates)"
+          },
+          "task_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "New task status"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result",
+            "description": "Task result output"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if failed"
+          },
+          "retry_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry Count",
+            "description": "Update retry count"
+          }
+        },
+        "type": "object",
+        "title": "TaskUpdate",
+        "description": "Request to update a task.",
+        "example": {
+          "result": "Found authentication patterns in src/auth/...",
+          "task_status": "completed"
+        }
       },
       "TokenResponse": {
         "properties": {
@@ -17483,6 +21501,426 @@
         "title": "VisualAnalyseResult",
         "description": "Individual image analysis result."
       },
+      "Workflow": {
+        "properties": {
+          "workflow_id": {
+            "type": "string",
+            "title": "Workflow Id",
+            "description": "Unique workflow identifier (UUID)"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "description": "Parent mission ID this workflow belongs to"
+          },
+          "workspace": {
+            "type": "string",
+            "title": "Workspace",
+            "description": "Workspace this workflow belongs to"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Optional workflow name (e.g., 'Research Phase', 'Documentation')"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus",
+            "description": "Current workflow status",
+            "default": "pending"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "When the workflow was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "When the workflow was last updated"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At",
+            "description": "When the workflow started running"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At",
+            "description": "When the workflow completed"
+          },
+          "total_tasks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Tasks",
+            "description": "Total number of tasks in workflow",
+            "default": 0
+          },
+          "completed_tasks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Completed Tasks",
+            "description": "Number of completed tasks",
+            "default": 0
+          },
+          "failed_tasks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Failed Tasks",
+            "description": "Number of failed tasks",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "mission_id",
+          "workspace"
+        ],
+        "title": "Workflow",
+        "description": "Workflow container - groups task memos for a mission.\n\nA mission can have multiple workflows (e.g., research workflow,\ndocumentation workflow). Each workflow manages its own set of tasks\nwhile sharing the mission's context and session data."
+      },
+      "WorkflowActionResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "workflow": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkflowResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "message"
+        ],
+        "title": "WorkflowActionResponse",
+        "description": "Response from workflow action endpoints."
+      },
+      "WorkflowCreate": {
+        "properties": {
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id",
+            "description": "Parent mission ID"
+          },
+          "workflow_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workflow Id",
+            "description": "Optional workflow ID (auto-generated if not provided)"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Optional workflow name"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/WorkflowTaskCreate"
+            },
+            "type": "array",
+            "title": "Tasks",
+            "description": "Initial tasks to create"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mission_id"
+        ],
+        "title": "WorkflowCreate",
+        "description": "Request to create a workflow with tasks.",
+        "example": {
+          "mission_id": "550e8400-e29b-41d4-a716-446655440000",
+          "name": "Research Phase",
+          "tasks": [
+            {
+              "description": "Research auth patterns",
+              "priority": 5,
+              "task_id": "gap_1_research"
+            },
+            {
+              "dependencies": [
+                "gap_1_research"
+              ],
+              "description": "Validate research output",
+              "task_id": "gap_1_validate"
+            }
+          ]
+        }
+      },
+      "WorkflowListResponse": {
+        "properties": {
+          "workflows": {
+            "items": {
+              "$ref": "#/components/schemas/Workflow"
+            },
+            "type": "array",
+            "title": "Workflows"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workflows",
+          "count"
+        ],
+        "title": "WorkflowListResponse",
+        "description": "Response for workflow list."
+      },
+      "WorkflowResponse": {
+        "properties": {
+          "workflow_id": {
+            "type": "string",
+            "title": "Workflow Id"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "total_tasks": {
+            "type": "integer",
+            "title": "Total Tasks"
+          },
+          "completed_tasks": {
+            "type": "integer",
+            "title": "Completed Tasks"
+          },
+          "failed_tasks": {
+            "type": "integer",
+            "title": "Failed Tasks"
+          },
+          "progress": {
+            "type": "integer",
+            "title": "Progress"
+          },
+          "tasks": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TaskResponse"
+            },
+            "type": "object",
+            "title": "Tasks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workflow_id",
+          "mission_id",
+          "status",
+          "created_at",
+          "updated_at",
+          "total_tasks",
+          "completed_tasks",
+          "failed_tasks",
+          "progress",
+          "tasks"
+        ],
+        "title": "WorkflowResponse",
+        "description": "Workflow with all tasks (strands-compatible format).",
+        "example": {
+          "completed_tasks": 1,
+          "created_at": "2024-01-15T10:00:00Z",
+          "failed_tasks": 0,
+          "mission_id": "550e8400-e29b-41d4-a716-446655440000",
+          "name": "Research Phase",
+          "progress": 33,
+          "started_at": "2024-01-15T10:01:00Z",
+          "status": "running",
+          "tasks": {
+            "gap_1_research": {
+              "dependencies": [],
+              "description": "Research auth patterns",
+              "priority": 5,
+              "result": "Found patterns...",
+              "status": "completed",
+              "task_id": "gap_1_research",
+              "timeout": 300
+            }
+          },
+          "total_tasks": 3,
+          "updated_at": "2024-01-15T10:05:00Z",
+          "workflow_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        }
+      },
+      "WorkflowStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "paused",
+          "completed",
+          "failed"
+        ],
+        "title": "WorkflowStatus",
+        "description": "Status of a workflow."
+      },
+      "WorkflowTaskCreate": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "Task identifier (e.g., 'gap_1_research')"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Task description/content"
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Priority",
+            "description": "Task priority (1=lowest, 5=highest)",
+            "default": 3
+          },
+          "timeout": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Timeout",
+            "description": "Task timeout in seconds",
+            "default": 300
+          },
+          "dependencies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dependencies",
+            "description": "List of task_ids this task depends on"
+          },
+          "sme_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SMEType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Subject matter expert type"
+          },
+          "skill_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Path",
+            "description": "Skill path for task execution"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "description"
+        ],
+        "title": "WorkflowTaskCreate",
+        "description": "Task definition for workflow creation.",
+        "example": {
+          "dependencies": [],
+          "description": "Research authentication patterns in the codebase",
+          "priority": 5,
+          "skill_path": "research/codebase-expert",
+          "sme_type": "CODEBASE",
+          "task_id": "gap_1_research",
+          "timeout": 300
+        }
+      },
       "WorkspaceItem": {
         "properties": {
           "id": {
@@ -17583,6 +22021,21 @@
               }
             ],
             "title": "Mission Id"
+          },
+          "wait_for_index": {
+            "type": "boolean",
+            "title": "Wait For Index",
+            "default": true
+          },
+          "verify_access": {
+            "type": "boolean",
+            "title": "Verify Access",
+            "default": true
+          },
+          "max_retries": {
+            "type": "integer",
+            "title": "Max Retries",
+            "default": 3
           }
         },
         "type": "object",
@@ -17590,6 +22043,58 @@
           "content"
         ],
         "title": "WriteRequest"
+      },
+      "app__routers__bulk__BulkDeleteRequest": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ids"
+          },
+          "manage_metadata": {
+            "type": "boolean",
+            "title": "Manage Metadata",
+            "default": true
+          },
+          "auto_index": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Index"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "title": "BulkDeleteRequest"
+      },
+      "domain__memo_models__BulkDeleteRequest": {
+        "properties": {
+          "memo_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 25,
+            "minItems": 1,
+            "title": "Memo Ids",
+            "description": "List of memo IDs to delete (max 25)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_ids"
+        ],
+        "title": "BulkDeleteRequest",
+        "description": "Request for bulk delete operation."
       }
     },
     "securitySchemes": {

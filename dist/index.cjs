@@ -1196,6 +1196,77 @@ var ignoreMemo = (options) => (options.client ?? client).post({
   url: "/ocxp/memo/{memo_id}/ignore",
   ...options
 });
+var listWorkflows = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow",
+  ...options
+});
+var createWorkflow = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteWorkflow = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}",
+  ...options
+});
+var getWorkflow = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}",
+  ...options
+});
+var startWorkflow = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/start",
+  ...options
+});
+var listTasks = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/tasks",
+  ...options
+});
+var addTask = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/tasks",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var bulkUpdateTasks = (options) => (options.client ?? client).patch({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/tasks/bulk",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var deleteTask = (options) => (options.client ?? client).delete({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/tasks/{task_id}",
+  ...options
+});
+var getTask = (options) => (options.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/tasks/{task_id}",
+  ...options
+});
+var updateTask = (options) => (options.client ?? client).patch({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/workflow/{workflow_id}/tasks/{task_id}",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var downloadRepository = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/repo/download",
@@ -4523,10 +4594,12 @@ exports.acknowledgeMemo = acknowledgeMemo;
 exports.addDatabase = addDatabase;
 exports.addLinkedRepo = addLinkedRepo;
 exports.addMission = addMission;
+exports.addTask = addTask;
 exports.archiveSession = archiveSession;
 exports.buildPath = buildPath;
 exports.bulkDeleteContent = bulkDeleteContent;
 exports.bulkReadContent = bulkReadContent;
+exports.bulkUpdateTasks = bulkUpdateTasks;
 exports.bulkWriteContent = bulkWriteContent;
 exports.createClient = createClient;
 exports.createConfig = createConfig;
@@ -4537,11 +4610,14 @@ exports.createPathService = createPathService;
 exports.createProject = createProject;
 exports.createResponseSchema = createResponseSchema;
 exports.createWebSocketService = createWebSocketService;
+exports.createWorkflow = createWorkflow;
 exports.deleteContent = deleteContent;
 exports.deleteDatabase = deleteDatabase;
 exports.deleteMemo = deleteMemo;
 exports.deleteProject = deleteProject;
 exports.deleteRepo = deleteRepo;
+exports.deleteTask = deleteTask;
+exports.deleteWorkflow = deleteWorkflow;
 exports.downloadRepository = downloadRepository;
 exports.forkSession = forkSession;
 exports.getAuthConfig = getAuthConfig;
@@ -4565,6 +4641,8 @@ exports.getSchema = getSchema;
 exports.getSessionMessages = getSessionMessages;
 exports.getStoredVersions = getStoredVersions;
 exports.getSyncStatus = getSyncStatus;
+exports.getTask = getTask;
+exports.getWorkflow = getWorkflow;
 exports.githubCheckAccess = githubCheckAccess;
 exports.githubGetContents = githubGetContents;
 exports.githubListBranches = githubListBranches;
@@ -4588,6 +4666,8 @@ exports.listProjects = listProjects;
 exports.listPrototypeChats = listPrototypeChats;
 exports.listSessions = listSessions;
 exports.listTables = listTables;
+exports.listTasks = listTasks;
+exports.listWorkflows = listWorkflows;
 exports.listWorkspaces = listWorkspaces;
 exports.lockContent = lockContent;
 exports.login = login;
@@ -4612,6 +4692,7 @@ exports.safeParseWSMessage = safeParseWSMessage;
 exports.searchContent = searchContent;
 exports.setDefaultDatabase = setDefaultDatabase;
 exports.setDefaultRepo = setDefaultRepo;
+exports.startWorkflow = startWorkflow;
 exports.syncAllRepos = syncAllRepos;
 exports.syncPrototypeChat = syncPrototypeChat;
 exports.syncPrototypeChatAsync = syncPrototypeChatAsync;
@@ -4623,6 +4704,7 @@ exports.unlockContent = unlockContent;
 exports.updateDatabase = updateDatabase;
 exports.updateProject = updateProject;
 exports.updateSessionMetadata = updateSessionMetadata;
+exports.updateTask = updateTask;
 exports.writeContent = writeContent;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

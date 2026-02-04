@@ -151,21 +151,172 @@ export type BranchListResponse = {
 };
 
 /**
- * BulkDeleteRequest
+ * BrowseAction
+ *
+ * Browser action to perform.
  */
-export type BulkDeleteRequest = {
+export type BrowseAction = {
   /**
-   * Ids
+   * Action
+   *
+   * Action type: fill, click, wait, scroll
    */
-  ids: Array<string>;
+  action: string;
   /**
-   * Manage Metadata
+   * Target
+   *
+   * Element target (text, selector, @ref)
    */
-  manage_metadata?: boolean;
+  target?: string | null;
   /**
-   * Auto Index
+   * Value
+   *
+   * Value for fill actions
    */
-  auto_index?: boolean | null;
+  value?: string | null;
+  /**
+   * Timeout
+   *
+   * Timeout in milliseconds
+   */
+  timeout?: number | null;
+};
+
+/**
+ * BrowseRequest
+ *
+ * Browse with actions request.
+ */
+export type BrowseRequest = {
+  /**
+   * Url
+   *
+   * URL to browse
+   */
+  url: string;
+  /**
+   * Actions
+   *
+   * Actions to perform
+   */
+  actions?: Array<BrowseAction>;
+  /**
+   * Extract Content
+   *
+   * Extract page content
+   */
+  extract_content?: boolean;
+  /**
+   * Take Screenshot
+   *
+   * Take screenshot after actions
+   */
+  take_screenshot?: boolean;
+};
+
+/**
+ * BrowseResponse
+ *
+ * Browse response.
+ */
+export type BrowseResponse = {
+  /**
+   * Page Title
+   *
+   * Page title
+   */
+  page_title?: string | null;
+  /**
+   * Page Url
+   *
+   * Final page URL after actions
+   */
+  page_url: string;
+  /**
+   * Content
+   *
+   * Extracted page content
+   */
+  content?: string | null;
+  /**
+   * Screenshot Link
+   *
+   * OCXP link to screenshot
+   */
+  screenshot_link?: string | null;
+  /**
+   * Action Results
+   */
+  action_results?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * Message
+   *
+   * Status message
+   */
+  message?: string | null;
+};
+
+/**
+ * BulkAcknowledgeRequest
+ *
+ * Request for bulk acknowledge operation.
+ */
+export type BulkAcknowledgeRequest = {
+  /**
+   * Memo Ids
+   *
+   * List of memo IDs to acknowledge (max 25)
+   */
+  memo_ids: Array<string>;
+};
+
+/**
+ * BulkCreateMemoItem
+ *
+ * Single item in a bulk memo create request.
+ */
+export type BulkCreateMemoItem = {
+  source_type: SourceType;
+  /**
+   * Source Id
+   *
+   * Format: {mission_id}:v{version}:{file_path} for missions
+   */
+  source_id: string;
+  /**
+   * Content
+   */
+  content?: string | null;
+  category?: MemoCategory | null;
+  /**
+   * Metadata
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
+  severity?: MemoSeverity;
+};
+
+/**
+ * BulkCreateMemoRequest
+ *
+ * Request for bulk creating memos.
+ */
+export type BulkCreateMemoRequest = {
+  /**
+   * Items
+   *
+   * List of memos to create (max 25)
+   */
+  items: Array<BulkCreateMemoItem>;
+  /**
+   * Workspace
+   *
+   * Workspace (overridden from context)
+   */
+  workspace?: string;
 };
 
 /**
@@ -202,6 +353,125 @@ export type BulkItemResult = {
    * Content
    */
   content?: string | null;
+  /**
+   * Error
+   */
+  error?: string | null;
+};
+
+/**
+ * BulkMemoIdsRequest
+ *
+ * Request for bulk operations by memo IDs.
+ */
+export type BulkMemoIdsRequest = {
+  /**
+   * Memo Ids
+   *
+   * List of memo IDs to operate on (max 25)
+   */
+  memo_ids: Array<string>;
+};
+
+/**
+ * BulkMemoReadResponse
+ *
+ * Response for bulk memo read.
+ */
+export type BulkMemoReadResponse = {
+  /**
+   * Results
+   */
+  results: Array<BulkMemoReadResult>;
+  /**
+   * Count
+   *
+   * Total items processed
+   */
+  count: number;
+  /**
+   * Succeeded
+   *
+   * Number of memos found
+   */
+  succeeded: number;
+  /**
+   * Failed
+   *
+   * Number of memos not found
+   */
+  failed: number;
+};
+
+/**
+ * BulkMemoReadResult
+ *
+ * Result for a single memo in bulk read operation.
+ */
+export type BulkMemoReadResult = {
+  /**
+   * Memo Id
+   */
+  memo_id: string;
+  /**
+   * Success
+   */
+  success: boolean;
+  memo?: Memo | null;
+  /**
+   * Error
+   */
+  error?: string | null;
+};
+
+/**
+ * BulkMemoResponse
+ *
+ * Response for bulk memo operations.
+ */
+export type BulkMemoResponse = {
+  /**
+   * Results
+   */
+  results: Array<BulkMemoResult>;
+  /**
+   * Count
+   *
+   * Total items processed
+   */
+  count: number;
+  /**
+   * Succeeded
+   *
+   * Number of successful operations
+   */
+  succeeded: number;
+  /**
+   * Failed
+   *
+   * Number of failed operations
+   */
+  failed: number;
+};
+
+/**
+ * BulkMemoResult
+ *
+ * Result for a single memo in bulk operation.
+ */
+export type BulkMemoResult = {
+  /**
+   * Source Id
+   */
+  source_id: string;
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Memo Id
+   */
+  memo_id?: string | null;
   /**
    * Error
    */
@@ -296,6 +566,86 @@ export type BulkReadResponse = {
    * Count
    */
   count: number;
+};
+
+/**
+ * BulkResolveRequest
+ *
+ * Request for bulk resolve operation.
+ */
+export type BulkResolveRequest = {
+  /**
+   * Memo Ids
+   *
+   * List of memo IDs to resolve (max 25)
+   */
+  memo_ids: Array<string>;
+  /**
+   * Resolved By
+   *
+   * User/agent resolving the memos
+   */
+  resolved_by: string;
+  /**
+   * Ttl Days
+   *
+   * Days until auto-deletion
+   */
+  ttl_days?: number;
+};
+
+/**
+ * BulkTaskUpdateRequest
+ *
+ * Request to bulk update multiple tasks.
+ */
+export type BulkTaskUpdateRequest = {
+  /**
+   * Updates
+   *
+   * List of task updates
+   */
+  updates: Array<TaskUpdate>;
+};
+
+/**
+ * BulkTaskUpdateResponse
+ *
+ * Response from bulk task update.
+ */
+export type BulkTaskUpdateResponse = {
+  /**
+   * Results
+   */
+  results: Array<BulkTaskUpdateResult>;
+  /**
+   * Updated Count
+   */
+  updated_count: number;
+  /**
+   * Failed Count
+   */
+  failed_count: number;
+};
+
+/**
+ * BulkTaskUpdateResult
+ *
+ * Result for a single task in bulk update.
+ */
+export type BulkTaskUpdateResult = {
+  /**
+   * Task Id
+   */
+  task_id: string;
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Error
+   */
+  error?: string | null;
 };
 
 /**
@@ -528,6 +878,80 @@ export type ColumnOverview = {
    * Description
    */
   description?: string;
+};
+
+/**
+ * CompareRequest
+ *
+ * Page comparison request.
+ */
+export type CompareRequest = {
+  /**
+   * Url1
+   *
+   * First URL
+   */
+  url1: string;
+  /**
+   * Url2
+   *
+   * Second URL
+   */
+  url2: string;
+  /**
+   * Compare Type
+   *
+   * Type: visual, structure, content
+   */
+  compare_type?: string;
+};
+
+/**
+ * CompareResponse
+ *
+ * Page comparison response.
+ */
+export type CompareResponse = {
+  /**
+   * Page1
+   *
+   * Page 1 info
+   */
+  page1?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Page2
+   *
+   * Page 2 info
+   */
+  page2?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Similarity Score
+   *
+   * Similarity score 0-1
+   */
+  similarity_score?: number | null;
+  /**
+   * Differences
+   *
+   * List of differences
+   */
+  differences?: Array<string>;
+  /**
+   * Compare Type
+   *
+   * Comparison type used
+   */
+  compare_type: string;
+  /**
+   * Message
+   *
+   * Status message
+   */
+  message?: string | null;
 };
 
 /**
@@ -779,6 +1203,54 @@ export type ContentWriteResponse = {
    * S3 version ID of the written object
    */
   version_id?: string | null;
+  /**
+   * Indexed
+   *
+   * KB indexing status: True=indexed, False=failed, None=skipped
+   */
+  indexed?: boolean | null;
+  /**
+   * Verified
+   *
+   * Full verification status: True=S3+KB verified, False=failed, None=skipped
+   */
+  verified?: boolean | null;
+  /**
+   * S3 Verified
+   *
+   * S3 read verification
+   */
+  s3_verified?: boolean | null;
+  /**
+   * Kb Verified
+   *
+   * KB discover verification
+   */
+  kb_verified?: boolean | null;
+  /**
+   * Index Time Ms
+   *
+   * Time spent on KB indexing in milliseconds
+   */
+  index_time_ms?: number | null;
+  /**
+   * Verify Time Ms
+   *
+   * Time spent on verification in milliseconds
+   */
+  verify_time_ms?: number | null;
+  /**
+   * Retries
+   *
+   * Number of retry attempts (0 = first attempt succeeded)
+   */
+  retries?: number | null;
+  /**
+   * Verification Error
+   *
+   * Error details if verification failed
+   */
+  verification_error?: string | null;
 };
 
 /**
@@ -1017,6 +1489,44 @@ export type CredentialGetResponse = {
    */
   success: boolean;
   data?: CredentialDataResponse | null;
+};
+
+/**
+ * CredentialTestResponse
+ *
+ * Enhanced response for credential testing with browser automation.
+ */
+export type CredentialTestResponse = {
+  /**
+   * Success
+   *
+   * Whether login was successful
+   */
+  success: boolean;
+  /**
+   * Message
+   *
+   * Human-readable result message
+   */
+  message?: string | null;
+  /**
+   * Screenshot Base64
+   *
+   * Base64-encoded screenshot of login result
+   */
+  screenshot_base64?: string | null;
+  /**
+   * Error Details
+   *
+   * Detailed error information
+   */
+  error_details?: string | null;
+  /**
+   * Login Time Ms
+   *
+   * Time taken for login attempt in milliseconds
+   */
+  login_time_ms?: number | null;
 };
 
 /**
@@ -1530,6 +2040,66 @@ export type DownloadRequest = {
    * Repo Type
    */
   repo_type?: string;
+};
+
+/**
+ * ExtractRequest
+ *
+ * Element extraction request.
+ */
+export type ExtractRequest = {
+  /**
+   * Url
+   *
+   * URL to extract from
+   */
+  url: string;
+  /**
+   * Element Type
+   *
+   * Type: all, links, forms, buttons, images, headings
+   */
+  element_type?: string;
+};
+
+/**
+ * ExtractResponse
+ *
+ * Element extraction response.
+ */
+export type ExtractResponse = {
+  /**
+   * Page Title
+   *
+   * Page title
+   */
+  page_title?: string | null;
+  /**
+   * Page Url
+   *
+   * Page URL
+   */
+  page_url: string;
+  /**
+   * Elements
+   *
+   * Extracted elements
+   */
+  elements?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * Element Count
+   *
+   * Number of elements found
+   */
+  element_count?: number;
+  /**
+   * Message
+   *
+   * Status message
+   */
+  message?: string | null;
 };
 
 /**
@@ -2118,10 +2688,14 @@ export type MemoCategory =
   | 'agent_error'
   | 'agent_warning'
   | 'agent_hitl'
+  | 'agent_comment'
+  | 'agent_edit'
+  | 'agent_delete'
   | 'user_comment'
   | 'user_edit'
   | 'user_delete'
-  | 'security_finding';
+  | 'security_finding'
+  | 'workflow_task';
 
 /**
  * MemoListResponse
@@ -2170,6 +2744,28 @@ export type MemoSeverity = 'low' | 'medium' | 'high' | 'critical';
  * Status of a memo.
  */
 export type MemoStatus = 'open' | 'acknowledged' | 'resolved' | 'ignored';
+
+/**
+ * MemoUpdateRequest
+ *
+ * Request to update a memo's metadata.
+ */
+export type MemoUpdateRequest = {
+  /**
+   * Metadata
+   *
+   * Metadata to merge into memo
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Content
+   *
+   * New content for the memo
+   */
+  content?: string | null;
+};
 
 /**
  * MessageResponse
@@ -2696,6 +3292,38 @@ export type ProjectListResponse = {
 };
 
 /**
+ * ProjectMemosResponse
+ *
+ * Response for project memos bulk load.
+ */
+export type ProjectMemosResponse = {
+  /**
+   * Memos
+   *
+   * All memos for the project
+   */
+  memos?: Array<Memo>;
+  /**
+   * Count
+   *
+   * Total memo count
+   */
+  count?: number;
+  /**
+   * Mission Ids
+   *
+   * Mission IDs included
+   */
+  mission_ids?: Array<string>;
+  /**
+   * Mission Count
+   *
+   * Number of missions in project
+   */
+  mission_count?: number;
+};
+
+/**
  * ProjectResponse
  *
  * Full project response.
@@ -2761,6 +3389,86 @@ export type ProjectUpdate = {
    * Description
    */
   description?: string | null;
+};
+
+/**
+ * ProposalListResponse
+ *
+ * Response for listing proposals.
+ */
+export type ProposalListResponse = {
+  /**
+   * Proposals
+   */
+  proposals?: Array<ProposalResponse>;
+  /**
+   * Count
+   */
+  count?: number;
+};
+
+/**
+ * ProposalResponse
+ *
+ * Response model for a single agent proposal.
+ */
+export type ProposalResponse = {
+  /**
+   * Proposal Id
+   *
+   * Unique proposal identifier
+   */
+  proposal_id: string;
+  /**
+   * Memo Id
+   *
+   * Associated memo ID
+   */
+  memo_id: string;
+  /**
+   * Proposal Type
+   *
+   * Type of proposal
+   */
+  proposal_type: 'agent_edit' | 'agent_delete' | 'agent_comment';
+  /**
+   * Parent Feedback Id
+   *
+   * ID of user feedback that triggered this proposal
+   */
+  parent_feedback_id?: string | null;
+  /**
+   * Document Path
+   *
+   * Path to affected document
+   */
+  document_path: string;
+  /**
+   * Section Heading
+   *
+   * Section heading if applicable
+   */
+  section_heading?: string | null;
+  /**
+   * Proposed Change
+   *
+   * The actual change being proposed
+   */
+  proposed_change?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Impact Explanation
+   *
+   * Explanation of why this change is being proposed
+   */
+  impact_explanation?: string | null;
+  /**
+   * Created At
+   *
+   * ISO timestamp when proposal was created
+   */
+  created_at: string;
 };
 
 /**
@@ -3509,6 +4217,102 @@ export type PrototypeVersionDetail = {
 };
 
 /**
+ * ProvenanceListResponse
+ *
+ * Response for provenance queries.
+ */
+export type ProvenanceListResponse = {
+  /**
+   * Records
+   */
+  records?: Array<ProvenanceRecord>;
+  /**
+   * Count
+   */
+  count?: number;
+};
+
+/**
+ * ProvenanceRecord
+ *
+ * Response model for a provenance record.
+ */
+export type ProvenanceRecord = {
+  /**
+   * Provenance Id
+   *
+   * Unique provenance identifier
+   */
+  provenance_id: string;
+  /**
+   * Task Id
+   *
+   * Task that generated this content
+   */
+  task_id: string;
+  /**
+   * Mission Id
+   *
+   * Mission identifier
+   */
+  mission_id: string;
+  /**
+   * Document Path
+   *
+   * Path to generated document
+   */
+  document_path: string;
+  /**
+   * Section Id
+   *
+   * Section identifier
+   */
+  section_id?: string | null;
+  /**
+   * Section Heading
+   *
+   * Section heading
+   */
+  section_heading?: string | null;
+  /**
+   * Line Start
+   *
+   * Start line (0-indexed)
+   */
+  line_start?: number | null;
+  /**
+   * Line End
+   *
+   * End line (0-indexed)
+   */
+  line_end?: number | null;
+  /**
+   * Content Hash
+   *
+   * SHA256 of section content
+   */
+  content_hash: string;
+  /**
+   * Document Version Id
+   *
+   * S3 version ID
+   */
+  document_version_id?: string | null;
+  /**
+   * Mission Version
+   *
+   * Mission regeneration version
+   */
+  mission_version?: number;
+  /**
+   * Generated At
+   *
+   * ISO timestamp when content was generated
+   */
+  generated_at: string;
+};
+
+/**
  * QueryFilter
  */
 export type QueryFilter = {
@@ -3560,6 +4364,82 @@ export type RagRequest = {
    * Session ID for conversation
    */
   session_id?: string | null;
+};
+
+/**
+ * RebuildRequest
+ *
+ * Request body for triggering a rebuild from feedback.
+ */
+export type RebuildRequest = {
+  /**
+   * Feedback Memo Ids
+   *
+   * List of memo IDs containing user feedback to process
+   */
+  feedback_memo_ids: Array<string>;
+  /**
+   * Strategy
+   *
+   * Rebuild strategy: 'affected_only' - rebuild only tasks that generated feedback targets, 'full' - rebuild entire workflow, 'classify_first' - AI classifies feedback to determine optimal approach
+   */
+  strategy?: 'affected_only' | 'full' | 'classify_first';
+  /**
+   * Cascade
+   *
+   * Whether to also rebuild dependent tasks
+   */
+  cascade?: boolean;
+};
+
+/**
+ * RebuildResponse
+ *
+ * Response for rebuild request.
+ */
+export type RebuildResponse = {
+  /**
+   * Status
+   *
+   * Current status of the rebuild operation
+   */
+  status: 'proposals_ready' | 'research_needed' | 'processing' | 'error';
+  /**
+   * Proposals
+   *
+   * List of agent proposals for user review
+   */
+  proposals?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * New Gaps
+   *
+   * New research gaps identified (if any)
+   */
+  new_gaps?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * Affected Tasks
+   *
+   * List of task IDs that will be re-executed
+   */
+  affected_tasks?: Array<string>;
+  /**
+   * Estimated Changes
+   *
+   * Summary of estimated changes
+   */
+  estimated_changes?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Error
+   *
+   * Error message if status is 'error'
+   */
+  error?: string | null;
 };
 
 /**
@@ -4139,6 +5019,95 @@ export type RepoSyncResponse = {
 };
 
 /**
+ * SMEType
+ *
+ * Subject Matter Expert types for task routing.
+ */
+export type SmeType = 'CODEBASE' | 'CONTEXT' | 'DATABASE' | 'VISUAL';
+
+/**
+ * ScreenshotRequest
+ *
+ * Screenshot capture request.
+ */
+export type ScreenshotRequest = {
+  /**
+   * Url
+   *
+   * URL to screenshot
+   */
+  url: string;
+  /**
+   * Viewport Width
+   *
+   * Browser viewport width
+   */
+  viewport_width?: number;
+  /**
+   * Viewport Height
+   *
+   * Browser viewport height
+   */
+  viewport_height?: number;
+  /**
+   * Full Page
+   *
+   * Capture full page or viewport only
+   */
+  full_page?: boolean;
+  /**
+   * Wait Until
+   *
+   * Wait condition
+   */
+  wait_until?: string;
+};
+
+/**
+ * ScreenshotResponse
+ *
+ * Screenshot capture response.
+ */
+export type ScreenshotResponse = {
+  /**
+   * Screenshot Link
+   *
+   * OCXP link to screenshot
+   */
+  screenshot_link?: string | null;
+  /**
+   * Url
+   *
+   * Captured URL
+   */
+  url: string;
+  /**
+   * Viewport
+   *
+   * Viewport dimensions
+   */
+  viewport: string;
+  /**
+   * Full Page
+   *
+   * Whether full page was captured
+   */
+  full_page: boolean;
+  /**
+   * Metadata
+   */
+  metadata?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Message
+   *
+   * Status message
+   */
+  message?: string | null;
+};
+
+/**
  * SecurityFinding
  *
  * Single sensitive data finding within a memo.
@@ -4329,7 +5298,43 @@ export type SetDefaultRepoRequest = {
  *
  * Type of entity the memo is associated with.
  */
-export type SourceType = 'repo' | 'project' | 'mission' | 'doc';
+export type SourceType = 'repo' | 'project' | 'mission' | 'doc' | 'workflow';
+
+/**
+ * SyncMissionsResponse
+ *
+ * Response model for mission sync operation.
+ */
+export type SyncMissionsResponse = {
+  /**
+   * Project Id
+   */
+  project_id: string;
+  /**
+   * Before Count
+   *
+   * Number of mission IDs before sync
+   */
+  before_count: number;
+  /**
+   * After Count
+   *
+   * Number of valid mission IDs after sync
+   */
+  after_count: number;
+  /**
+   * Removed Count
+   *
+   * Number of orphaned IDs removed
+   */
+  removed_count: number;
+  /**
+   * Removed Ids
+   *
+   * IDs that were removed
+   */
+  removed_ids?: Array<string>;
+};
 
 /**
  * SyncRequest
@@ -4369,6 +5374,115 @@ export type TableOverview = {
    * Foreign Keys
    */
   foreign_keys?: Array<ForeignKeyInfo>;
+};
+
+/**
+ * TaskListResponse
+ *
+ * Response for task list.
+ */
+export type TaskListResponse = {
+  /**
+   * Tasks
+   */
+  tasks: Array<TaskResponse>;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
+ * TaskResponse
+ *
+ * Task data in workflow response (strands-compatible format).
+ */
+export type TaskResponse = {
+  /**
+   * Task Id
+   */
+  task_id: string;
+  /**
+   * Description
+   */
+  description: string;
+  status: TaskStatus;
+  /**
+   * Priority
+   */
+  priority: number;
+  /**
+   * Timeout
+   */
+  timeout: number;
+  /**
+   * Dependencies
+   */
+  dependencies: Array<string>;
+  sme_type?: SmeType | null;
+  /**
+   * Skill Path
+   */
+  skill_path?: string | null;
+  /**
+   * Result
+   */
+  result?: string | null;
+  /**
+   * Error
+   */
+  error?: string | null;
+  /**
+   * Retry Count
+   */
+  retry_count?: number;
+  /**
+   * Memo Id
+   */
+  memo_id?: string | null;
+};
+
+/**
+ * TaskStatus
+ *
+ * Status of a workflow task.
+ */
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+
+/**
+ * TaskUpdate
+ *
+ * Request to update a task.
+ */
+export type TaskUpdate = {
+  /**
+   * Task Id
+   *
+   * Task ID (required for bulk updates)
+   */
+  task_id?: string | null;
+  /**
+   * New task status
+   */
+  task_status?: TaskStatus | null;
+  /**
+   * Result
+   *
+   * Task result output
+   */
+  result?: string | null;
+  /**
+   * Error
+   *
+   * Error message if failed
+   */
+  error?: string | null;
+  /**
+   * Retry Count
+   *
+   * Update retry count
+   */
+  retry_count?: number | null;
 };
 
 /**
@@ -4724,6 +5838,267 @@ export type VisualAnalyseResult = {
 };
 
 /**
+ * Workflow
+ *
+ * Workflow container - groups task memos for a mission.
+ *
+ * A mission can have multiple workflows (e.g., research workflow,
+ * documentation workflow). Each workflow manages its own set of tasks
+ * while sharing the mission's context and session data.
+ */
+export type Workflow = {
+  /**
+   * Workflow Id
+   *
+   * Unique workflow identifier (UUID)
+   */
+  workflow_id?: string;
+  /**
+   * Mission Id
+   *
+   * Parent mission ID this workflow belongs to
+   */
+  mission_id: string;
+  /**
+   * Workspace
+   *
+   * Workspace this workflow belongs to
+   */
+  workspace: string;
+  /**
+   * Name
+   *
+   * Optional workflow name (e.g., 'Research Phase', 'Documentation')
+   */
+  name?: string | null;
+  /**
+   * Current workflow status
+   */
+  status?: WorkflowStatus;
+  /**
+   * Created At
+   *
+   * When the workflow was created
+   */
+  created_at?: string;
+  /**
+   * Updated At
+   *
+   * When the workflow was last updated
+   */
+  updated_at?: string;
+  /**
+   * Started At
+   *
+   * When the workflow started running
+   */
+  started_at?: string | null;
+  /**
+   * Completed At
+   *
+   * When the workflow completed
+   */
+  completed_at?: string | null;
+  /**
+   * Total Tasks
+   *
+   * Total number of tasks in workflow
+   */
+  total_tasks?: number;
+  /**
+   * Completed Tasks
+   *
+   * Number of completed tasks
+   */
+  completed_tasks?: number;
+  /**
+   * Failed Tasks
+   *
+   * Number of failed tasks
+   */
+  failed_tasks?: number;
+};
+
+/**
+ * WorkflowActionResponse
+ *
+ * Response from workflow action endpoints.
+ */
+export type WorkflowActionResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Message
+   */
+  message: string;
+  workflow?: WorkflowResponse | null;
+};
+
+/**
+ * WorkflowCreate
+ *
+ * Request to create a workflow with tasks.
+ */
+export type WorkflowCreate = {
+  /**
+   * Mission Id
+   *
+   * Parent mission ID
+   */
+  mission_id: string;
+  /**
+   * Workflow Id
+   *
+   * Optional workflow ID (auto-generated if not provided)
+   */
+  workflow_id?: string | null;
+  /**
+   * Name
+   *
+   * Optional workflow name
+   */
+  name?: string | null;
+  /**
+   * Tasks
+   *
+   * Initial tasks to create
+   */
+  tasks?: Array<WorkflowTaskCreate>;
+};
+
+/**
+ * WorkflowListResponse
+ *
+ * Response for workflow list.
+ */
+export type WorkflowListResponse = {
+  /**
+   * Workflows
+   */
+  workflows: Array<Workflow>;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
+ * WorkflowResponse
+ *
+ * Workflow with all tasks (strands-compatible format).
+ */
+export type WorkflowResponse = {
+  /**
+   * Workflow Id
+   */
+  workflow_id: string;
+  /**
+   * Mission Id
+   */
+  mission_id: string;
+  /**
+   * Name
+   */
+  name?: string | null;
+  status: WorkflowStatus;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Started At
+   */
+  started_at?: string | null;
+  /**
+   * Completed At
+   */
+  completed_at?: string | null;
+  /**
+   * Total Tasks
+   */
+  total_tasks: number;
+  /**
+   * Completed Tasks
+   */
+  completed_tasks: number;
+  /**
+   * Failed Tasks
+   */
+  failed_tasks: number;
+  /**
+   * Progress
+   */
+  progress: number;
+  /**
+   * Tasks
+   */
+  tasks: {
+    [key: string]: TaskResponse;
+  };
+};
+
+/**
+ * WorkflowStatus
+ *
+ * Status of a workflow.
+ */
+export type WorkflowStatus = 'pending' | 'running' | 'paused' | 'completed' | 'failed';
+
+/**
+ * WorkflowTaskCreate
+ *
+ * Task definition for workflow creation.
+ */
+export type WorkflowTaskCreate = {
+  /**
+   * Task Id
+   *
+   * Task identifier (e.g., 'gap_1_research')
+   */
+  task_id: string;
+  /**
+   * Description
+   *
+   * Task description/content
+   */
+  description: string;
+  /**
+   * Priority
+   *
+   * Task priority (1=lowest, 5=highest)
+   */
+  priority?: number;
+  /**
+   * Timeout
+   *
+   * Task timeout in seconds
+   */
+  timeout?: number;
+  /**
+   * Dependencies
+   *
+   * List of task_ids this task depends on
+   */
+  dependencies?: Array<string>;
+  /**
+   * Subject matter expert type
+   */
+  sme_type?: SmeType | null;
+  /**
+   * Skill Path
+   *
+   * Skill path for task execution
+   */
+  skill_path?: string | null;
+};
+
+/**
  * WorkspaceItem
  *
  * Workspace item.
@@ -4787,6 +6162,50 @@ export type WriteRequest = {
    * Mission Id
    */
   mission_id?: string | null;
+  /**
+   * Wait For Index
+   */
+  wait_for_index?: boolean;
+  /**
+   * Verify Access
+   */
+  verify_access?: boolean;
+  /**
+   * Max Retries
+   */
+  max_retries?: number;
+};
+
+/**
+ * BulkDeleteRequest
+ */
+export type AppRoutersBulkBulkDeleteRequest = {
+  /**
+   * Ids
+   */
+  ids: Array<string>;
+  /**
+   * Manage Metadata
+   */
+  manage_metadata?: boolean;
+  /**
+   * Auto Index
+   */
+  auto_index?: boolean | null;
+};
+
+/**
+ * BulkDeleteRequest
+ *
+ * Request for bulk delete operation.
+ */
+export type DomainMemoModelsBulkDeleteRequest = {
+  /**
+   * Memo Ids
+   *
+   * List of memo IDs to delete (max 25)
+   */
+  memo_ids: Array<string>;
 };
 
 export type ResolveOcxpUriData = {
@@ -4987,7 +6406,7 @@ export type BulkWriteContentResponses = {
 export type BulkWriteContentResponse = BulkWriteContentResponses[keyof BulkWriteContentResponses];
 
 export type BulkDeleteContentData = {
-  body: BulkDeleteRequest;
+  body: AppRoutersBulkBulkDeleteRequest;
   headers?: {
     /**
      * X-Workspace
@@ -5332,6 +6751,147 @@ export type AnalyseVisualContentResponses = {
 
 export type AnalyseVisualContentResponse =
   AnalyseVisualContentResponses[keyof AnalyseVisualContentResponses];
+
+export type CaptureScreenshotData = {
+  body: ScreenshotRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/visual/screenshot';
+};
+
+export type CaptureScreenshotErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type CaptureScreenshotError = CaptureScreenshotErrors[keyof CaptureScreenshotErrors];
+
+export type CaptureScreenshotResponses = {
+  /**
+   * Successful Response
+   */
+  200: ScreenshotResponse;
+};
+
+export type CaptureScreenshotResponse =
+  CaptureScreenshotResponses[keyof CaptureScreenshotResponses];
+
+export type BrowsePageData = {
+  body: BrowseRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/visual/browse';
+};
+
+export type BrowsePageErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BrowsePageError = BrowsePageErrors[keyof BrowsePageErrors];
+
+export type BrowsePageResponses = {
+  /**
+   * Successful Response
+   */
+  200: BrowseResponse;
+};
+
+export type BrowsePageResponse = BrowsePageResponses[keyof BrowsePageResponses];
+
+export type ExtractElementsData = {
+  body: ExtractRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/visual/extract';
+};
+
+export type ExtractElementsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type ExtractElementsError = ExtractElementsErrors[keyof ExtractElementsErrors];
+
+export type ExtractElementsResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractResponse;
+};
+
+export type ExtractElementsResponse = ExtractElementsResponses[keyof ExtractElementsResponses];
+
+export type ComparePagesData = {
+  body: CompareRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/context/visual/compare';
+};
+
+export type ComparePagesErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type ComparePagesError = ComparePagesErrors[keyof ComparePagesErrors];
+
+export type ComparePagesResponses = {
+  /**
+   * Successful Response
+   */
+  200: CompareResponse;
+};
+
+export type ComparePagesResponse = ComparePagesResponses[keyof ComparePagesResponses];
 
 export type ListPrototypeChatsData = {
   body?: never;
@@ -6794,6 +8354,52 @@ export type RemoveMissionResponses = {
 
 export type RemoveMissionResponse = RemoveMissionResponses[keyof RemoveMissionResponses];
 
+export type SyncMissionsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/missions/sync';
+};
+
+export type SyncMissionsErrors = {
+  /**
+   * Project not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type SyncMissionsError = SyncMissionsErrors[keyof SyncMissionsErrors];
+
+export type SyncMissionsResponses = {
+  /**
+   * Sync completed successfully
+   */
+  200: SyncMissionsResponse;
+};
+
+export type SyncMissionsResponse2 = SyncMissionsResponses[keyof SyncMissionsResponses];
+
 export type GetProjectDatabasesData = {
   body?: never;
   headers?: {
@@ -6980,6 +8586,50 @@ export type SetDefaultDatabaseResponses = {
 
 export type SetDefaultDatabaseResponse =
   SetDefaultDatabaseResponses[keyof SetDefaultDatabaseResponses];
+
+export type DownloadProjectPackData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: never;
+  url: '/ocxp/project/{project_id}/download';
+};
+
+export type DownloadProjectPackErrors = {
+  /**
+   * Project not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type DownloadProjectPackError = DownloadProjectPackErrors[keyof DownloadProjectPackErrors];
+
+export type DownloadProjectPackResponses = {
+  /**
+   * Project ZIP file returned
+   */
+  200: unknown;
+};
 
 export type DeleteCredentialsData = {
   body?: never;
@@ -7183,15 +8833,16 @@ export type TestCredentialsData = {
      */
     project_id: string;
   };
-  query?: never;
+  query?: {
+    /**
+     * Perform Browser Test
+     */
+    perform_browser_test?: boolean;
+  };
   url: '/ocxp/project/{project_id}/credentials/test';
 };
 
 export type TestCredentialsErrors = {
-  /**
-   * Invalid or missing credentials
-   */
-  400: unknown;
   /**
    * Validation Error
    */
@@ -7200,15 +8851,19 @@ export type TestCredentialsErrors = {
    * Rate limit exceeded
    */
   429: unknown;
+  /**
+   * Test failed with error
+   */
+  500: unknown;
 };
 
 export type TestCredentialsError = TestCredentialsErrors[keyof TestCredentialsErrors];
 
 export type TestCredentialsResponses = {
   /**
-   * Credentials are valid
+   * Test completed (check success field for result)
    */
-  200: CredentialActionResponse;
+  200: CredentialTestResponse;
 };
 
 export type TestCredentialsResponse = TestCredentialsResponses[keyof TestCredentialsResponses];
@@ -7708,6 +9363,277 @@ export type DownloadMissionPackResponses = {
   200: unknown;
 };
 
+export type TriggerRebuildData = {
+  body: RebuildRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Mission Id
+     *
+     * Mission ID
+     */
+    mission_id: string;
+  };
+  query?: never;
+  url: '/ocxp/mission/{mission_id}/rebuild';
+};
+
+export type TriggerRebuildErrors = {
+  /**
+   * Mission not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type TriggerRebuildError = TriggerRebuildErrors[keyof TriggerRebuildErrors];
+
+export type TriggerRebuildResponses = {
+  /**
+   * Rebuild initiated, proposals ready for review
+   */
+  200: RebuildResponse;
+  /**
+   * Rebuild processing, check back later
+   */
+  202: unknown;
+};
+
+export type TriggerRebuildResponse = TriggerRebuildResponses[keyof TriggerRebuildResponses];
+
+export type ListProposalsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Mission Id
+     *
+     * Mission ID
+     */
+    mission_id: string;
+  };
+  query?: {
+    /**
+     * Status
+     *
+     * Filter by status: pending, accepted, rejected
+     */
+    status?: string | null;
+  };
+  url: '/ocxp/mission/{mission_id}/proposals';
+};
+
+export type ListProposalsErrors = {
+  /**
+   * Mission not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type ListProposalsError = ListProposalsErrors[keyof ListProposalsErrors];
+
+export type ListProposalsResponses = {
+  /**
+   * List of pending proposals
+   */
+  200: ProposalListResponse;
+};
+
+export type ListProposalsResponse = ListProposalsResponses[keyof ListProposalsResponses];
+
+export type AcceptProposalData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Proposal Id
+     */
+    proposal_id: string;
+    /**
+     * Mission Id
+     *
+     * Mission ID
+     */
+    mission_id: string;
+  };
+  query?: never;
+  url: '/ocxp/mission/{mission_id}/proposals/{proposal_id}/accept';
+};
+
+export type AcceptProposalErrors = {
+  /**
+   * Mission or proposal not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type AcceptProposalError = AcceptProposalErrors[keyof AcceptProposalErrors];
+
+export type AcceptProposalResponses = {
+  /**
+   * Proposal accepted and applied
+   */
+  200: unknown;
+};
+
+export type RejectProposalData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Proposal Id
+     */
+    proposal_id: string;
+    /**
+     * Mission Id
+     *
+     * Mission ID
+     */
+    mission_id: string;
+  };
+  query?: {
+    /**
+     * Reason
+     *
+     * Optional reason for rejection
+     */
+    reason?: string | null;
+  };
+  url: '/ocxp/mission/{mission_id}/proposals/{proposal_id}/reject';
+};
+
+export type RejectProposalErrors = {
+  /**
+   * Mission or proposal not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type RejectProposalError = RejectProposalErrors[keyof RejectProposalErrors];
+
+export type RejectProposalResponses = {
+  /**
+   * Proposal rejected
+   */
+  200: unknown;
+};
+
+export type GetProvenanceData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Mission Id
+     *
+     * Mission ID
+     */
+    mission_id: string;
+  };
+  query?: {
+    /**
+     * Document Path
+     *
+     * Filter by document path
+     */
+    document_path?: string | null;
+    /**
+     * Line Number
+     *
+     * Find provenance for specific line number (requires document_path)
+     */
+    line_number?: number | null;
+    /**
+     * Task Id
+     *
+     * Filter by task ID
+     */
+    task_id?: string | null;
+  };
+  url: '/ocxp/mission/{mission_id}/provenance';
+};
+
+export type GetProvenanceErrors = {
+  /**
+   * Mission not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetProvenanceError = GetProvenanceErrors[keyof GetProvenanceErrors];
+
+export type GetProvenanceResponses = {
+  /**
+   * Provenance records returned
+   */
+  200: ProvenanceListResponse;
+};
+
+export type GetProvenanceResponse = GetProvenanceResponses[keyof GetProvenanceResponses];
+
 export type QueryKnowledgeBaseData = {
   body: KbQueryRequest;
   headers?: {
@@ -7896,6 +9822,270 @@ export type CreateMemoResponses = {
 
 export type CreateMemoResponse = CreateMemoResponses[keyof CreateMemoResponses];
 
+export type BulkDeleteMemosData = {
+  body: DomainMemoModelsBulkDeleteRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/memo/bulk';
+};
+
+export type BulkDeleteMemosErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BulkDeleteMemosError = BulkDeleteMemosErrors[keyof BulkDeleteMemosErrors];
+
+export type BulkDeleteMemosResponses = {
+  /**
+   * Memos deleted (check results for individual status)
+   */
+  200: BulkMemoResponse;
+};
+
+export type BulkDeleteMemosResponse = BulkDeleteMemosResponses[keyof BulkDeleteMemosResponses];
+
+export type BulkCreateMemosData = {
+  body: BulkCreateMemoRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/memo/bulk';
+};
+
+export type BulkCreateMemosErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BulkCreateMemosError = BulkCreateMemosErrors[keyof BulkCreateMemosErrors];
+
+export type BulkCreateMemosResponses = {
+  /**
+   * Memos created (check results for individual status)
+   */
+  201: BulkMemoResponse;
+};
+
+export type BulkCreateMemosResponse = BulkCreateMemosResponses[keyof BulkCreateMemosResponses];
+
+export type BulkReadMemosData = {
+  body: BulkMemoIdsRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/memo/bulk/read';
+};
+
+export type BulkReadMemosErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BulkReadMemosError = BulkReadMemosErrors[keyof BulkReadMemosErrors];
+
+export type BulkReadMemosResponses = {
+  /**
+   * Memos read (check results for individual status)
+   */
+  200: BulkMemoReadResponse;
+};
+
+export type BulkReadMemosResponse = BulkReadMemosResponses[keyof BulkReadMemosResponses];
+
+export type BulkAcknowledgeMemosData = {
+  body: BulkAcknowledgeRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/memo/bulk/acknowledge';
+};
+
+export type BulkAcknowledgeMemosErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BulkAcknowledgeMemosError =
+  BulkAcknowledgeMemosErrors[keyof BulkAcknowledgeMemosErrors];
+
+export type BulkAcknowledgeMemosResponses = {
+  /**
+   * Memos acknowledged (check results for individual status)
+   */
+  200: BulkMemoResponse;
+};
+
+export type BulkAcknowledgeMemosResponse =
+  BulkAcknowledgeMemosResponses[keyof BulkAcknowledgeMemosResponses];
+
+export type BulkResolveMemosData = {
+  body: BulkResolveRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/memo/bulk/resolve';
+};
+
+export type BulkResolveMemosErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BulkResolveMemosError = BulkResolveMemosErrors[keyof BulkResolveMemosErrors];
+
+export type BulkResolveMemosResponses = {
+  /**
+   * Memos resolved (check results for individual status)
+   */
+  200: BulkMemoResponse;
+};
+
+export type BulkResolveMemosResponse = BulkResolveMemosResponses[keyof BulkResolveMemosResponses];
+
+export type GetProjectMemosData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Project Id
+     *
+     * Project ID
+     */
+    project_id: string;
+  };
+  query?: {
+    /**
+     * Status
+     *
+     * Filter by memo status
+     */
+    status?: MemoStatus | null;
+    /**
+     * Category
+     *
+     * Filter by category
+     */
+    category?: MemoCategory | null;
+    /**
+     * Mission Status
+     *
+     * Comma-separated mission statuses to include (e.g., 'open,in_progress')
+     */
+    mission_status?: string | null;
+    /**
+     * Limit
+     *
+     * Maximum results
+     */
+    limit?: number;
+  };
+  url: '/ocxp/memo/project/{project_id}';
+};
+
+export type GetProjectMemosErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetProjectMemosError = GetProjectMemosErrors[keyof GetProjectMemosErrors];
+
+export type GetProjectMemosResponses = {
+  /**
+   * All project memos returned
+   */
+  200: ProjectMemosResponse;
+};
+
+export type GetProjectMemosResponse = GetProjectMemosResponses[keyof GetProjectMemosResponses];
+
 export type DeleteMemoData = {
   body?: never;
   headers?: {
@@ -7987,6 +10177,52 @@ export type GetMemoResponses = {
 };
 
 export type GetMemoResponse = GetMemoResponses[keyof GetMemoResponses];
+
+export type UpdateMemoData = {
+  body: MemoUpdateRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Memo Id
+     *
+     * Memo ID
+     */
+    memo_id: string;
+  };
+  query?: never;
+  url: '/ocxp/memo/{memo_id}';
+};
+
+export type UpdateMemoErrors = {
+  /**
+   * Memo not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type UpdateMemoError = UpdateMemoErrors[keyof UpdateMemoErrors];
+
+export type UpdateMemoResponses = {
+  /**
+   * Memo updated successfully
+   */
+  200: Memo;
+};
+
+export type UpdateMemoResponse = UpdateMemoResponses[keyof UpdateMemoResponses];
 
 export type GetMemoForSourceData = {
   body?: never;
@@ -8175,6 +10411,531 @@ export type IgnoreMemoResponses = {
 };
 
 export type IgnoreMemoResponse = IgnoreMemoResponses[keyof IgnoreMemoResponses];
+
+export type ListWorkflowsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query: {
+    /**
+     * Mission Id
+     *
+     * Filter by mission ID
+     */
+    mission_id: string;
+    /**
+     * Status
+     *
+     * Filter by workflow status
+     */
+    status?: WorkflowStatus | null;
+    /**
+     * Limit
+     *
+     * Maximum results
+     */
+    limit?: number;
+  };
+  url: '/ocxp/workflow';
+};
+
+export type ListWorkflowsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type ListWorkflowsError = ListWorkflowsErrors[keyof ListWorkflowsErrors];
+
+export type ListWorkflowsResponses = {
+  /**
+   * List of workflows returned successfully
+   */
+  200: WorkflowListResponse;
+};
+
+export type ListWorkflowsResponse = ListWorkflowsResponses[keyof ListWorkflowsResponses];
+
+export type CreateWorkflowData = {
+  body: WorkflowCreate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/workflow';
+};
+
+export type CreateWorkflowErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type CreateWorkflowError = CreateWorkflowErrors[keyof CreateWorkflowErrors];
+
+export type CreateWorkflowResponses = {
+  /**
+   * Workflow created successfully
+   */
+  201: WorkflowResponse;
+};
+
+export type CreateWorkflowResponse = CreateWorkflowResponses[keyof CreateWorkflowResponses];
+
+export type DeleteWorkflowData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}';
+};
+
+export type DeleteWorkflowErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type DeleteWorkflowError = DeleteWorkflowErrors[keyof DeleteWorkflowErrors];
+
+export type DeleteWorkflowResponses = {
+  /**
+   * Workflow deleted successfully
+   */
+  200: WorkflowActionResponse;
+};
+
+export type DeleteWorkflowResponse = DeleteWorkflowResponses[keyof DeleteWorkflowResponses];
+
+export type GetWorkflowData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}';
+};
+
+export type GetWorkflowErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetWorkflowError = GetWorkflowErrors[keyof GetWorkflowErrors];
+
+export type GetWorkflowResponses = {
+  /**
+   * Workflow returned successfully
+   */
+  200: WorkflowResponse;
+};
+
+export type GetWorkflowResponse = GetWorkflowResponses[keyof GetWorkflowResponses];
+
+export type StartWorkflowData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/start';
+};
+
+export type StartWorkflowErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type StartWorkflowError = StartWorkflowErrors[keyof StartWorkflowErrors];
+
+export type StartWorkflowResponses = {
+  /**
+   * Workflow started successfully
+   */
+  200: WorkflowActionResponse;
+};
+
+export type StartWorkflowResponse = StartWorkflowResponses[keyof StartWorkflowResponses];
+
+export type ListTasksData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks';
+};
+
+export type ListTasksErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type ListTasksError = ListTasksErrors[keyof ListTasksErrors];
+
+export type ListTasksResponses = {
+  /**
+   * Tasks returned successfully
+   */
+  200: TaskListResponse;
+};
+
+export type ListTasksResponse = ListTasksResponses[keyof ListTasksResponses];
+
+export type AddTaskData = {
+  body: WorkflowTaskCreate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks';
+};
+
+export type AddTaskErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type AddTaskError = AddTaskErrors[keyof AddTaskErrors];
+
+export type AddTaskResponses = {
+  /**
+   * Task added successfully
+   */
+  201: TaskResponse;
+};
+
+export type AddTaskResponse = AddTaskResponses[keyof AddTaskResponses];
+
+export type BulkUpdateTasksData = {
+  body: BulkTaskUpdateRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/bulk';
+};
+
+export type BulkUpdateTasksErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type BulkUpdateTasksError = BulkUpdateTasksErrors[keyof BulkUpdateTasksErrors];
+
+export type BulkUpdateTasksResponses = {
+  /**
+   * Tasks updated (check results for per-task status)
+   */
+  200: BulkTaskUpdateResponse;
+};
+
+export type BulkUpdateTasksResponse = BulkUpdateTasksResponses[keyof BulkUpdateTasksResponses];
+
+export type DeleteTaskData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+    /**
+     * Task Id
+     *
+     * Task ID
+     */
+    task_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+
+export type DeleteTaskErrors = {
+  /**
+   * Workflow or task not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type DeleteTaskError = DeleteTaskErrors[keyof DeleteTaskErrors];
+
+export type DeleteTaskResponses = {
+  /**
+   * Task deleted successfully
+   */
+  200: WorkflowActionResponse;
+};
+
+export type DeleteTaskResponse = DeleteTaskResponses[keyof DeleteTaskResponses];
+
+export type GetTaskData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+    /**
+     * Task Id
+     *
+     * Task ID
+     */
+    task_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+
+export type GetTaskErrors = {
+  /**
+   * Workflow or task not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetTaskError = GetTaskErrors[keyof GetTaskErrors];
+
+export type GetTaskResponses = {
+  /**
+   * Task returned successfully
+   */
+  200: TaskResponse;
+};
+
+export type GetTaskResponse = GetTaskResponses[keyof GetTaskResponses];
+
+export type UpdateTaskData = {
+  body: TaskUpdate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+    /**
+     * Task Id
+     *
+     * Task ID
+     */
+    task_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+
+export type UpdateTaskErrors = {
+  /**
+   * Workflow or task not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type UpdateTaskError = UpdateTaskErrors[keyof UpdateTaskErrors];
+
+export type UpdateTaskResponses = {
+  /**
+   * Task updated successfully
+   */
+  200: TaskResponse;
+};
+
+export type UpdateTaskResponse = UpdateTaskResponses[keyof UpdateTaskResponses];
 
 export type DownloadRepositoryData = {
   body: DownloadRequest;
@@ -9647,6 +12408,10 @@ export type ReadContentResponse = ReadContentResponses[keyof ReadContentResponse
 export type WriteContentData = {
   body: WriteRequest;
   headers?: {
+    /**
+     * X-User-Id
+     */
+    'X-User-Id'?: string | null;
     /**
      * X-Workspace
      */

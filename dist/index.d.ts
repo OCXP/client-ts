@@ -539,23 +539,6 @@ type BodyLoginForAccessToken = {
   client_secret?: string | null;
 };
 /**
- * BulkDeleteRequest
- */
-type BulkDeleteRequest = {
-  /**
-   * Ids
-   */
-  ids: Array<string>;
-  /**
-   * Manage Metadata
-   */
-  manage_metadata?: boolean;
-  /**
-   * Auto Index
-   */
-  auto_index?: boolean | null;
-};
-/**
  * BulkDeleteResponse
  *
  * Response for POST /ocxp/{type}/bulk/delete.
@@ -616,6 +599,57 @@ type BulkReadResponse = {
    * Count
    */
   count: number;
+};
+/**
+ * BulkTaskUpdateRequest
+ *
+ * Request to bulk update multiple tasks.
+ */
+type BulkTaskUpdateRequest = {
+  /**
+   * Updates
+   *
+   * List of task updates
+   */
+  updates: Array<TaskUpdate>;
+};
+/**
+ * BulkTaskUpdateResponse
+ *
+ * Response from bulk task update.
+ */
+type BulkTaskUpdateResponse = {
+  /**
+   * Results
+   */
+  results: Array<BulkTaskUpdateResult>;
+  /**
+   * Updated Count
+   */
+  updated_count: number;
+  /**
+   * Failed Count
+   */
+  failed_count: number;
+};
+/**
+ * BulkTaskUpdateResult
+ *
+ * Result for a single task in bulk update.
+ */
+type BulkTaskUpdateResult = {
+  /**
+   * Task Id
+   */
+  task_id: string;
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Error
+   */
+  error?: string | null;
 };
 /**
  * BulkWriteItem
@@ -919,6 +953,54 @@ type ContentWriteResponse = {
    * S3 version ID of the written object
    */
   version_id?: string | null;
+  /**
+   * Indexed
+   *
+   * KB indexing status: True=indexed, False=failed, None=skipped
+   */
+  indexed?: boolean | null;
+  /**
+   * Verified
+   *
+   * Full verification status: True=S3+KB verified, False=failed, None=skipped
+   */
+  verified?: boolean | null;
+  /**
+   * S3 Verified
+   *
+   * S3 read verification
+   */
+  s3_verified?: boolean | null;
+  /**
+   * Kb Verified
+   *
+   * KB discover verification
+   */
+  kb_verified?: boolean | null;
+  /**
+   * Index Time Ms
+   *
+   * Time spent on KB indexing in milliseconds
+   */
+  index_time_ms?: number | null;
+  /**
+   * Verify Time Ms
+   *
+   * Time spent on verification in milliseconds
+   */
+  verify_time_ms?: number | null;
+  /**
+   * Retries
+   *
+   * Number of retry attempts (0 = first attempt succeeded)
+   */
+  retries?: number | null;
+  /**
+   * Verification Error
+   *
+   * Error details if verification failed
+   */
+  verification_error?: string | null;
 };
 /**
  * CreateMemoRequest
@@ -1630,10 +1712,14 @@ type MemoCategory =
   | 'agent_error'
   | 'agent_warning'
   | 'agent_hitl'
+  | 'agent_comment'
+  | 'agent_edit'
+  | 'agent_delete'
   | 'user_comment'
   | 'user_edit'
   | 'user_delete'
-  | 'security_finding';
+  | 'security_finding'
+  | 'workflow_task';
 /**
  * MemoListResponse
  *
@@ -3307,6 +3393,12 @@ type RepoSyncResponse = {
   changes_detected?: boolean;
 };
 /**
+ * SMEType
+ *
+ * Subject Matter Expert types for task routing.
+ */
+type SmeType = 'CODEBASE' | 'CONTEXT' | 'DATABASE' | 'VISUAL';
+/**
  * SecurityFinding
  *
  * Single sensitive data finding within a memo.
@@ -3489,7 +3581,7 @@ type SetDefaultRepoRequest = {
  *
  * Type of entity the memo is associated with.
  */
-type SourceType = 'repo' | 'project' | 'mission' | 'doc';
+type SourceType = 'repo' | 'project' | 'mission' | 'doc' | 'workflow';
 /**
  * SyncRequest
  *
@@ -3500,6 +3592,111 @@ type SyncRequest = {
    * Force
    */
   force?: boolean;
+};
+/**
+ * TaskListResponse
+ *
+ * Response for task list.
+ */
+type TaskListResponse = {
+  /**
+   * Tasks
+   */
+  tasks: Array<TaskResponse>;
+  /**
+   * Count
+   */
+  count: number;
+};
+/**
+ * TaskResponse
+ *
+ * Task data in workflow response (strands-compatible format).
+ */
+type TaskResponse = {
+  /**
+   * Task Id
+   */
+  task_id: string;
+  /**
+   * Description
+   */
+  description: string;
+  status: TaskStatus;
+  /**
+   * Priority
+   */
+  priority: number;
+  /**
+   * Timeout
+   */
+  timeout: number;
+  /**
+   * Dependencies
+   */
+  dependencies: Array<string>;
+  sme_type?: SmeType | null;
+  /**
+   * Skill Path
+   */
+  skill_path?: string | null;
+  /**
+   * Result
+   */
+  result?: string | null;
+  /**
+   * Error
+   */
+  error?: string | null;
+  /**
+   * Retry Count
+   */
+  retry_count?: number;
+  /**
+   * Memo Id
+   */
+  memo_id?: string | null;
+};
+/**
+ * TaskStatus
+ *
+ * Status of a workflow task.
+ */
+type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+/**
+ * TaskUpdate
+ *
+ * Request to update a task.
+ */
+type TaskUpdate = {
+  /**
+   * Task Id
+   *
+   * Task ID (required for bulk updates)
+   */
+  task_id?: string | null;
+  /**
+   * New task status
+   */
+  task_status?: TaskStatus | null;
+  /**
+   * Result
+   *
+   * Task result output
+   */
+  result?: string | null;
+  /**
+   * Error
+   *
+   * Error message if failed
+   */
+  error?: string | null;
+  /**
+   * Retry Count
+   *
+   * Update retry count
+   */
+  retry_count?: number | null;
 };
 /**
  * TokenResponse
@@ -3565,6 +3762,260 @@ type ValidationError = {
   type: string;
 };
 /**
+ * Workflow
+ *
+ * Workflow container - groups task memos for a mission.
+ *
+ * A mission can have multiple workflows (e.g., research workflow,
+ * documentation workflow). Each workflow manages its own set of tasks
+ * while sharing the mission's context and session data.
+ */
+type Workflow = {
+  /**
+   * Workflow Id
+   *
+   * Unique workflow identifier (UUID)
+   */
+  workflow_id?: string;
+  /**
+   * Mission Id
+   *
+   * Parent mission ID this workflow belongs to
+   */
+  mission_id: string;
+  /**
+   * Workspace
+   *
+   * Workspace this workflow belongs to
+   */
+  workspace: string;
+  /**
+   * Name
+   *
+   * Optional workflow name (e.g., 'Research Phase', 'Documentation')
+   */
+  name?: string | null;
+  /**
+   * Current workflow status
+   */
+  status?: WorkflowStatus;
+  /**
+   * Created At
+   *
+   * When the workflow was created
+   */
+  created_at?: string;
+  /**
+   * Updated At
+   *
+   * When the workflow was last updated
+   */
+  updated_at?: string;
+  /**
+   * Started At
+   *
+   * When the workflow started running
+   */
+  started_at?: string | null;
+  /**
+   * Completed At
+   *
+   * When the workflow completed
+   */
+  completed_at?: string | null;
+  /**
+   * Total Tasks
+   *
+   * Total number of tasks in workflow
+   */
+  total_tasks?: number;
+  /**
+   * Completed Tasks
+   *
+   * Number of completed tasks
+   */
+  completed_tasks?: number;
+  /**
+   * Failed Tasks
+   *
+   * Number of failed tasks
+   */
+  failed_tasks?: number;
+};
+/**
+ * WorkflowActionResponse
+ *
+ * Response from workflow action endpoints.
+ */
+type WorkflowActionResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Message
+   */
+  message: string;
+  workflow?: WorkflowResponse | null;
+};
+/**
+ * WorkflowCreate
+ *
+ * Request to create a workflow with tasks.
+ */
+type WorkflowCreate = {
+  /**
+   * Mission Id
+   *
+   * Parent mission ID
+   */
+  mission_id: string;
+  /**
+   * Workflow Id
+   *
+   * Optional workflow ID (auto-generated if not provided)
+   */
+  workflow_id?: string | null;
+  /**
+   * Name
+   *
+   * Optional workflow name
+   */
+  name?: string | null;
+  /**
+   * Tasks
+   *
+   * Initial tasks to create
+   */
+  tasks?: Array<WorkflowTaskCreate>;
+};
+/**
+ * WorkflowListResponse
+ *
+ * Response for workflow list.
+ */
+type WorkflowListResponse = {
+  /**
+   * Workflows
+   */
+  workflows: Array<Workflow>;
+  /**
+   * Count
+   */
+  count: number;
+};
+/**
+ * WorkflowResponse
+ *
+ * Workflow with all tasks (strands-compatible format).
+ */
+type WorkflowResponse = {
+  /**
+   * Workflow Id
+   */
+  workflow_id: string;
+  /**
+   * Mission Id
+   */
+  mission_id: string;
+  /**
+   * Name
+   */
+  name?: string | null;
+  status: WorkflowStatus;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Started At
+   */
+  started_at?: string | null;
+  /**
+   * Completed At
+   */
+  completed_at?: string | null;
+  /**
+   * Total Tasks
+   */
+  total_tasks: number;
+  /**
+   * Completed Tasks
+   */
+  completed_tasks: number;
+  /**
+   * Failed Tasks
+   */
+  failed_tasks: number;
+  /**
+   * Progress
+   */
+  progress: number;
+  /**
+   * Tasks
+   */
+  tasks: {
+    [key: string]: TaskResponse;
+  };
+};
+/**
+ * WorkflowStatus
+ *
+ * Status of a workflow.
+ */
+type WorkflowStatus = 'pending' | 'running' | 'paused' | 'completed' | 'failed';
+/**
+ * WorkflowTaskCreate
+ *
+ * Task definition for workflow creation.
+ */
+type WorkflowTaskCreate = {
+  /**
+   * Task Id
+   *
+   * Task identifier (e.g., 'gap_1_research')
+   */
+  task_id: string;
+  /**
+   * Description
+   *
+   * Task description/content
+   */
+  description: string;
+  /**
+   * Priority
+   *
+   * Task priority (1=lowest, 5=highest)
+   */
+  priority?: number;
+  /**
+   * Timeout
+   *
+   * Task timeout in seconds
+   */
+  timeout?: number;
+  /**
+   * Dependencies
+   *
+   * List of task_ids this task depends on
+   */
+  dependencies?: Array<string>;
+  /**
+   * Subject matter expert type
+   */
+  sme_type?: SmeType | null;
+  /**
+   * Skill Path
+   *
+   * Skill path for task execution
+   */
+  skill_path?: string | null;
+};
+/**
  * WorkspaceItem
  *
  * Workspace item.
@@ -3626,6 +4077,35 @@ type WriteRequest = {
    * Mission Id
    */
   mission_id?: string | null;
+  /**
+   * Wait For Index
+   */
+  wait_for_index?: boolean;
+  /**
+   * Verify Access
+   */
+  verify_access?: boolean;
+  /**
+   * Max Retries
+   */
+  max_retries?: number;
+};
+/**
+ * BulkDeleteRequest
+ */
+type AppRoutersBulkBulkDeleteRequest = {
+  /**
+   * Ids
+   */
+  ids: Array<string>;
+  /**
+   * Manage Metadata
+   */
+  manage_metadata?: boolean;
+  /**
+   * Auto Index
+   */
+  auto_index?: boolean | null;
 };
 type BulkReadContentData = {
   body: BulkReadRequest;
@@ -3706,7 +4186,7 @@ type BulkWriteContentResponses = {
   200: BulkWriteResponse;
 };
 type BulkDeleteContentData = {
-  body: BulkDeleteRequest;
+  body: AppRoutersBulkBulkDeleteRequest;
   headers?: {
     /**
      * X-Workspace
@@ -5239,6 +5719,454 @@ type IgnoreMemoResponses = {
    */
   200: MemoActionResponse;
 };
+type ListWorkflowsData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query: {
+    /**
+     * Mission Id
+     *
+     * Filter by mission ID
+     */
+    mission_id: string;
+    /**
+     * Status
+     *
+     * Filter by workflow status
+     */
+    status?: WorkflowStatus | null;
+    /**
+     * Limit
+     *
+     * Maximum results
+     */
+    limit?: number;
+  };
+  url: '/ocxp/workflow';
+};
+type ListWorkflowsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type ListWorkflowsResponses = {
+  /**
+   * List of workflows returned successfully
+   */
+  200: WorkflowListResponse;
+};
+type CreateWorkflowData = {
+  body: WorkflowCreate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/workflow';
+};
+type CreateWorkflowErrors = {
+  /**
+   * Invalid request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type CreateWorkflowResponses = {
+  /**
+   * Workflow created successfully
+   */
+  201: WorkflowResponse;
+};
+type DeleteWorkflowData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}';
+};
+type DeleteWorkflowErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type DeleteWorkflowResponses = {
+  /**
+   * Workflow deleted successfully
+   */
+  200: WorkflowActionResponse;
+};
+type GetWorkflowData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}';
+};
+type GetWorkflowErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type GetWorkflowResponses = {
+  /**
+   * Workflow returned successfully
+   */
+  200: WorkflowResponse;
+};
+type StartWorkflowData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/start';
+};
+type StartWorkflowErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type StartWorkflowResponses = {
+  /**
+   * Workflow started successfully
+   */
+  200: WorkflowActionResponse;
+};
+type ListTasksData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks';
+};
+type ListTasksErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type ListTasksResponses = {
+  /**
+   * Tasks returned successfully
+   */
+  200: TaskListResponse;
+};
+type AddTaskData = {
+  body: WorkflowTaskCreate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks';
+};
+type AddTaskErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type AddTaskResponses = {
+  /**
+   * Task added successfully
+   */
+  201: TaskResponse;
+};
+type BulkUpdateTasksData = {
+  body: BulkTaskUpdateRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/bulk';
+};
+type BulkUpdateTasksErrors = {
+  /**
+   * Workflow not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type BulkUpdateTasksResponses = {
+  /**
+   * Tasks updated (check results for per-task status)
+   */
+  200: BulkTaskUpdateResponse;
+};
+type DeleteTaskData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+    /**
+     * Task Id
+     *
+     * Task ID
+     */
+    task_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+type DeleteTaskErrors = {
+  /**
+   * Workflow or task not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type DeleteTaskResponses = {
+  /**
+   * Task deleted successfully
+   */
+  200: WorkflowActionResponse;
+};
+type GetTaskData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+    /**
+     * Task Id
+     *
+     * Task ID
+     */
+    task_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+type GetTaskErrors = {
+  /**
+   * Workflow or task not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type GetTaskResponses = {
+  /**
+   * Task returned successfully
+   */
+  200: TaskResponse;
+};
+type UpdateTaskData = {
+  body: TaskUpdate;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path: {
+    /**
+     * Workflow Id
+     *
+     * Workflow ID
+     */
+    workflow_id: string;
+    /**
+     * Task Id
+     *
+     * Task ID
+     */
+    task_id: string;
+  };
+  query?: never;
+  url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+type UpdateTaskErrors = {
+  /**
+   * Workflow or task not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type UpdateTaskResponses = {
+  /**
+   * Task updated successfully
+   */
+  200: TaskResponse;
+};
 type DownloadRepositoryData = {
   body: DownloadRequest;
   headers?: {
@@ -6366,6 +7294,10 @@ type WriteContentData = {
   body: WriteRequest;
   headers?: {
     /**
+     * X-User-Id
+     */
+    'X-User-Id'?: string | null;
+    /**
      * X-Workspace
      */
     'X-Workspace'?: string;
@@ -7402,6 +8334,94 @@ declare const ignoreMemo: <ThrowOnError extends boolean = false>(
   options: Options<IgnoreMemoData, ThrowOnError>
 ) => RequestResult<IgnoreMemoResponses, IgnoreMemoErrors, ThrowOnError, 'fields'>;
 /**
+ * List workflows
+ *
+ * List workflows for a mission with optional status filter.
+ */
+declare const listWorkflows: <ThrowOnError extends boolean = false>(
+  options: Options<ListWorkflowsData, ThrowOnError>
+) => RequestResult<ListWorkflowsResponses, ListWorkflowsErrors, ThrowOnError, 'fields'>;
+/**
+ * Create workflow with tasks
+ *
+ * Create a new workflow with optional initial tasks. Tasks are stored as memos.
+ */
+declare const createWorkflow: <ThrowOnError extends boolean = false>(
+  options: Options<CreateWorkflowData, ThrowOnError>
+) => RequestResult<CreateWorkflowResponses, CreateWorkflowErrors, ThrowOnError, 'fields'>;
+/**
+ * Delete workflow
+ *
+ * Delete a workflow and all its task memos.
+ */
+declare const deleteWorkflow: <ThrowOnError extends boolean = false>(
+  options: Options<DeleteWorkflowData, ThrowOnError>
+) => RequestResult<DeleteWorkflowResponses, DeleteWorkflowErrors, ThrowOnError, 'fields'>;
+/**
+ * Get workflow with tasks
+ *
+ * Get a workflow with all its tasks in strands-compatible format.
+ */
+declare const getWorkflow: <ThrowOnError extends boolean = false>(
+  options: Options<GetWorkflowData, ThrowOnError>
+) => RequestResult<GetWorkflowResponses, GetWorkflowErrors, ThrowOnError, 'fields'>;
+/**
+ * Start workflow
+ *
+ * Mark workflow as running.
+ */
+declare const startWorkflow: <ThrowOnError extends boolean = false>(
+  options: Options<StartWorkflowData, ThrowOnError>
+) => RequestResult<StartWorkflowResponses, StartWorkflowErrors, ThrowOnError, 'fields'>;
+/**
+ * List workflow tasks
+ *
+ * List all tasks for a workflow.
+ */
+declare const listTasks: <ThrowOnError extends boolean = false>(
+  options: Options<ListTasksData, ThrowOnError>
+) => RequestResult<ListTasksResponses, ListTasksErrors, ThrowOnError, 'fields'>;
+/**
+ * Add task to workflow
+ *
+ * Add a new task to an existing workflow.
+ */
+declare const addTask: <ThrowOnError extends boolean = false>(
+  options: Options<AddTaskData, ThrowOnError>
+) => RequestResult<AddTaskResponses, AddTaskErrors, ThrowOnError, 'fields'>;
+/**
+ * Bulk update tasks
+ *
+ * Update multiple task statuses in a single request for O(1) performance.
+ */
+declare const bulkUpdateTasks: <ThrowOnError extends boolean = false>(
+  options: Options<BulkUpdateTasksData, ThrowOnError>
+) => RequestResult<BulkUpdateTasksResponses, BulkUpdateTasksErrors, ThrowOnError, 'fields'>;
+/**
+ * Delete task
+ *
+ * Delete a specific task from a workflow.
+ */
+declare const deleteTask: <ThrowOnError extends boolean = false>(
+  options: Options<DeleteTaskData, ThrowOnError>
+) => RequestResult<DeleteTaskResponses, DeleteTaskErrors, ThrowOnError, 'fields'>;
+/**
+ * Get task
+ *
+ * Get a specific task from a workflow.
+ */
+declare const getTask: <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskData, ThrowOnError>
+) => RequestResult<GetTaskResponses, GetTaskErrors, ThrowOnError, 'fields'>;
+/**
+ * Update task
+ *
+ * Update a task's status, result, or error.
+ */
+declare const updateTask: <ThrowOnError extends boolean = false>(
+  options: Options<UpdateTaskData, ThrowOnError>
+) => RequestResult<UpdateTaskResponses, UpdateTaskErrors, ThrowOnError, 'fields'>;
+/**
  * Start repository download
  *
  * Initiates an async download of a Git repository. Returns a job ID for status tracking. If the repository already exists (deduplicated), returns immediately with status='linked'.
@@ -7650,7 +8670,7 @@ declare const readContent: <ThrowOnError extends boolean = false>(
 /**
  * Write content
  *
- * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
+ * Writes content to storage with robust verification. Supports ETag for optimistic locking, ifNotExists for creation-only, and wait_for_index/verify_access for synchronous KB indexing verification.
  */
 declare const writeContent: <ThrowOnError extends boolean = false>(
   options: Options<WriteContentData, ThrowOnError>
@@ -11525,9 +12545,9 @@ type ContextReposResponse = z.infer<typeof ContextReposResponseSchema>;
  */
 declare const RepoStatusEnum: z.ZodEnum<{
   failed: 'failed';
+  processing: 'processing';
   queued: 'queued';
   uploading: 'uploading';
-  processing: 'processing';
   vectorizing: 'vectorizing';
   complete: 'complete';
 }>;
@@ -11577,9 +12597,9 @@ declare const RepoDownloadDataSchema: z.ZodObject<
     s3_path: z.ZodOptional<z.ZodString>;
     status: z.ZodEnum<{
       failed: 'failed';
+      processing: 'processing';
       queued: 'queued';
       uploading: 'uploading';
-      processing: 'processing';
       vectorizing: 'vectorizing';
       complete: 'complete';
     }>;
@@ -11604,9 +12624,9 @@ declare const RepoDownloadResponseSchema: z.ZodObject<
           s3_path: z.ZodOptional<z.ZodString>;
           status: z.ZodEnum<{
             failed: 'failed';
+            processing: 'processing';
             queued: 'queued';
             uploading: 'uploading';
-            processing: 'processing';
             vectorizing: 'vectorizing';
             complete: 'complete';
           }>;
@@ -11652,9 +12672,9 @@ declare const RepoStatusDataSchema: z.ZodObject<
     job_id: z.ZodString;
     status: z.ZodEnum<{
       failed: 'failed';
+      processing: 'processing';
       queued: 'queued';
       uploading: 'uploading';
-      processing: 'processing';
       vectorizing: 'vectorizing';
       complete: 'complete';
     }>;
@@ -11680,9 +12700,9 @@ declare const RepoStatusResponseSchema: z.ZodObject<
           job_id: z.ZodString;
           status: z.ZodEnum<{
             failed: 'failed';
+            processing: 'processing';
             queued: 'queued';
             uploading: 'uploading';
-            processing: 'processing';
             vectorizing: 'vectorizing';
             complete: 'complete';
           }>;
@@ -12383,8 +13403,8 @@ declare const KBIngestDataSchema: z.ZodObject<
       z.ZodEnum<{
         failed: 'failed';
         processing: 'processing';
-        complete: 'complete';
         pending: 'pending';
+        complete: 'complete';
       }>
     >;
   },
@@ -12407,8 +13427,8 @@ declare const KBIngestResponseSchema: z.ZodObject<
             z.ZodEnum<{
               failed: 'failed';
               processing: 'processing';
-              complete: 'complete';
               pending: 'pending';
+              complete: 'complete';
             }>
           >;
         },
@@ -12545,8 +13565,8 @@ declare const IngestionJobSchema: z.ZodObject<
     jobId: z.ZodString;
     status: z.ZodEnum<{
       failed: 'failed';
-      queued: 'queued';
       processing: 'processing';
+      queued: 'queued';
       complete: 'complete';
     }>;
     progress: z.ZodOptional<z.ZodNumber>;
@@ -12571,8 +13591,8 @@ declare const IngestionJobResponseSchema: z.ZodObject<
           jobId: z.ZodString;
           status: z.ZodEnum<{
             failed: 'failed';
-            queued: 'queued';
             processing: 'processing';
+            queued: 'queued';
             complete: 'complete';
           }>;
           progress: z.ZodOptional<z.ZodNumber>;
@@ -13636,6 +14656,8 @@ export {
   type AddProjectRepoResponse,
   AddProjectRepoResponseSchema,
   type AddRepoRequest,
+  type AddTaskData,
+  type AddTaskResponses,
   type ArchiveSessionData,
   type ArchiveSessionResponses,
   type AuthConfig,
@@ -13653,10 +14675,11 @@ export {
   AuthValidateResponseSchema,
   type BulkDeleteContentData,
   type BulkDeleteContentResponses,
-  type BulkDeleteRequest,
   type BulkReadContentData,
   type BulkReadContentResponses,
   type BulkReadRequest,
+  type BulkUpdateTasksData,
+  type BulkUpdateTasksResponses,
   type BulkWriteContentData,
   type BulkWriteContentResponses,
   type BulkWriteRequest,
@@ -13694,6 +14717,8 @@ export {
   CreateSessionDataSchema,
   type CreateSessionResponse,
   CreateSessionResponseSchema,
+  type CreateWorkflowData,
+  type CreateWorkflowResponses,
   type DatabaseConfigResponse,
   type DatabaseCreate,
   type DatabaseListResponse,
@@ -13719,6 +14744,10 @@ export {
   type DeleteResponse,
   DeleteResponseSchema,
   type DeleteResult,
+  type DeleteTaskData,
+  type DeleteTaskResponses,
+  type DeleteWorkflowData,
+  type DeleteWorkflowResponses,
   type DiscoveryData,
   DiscoveryDataSchema,
   type DiscoveryEndpoint,
@@ -13785,6 +14814,10 @@ export {
   type GetStoredVersionsResponses,
   type GetSyncStatusData,
   type GetSyncStatusResponses,
+  type GetTaskData,
+  type GetTaskResponses,
+  type GetWorkflowData,
+  type GetWorkflowResponses,
   type GithubBranchInfo,
   GithubBranchInfoSchema,
   type GithubBranchesData,
@@ -13872,6 +14905,10 @@ export {
   type ListSessionsResponses,
   type ListTablesData,
   type ListTablesResponses,
+  type ListTasksData,
+  type ListTasksResponses,
+  type ListWorkflowsData,
+  type ListWorkflowsResponses,
   type ListWorkspacesData,
   type ListWorkspacesResponses,
   type LockContentData,
@@ -14048,6 +15085,8 @@ export {
   type SetDefaultRepoRequest,
   type SetDefaultRepoResponses,
   type SourceType,
+  type StartWorkflowData,
+  type StartWorkflowResponses,
   type StatsData,
   StatsDataSchema,
   type StatsResponse,
@@ -14061,6 +15100,8 @@ export {
   type SyncPrototypeChatResponses,
   type SyncRepoData,
   type SyncRepoResponses,
+  type TaskResponse,
+  type TaskStatus,
   type TestDatabaseConnectionData,
   type TestDatabaseConnectionResponses,
   type TokenProvider,
@@ -14089,6 +15130,8 @@ export {
   type UpdateSessionMetadataResponse,
   UpdateSessionMetadataResponseSchema,
   type UpdateSessionMetadataResponses,
+  type UpdateTaskData,
+  type UpdateTaskResponses,
   type UserResponse,
   VALID_CONTENT_TYPES,
   type VectorSearchData,
@@ -14125,6 +15168,13 @@ export {
   type WebSocketMessageType,
   WebSocketService,
   type WebSocketServiceOptions,
+  type Workflow,
+  type WorkflowActionResponse,
+  type WorkflowCreate,
+  type WorkflowListResponse,
+  type WorkflowResponse,
+  type WorkflowStatus,
+  type WorkflowTaskCreate,
   type WorkspacesResponse,
   type WriteContentData,
   type WriteContentResponses,
@@ -14138,10 +15188,12 @@ export {
   addDatabase,
   addLinkedRepo,
   addMission,
+  addTask,
   archiveSession,
   buildPath,
   bulkDeleteContent,
   bulkReadContent,
+  bulkUpdateTasks,
   bulkWriteContent,
   createClient,
   createConfig,
@@ -14152,11 +15204,14 @@ export {
   createProject,
   createResponseSchema,
   createWebSocketService,
+  createWorkflow,
   deleteContent,
   deleteDatabase,
   deleteMemo,
   deleteProject,
   deleteRepo,
+  deleteTask,
+  deleteWorkflow,
   downloadRepository,
   forkSession,
   getAuthConfig,
@@ -14180,6 +15235,8 @@ export {
   getSessionMessages,
   getStoredVersions,
   getSyncStatus,
+  getTask,
+  getWorkflow,
   githubCheckAccess,
   githubGetContents,
   githubListBranches,
@@ -14203,6 +15260,8 @@ export {
   listPrototypeChats,
   listSessions,
   listTables,
+  listTasks,
+  listWorkflows,
   listWorkspaces,
   lockContent,
   login,
@@ -14227,6 +15286,7 @@ export {
   searchContent,
   setDefaultDatabase,
   setDefaultRepo,
+  startWorkflow,
   syncAllRepos,
   syncPrototypeChat,
   syncPrototypeChatAsync,
@@ -14238,5 +15298,6 @@ export {
   updateDatabase,
   updateProject,
   updateSessionMetadata,
+  updateTask,
   writeContent,
 };

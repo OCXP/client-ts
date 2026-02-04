@@ -426,23 +426,6 @@ type BodyLoginForAccessToken = {
     client_secret?: string | null;
 };
 /**
- * BulkDeleteRequest
- */
-type BulkDeleteRequest = {
-    /**
-     * Ids
-     */
-    ids: Array<string>;
-    /**
-     * Manage Metadata
-     */
-    manage_metadata?: boolean;
-    /**
-     * Auto Index
-     */
-    auto_index?: boolean | null;
-};
-/**
  * BulkDeleteResponse
  *
  * Response for POST /ocxp/{type}/bulk/delete.
@@ -503,6 +486,57 @@ type BulkReadResponse = {
      * Count
      */
     count: number;
+};
+/**
+ * BulkTaskUpdateRequest
+ *
+ * Request to bulk update multiple tasks.
+ */
+type BulkTaskUpdateRequest = {
+    /**
+     * Updates
+     *
+     * List of task updates
+     */
+    updates: Array<TaskUpdate>;
+};
+/**
+ * BulkTaskUpdateResponse
+ *
+ * Response from bulk task update.
+ */
+type BulkTaskUpdateResponse = {
+    /**
+     * Results
+     */
+    results: Array<BulkTaskUpdateResult>;
+    /**
+     * Updated Count
+     */
+    updated_count: number;
+    /**
+     * Failed Count
+     */
+    failed_count: number;
+};
+/**
+ * BulkTaskUpdateResult
+ *
+ * Result for a single task in bulk update.
+ */
+type BulkTaskUpdateResult = {
+    /**
+     * Task Id
+     */
+    task_id: string;
+    /**
+     * Success
+     */
+    success: boolean;
+    /**
+     * Error
+     */
+    error?: string | null;
 };
 /**
  * BulkWriteItem
@@ -806,6 +840,54 @@ type ContentWriteResponse = {
      * S3 version ID of the written object
      */
     version_id?: string | null;
+    /**
+     * Indexed
+     *
+     * KB indexing status: True=indexed, False=failed, None=skipped
+     */
+    indexed?: boolean | null;
+    /**
+     * Verified
+     *
+     * Full verification status: True=S3+KB verified, False=failed, None=skipped
+     */
+    verified?: boolean | null;
+    /**
+     * S3 Verified
+     *
+     * S3 read verification
+     */
+    s3_verified?: boolean | null;
+    /**
+     * Kb Verified
+     *
+     * KB discover verification
+     */
+    kb_verified?: boolean | null;
+    /**
+     * Index Time Ms
+     *
+     * Time spent on KB indexing in milliseconds
+     */
+    index_time_ms?: number | null;
+    /**
+     * Verify Time Ms
+     *
+     * Time spent on verification in milliseconds
+     */
+    verify_time_ms?: number | null;
+    /**
+     * Retries
+     *
+     * Number of retry attempts (0 = first attempt succeeded)
+     */
+    retries?: number | null;
+    /**
+     * Verification Error
+     *
+     * Error details if verification failed
+     */
+    verification_error?: string | null;
 };
 /**
  * CreateMemoRequest
@@ -1513,7 +1595,7 @@ type MemoActionResponse = {
  *
  * Category of memo feedback.
  */
-type MemoCategory = 'agent_error' | 'agent_warning' | 'agent_hitl' | 'user_comment' | 'user_edit' | 'user_delete' | 'security_finding';
+type MemoCategory = 'agent_error' | 'agent_warning' | 'agent_hitl' | 'agent_comment' | 'agent_edit' | 'agent_delete' | 'user_comment' | 'user_edit' | 'user_delete' | 'security_finding' | 'workflow_task';
 /**
  * MemoListResponse
  *
@@ -3187,6 +3269,12 @@ type RepoSyncResponse = {
     changes_detected?: boolean;
 };
 /**
+ * SMEType
+ *
+ * Subject Matter Expert types for task routing.
+ */
+type SmeType = 'CODEBASE' | 'CONTEXT' | 'DATABASE' | 'VISUAL';
+/**
  * SecurityFinding
  *
  * Single sensitive data finding within a memo.
@@ -3369,7 +3457,7 @@ type SetDefaultRepoRequest = {
  *
  * Type of entity the memo is associated with.
  */
-type SourceType = 'repo' | 'project' | 'mission' | 'doc';
+type SourceType = 'repo' | 'project' | 'mission' | 'doc' | 'workflow';
 /**
  * SyncRequest
  *
@@ -3380,6 +3468,111 @@ type SyncRequest = {
      * Force
      */
     force?: boolean;
+};
+/**
+ * TaskListResponse
+ *
+ * Response for task list.
+ */
+type TaskListResponse = {
+    /**
+     * Tasks
+     */
+    tasks: Array<TaskResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * TaskResponse
+ *
+ * Task data in workflow response (strands-compatible format).
+ */
+type TaskResponse = {
+    /**
+     * Task Id
+     */
+    task_id: string;
+    /**
+     * Description
+     */
+    description: string;
+    status: TaskStatus;
+    /**
+     * Priority
+     */
+    priority: number;
+    /**
+     * Timeout
+     */
+    timeout: number;
+    /**
+     * Dependencies
+     */
+    dependencies: Array<string>;
+    sme_type?: SmeType | null;
+    /**
+     * Skill Path
+     */
+    skill_path?: string | null;
+    /**
+     * Result
+     */
+    result?: string | null;
+    /**
+     * Error
+     */
+    error?: string | null;
+    /**
+     * Retry Count
+     */
+    retry_count?: number;
+    /**
+     * Memo Id
+     */
+    memo_id?: string | null;
+};
+/**
+ * TaskStatus
+ *
+ * Status of a workflow task.
+ */
+type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+/**
+ * TaskUpdate
+ *
+ * Request to update a task.
+ */
+type TaskUpdate = {
+    /**
+     * Task Id
+     *
+     * Task ID (required for bulk updates)
+     */
+    task_id?: string | null;
+    /**
+     * New task status
+     */
+    task_status?: TaskStatus | null;
+    /**
+     * Result
+     *
+     * Task result output
+     */
+    result?: string | null;
+    /**
+     * Error
+     *
+     * Error message if failed
+     */
+    error?: string | null;
+    /**
+     * Retry Count
+     *
+     * Update retry count
+     */
+    retry_count?: number | null;
 };
 /**
  * TokenResponse
@@ -3445,6 +3638,260 @@ type ValidationError = {
     type: string;
 };
 /**
+ * Workflow
+ *
+ * Workflow container - groups task memos for a mission.
+ *
+ * A mission can have multiple workflows (e.g., research workflow,
+ * documentation workflow). Each workflow manages its own set of tasks
+ * while sharing the mission's context and session data.
+ */
+type Workflow = {
+    /**
+     * Workflow Id
+     *
+     * Unique workflow identifier (UUID)
+     */
+    workflow_id?: string;
+    /**
+     * Mission Id
+     *
+     * Parent mission ID this workflow belongs to
+     */
+    mission_id: string;
+    /**
+     * Workspace
+     *
+     * Workspace this workflow belongs to
+     */
+    workspace: string;
+    /**
+     * Name
+     *
+     * Optional workflow name (e.g., 'Research Phase', 'Documentation')
+     */
+    name?: string | null;
+    /**
+     * Current workflow status
+     */
+    status?: WorkflowStatus;
+    /**
+     * Created At
+     *
+     * When the workflow was created
+     */
+    created_at?: string;
+    /**
+     * Updated At
+     *
+     * When the workflow was last updated
+     */
+    updated_at?: string;
+    /**
+     * Started At
+     *
+     * When the workflow started running
+     */
+    started_at?: string | null;
+    /**
+     * Completed At
+     *
+     * When the workflow completed
+     */
+    completed_at?: string | null;
+    /**
+     * Total Tasks
+     *
+     * Total number of tasks in workflow
+     */
+    total_tasks?: number;
+    /**
+     * Completed Tasks
+     *
+     * Number of completed tasks
+     */
+    completed_tasks?: number;
+    /**
+     * Failed Tasks
+     *
+     * Number of failed tasks
+     */
+    failed_tasks?: number;
+};
+/**
+ * WorkflowActionResponse
+ *
+ * Response from workflow action endpoints.
+ */
+type WorkflowActionResponse = {
+    /**
+     * Success
+     */
+    success: boolean;
+    /**
+     * Message
+     */
+    message: string;
+    workflow?: WorkflowResponse | null;
+};
+/**
+ * WorkflowCreate
+ *
+ * Request to create a workflow with tasks.
+ */
+type WorkflowCreate = {
+    /**
+     * Mission Id
+     *
+     * Parent mission ID
+     */
+    mission_id: string;
+    /**
+     * Workflow Id
+     *
+     * Optional workflow ID (auto-generated if not provided)
+     */
+    workflow_id?: string | null;
+    /**
+     * Name
+     *
+     * Optional workflow name
+     */
+    name?: string | null;
+    /**
+     * Tasks
+     *
+     * Initial tasks to create
+     */
+    tasks?: Array<WorkflowTaskCreate>;
+};
+/**
+ * WorkflowListResponse
+ *
+ * Response for workflow list.
+ */
+type WorkflowListResponse = {
+    /**
+     * Workflows
+     */
+    workflows: Array<Workflow>;
+    /**
+     * Count
+     */
+    count: number;
+};
+/**
+ * WorkflowResponse
+ *
+ * Workflow with all tasks (strands-compatible format).
+ */
+type WorkflowResponse = {
+    /**
+     * Workflow Id
+     */
+    workflow_id: string;
+    /**
+     * Mission Id
+     */
+    mission_id: string;
+    /**
+     * Name
+     */
+    name?: string | null;
+    status: WorkflowStatus;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Started At
+     */
+    started_at?: string | null;
+    /**
+     * Completed At
+     */
+    completed_at?: string | null;
+    /**
+     * Total Tasks
+     */
+    total_tasks: number;
+    /**
+     * Completed Tasks
+     */
+    completed_tasks: number;
+    /**
+     * Failed Tasks
+     */
+    failed_tasks: number;
+    /**
+     * Progress
+     */
+    progress: number;
+    /**
+     * Tasks
+     */
+    tasks: {
+        [key: string]: TaskResponse;
+    };
+};
+/**
+ * WorkflowStatus
+ *
+ * Status of a workflow.
+ */
+type WorkflowStatus = 'pending' | 'running' | 'paused' | 'completed' | 'failed';
+/**
+ * WorkflowTaskCreate
+ *
+ * Task definition for workflow creation.
+ */
+type WorkflowTaskCreate = {
+    /**
+     * Task Id
+     *
+     * Task identifier (e.g., 'gap_1_research')
+     */
+    task_id: string;
+    /**
+     * Description
+     *
+     * Task description/content
+     */
+    description: string;
+    /**
+     * Priority
+     *
+     * Task priority (1=lowest, 5=highest)
+     */
+    priority?: number;
+    /**
+     * Timeout
+     *
+     * Task timeout in seconds
+     */
+    timeout?: number;
+    /**
+     * Dependencies
+     *
+     * List of task_ids this task depends on
+     */
+    dependencies?: Array<string>;
+    /**
+     * Subject matter expert type
+     */
+    sme_type?: SmeType | null;
+    /**
+     * Skill Path
+     *
+     * Skill path for task execution
+     */
+    skill_path?: string | null;
+};
+/**
  * WorkspaceItem
  *
  * Workspace item.
@@ -3506,6 +3953,35 @@ type WriteRequest = {
      * Mission Id
      */
     mission_id?: string | null;
+    /**
+     * Wait For Index
+     */
+    wait_for_index?: boolean;
+    /**
+     * Verify Access
+     */
+    verify_access?: boolean;
+    /**
+     * Max Retries
+     */
+    max_retries?: number;
+};
+/**
+ * BulkDeleteRequest
+ */
+type AppRoutersBulkBulkDeleteRequest = {
+    /**
+     * Ids
+     */
+    ids: Array<string>;
+    /**
+     * Manage Metadata
+     */
+    manage_metadata?: boolean;
+    /**
+     * Auto Index
+     */
+    auto_index?: boolean | null;
 };
 type BulkReadContentData = {
     body: BulkReadRequest;
@@ -3586,7 +4062,7 @@ type BulkWriteContentResponses = {
     200: BulkWriteResponse;
 };
 type BulkDeleteContentData = {
-    body: BulkDeleteRequest;
+    body: AppRoutersBulkBulkDeleteRequest;
     headers?: {
         /**
          * X-Workspace
@@ -5119,6 +5595,454 @@ type IgnoreMemoResponses = {
      */
     200: MemoActionResponse;
 };
+type ListWorkflowsData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query: {
+        /**
+         * Mission Id
+         *
+         * Filter by mission ID
+         */
+        mission_id: string;
+        /**
+         * Status
+         *
+         * Filter by workflow status
+         */
+        status?: WorkflowStatus | null;
+        /**
+         * Limit
+         *
+         * Maximum results
+         */
+        limit?: number;
+    };
+    url: '/ocxp/workflow';
+};
+type ListWorkflowsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type ListWorkflowsResponses = {
+    /**
+     * List of workflows returned successfully
+     */
+    200: WorkflowListResponse;
+};
+type CreateWorkflowData = {
+    body: WorkflowCreate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/workflow';
+};
+type CreateWorkflowErrors = {
+    /**
+     * Invalid request
+     */
+    400: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type CreateWorkflowResponses = {
+    /**
+     * Workflow created successfully
+     */
+    201: WorkflowResponse;
+};
+type DeleteWorkflowData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}';
+};
+type DeleteWorkflowErrors = {
+    /**
+     * Workflow not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type DeleteWorkflowResponses = {
+    /**
+     * Workflow deleted successfully
+     */
+    200: WorkflowActionResponse;
+};
+type GetWorkflowData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}';
+};
+type GetWorkflowErrors = {
+    /**
+     * Workflow not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type GetWorkflowResponses = {
+    /**
+     * Workflow returned successfully
+     */
+    200: WorkflowResponse;
+};
+type StartWorkflowData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/start';
+};
+type StartWorkflowErrors = {
+    /**
+     * Workflow not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type StartWorkflowResponses = {
+    /**
+     * Workflow started successfully
+     */
+    200: WorkflowActionResponse;
+};
+type ListTasksData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/tasks';
+};
+type ListTasksErrors = {
+    /**
+     * Workflow not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type ListTasksResponses = {
+    /**
+     * Tasks returned successfully
+     */
+    200: TaskListResponse;
+};
+type AddTaskData = {
+    body: WorkflowTaskCreate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/tasks';
+};
+type AddTaskErrors = {
+    /**
+     * Workflow not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type AddTaskResponses = {
+    /**
+     * Task added successfully
+     */
+    201: TaskResponse;
+};
+type BulkUpdateTasksData = {
+    body: BulkTaskUpdateRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/tasks/bulk';
+};
+type BulkUpdateTasksErrors = {
+    /**
+     * Workflow not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type BulkUpdateTasksResponses = {
+    /**
+     * Tasks updated (check results for per-task status)
+     */
+    200: BulkTaskUpdateResponse;
+};
+type DeleteTaskData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+        /**
+         * Task Id
+         *
+         * Task ID
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+type DeleteTaskErrors = {
+    /**
+     * Workflow or task not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type DeleteTaskResponses = {
+    /**
+     * Task deleted successfully
+     */
+    200: WorkflowActionResponse;
+};
+type GetTaskData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+        /**
+         * Task Id
+         *
+         * Task ID
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+type GetTaskErrors = {
+    /**
+     * Workflow or task not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type GetTaskResponses = {
+    /**
+     * Task returned successfully
+     */
+    200: TaskResponse;
+};
+type UpdateTaskData = {
+    body: TaskUpdate;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path: {
+        /**
+         * Workflow Id
+         *
+         * Workflow ID
+         */
+        workflow_id: string;
+        /**
+         * Task Id
+         *
+         * Task ID
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}';
+};
+type UpdateTaskErrors = {
+    /**
+     * Workflow or task not found
+     */
+    404: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type UpdateTaskResponses = {
+    /**
+     * Task updated successfully
+     */
+    200: TaskResponse;
+};
 type DownloadRepositoryData = {
     body: DownloadRequest;
     headers?: {
@@ -6246,6 +7170,10 @@ type WriteContentData = {
     body: WriteRequest;
     headers?: {
         /**
+         * X-User-Id
+         */
+        'X-User-Id'?: string | null;
+        /**
          * X-Workspace
          */
         'X-Workspace'?: string;
@@ -7180,6 +8108,72 @@ declare const acknowledgeMemo: <ThrowOnError extends boolean = false>(options: O
  */
 declare const ignoreMemo: <ThrowOnError extends boolean = false>(options: Options<IgnoreMemoData, ThrowOnError>) => RequestResult<IgnoreMemoResponses, IgnoreMemoErrors, ThrowOnError, "fields">;
 /**
+ * List workflows
+ *
+ * List workflows for a mission with optional status filter.
+ */
+declare const listWorkflows: <ThrowOnError extends boolean = false>(options: Options<ListWorkflowsData, ThrowOnError>) => RequestResult<ListWorkflowsResponses, ListWorkflowsErrors, ThrowOnError, "fields">;
+/**
+ * Create workflow with tasks
+ *
+ * Create a new workflow with optional initial tasks. Tasks are stored as memos.
+ */
+declare const createWorkflow: <ThrowOnError extends boolean = false>(options: Options<CreateWorkflowData, ThrowOnError>) => RequestResult<CreateWorkflowResponses, CreateWorkflowErrors, ThrowOnError, "fields">;
+/**
+ * Delete workflow
+ *
+ * Delete a workflow and all its task memos.
+ */
+declare const deleteWorkflow: <ThrowOnError extends boolean = false>(options: Options<DeleteWorkflowData, ThrowOnError>) => RequestResult<DeleteWorkflowResponses, DeleteWorkflowErrors, ThrowOnError, "fields">;
+/**
+ * Get workflow with tasks
+ *
+ * Get a workflow with all its tasks in strands-compatible format.
+ */
+declare const getWorkflow: <ThrowOnError extends boolean = false>(options: Options<GetWorkflowData, ThrowOnError>) => RequestResult<GetWorkflowResponses, GetWorkflowErrors, ThrowOnError, "fields">;
+/**
+ * Start workflow
+ *
+ * Mark workflow as running.
+ */
+declare const startWorkflow: <ThrowOnError extends boolean = false>(options: Options<StartWorkflowData, ThrowOnError>) => RequestResult<StartWorkflowResponses, StartWorkflowErrors, ThrowOnError, "fields">;
+/**
+ * List workflow tasks
+ *
+ * List all tasks for a workflow.
+ */
+declare const listTasks: <ThrowOnError extends boolean = false>(options: Options<ListTasksData, ThrowOnError>) => RequestResult<ListTasksResponses, ListTasksErrors, ThrowOnError, "fields">;
+/**
+ * Add task to workflow
+ *
+ * Add a new task to an existing workflow.
+ */
+declare const addTask: <ThrowOnError extends boolean = false>(options: Options<AddTaskData, ThrowOnError>) => RequestResult<AddTaskResponses, AddTaskErrors, ThrowOnError, "fields">;
+/**
+ * Bulk update tasks
+ *
+ * Update multiple task statuses in a single request for O(1) performance.
+ */
+declare const bulkUpdateTasks: <ThrowOnError extends boolean = false>(options: Options<BulkUpdateTasksData, ThrowOnError>) => RequestResult<BulkUpdateTasksResponses, BulkUpdateTasksErrors, ThrowOnError, "fields">;
+/**
+ * Delete task
+ *
+ * Delete a specific task from a workflow.
+ */
+declare const deleteTask: <ThrowOnError extends boolean = false>(options: Options<DeleteTaskData, ThrowOnError>) => RequestResult<DeleteTaskResponses, DeleteTaskErrors, ThrowOnError, "fields">;
+/**
+ * Get task
+ *
+ * Get a specific task from a workflow.
+ */
+declare const getTask: <ThrowOnError extends boolean = false>(options: Options<GetTaskData, ThrowOnError>) => RequestResult<GetTaskResponses, GetTaskErrors, ThrowOnError, "fields">;
+/**
+ * Update task
+ *
+ * Update a task's status, result, or error.
+ */
+declare const updateTask: <ThrowOnError extends boolean = false>(options: Options<UpdateTaskData, ThrowOnError>) => RequestResult<UpdateTaskResponses, UpdateTaskErrors, ThrowOnError, "fields">;
+/**
  * Start repository download
  *
  * Initiates an async download of a Git repository. Returns a job ID for status tracking. If the repository already exists (deduplicated), returns immediately with status='linked'.
@@ -7357,7 +8351,7 @@ declare const readContent: <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Write content
  *
- * Writes content to storage. Supports ETag for optimistic locking and ifNotExists for creation-only.
+ * Writes content to storage with robust verification. Supports ETag for optimistic locking, ifNotExists for creation-only, and wait_for_index/verify_access for synchronous KB indexing verification.
  */
 declare const writeContent: <ThrowOnError extends boolean = false>(options: Options<WriteContentData, ThrowOnError>) => RequestResult<WriteContentResponses, WriteContentErrors, ThrowOnError, "fields">;
 /**
@@ -10202,9 +11196,9 @@ type ContextReposResponse = z.infer<typeof ContextReposResponseSchema>;
  */
 declare const RepoStatusEnum: z.ZodEnum<{
     failed: "failed";
+    processing: "processing";
     queued: "queued";
     uploading: "uploading";
-    processing: "processing";
     vectorizing: "vectorizing";
     complete: "complete";
 }>;
@@ -10242,9 +11236,9 @@ declare const RepoDownloadDataSchema: z.ZodObject<{
     s3_path: z.ZodOptional<z.ZodString>;
     status: z.ZodEnum<{
         failed: "failed";
+        processing: "processing";
         queued: "queued";
         uploading: "uploading";
-        processing: "processing";
         vectorizing: "vectorizing";
         complete: "complete";
     }>;
@@ -10264,9 +11258,9 @@ declare const RepoDownloadResponseSchema: z.ZodObject<{
         s3_path: z.ZodOptional<z.ZodString>;
         status: z.ZodEnum<{
             failed: "failed";
+            processing: "processing";
             queued: "queued";
             uploading: "uploading";
-            processing: "processing";
             vectorizing: "vectorizing";
             complete: "complete";
         }>;
@@ -10294,9 +11288,9 @@ declare const RepoStatusDataSchema: z.ZodObject<{
     job_id: z.ZodString;
     status: z.ZodEnum<{
         failed: "failed";
+        processing: "processing";
         queued: "queued";
         uploading: "uploading";
-        processing: "processing";
         vectorizing: "vectorizing";
         complete: "complete";
     }>;
@@ -10317,9 +11311,9 @@ declare const RepoStatusResponseSchema: z.ZodObject<{
         job_id: z.ZodString;
         status: z.ZodEnum<{
             failed: "failed";
+            processing: "processing";
             queued: "queued";
             uploading: "uploading";
-            processing: "processing";
             vectorizing: "vectorizing";
             complete: "complete";
         }>;
@@ -10766,8 +11760,8 @@ declare const KBIngestDataSchema: z.ZodObject<{
     status: z.ZodOptional<z.ZodEnum<{
         failed: "failed";
         processing: "processing";
-        complete: "complete";
         pending: "pending";
+        complete: "complete";
     }>>;
 }, z.core.$strip>;
 type KBIngestData = z.infer<typeof KBIngestDataSchema>;
@@ -10783,8 +11777,8 @@ declare const KBIngestResponseSchema: z.ZodObject<{
         status: z.ZodOptional<z.ZodEnum<{
             failed: "failed";
             processing: "processing";
-            complete: "complete";
             pending: "pending";
+            complete: "complete";
         }>>;
     }, z.core.$strip>>;
     error: z.ZodOptional<z.ZodNullable<z.ZodObject<{
@@ -10866,8 +11860,8 @@ declare const IngestionJobSchema: z.ZodObject<{
     jobId: z.ZodString;
     status: z.ZodEnum<{
         failed: "failed";
-        queued: "queued";
         processing: "processing";
+        queued: "queued";
         complete: "complete";
     }>;
     progress: z.ZodOptional<z.ZodNumber>;
@@ -10887,8 +11881,8 @@ declare const IngestionJobResponseSchema: z.ZodObject<{
         jobId: z.ZodString;
         status: z.ZodEnum<{
             failed: "failed";
-            queued: "queued";
             processing: "processing";
+            queued: "queued";
             complete: "complete";
         }>;
         progress: z.ZodOptional<z.ZodNumber>;
@@ -11603,4 +12597,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkDeleteRequest, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetPrototypeChatData, type GetPrototypeChatResponses, type GetRepoCommitsData, type GetRepoCommitsResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetStoredVersionsData, type GetStoredVersionsResponses, type GetSyncStatusData, type GetSyncStatusResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkPrototypeChatData, type LinkPrototypeChatResponses, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListPrototypeChatsData, type ListPrototypeChatsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type PreviewPrototypeChatData, type PreviewPrototypeChatResponses, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type PrototypeChatGetResponse, type PrototypeChatLinkRequest, type PrototypeChatLinkResponse, type PrototypeChatListItem, type PrototypeChatListResponse, type PrototypeChatMessage, type PrototypeChatPreviewRequest, type PrototypeChatPreviewResponse, type PrototypeChatSyncAsyncRequest, type PrototypeChatSyncAsyncResponse, type PrototypeChatSyncRequest, type PrototypeChatSyncResponse, type PrototypeChatVersion, PrototypeNamespace, type PrototypePageInfo, type PrototypeStoredVersionsResponse, type PrototypeSyncCompleteMessage, type PrototypeSyncJobStatusResponse, type PrototypeSyncProgressMessage, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoCommitInfo, type RepoCommitStatusResponse, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type RepoSyncAllResponse, type RepoSyncResponse, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncAllReposData, type SyncAllReposResponses, type SyncEventMessage, type SyncPrototypeChatAsyncData, type SyncPrototypeChatAsyncResponses, type SyncPrototypeChatData, type SyncPrototypeChatResponses, type SyncRepoData, type SyncRepoResponses, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getPrototypeChat, getRepoCommits, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getStoredVersions, getSyncStatus, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, linkPrototypeChat, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listPrototypeChats, listSessions, listTables, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, previewPrototypeChat, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, syncAllRepos, syncPrototypeChat, syncPrototypeChatAsync, syncRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, writeContent };
+export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type AddTaskData, type AddTaskResponses, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkUpdateTasksData, type BulkUpdateTasksResponses, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateWorkflowData, type CreateWorkflowResponses, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DeleteTaskData, type DeleteTaskResponses, type DeleteWorkflowData, type DeleteWorkflowResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetPrototypeChatData, type GetPrototypeChatResponses, type GetRepoCommitsData, type GetRepoCommitsResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetStoredVersionsData, type GetStoredVersionsResponses, type GetSyncStatusData, type GetSyncStatusResponses, type GetTaskData, type GetTaskResponses, type GetWorkflowData, type GetWorkflowResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkPrototypeChatData, type LinkPrototypeChatResponses, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListPrototypeChatsData, type ListPrototypeChatsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListTasksData, type ListTasksResponses, type ListWorkflowsData, type ListWorkflowsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type Pagination, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type PreviewPrototypeChatData, type PreviewPrototypeChatResponses, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type PrototypeChatGetResponse, type PrototypeChatLinkRequest, type PrototypeChatLinkResponse, type PrototypeChatListItem, type PrototypeChatListResponse, type PrototypeChatMessage, type PrototypeChatPreviewRequest, type PrototypeChatPreviewResponse, type PrototypeChatSyncAsyncRequest, type PrototypeChatSyncAsyncResponse, type PrototypeChatSyncRequest, type PrototypeChatSyncResponse, type PrototypeChatVersion, PrototypeNamespace, type PrototypePageInfo, type PrototypeStoredVersionsResponse, type PrototypeSyncCompleteMessage, type PrototypeSyncJobStatusResponse, type PrototypeSyncProgressMessage, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoCommitInfo, type RepoCommitStatusResponse, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type RepoSyncAllResponse, type RepoSyncResponse, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StartWorkflowData, type StartWorkflowResponses, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncAllReposData, type SyncAllReposResponses, type SyncEventMessage, type SyncPrototypeChatAsyncData, type SyncPrototypeChatAsyncResponses, type SyncPrototypeChatData, type SyncPrototypeChatResponses, type SyncRepoData, type SyncRepoResponses, type TaskResponse, type TaskStatus, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UpdateTaskData, type UpdateTaskResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type Workflow, type WorkflowActionResponse, type WorkflowCreate, type WorkflowListResponse, type WorkflowResponse, type WorkflowStatus, type WorkflowTaskCreate, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, addTask, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkUpdateTasks, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPathService, createProject, createResponseSchema, createWebSocketService, createWorkflow, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, deleteTask, deleteWorkflow, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getPrototypeChat, getRepoCommits, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getStoredVersions, getSyncStatus, getTask, getWorkflow, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, linkPrototypeChat, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listPrototypeChats, listSessions, listTables, listTasks, listWorkflows, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, previewPrototypeChat, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, startWorkflow, syncAllRepos, syncPrototypeChat, syncPrototypeChatAsync, syncRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, updateTask, writeContent };

@@ -145,6 +145,21 @@ export {
   acknowledgeMemo,
   ignoreMemo,
 
+  // Workflow operations
+  listWorkflows,
+  createWorkflow,
+  getWorkflow,
+  deleteWorkflow,
+  startWorkflow,
+
+  // Workflow task operations
+  listTasks,
+  addTask,
+  getTask,
+  updateTask,
+  deleteTask,
+  bulkUpdateTasks,
+
   // Prototype operations
   listPrototypeChats,
   previewPrototypeChat,
@@ -167,7 +182,6 @@ export {
   lockContent,
   unlockContent,
   moveContent,
-
   type Options,
 } from './generated';
 
@@ -178,7 +192,6 @@ export type {
   QueryFilter,
   BulkReadRequest,
   BulkWriteRequest,
-  BulkDeleteRequest,
   DownloadRequest,
   KbQueryRequest,
   MissionCreateRequest,
@@ -391,6 +404,41 @@ export type {
   AcknowledgeMemoResponses,
   IgnoreMemoData,
   IgnoreMemoResponses,
+
+  // Workflow operations
+  Workflow,
+  WorkflowStatus,
+  WorkflowCreate,
+  WorkflowResponse,
+  WorkflowListResponse,
+  WorkflowActionResponse,
+  WorkflowTaskCreate,
+  ListWorkflowsData,
+  ListWorkflowsResponses,
+  CreateWorkflowData,
+  CreateWorkflowResponses,
+  GetWorkflowData,
+  GetWorkflowResponses,
+  DeleteWorkflowData,
+  DeleteWorkflowResponses,
+  StartWorkflowData,
+  StartWorkflowResponses,
+
+  // Workflow task operations
+  TaskResponse,
+  TaskStatus,
+  ListTasksData,
+  ListTasksResponses,
+  AddTaskData,
+  AddTaskResponses,
+  GetTaskData,
+  GetTaskResponses,
+  UpdateTaskData,
+  UpdateTaskResponses,
+  DeleteTaskData,
+  DeleteTaskResponses,
+  BulkUpdateTasksData,
+  BulkUpdateTasksResponses,
 
   // Prototype operations
   PrototypeChatListResponse,
