@@ -9042,6 +9042,22 @@ interface OCXPClientOptions {
   /** Static token or async function to get token */
   token?: string | (() => Promise<string>);
 }
+/**
+ * Standard pagination options for all list methods
+ * Supports both offset-based and cursor-based pagination
+ */
+interface ListOptions {
+  /** Items per page (default: 50, max: 100) */
+  limit?: number;
+  /** Skip first N items (for offset pagination) */
+  offset?: number;
+  /** Cursor token (for cursor pagination, alternative to offset) */
+  cursor?: string;
+  /** Sort field */
+  orderBy?: string;
+  /** Sort direction: asc | desc */
+  orderDir?: 'asc' | 'desc';
+}
 type ContentTypeValue =
   | 'mission'
   | 'project'
@@ -9279,13 +9295,24 @@ declare class OCXPClient {
    */
   kbRag(query: string, sessionId?: string): Promise<KbRagResponse>;
   /**
-   * List all missions in workspace
+   * List all missions in workspace with pagination support
+   * @param options - Filtering, pagination, and sorting options
+   * @returns Paginated mission list with total count
    */
-  listMissions(options?: {
-    projectId?: string;
-    status?: string;
-    limit?: number;
-  }): Promise<MissionListResponse>;
+  listMissions(
+    options?: ListOptions & {
+      projectId?: string;
+      status?: string;
+      missionIds?: string[];
+      includeMetadata?: boolean;
+    }
+  ): Promise<
+    MissionListResponse & {
+      total?: number;
+      offset?: number;
+      hasMore?: boolean;
+    }
+  >;
   /**
    * Create a new mission with auto-generated UUID
    */
@@ -9798,14 +9825,24 @@ declare class MissionNamespace {
   private client;
   constructor(client: OCXPClient);
   /**
-   * List missions with optional filtering
+   * List missions with optional filtering and pagination
    * @example ocxp.mission.list({ status: 'active', limit: 10 })
+   * @example ocxp.mission.list({ limit: 20, offset: 40, orderBy: 'created_at', orderDir: 'desc' })
    */
-  list(options?: {
-    projectId?: string;
-    status?: string;
-    limit?: number;
-  }): Promise<MissionListResponse>;
+  list(
+    options?: ListOptions & {
+      projectId?: string;
+      status?: string;
+      missionIds?: string[];
+      includeMetadata?: boolean;
+    }
+  ): Promise<
+    MissionListResponse & {
+      total?: number;
+      offset?: number;
+      hasMore?: boolean;
+    }
+  >;
   /**
    * Get a mission by ID
    * @example ocxp.mission.get('uuid')
@@ -10661,7 +10698,7 @@ declare const OCXPResponseSchema: z.ZodObject<
 >;
 type OCXPResponse = z.infer<typeof OCXPResponseSchema>;
 /**
- * Pagination schema for list responses
+ * Pagination schema for list responses (cursor-based)
  */
 declare const PaginationSchema: z.ZodObject<
   {
@@ -10672,6 +10709,54 @@ declare const PaginationSchema: z.ZodObject<
   z.core.$strip
 >;
 type Pagination = z.infer<typeof PaginationSchema>;
+/**
+ * Standard pagination query parameters for all list endpoints
+ * Supports both cursor-based AND offset-based pagination
+ */
+declare const PaginationParamsSchema: z.ZodObject<
+  {
+    limit: z.ZodDefault<z.ZodNumber>;
+    offset: z.ZodDefault<z.ZodNumber>;
+    cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    orderBy: z.ZodOptional<z.ZodString>;
+    orderDir: z.ZodDefault<
+      z.ZodEnum<{
+        asc: 'asc';
+        desc: 'desc';
+      }>
+    >;
+  },
+  z.core.$strip
+>;
+type PaginationParams = z.infer<typeof PaginationParamsSchema>;
+/**
+ * Standard paginated response structure for all list endpoints
+ * Used to create typed paginated responses
+ */
+declare function createPaginatedResponseSchema<T extends z.ZodTypeAny>(
+  itemSchema: T
+): z.ZodObject<
+  {
+    items: z.ZodArray<T>;
+    total: z.ZodNumber;
+    limit: z.ZodNumber;
+    offset: z.ZodNumber;
+    cursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    hasMore: z.ZodBoolean;
+  },
+  z.core.$strip
+>;
+/**
+ * Generic paginated response type
+ */
+interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+  cursor?: string | null;
+  hasMore: boolean;
+}
 /**
  * Content type enum - the 8 valid content types
  */
@@ -14888,6 +14973,7 @@ export {
   type ListMemosData,
   type ListMemosResponse,
   type ListMemosResponses,
+  type ListOptions,
   type ListProjectsData,
   ListProjectsDataSchema,
   type ListProjectsResponse,
@@ -14948,7 +15034,10 @@ export {
   OCXPTimeoutError,
   OCXPValidationError,
   type Options,
+  type PaginatedResponse,
   type Pagination,
+  type PaginationParams,
+  PaginationParamsSchema,
   PaginationSchema,
   type ParsedPath,
   type PathEntry,
@@ -15200,6 +15289,7 @@ export {
   createDatabase,
   createMemo,
   createOCXPClient,
+  createPaginatedResponseSchema,
   createPathService,
   createProject,
   createResponseSchema,

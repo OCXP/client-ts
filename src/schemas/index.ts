@@ -10,6 +10,8 @@ export {
   ErrorResponseSchema,
   OCXPResponseSchema,
   PaginationSchema,
+  PaginationParamsSchema,
+  createPaginatedResponseSchema,
   ContentTypeSchema,
   createResponseSchema,
 } from './common';
@@ -18,6 +20,8 @@ export type {
   ErrorResponse,
   OCXPResponse,
   Pagination,
+  PaginationParams,
+  PaginatedResponse,
   ContentType,
 } from './common';
 

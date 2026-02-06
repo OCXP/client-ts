@@ -1831,17 +1831,26 @@ var OCXPClient = class {
   }
   // ============== Mission Operations ==============
   /**
-   * List all missions in workspace
+   * List all missions in workspace with pagination support
+   * @param options - Filtering, pagination, and sorting options
+   * @returns Paginated mission list with total count
    */
   async listMissions(options) {
     const headers = await this.getHeaders();
+    const query = {
+      project_id: options?.projectId,
+      status: options?.status,
+      limit: options?.limit,
+      mission_ids: options?.missionIds,
+      include_metadata: options?.includeMetadata
+    };
+    if (options?.offset !== void 0) query.offset = options.offset;
+    if (options?.orderBy) query.order_by = options.orderBy;
+    if (options?.orderDir) query.order_dir = options.orderDir;
+    if (options?.cursor) query.cursor = options.cursor;
     const response = await listMissions({
       client: this.client,
-      query: {
-        project_id: options?.projectId,
-        status: options?.status,
-        limit: options?.limit
-      },
+      query,
       headers
     });
     return extractData(response);
@@ -2894,8 +2903,9 @@ var MissionNamespace = class {
     this.client = client2;
   }
   /**
-   * List missions with optional filtering
+   * List missions with optional filtering and pagination
    * @example ocxp.mission.list({ status: 'active', limit: 10 })
+   * @example ocxp.mission.list({ limit: 20, offset: 40, orderBy: 'created_at', orderDir: 'desc' })
    */
   async list(options) {
     return this.client.listMissions(options);
@@ -3874,6 +3884,28 @@ var PaginationSchema = zod.z.object({
   hasMore: zod.z.boolean(),
   total: zod.z.number()
 });
+var PaginationParamsSchema = zod.z.object({
+  /** Items per page (default: 50, max: 100) */
+  limit: zod.z.number().min(1).max(100).default(50),
+  /** Skip first N items (for offset pagination) */
+  offset: zod.z.number().min(0).default(0),
+  /** Cursor token (for cursor pagination, alternative to offset) */
+  cursor: zod.z.string().nullable().optional(),
+  /** Sort field */
+  orderBy: zod.z.string().optional(),
+  /** Sort direction: asc | desc */
+  orderDir: zod.z.enum(["asc", "desc"]).default("desc")
+});
+function createPaginatedResponseSchema(itemSchema) {
+  return zod.z.object({
+    items: zod.z.array(itemSchema),
+    total: zod.z.number(),
+    limit: zod.z.number(),
+    offset: zod.z.number(),
+    cursor: zod.z.string().nullable().optional(),
+    hasMore: zod.z.boolean()
+  });
+}
 var ContentTypeSchema = zod.z.enum([
   "mission",
   "project",
@@ -4531,6 +4563,7 @@ exports.OCXPRateLimitError = OCXPRateLimitError;
 exports.OCXPResponseSchema = OCXPResponseSchema;
 exports.OCXPTimeoutError = OCXPTimeoutError;
 exports.OCXPValidationError = OCXPValidationError;
+exports.PaginationParamsSchema = PaginationParamsSchema;
 exports.PaginationSchema = PaginationSchema;
 exports.PresignedUrlDataSchema = PresignedUrlDataSchema;
 exports.PresignedUrlResponseSchema = PresignedUrlResponseSchema;
@@ -4606,6 +4639,7 @@ exports.createConfig = createConfig;
 exports.createDatabase = createDatabase;
 exports.createMemo = createMemo;
 exports.createOCXPClient = createOCXPClient;
+exports.createPaginatedResponseSchema = createPaginatedResponseSchema;
 exports.createPathService = createPathService;
 exports.createProject = createProject;
 exports.createResponseSchema = createResponseSchema;

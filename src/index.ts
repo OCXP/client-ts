@@ -14,6 +14,8 @@ export {
   type WriteResult,
   type DeleteResult,
   type ContentTypesResult,
+  // Pagination support
+  type ListOptions,
   // Repo sync types
   type RepoSyncResponse,
   type RepoSyncAllResponse,

@@ -13,6 +13,7 @@ import type {
   MissionCreate,
   MissionResponse,
   MissionListResponse,
+  ListMissionsData,
   RegenerateMissionResponse,
   ProjectListResponse,
   ProjectResponse,
@@ -131,6 +132,23 @@ export interface OCXPClientOptions {
   workspace?: string;
   /** Static token or async function to get token */
   token?: string | (() => Promise<string>);
+}
+
+/**
+ * Standard pagination options for all list methods
+ * Supports both offset-based and cursor-based pagination
+ */
+export interface ListOptions {
+  /** Items per page (default: 50, max: 100) */
+  limit?: number;
+  /** Skip first N items (for offset pagination) */
+  offset?: number;
+  /** Cursor token (for cursor pagination, alternative to offset) */
+  cursor?: string;
+  /** Sort field */
+  orderBy?: string;
+  /** Sort direction: asc | desc */
+  orderDir?: 'asc' | 'desc';
 }
 
 export type ContentTypeValue =
@@ -507,21 +525,42 @@ export class OCXPClient {
   // ============== Mission Operations ==============
 
   /**
-   * List all missions in workspace
+   * List all missions in workspace with pagination support
+   * @param options - Filtering, pagination, and sorting options
+   * @returns Paginated mission list with total count
    */
-  async listMissions(options?: {
-    projectId?: string;
-    status?: string;
-    limit?: number;
-  }): Promise<MissionListResponse> {
+  async listMissions(
+    options?: ListOptions & {
+      projectId?: string;
+      status?: string;
+      missionIds?: string[];
+      includeMetadata?: boolean;
+    }
+  ): Promise<MissionListResponse & { total?: number; offset?: number; hasMore?: boolean }> {
     const headers = await this.getHeaders();
+    // Build query with current params - pagination params (offset, order_by, order_dir, cursor)
+    // will be supported once backend API is updated
+    const query: ListMissionsData['query'] & {
+      offset?: number;
+      order_by?: string;
+      order_dir?: string;
+      cursor?: string;
+    } = {
+      project_id: options?.projectId,
+      status: options?.status,
+      limit: options?.limit,
+      mission_ids: options?.missionIds,
+      include_metadata: options?.includeMetadata,
+    };
+    // Add pagination params for forward compatibility
+    if (options?.offset !== undefined) query.offset = options.offset;
+    if (options?.orderBy) query.order_by = options.orderBy;
+    if (options?.orderDir) query.order_dir = options.orderDir;
+    if (options?.cursor) query.cursor = options.cursor;
+
     const response = await sdk.listMissions({
       client: this.client,
-      query: {
-        project_id: options?.projectId,
-        status: options?.status,
-        limit: options?.limit,
-      },
+      query: query as ListMissionsData['query'],
       headers,
     });
     return extractData(response);
@@ -1743,14 +1782,18 @@ export class MissionNamespace {
   constructor(private client: OCXPClient) {}
 
   /**
-   * List missions with optional filtering
+   * List missions with optional filtering and pagination
    * @example ocxp.mission.list({ status: 'active', limit: 10 })
+   * @example ocxp.mission.list({ limit: 20, offset: 40, orderBy: 'created_at', orderDir: 'desc' })
    */
-  async list(options?: {
-    projectId?: string;
-    status?: string;
-    limit?: number;
-  }): Promise<MissionListResponse> {
+  async list(
+    options?: ListOptions & {
+      projectId?: string;
+      status?: string;
+      missionIds?: string[];
+      includeMetadata?: boolean;
+    }
+  ): Promise<MissionListResponse & { total?: number; offset?: number; hasMore?: boolean }> {
     return this.client.listMissions(options);
   }
 

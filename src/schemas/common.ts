@@ -44,7 +44,7 @@ export const OCXPResponseSchema = z.object({
 export type OCXPResponse = z.infer<typeof OCXPResponseSchema>;
 
 /**
- * Pagination schema for list responses
+ * Pagination schema for list responses (cursor-based)
  */
 export const PaginationSchema = z.object({
   cursor: z.string().nullable().optional(),
@@ -53,6 +53,52 @@ export const PaginationSchema = z.object({
 });
 
 export type Pagination = z.infer<typeof PaginationSchema>;
+
+/**
+ * Standard pagination query parameters for all list endpoints
+ * Supports both cursor-based AND offset-based pagination
+ */
+export const PaginationParamsSchema = z.object({
+  /** Items per page (default: 50, max: 100) */
+  limit: z.number().min(1).max(100).default(50),
+  /** Skip first N items (for offset pagination) */
+  offset: z.number().min(0).default(0),
+  /** Cursor token (for cursor pagination, alternative to offset) */
+  cursor: z.string().nullable().optional(),
+  /** Sort field */
+  orderBy: z.string().optional(),
+  /** Sort direction: asc | desc */
+  orderDir: z.enum(['asc', 'desc']).default('desc'),
+});
+
+export type PaginationParams = z.infer<typeof PaginationParamsSchema>;
+
+/**
+ * Standard paginated response structure for all list endpoints
+ * Used to create typed paginated responses
+ */
+export function createPaginatedResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
+  return z.object({
+    items: z.array(itemSchema),
+    total: z.number(),
+    limit: z.number(),
+    offset: z.number(),
+    cursor: z.string().nullable().optional(),
+    hasMore: z.boolean(),
+  });
+}
+
+/**
+ * Generic paginated response type
+ */
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+  cursor?: string | null;
+  hasMore: boolean;
+}
 
 /**
  * Content type enum - the 8 valid content types
