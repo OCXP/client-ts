@@ -1073,7 +1073,7 @@ type DatabaseCreate = {
 /**
  * DatabaseListResponse
  *
- * Response for GET /ocxp/database.
+ * Response for GET /ocxp/database with offset-based pagination.
  */
 type DatabaseListResponse = {
     /**
@@ -1082,8 +1082,34 @@ type DatabaseListResponse = {
     databases: Array<DatabaseConfigResponse>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * DatabaseSampleResponse
@@ -1599,7 +1625,7 @@ type MemoCategory = 'agent_error' | 'agent_warning' | 'agent_hitl' | 'agent_comm
 /**
  * MemoListResponse
  *
- * Response for memo list.
+ * Response for GET /ocxp/memos with offset-based pagination.
  */
 type MemoListResponse = {
     /**
@@ -1608,8 +1634,34 @@ type MemoListResponse = {
     memos: Array<Memo>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * MemoResolveRequest
@@ -1721,7 +1773,7 @@ type MissionCreateResponse = {
 /**
  * MissionListResponse
  *
- * Response for GET /ocxp/mission.
+ * Response for GET /ocxp/mission with offset-based pagination.
  */
 type MissionListResponse = {
     /**
@@ -1730,8 +1782,34 @@ type MissionListResponse = {
     missions: Array<MissionResponse>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * MissionResponse
@@ -1771,6 +1849,12 @@ type MissionResponse = {
      * Project UUID this mission belongs to
      */
     project_id?: string | null;
+    /**
+     * Priority
+     *
+     * Priority: P0, P1, P2, P3, High, Medium, Low
+     */
+    priority?: string | null;
     /**
      * Status
      *
@@ -1914,7 +1998,7 @@ type ProjectCreate = {
 /**
  * ProjectListResponse
  *
- * Response for GET /ocxp/project.
+ * Response for GET /ocxp/project with offset-based pagination.
  */
 type ProjectListResponse = {
     /**
@@ -1923,8 +2007,34 @@ type ProjectListResponse = {
     projects: Array<ProjectResponse>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * ProjectResponse
@@ -1978,6 +2088,56 @@ type ProjectResponse = {
      * Created By
      */
     created_by?: string | null;
+    /**
+     * Pre-computed counts for project overview
+     */
+    stats?: ProjectStats | null;
+};
+/**
+ * ProjectStats
+ *
+ * Pre-computed counts for project overview.
+ *
+ * Provides immediate access to counts without extra API calls.
+ * Computed server-side when project is fetched.
+ */
+type ProjectStats = {
+    /**
+     * Mission Count
+     *
+     * Total missions linked to project
+     */
+    mission_count?: number;
+    /**
+     * Active Mission Count
+     *
+     * Non-archived missions
+     */
+    active_mission_count?: number;
+    /**
+     * Archived Mission Count
+     *
+     * Archived missions
+     */
+    archived_mission_count?: number;
+    /**
+     * Repo Count
+     *
+     * Linked repositories
+     */
+    repo_count?: number;
+    /**
+     * Memo Count
+     *
+     * Project memos (open status)
+     */
+    memo_count?: number;
+    /**
+     * Sop Count
+     *
+     * SOPs in project context
+     */
+    sop_count?: number;
 };
 /**
  * ProjectUpdate
@@ -3141,7 +3301,7 @@ type RepoInfo = {
 /**
  * RepoListResponse
  *
- * Response for GET /ocxp/repo/list.
+ * Response for GET /ocxp/repo/list with offset-based pagination.
  */
 type RepoListResponse = {
     /**
@@ -3150,8 +3310,34 @@ type RepoListResponse = {
     repos: Array<RepoInfo>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * RepoStatusResponse
@@ -3335,7 +3521,7 @@ type SessionForkResponse = {
 /**
  * SessionListResponse
  *
- * Response for GET /ocxp/session.
+ * Response for GET /ocxp/session with offset-based pagination.
  */
 type SessionListResponse = {
     /**
@@ -3344,8 +3530,34 @@ type SessionListResponse = {
     sessions: Array<SessionResponse>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * SessionMessagesResponse
@@ -3768,7 +3980,7 @@ type WorkflowCreate = {
 /**
  * WorkflowListResponse
  *
- * Response for workflow list.
+ * Response for GET /ocxp/workflow with offset-based pagination.
  */
 type WorkflowListResponse = {
     /**
@@ -3777,8 +3989,34 @@ type WorkflowListResponse = {
     workflows: Array<Workflow>;
     /**
      * Count
+     *
+     * Number of items in this response
      */
     count: number;
+    /**
+     * Total
+     *
+     * Total number of items matching query (across all pages)
+     */
+    total?: number | null;
+    /**
+     * Offset
+     *
+     * Offset used for this query
+     */
+    offset?: number | null;
+    /**
+     * Limit
+     *
+     * Limit used for this query
+     */
+    limit?: number | null;
+    /**
+     * Has More
+     *
+     * Whether there are more items after this page
+     */
+    has_more?: boolean;
 };
 /**
  * WorkflowResponse
@@ -3843,7 +4081,7 @@ type WorkflowResponse = {
  *
  * Status of a workflow.
  */
-type WorkflowStatus = 'pending' | 'running' | 'paused' | 'completed' | 'failed';
+type WorkflowStatus = 'pending' | 'running' | 'paused' | 'completed' | 'failed' | 'archived';
 /**
  * WorkflowTaskCreate
  *
@@ -4381,11 +4619,29 @@ type ListSessionsData = {
          */
         limit?: number;
         /**
+         * Offset
+         *
+         * Number of sessions to skip (for pagination)
+         */
+        offset?: number;
+        /**
          * Status
          *
          * Filter by status: active, archived
          */
         status?: string;
+        /**
+         * Order By
+         *
+         * Field to order by (created_at, updated_at)
+         */
+        order_by?: string | null;
+        /**
+         * Order Dir
+         *
+         * Sort direction (asc, desc)
+         */
+        order_dir?: string;
     };
     url: '/ocxp/session';
 };
@@ -4584,6 +4840,24 @@ type ListProjectsData = {
          * Maximum number of projects to return
          */
         limit?: number;
+        /**
+         * Offset
+         *
+         * Number of projects to skip (for pagination)
+         */
+        offset?: number;
+        /**
+         * Order By
+         *
+         * Field to order by (created_at, updated_at)
+         */
+        order_by?: string | null;
+        /**
+         * Order Dir
+         *
+         * Sort direction (asc, desc)
+         */
+        order_dir?: string;
     };
     url: '/ocxp/project';
 };
@@ -5298,9 +5572,27 @@ type ListMemosData = {
         /**
          * Limit
          *
-         * Maximum results
+         * Maximum results per page
          */
         limit?: number;
+        /**
+         * Offset
+         *
+         * Number of items to skip (for pagination)
+         */
+        offset?: number;
+        /**
+         * Order By
+         *
+         * Field to sort by (created_at, updated_at, highest_severity)
+         */
+        order_by?: string;
+        /**
+         * Order Dir
+         *
+         * Sort direction (asc, desc)
+         */
+        order_dir?: 'asc' | 'desc';
     };
     url: '/ocxp/memo';
 };
@@ -5620,9 +5912,27 @@ type ListWorkflowsData = {
         /**
          * Limit
          *
-         * Maximum results
+         * Maximum results per page
          */
         limit?: number;
+        /**
+         * Offset
+         *
+         * Number of items to skip
+         */
+        offset?: number;
+        /**
+         * Order By
+         *
+         * Field to sort by (created_at, updated_at, name)
+         */
+        order_by?: string;
+        /**
+         * Order Dir
+         *
+         * Sort direction (asc, desc)
+         */
+        order_dir?: string;
     };
     url: '/ocxp/workflow';
 };
@@ -6121,7 +6431,32 @@ type ListDownloadedReposData = {
         'X-Workspace'?: string;
     };
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Limit
+         *
+         * Maximum number of repos to return
+         */
+        limit?: number;
+        /**
+         * Offset
+         *
+         * Number of repos to skip (for pagination)
+         */
+        offset?: number;
+        /**
+         * Order By
+         *
+         * Field to order by (created_at, last_synced)
+         */
+        order_by?: string | null;
+        /**
+         * Order Dir
+         *
+         * Sort direction (asc, desc)
+         */
+        order_dir?: string;
+    };
     url: '/ocxp/repo/list';
 };
 type ListDownloadedReposErrors = {
@@ -6391,6 +6726,24 @@ type ListDatabasesData = {
          * Maximum number of databases to return
          */
         limit?: number;
+        /**
+         * Offset
+         *
+         * Number of databases to skip (for pagination)
+         */
+        offset?: number;
+        /**
+         * Order By
+         *
+         * Field to order by (created_at, updated_at)
+         */
+        order_by?: string | null;
+        /**
+         * Order Dir
+         *
+         * Sort direction (asc, desc)
+         */
+        order_dir?: string;
     };
     url: '/ocxp/database';
 };
@@ -7912,7 +8265,7 @@ declare const getSyncStatus: <ThrowOnError extends boolean = false>(options: Opt
 /**
  * List all sessions
  *
- * Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Ordered by most recently updated.
+ * Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Supports offset-based pagination.
  */
 declare const listSessions: <ThrowOnError extends boolean = false>(options?: Options<ListSessionsData, ThrowOnError>) => RequestResult<ListSessionsResponses, ListSessionsErrors, ThrowOnError, "fields">;
 /**
@@ -7942,7 +8295,7 @@ declare const archiveSession: <ThrowOnError extends boolean = false>(options: Op
 /**
  * List all projects
  *
- * Returns all projects in the workspace with their linked repos and missions.
+ * Returns all projects in the workspace with their linked repos and missions. Supports offset-based pagination.
  */
 declare const listProjects: <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>) => RequestResult<ListProjectsResponses, ListProjectsErrors, ThrowOnError, "fields">;
 /**
@@ -8062,7 +8415,7 @@ declare const ragKnowledgeBase: <ThrowOnError extends boolean = false>(options: 
 /**
  * List memos
  *
- * List memos for the workspace with optional filters.
+ * List memos for the workspace with optional filters and pagination.
  */
 declare const listMemos: <ThrowOnError extends boolean = false>(options?: Options<ListMemosData, ThrowOnError>) => RequestResult<ListMemosResponses, ListMemosErrors, ThrowOnError, "fields">;
 /**
@@ -8110,7 +8463,7 @@ declare const ignoreMemo: <ThrowOnError extends boolean = false>(options: Option
 /**
  * List workflows
  *
- * List workflows for a mission with optional status filter.
+ * List workflows for a mission with optional status filter and pagination.
  */
 declare const listWorkflows: <ThrowOnError extends boolean = false>(options: Options<ListWorkflowsData, ThrowOnError>) => RequestResult<ListWorkflowsResponses, ListWorkflowsErrors, ThrowOnError, "fields">;
 /**
@@ -8188,7 +8541,7 @@ declare const getRepoDownloadStatus: <ThrowOnError extends boolean = false>(opti
 /**
  * List downloaded repositories
  *
- * Returns all repositories that have been downloaded for the workspace.
+ * Returns repositories that have been downloaded for the workspace with pagination support.
  */
 declare const listDownloadedRepos: <ThrowOnError extends boolean = false>(options?: Options<ListDownloadedReposData, ThrowOnError>) => RequestResult<ListDownloadedReposResponses, ListDownloadedReposErrors, ThrowOnError, "fields">;
 /**
@@ -8243,7 +8596,7 @@ declare const githubGetContents: <ThrowOnError extends boolean = false>(options:
 /**
  * List all database configurations
  *
- * Returns all database configurations in the workspace.
+ * Returns all database configurations in the workspace. Supports offset-based pagination.
  */
 declare const listDatabases: <ThrowOnError extends boolean = false>(options?: Options<ListDatabasesData, ThrowOnError>) => RequestResult<ListDatabasesResponses, ListDatabasesErrors, ThrowOnError, "fields">;
 /**
@@ -8849,11 +9202,7 @@ declare class OCXPClient {
         status?: string;
         missionIds?: string[];
         includeMetadata?: boolean;
-    }): Promise<MissionListResponse & {
-        total?: number;
-        offset?: number;
-        hasMore?: boolean;
-    }>;
+    }): Promise<MissionListResponse>;
     /**
      * Create a new mission with auto-generated UUID
      */
@@ -9304,11 +9653,7 @@ declare class MissionNamespace {
         status?: string;
         missionIds?: string[];
         includeMetadata?: boolean;
-    }): Promise<MissionListResponse & {
-        total?: number;
-        offset?: number;
-        hasMore?: boolean;
-    }>;
+    }): Promise<MissionListResponse>;
     /**
      * Get a mission by ID
      * @example ocxp.mission.get('uuid')
@@ -10161,9 +10506,9 @@ interface PaginatedResponse<T> {
  * Content type enum - the 8 valid content types
  */
 declare const ContentTypeSchema: z.ZodEnum<{
+    mission: "mission";
     repo: "repo";
     project: "project";
-    mission: "mission";
     context: "context";
     sop: "sop";
     artifact: "artifact";

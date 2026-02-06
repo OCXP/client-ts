@@ -536,31 +536,22 @@ export class OCXPClient {
       missionIds?: string[];
       includeMetadata?: boolean;
     }
-  ): Promise<MissionListResponse & { total?: number; offset?: number; hasMore?: boolean }> {
+  ): Promise<MissionListResponse> {
     const headers = await this.getHeaders();
-    // Build query with current params - pagination params (offset, order_by, order_dir, cursor)
-    // will be supported once backend API is updated
-    const query: ListMissionsData['query'] & {
-      offset?: number;
-      order_by?: string;
-      order_dir?: string;
-      cursor?: string;
-    } = {
+    const query: ListMissionsData['query'] = {
       project_id: options?.projectId,
       status: options?.status,
       limit: options?.limit,
+      offset: options?.offset,
+      order_by: options?.orderBy,
+      order_dir: options?.orderDir,
       mission_ids: options?.missionIds,
       include_metadata: options?.includeMetadata,
     };
-    // Add pagination params for forward compatibility
-    if (options?.offset !== undefined) query.offset = options.offset;
-    if (options?.orderBy) query.order_by = options.orderBy;
-    if (options?.orderDir) query.order_dir = options.orderDir;
-    if (options?.cursor) query.cursor = options.cursor;
 
     const response = await sdk.listMissions({
       client: this.client,
-      query: query as ListMissionsData['query'],
+      query,
       headers,
     });
     return extractData(response);
@@ -1793,7 +1784,7 @@ export class MissionNamespace {
       missionIds?: string[];
       includeMetadata?: boolean;
     }
-  ): Promise<MissionListResponse & { total?: number; offset?: number; hasMore?: boolean }> {
+  ): Promise<MissionListResponse> {
     return this.client.listMissions(options);
   }
 

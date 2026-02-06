@@ -29,12 +29,18 @@ import type {
   AddTaskData,
   AddTaskErrors,
   AddTaskResponses,
+  AgentHealthData,
+  AgentHealthErrors,
+  AgentHealthResponses,
   AnalyseVisualContentData,
   AnalyseVisualContentErrors,
   AnalyseVisualContentResponses,
   ArchiveSessionData,
   ArchiveSessionErrors,
   ArchiveSessionResponses,
+  ArchiveWorkflowsForMissionData,
+  ArchiveWorkflowsForMissionErrors,
+  ArchiveWorkflowsForMissionResponses,
   BatchResolveOcxpUrisData,
   BatchResolveOcxpUrisErrors,
   BatchResolveOcxpUrisResponses,
@@ -258,6 +264,9 @@ import type {
   IngestDocumentsData,
   IngestDocumentsErrors,
   IngestDocumentsResponses,
+  InvokeAgentData,
+  InvokeAgentErrors,
+  InvokeAgentResponses,
   LinkPrototypeChatData,
   LinkPrototypeChatErrors,
   LinkPrototypeChatResponses,
@@ -1561,7 +1570,7 @@ export const getSyncStatus = <ThrowOnError extends boolean = false>(
 /**
  * List all sessions
  *
- * Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Ordered by most recently updated.
+ * Returns sessions for the workspace filtered by status. Uses AgentCore Memory when available for fast retrieval. Supports offset-based pagination.
  */
 export const listSessions = <ThrowOnError extends boolean = false>(
   options?: Options<ListSessionsData, ThrowOnError>
@@ -1751,7 +1760,7 @@ export const promoteCheckpointToLongterm = <ThrowOnError extends boolean = false
 /**
  * List all projects
  *
- * Returns all projects in the workspace with their linked repos and missions.
+ * Returns all projects in the workspace with their linked repos and missions. Supports offset-based pagination.
  */
 export const listProjects = <ThrowOnError extends boolean = false>(
   options?: Options<ListProjectsData, ThrowOnError>
@@ -1783,7 +1792,7 @@ export const createProject = <ThrowOnError extends boolean = false>(
 /**
  * List all projects (alias)
  *
- * Alias for GET /ocxp/project. Returns all projects in the workspace.
+ * Alias for GET /ocxp/project. Returns all projects in the workspace. Supports offset-based pagination.
  */
 export const listProjectsAlias = <ThrowOnError extends boolean = false>(
   options?: Options<ListProjectsAliasData, ThrowOnError>
@@ -2142,7 +2151,7 @@ export const testCredentials = <ThrowOnError extends boolean = false>(
 /**
  * List all missions
  *
- * Returns all missions in the workspace, optionally filtered by project or mission IDs.
+ * Returns all missions in the workspace, optionally filtered by project or mission IDs. Supports offset-based pagination.
  */
 export const listMissions = <ThrowOnError extends boolean = false>(
   options?: Options<ListMissionsData, ThrowOnError>
@@ -2174,7 +2183,7 @@ export const createMission = <ThrowOnError extends boolean = false>(
 /**
  * List all missions (alias)
  *
- * Alias for GET /ocxp/mission. Returns all missions in the workspace.
+ * Alias for GET /ocxp/mission. Returns all missions in the workspace with pagination support.
  */
 export const listMissionsAlias = <ThrowOnError extends boolean = false>(
   options?: Options<ListMissionsAliasData, ThrowOnError>
@@ -2442,7 +2451,7 @@ export const ragKnowledgeBase = <ThrowOnError extends boolean = false>(
 /**
  * List memos
  *
- * List memos for the workspace with optional filters.
+ * List memos for the workspace with optional filters and pagination.
  */
 export const listMemos = <ThrowOnError extends boolean = false>(
   options?: Options<ListMemosData, ThrowOnError>
@@ -2695,7 +2704,7 @@ export const ignoreMemo = <ThrowOnError extends boolean = false>(
 /**
  * List workflows
  *
- * List workflows for a mission with optional status filter.
+ * List workflows for a mission with optional status filter and pagination.
  */
 export const listWorkflows = <ThrowOnError extends boolean = false>(
   options: Options<ListWorkflowsData, ThrowOnError>
@@ -2722,6 +2731,24 @@ export const createWorkflow = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Archive all workflows for a mission
+ *
+ * Archive all workflows for a mission before regeneration.
+ */
+export const archiveWorkflowsForMission = <ThrowOnError extends boolean = false>(
+  options: Options<ArchiveWorkflowsForMissionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    ArchiveWorkflowsForMissionResponses,
+    ArchiveWorkflowsForMissionErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/workflow/mission/{mission_id}/archive-all',
+    ...options,
   });
 
 /**
@@ -2863,6 +2890,48 @@ export const updateTask = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Invoke AgentCore through OCXP
+ *
+ * Routes requests to AgentCore with mission lifecycle management.
+ *
+ * For `process_mission` action:
+ * 1. Creates mission record in DB if mission_id not provided
+ * 2. Associates mission with project if project_id provided
+ * 3. Forwards request to AgentCore
+ * 4. Streams SSE response back to client
+ *
+ * For other actions (retrigger_task, chat):
+ * 1. Forwards directly to AgentCore
+ * 2. Streams SSE response back
+ */
+export const invokeAgent = <ThrowOnError extends boolean = false>(
+  options: Options<InvokeAgentData, ThrowOnError>
+) =>
+  (options.client ?? client).post<InvokeAgentResponses, InvokeAgentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/agent/invoke',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Check agent proxy health
+ *
+ * Check if OCXP agent proxy and AgentCore are healthy.
+ */
+export const agentHealth = <ThrowOnError extends boolean = false>(
+  options?: Options<AgentHealthData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<AgentHealthResponses, AgentHealthErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/agent/health',
+    ...options,
+  });
+
+/**
  * Start repository download
  *
  * Initiates an async download of a Git repository. Returns a job ID for status tracking. If the repository already exists (deduplicated), returns immediately with status='linked'.
@@ -2905,7 +2974,7 @@ export const getRepoDownloadStatus = <ThrowOnError extends boolean = false>(
 /**
  * List downloaded repositories
  *
- * Returns all repositories that have been downloaded for the workspace.
+ * Returns repositories that have been downloaded for the workspace with pagination support.
  */
 export const listDownloadedRepos = <ThrowOnError extends boolean = false>(
   options?: Options<ListDownloadedReposData, ThrowOnError>
@@ -3060,7 +3129,7 @@ export const githubGetContents = <ThrowOnError extends boolean = false>(
 /**
  * List all database configurations
  *
- * Returns all database configurations in the workspace.
+ * Returns all database configurations in the workspace. Supports offset-based pagination.
  */
 export const listDatabases = <ThrowOnError extends boolean = false>(
   options?: Options<ListDatabasesData, ThrowOnError>
@@ -3092,7 +3161,7 @@ export const createDatabase = <ThrowOnError extends boolean = false>(
 /**
  * List all database configurations (alias)
  *
- * Alias for GET /ocxp/database. Returns all databases in the workspace.
+ * Alias for GET /ocxp/database. Returns all databases in the workspace with pagination support.
  */
 export const listDatabasesAlias = <ThrowOnError extends boolean = false>(
   options?: Options<ListDatabasesAliasData, ThrowOnError>

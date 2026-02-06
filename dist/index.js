@@ -811,11 +811,7 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(
-  createConfig({
-    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-  })
-);
+var client = createClient(createConfig());
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -1839,13 +1835,12 @@ var OCXPClient = class {
       project_id: options?.projectId,
       status: options?.status,
       limit: options?.limit,
+      offset: options?.offset,
+      order_by: options?.orderBy,
+      order_dir: options?.orderDir,
       mission_ids: options?.missionIds,
       include_metadata: options?.includeMetadata
     };
-    if (options?.offset !== void 0) query.offset = options.offset;
-    if (options?.orderBy) query.order_by = options.orderBy;
-    if (options?.orderDir) query.order_dir = options.orderDir;
-    if (options?.cursor) query.cursor = options.cursor;
     const response = await listMissions({
       client: this.client,
       query,
