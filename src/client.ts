@@ -1891,6 +1891,60 @@ export class MissionNamespace {
   ): Promise<ContentTreeResponse> {
     return this.client.tree('mission', path, depth, includeVersions);
   }
+
+  /**
+   * Generate mission output (documents, reports, etc.)
+   * General endpoint for all output types using existing research.
+   * 
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
+   * @param options - Output options (doc_types, strategy, etc.)
+   * @returns Output response with session_id for tracking
+   * 
+   * @example
+   * await ocxp.mission.generateOutput('mission-id', 'documents', {
+   *   doc_types: ['implementation-guide', 'prd'],
+   *   strategy: 'generate_all'
+   * })
+   */
+  async generateOutput(
+    missionId: string,
+    outputType: string,
+    options?: {
+      doc_types?: string[];
+      strategy?: string;
+      session_id?: string;
+      options?: Record<string, unknown>;
+    }
+  ): Promise<any> {
+    const endpoint = `/ocxp/mission/${missionId}/output`;
+    return this.client.post(endpoint, {
+      output_type: outputType,
+      doc_types: options?.doc_types,
+      strategy: options?.strategy || 'generate_all',
+      session_id: options?.session_id,
+      options: options?.options,
+    });
+  }
+
+  /**
+   * Get output generation status
+   * Check progress and status of output generation.
+   * 
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output to check (default: 'documents')
+   * @returns Current output status with progress
+   * 
+   * @example
+   * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
+   */
+  async getOutputStatus(
+    missionId: string,
+    outputType: string = 'documents'
+  ): Promise<any> {
+    const endpoint = `/ocxp/mission/${missionId}/output/status`;
+    return this.client.get(`${endpoint}?output_type=${outputType}`);
+  }
 }
 
 /**
