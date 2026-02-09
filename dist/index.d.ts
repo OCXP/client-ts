@@ -10134,6 +10134,28 @@ declare class OCXPClient {
    * @returns void
    */
   deleteProjectCredentials(projectId: string): Promise<void>;
+  /**
+   * Generate mission output (documents, reports, etc.)
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
+   * @param options - Output options (doc_types, strategy, etc.)
+   */
+  generateMissionOutput(
+    missionId: string,
+    outputType: string,
+    options?: {
+      doc_types?: string[];
+      strategy?: string;
+      session_id?: string;
+      options?: Record<string, unknown>;
+    }
+  ): Promise<GenerateOutputResponse>;
+  /**
+   * Get output generation status
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output to check (default: 'documents')
+   */
+  getMissionOutputStatus(missionId: string, outputType?: string): Promise<OutputStatusResponse>;
   private _mission?;
   private _project?;
   private _session?;
@@ -10164,6 +10186,41 @@ declare class OCXPClient {
    * @example ocxp.prototype.list('v0')
    */
   get prototype(): PrototypeNamespace;
+}
+/** Supported document types for mission output generation */
+declare enum DocumentType {
+  IMPLEMENTATION_GUIDE = 'implementation_guide',
+  PRD = 'prd',
+  ARCHITECTURE_DECISIONS = 'architecture_decisions',
+  DATABASE_SCHEMA = 'database_schema',
+  DEPLOYMENT_GUIDE = 'deployment_guide',
+  TESTING_STRATEGY = 'testing_strategy',
+  API_REFERENCE = 'api_reference',
+}
+/** Metadata for each document type */
+interface DocumentTypeInfo {
+  name: string;
+  description: string;
+  icon: string;
+}
+/** Map of document type to display info */
+declare const DOCUMENT_TYPE_INFO: Record<DocumentType, DocumentTypeInfo>;
+/** Response from generateOutput */
+interface GenerateOutputResponse {
+  session_id: string;
+  status: string;
+  output_type: string;
+  doc_types?: string[];
+  message?: string;
+}
+/** Response from getOutputStatus */
+interface OutputStatusResponse {
+  status: 'pending' | 'generating' | 'ready' | 'failed';
+  output_type: string;
+  generated_docs: string[];
+  progress?: number;
+  message?: string;
+  error?: string;
 }
 /**
  * Mission namespace for convenient mission operations
@@ -10268,6 +10325,43 @@ declare class MissionNamespace {
    * @example ocxp.mission.tree('mission-id', 5, true)
    */
   tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse>;
+  /**
+   * Generate mission output (documents, reports, etc.)
+   * General endpoint for all output types using existing research.
+   *
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
+   * @param options - Output options (doc_types, strategy, etc.)
+   * @returns Output response with session_id for tracking
+   *
+   * @example
+   * await ocxp.mission.generateOutput('mission-id', 'documents', {
+   *   doc_types: ['implementation-guide', 'prd'],
+   *   strategy: 'generate_all'
+   * })
+   */
+  generateOutput(
+    missionId: string,
+    outputType: string,
+    options?: {
+      doc_types?: string[];
+      strategy?: string;
+      session_id?: string;
+      options?: Record<string, unknown>;
+    }
+  ): Promise<GenerateOutputResponse>;
+  /**
+   * Get output generation status
+   * Check progress and status of output generation.
+   *
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output to check (default: 'documents')
+   * @returns Current output status with progress
+   *
+   * @example
+   * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
+   */
+  getOutputStatus(missionId: string, outputType?: string): Promise<OutputStatusResponse>;
 }
 /**
  * Project namespace for convenient project operations
@@ -15145,6 +15239,7 @@ export {
   CreateSessionResponseSchema,
   type CreateWorkflowData,
   type CreateWorkflowResponses,
+  DOCUMENT_TYPE_INFO,
   type DatabaseConfigResponse,
   type DatabaseCreate,
   type DatabaseListResponse,
@@ -15180,6 +15275,8 @@ export {
   DiscoveryEndpointSchema,
   type DiscoveryResponse,
   DiscoveryResponseSchema,
+  DocumentType,
+  type DocumentTypeInfo,
   type DownloadRepositoryData,
   type DownloadRepositoryResponses,
   type DownloadRequest,
@@ -15191,6 +15288,7 @@ export {
   type ForkSessionResponse,
   ForkSessionResponseSchema,
   type ForkSessionResponses,
+  type GenerateOutputResponse,
   type GetAuthConfigData,
   type GetAuthConfigResponses,
   type GetContentStatsData,
@@ -15375,6 +15473,7 @@ export {
   OCXPTimeoutError,
   OCXPValidationError,
   type Options,
+  type OutputStatusResponse,
   type PaginatedResponse,
   type Pagination,
   type PaginationParams,

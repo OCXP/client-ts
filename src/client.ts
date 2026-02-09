@@ -1700,6 +1700,64 @@ export class OCXPClient {
     }
   }
 
+  // ============== Document Generation ==============
+
+  /**
+   * Generate mission output (documents, reports, etc.)
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
+   * @param options - Output options (doc_types, strategy, etc.)
+   */
+  async generateMissionOutput(
+    missionId: string,
+    outputType: string,
+    options?: {
+      doc_types?: string[];
+      strategy?: string;
+      session_id?: string;
+      options?: Record<string, unknown>;
+    }
+  ): Promise<GenerateOutputResponse> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<GenerateOutputResponse, unknown>({
+      method: 'POST',
+      url: `/ocxp/mission/${missionId}/output`,
+      headers,
+      body: {
+        output_type: outputType,
+        doc_types: options?.doc_types,
+        strategy: options?.strategy || 'generate_all',
+        session_id: options?.session_id,
+        options: options?.options,
+      },
+    });
+    if (response.error) {
+      throw new Error(`Failed to generate output: ${JSON.stringify(response.error)}`);
+    }
+    return response.data!;
+  }
+
+  /**
+   * Get output generation status
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output to check (default: 'documents')
+   */
+  async getMissionOutputStatus(
+    missionId: string,
+    outputType: string = 'documents'
+  ): Promise<OutputStatusResponse> {
+    const headers = await this.getHeaders();
+    const response = await this.client.request<OutputStatusResponse, unknown>({
+      method: 'GET',
+      url: `/ocxp/mission/${missionId}/output/status?output_type=${outputType}`,
+      headers,
+    });
+    if (response.error) {
+      throw new Error(`Failed to get output status: ${JSON.stringify(response.error)}`);
+    }
+    return response.data!;
+  }
+
   // ============== Namespaced Accessors ==============
 
   private _mission?: MissionNamespace;
@@ -1765,6 +1823,86 @@ export class OCXPClient {
 }
 
 // ============== Namespace Classes ==============
+
+// =============================================================================
+// Document Generation Types
+// =============================================================================
+
+/** Supported document types for mission output generation */
+export enum DocumentType {
+  IMPLEMENTATION_GUIDE = 'implementation_guide',
+  PRD = 'prd',
+  ARCHITECTURE_DECISIONS = 'architecture_decisions',
+  DATABASE_SCHEMA = 'database_schema',
+  DEPLOYMENT_GUIDE = 'deployment_guide',
+  TESTING_STRATEGY = 'testing_strategy',
+  API_REFERENCE = 'api_reference',
+}
+
+/** Metadata for each document type */
+export interface DocumentTypeInfo {
+  name: string;
+  description: string;
+  icon: string;
+}
+
+/** Map of document type to display info */
+export const DOCUMENT_TYPE_INFO: Record<DocumentType, DocumentTypeInfo> = {
+  [DocumentType.IMPLEMENTATION_GUIDE]: {
+    name: 'Implementation Guide',
+    description: 'Step-by-step development guide',
+    icon: 'book',
+  },
+  [DocumentType.PRD]: {
+    name: 'PRD',
+    description: 'Product requirements document',
+    icon: 'file-text',
+  },
+  [DocumentType.ARCHITECTURE_DECISIONS]: {
+    name: 'Architecture Decisions',
+    description: 'ADRs and design rationale',
+    icon: 'layers',
+  },
+  [DocumentType.DATABASE_SCHEMA]: {
+    name: 'Database Schema',
+    description: 'Data model and schema design',
+    icon: 'database',
+  },
+  [DocumentType.DEPLOYMENT_GUIDE]: {
+    name: 'Deployment Guide',
+    description: 'Deployment and infrastructure setup',
+    icon: 'cloud',
+  },
+  [DocumentType.TESTING_STRATEGY]: {
+    name: 'Testing Strategy',
+    description: 'Test plan and coverage strategy',
+    icon: 'check-square',
+  },
+  [DocumentType.API_REFERENCE]: {
+    name: 'API Reference',
+    description: 'API endpoints and contracts',
+    icon: 'code',
+  },
+};
+
+/** Response from generateOutput */
+export interface GenerateOutputResponse {
+  session_id: string;
+  status: string;
+  output_type: string;
+  doc_types?: string[];
+  message?: string;
+}
+
+/** Response from getOutputStatus */
+export interface OutputStatusResponse {
+  status: 'pending' | 'generating' | 'ready' | 'failed';
+  output_type: string;
+  generated_docs: string[];
+  progress?: number;
+  message?: string;
+  error?: string;
+}
 
 /**
  * Mission namespace for convenient mission operations
@@ -1895,12 +2033,12 @@ export class MissionNamespace {
   /**
    * Generate mission output (documents, reports, etc.)
    * General endpoint for all output types using existing research.
-   * 
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
    * @returns Output response with session_id for tracking
-   * 
+   *
    * @example
    * await ocxp.mission.generateOutput('mission-id', 'documents', {
    *   doc_types: ['implementation-guide', 'prd'],
@@ -1916,34 +2054,26 @@ export class MissionNamespace {
       session_id?: string;
       options?: Record<string, unknown>;
     }
-  ): Promise<any> {
-    const endpoint = `/ocxp/mission/${missionId}/output`;
-    return this.client.post(endpoint, {
-      output_type: outputType,
-      doc_types: options?.doc_types,
-      strategy: options?.strategy || 'generate_all',
-      session_id: options?.session_id,
-      options: options?.options,
-    });
+  ): Promise<GenerateOutputResponse> {
+    return this.client.generateMissionOutput(missionId, outputType, options);
   }
 
   /**
    * Get output generation status
    * Check progress and status of output generation.
-   * 
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output to check (default: 'documents')
    * @returns Current output status with progress
-   * 
+   *
    * @example
    * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
    */
   async getOutputStatus(
     missionId: string,
     outputType: string = 'documents'
-  ): Promise<any> {
-    const endpoint = `/ocxp/mission/${missionId}/output/status`;
-    return this.client.get(`${endpoint}?output_type=${outputType}`);
+  ): Promise<OutputStatusResponse> {
+    return this.client.getMissionOutputStatus(missionId, outputType);
   }
 }
 

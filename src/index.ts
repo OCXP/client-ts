@@ -27,6 +27,12 @@ export {
   SessionNamespace,
   KBNamespace,
   PrototypeNamespace,
+  // Document generation types
+  DocumentType,
+  DOCUMENT_TYPE_INFO,
+  type DocumentTypeInfo,
+  type GenerateOutputResponse,
+  type OutputStatusResponse,
 } from './client';
 
 // Path utilities

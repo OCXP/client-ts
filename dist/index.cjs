@@ -813,7 +813,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig());
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -2836,6 +2840,49 @@ var OCXPClient = class {
       throw new Error(`Failed to delete credentials: ${JSON.stringify(response.error)}`);
     }
   }
+  // ============== Document Generation ==============
+  /**
+   * Generate mission output (documents, reports, etc.)
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
+   * @param options - Output options (doc_types, strategy, etc.)
+   */
+  async generateMissionOutput(missionId, outputType, options) {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "POST",
+      url: `/ocxp/mission/${missionId}/output`,
+      headers,
+      body: {
+        output_type: outputType,
+        doc_types: options?.doc_types,
+        strategy: options?.strategy || "generate_all",
+        session_id: options?.session_id,
+        options: options?.options
+      }
+    });
+    if (response.error) {
+      throw new Error(`Failed to generate output: ${JSON.stringify(response.error)}`);
+    }
+    return response.data;
+  }
+  /**
+   * Get output generation status
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output to check (default: 'documents')
+   */
+  async getMissionOutputStatus(missionId, outputType = "documents") {
+    const headers = await this.getHeaders();
+    const response = await this.client.request({
+      method: "GET",
+      url: `/ocxp/mission/${missionId}/output/status?output_type=${outputType}`,
+      headers
+    });
+    if (response.error) {
+      throw new Error(`Failed to get output status: ${JSON.stringify(response.error)}`);
+    }
+    return response.data;
+  }
   // ============== Namespaced Accessors ==============
   _mission;
   _project;
@@ -2891,6 +2938,53 @@ var OCXPClient = class {
       this._prototype = new PrototypeNamespace(this);
     }
     return this._prototype;
+  }
+};
+var DocumentType = /* @__PURE__ */ ((DocumentType2) => {
+  DocumentType2["IMPLEMENTATION_GUIDE"] = "implementation_guide";
+  DocumentType2["PRD"] = "prd";
+  DocumentType2["ARCHITECTURE_DECISIONS"] = "architecture_decisions";
+  DocumentType2["DATABASE_SCHEMA"] = "database_schema";
+  DocumentType2["DEPLOYMENT_GUIDE"] = "deployment_guide";
+  DocumentType2["TESTING_STRATEGY"] = "testing_strategy";
+  DocumentType2["API_REFERENCE"] = "api_reference";
+  return DocumentType2;
+})(DocumentType || {});
+var DOCUMENT_TYPE_INFO = {
+  ["implementation_guide" /* IMPLEMENTATION_GUIDE */]: {
+    name: "Implementation Guide",
+    description: "Step-by-step development guide",
+    icon: "book"
+  },
+  ["prd" /* PRD */]: {
+    name: "PRD",
+    description: "Product requirements document",
+    icon: "file-text"
+  },
+  ["architecture_decisions" /* ARCHITECTURE_DECISIONS */]: {
+    name: "Architecture Decisions",
+    description: "ADRs and design rationale",
+    icon: "layers"
+  },
+  ["database_schema" /* DATABASE_SCHEMA */]: {
+    name: "Database Schema",
+    description: "Data model and schema design",
+    icon: "database"
+  },
+  ["deployment_guide" /* DEPLOYMENT_GUIDE */]: {
+    name: "Deployment Guide",
+    description: "Deployment and infrastructure setup",
+    icon: "cloud"
+  },
+  ["testing_strategy" /* TESTING_STRATEGY */]: {
+    name: "Testing Strategy",
+    description: "Test plan and coverage strategy",
+    icon: "check-square"
+  },
+  ["api_reference" /* API_REFERENCE */]: {
+    name: "API Reference",
+    description: "API endpoints and contracts",
+    icon: "code"
   }
 };
 var MissionNamespace = class {
@@ -2971,6 +3065,38 @@ var MissionNamespace = class {
    */
   async tree(path, depth, includeVersions) {
     return this.client.tree("mission", path, depth, includeVersions);
+  }
+  /**
+   * Generate mission output (documents, reports, etc.)
+   * General endpoint for all output types using existing research.
+   * 
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
+   * @param options - Output options (doc_types, strategy, etc.)
+   * @returns Output response with session_id for tracking
+   * 
+   * @example
+   * await ocxp.mission.generateOutput('mission-id', 'documents', {
+   *   doc_types: ['implementation-guide', 'prd'],
+   *   strategy: 'generate_all'
+   * })
+   */
+  async generateOutput(missionId, outputType, options) {
+    return this.client.generateMissionOutput(missionId, outputType, options);
+  }
+  /**
+   * Get output generation status
+   * Check progress and status of output generation.
+   * 
+   * @param missionId - Mission UUID
+   * @param outputType - Type of output to check (default: 'documents')
+   * @returns Current output status with progress
+   * 
+   * @example
+   * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
+   */
+  async getOutputStatus(missionId, outputType = "documents") {
+    return this.client.getMissionOutputStatus(missionId, outputType);
   }
 };
 var ProjectNamespace = class {
@@ -4501,6 +4627,7 @@ exports.CreateProjectDataSchema = CreateProjectDataSchema;
 exports.CreateProjectResponseSchema = CreateProjectResponseSchema;
 exports.CreateSessionDataSchema = CreateSessionDataSchema;
 exports.CreateSessionResponseSchema = CreateSessionResponseSchema;
+exports.DOCUMENT_TYPE_INFO = DOCUMENT_TYPE_INFO;
 exports.DeleteDataSchema = DeleteDataSchema;
 exports.DeleteProjectDataSchema = DeleteProjectDataSchema;
 exports.DeleteProjectResponseSchema = DeleteProjectResponseSchema;
@@ -4508,6 +4635,7 @@ exports.DeleteResponseSchema = DeleteResponseSchema;
 exports.DiscoveryDataSchema = DiscoveryDataSchema;
 exports.DiscoveryEndpointSchema = DiscoveryEndpointSchema;
 exports.DiscoveryResponseSchema = DiscoveryResponseSchema;
+exports.DocumentType = DocumentType;
 exports.ErrorResponseSchema = ErrorResponseSchema;
 exports.ForkSessionDataSchema = ForkSessionDataSchema;
 exports.ForkSessionResponseSchema = ForkSessionResponseSchema;
