@@ -199,6 +199,9 @@ import type {
   GetGithubTokenStatusData,
   GetGithubTokenStatusErrors,
   GetGithubTokenStatusResponses,
+  GetKbStatusData,
+  GetKbStatusErrors,
+  GetKbStatusResponses,
   GetMemoData,
   GetMemoErrors,
   GetMemoForSourceData,
@@ -450,6 +453,9 @@ import type {
   ToolUpdateMissionData,
   ToolUpdateMissionErrors,
   ToolUpdateMissionResponses,
+  TriggerKbSyncData,
+  TriggerKbSyncErrors,
+  TriggerKbSyncResponses,
   TriggerRebuildData,
   TriggerRebuildErrors,
   TriggerRebuildResponses,
@@ -2462,6 +2468,42 @@ export const getProvenance = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/mission/{mission_id}/provenance',
     ...options,
+  });
+
+/**
+ * Get Kb Status
+ *
+ * Get status of all Knowledge Bases (code, docs, visual).
+ *
+ * Returns health, repo counts, running jobs, and recent ingestion history.
+ */
+export const getKbStatus = <ThrowOnError extends boolean = false>(
+  options?: Options<GetKbStatusData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetKbStatusResponses, GetKbStatusErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/kb/status',
+    ...options,
+  });
+
+/**
+ * Trigger Kb Sync
+ *
+ * Trigger Knowledge Base re-indexing.
+ *
+ * Starts a Bedrock ingestion job. If a job is already running, returns the existing job ID.
+ */
+export const triggerKbSync = <ThrowOnError extends boolean = false>(
+  options: Options<TriggerKbSyncData, ThrowOnError>
+) =>
+  (options.client ?? client).post<TriggerKbSyncResponses, TriggerKbSyncErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/kb/sync',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**

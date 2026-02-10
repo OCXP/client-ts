@@ -1409,6 +1409,76 @@ type HttpValidationError = {
   detail?: Array<ValidationError>;
 };
 /**
+ * KBIngestionJob
+ */
+type KbIngestionJob = {
+  /**
+   * Job Id
+   */
+  job_id?: string | null;
+  /**
+   * Status
+   */
+  status?: string | null;
+  /**
+   * Started At
+   */
+  started_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+  /**
+   * Documents Scanned
+   */
+  documents_scanned?: number;
+  /**
+   * Documents Indexed
+   */
+  documents_indexed?: number;
+  /**
+   * Documents Failed
+   */
+  documents_failed?: number;
+};
+/**
+ * KBOverview
+ */
+type KbOverview = {
+  /**
+   * Kb Type
+   */
+  kb_type: string;
+  /**
+   * Kb Id
+   */
+  kb_id: string;
+  /**
+   * Ds Id
+   */
+  ds_id: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Repos Count
+   */
+  repos_count?: number;
+  /**
+   * Repos
+   */
+  repos?: Array<KbRepoStatus>;
+  /**
+   * Running Job Id
+   */
+  running_job_id?: string | null;
+  /**
+   * Recent Jobs
+   */
+  recent_jobs?: Array<KbIngestionJob>;
+};
+/**
  * KBQueryRequest
  */
 type KbQueryRequest = {
@@ -1522,6 +1592,43 @@ type KbRagResponse = {
   session_id?: string | null;
 };
 /**
+ * KBRepoStatus
+ */
+type KbRepoStatus = {
+  /**
+   * Repo Id
+   */
+  repo_id: string;
+  /**
+   * Github Url
+   */
+  github_url: string;
+  /**
+   * Branch
+   */
+  branch?: string;
+  /**
+   * Indexed At
+   */
+  indexed_at?: string | null;
+  /**
+   * Files Count
+   */
+  files_count?: number;
+  /**
+   * Bedrock Synced
+   */
+  bedrock_synced?: boolean;
+  /**
+   * Last Ingestion Status
+   */
+  last_ingestion_status?: string | null;
+  /**
+   * Last Ingestion Job Id
+   */
+  last_ingestion_job_id?: string | null;
+};
+/**
  * KBResultItem
  *
  * Single KB search result.
@@ -1557,6 +1664,15 @@ type KbResultItem = {
    * Which KB returned this result: 'code' or 'docs'
    */
   kb_source?: string | null;
+};
+/**
+ * KBStatusResponse
+ */
+type KbStatusResponse = {
+  /**
+   * Knowledge Bases
+   */
+  knowledge_bases: Array<KbOverview>;
 };
 /**
  * LinkedRepoResponse
@@ -3959,6 +4075,38 @@ type TokenResponse = {
   refreshToken: string;
 };
 /**
+ * TriggerSyncRequest
+ */
+type TriggerSyncRequest = {
+  /**
+   * Kb Type
+   *
+   * KB type to sync: code | docs | visual. If omitted, syncs all.
+   */
+  kb_type?: string | null;
+  /**
+   * Force
+   *
+   * Force sync even if a job is already running
+   */
+  force?: boolean;
+};
+/**
+ * TriggerSyncResponse
+ */
+type TriggerSyncResponse = {
+  /**
+   * Triggered
+   */
+  triggered: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * Message
+   */
+  message: string;
+};
+/**
  * UserResponse
  *
  * User info response.
@@ -5611,6 +5759,62 @@ type RegenerateMissionResponses = {
    * Regeneration started successfully
    */
   200: RegenerateMissionResponse;
+};
+type GetKbStatusData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/kb/status';
+};
+type GetKbStatusErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type GetKbStatusResponses = {
+  /**
+   * Successful Response
+   */
+  200: KbStatusResponse;
+};
+type TriggerKbSyncData = {
+  body: TriggerSyncRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/kb/sync';
+};
+type TriggerKbSyncErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+type TriggerKbSyncResponses = {
+  /**
+   * Successful Response
+   */
+  202: TriggerSyncResponse;
 };
 type QueryKnowledgeBaseData = {
   body: KbQueryRequest;
@@ -7418,6 +7622,12 @@ type SearchContentData = {
      */
     project?: string | null;
     /**
+     * Repo Id
+     *
+     * Filter by repo ID (scopes search to specific repo)
+     */
+    repo_id?: string | null;
+    /**
      * Limit
      *
      * Maximum results to return
@@ -8634,6 +8844,26 @@ declare const regenerateMission: <ThrowOnError extends boolean = false>(
   options: Options<RegenerateMissionData, ThrowOnError>
 ) => RequestResult<RegenerateMissionResponses, RegenerateMissionErrors, ThrowOnError, 'fields'>;
 /**
+ * Get Kb Status
+ *
+ * Get status of all Knowledge Bases (code, docs, visual).
+ *
+ * Returns health, repo counts, running jobs, and recent ingestion history.
+ */
+declare const getKbStatus: <ThrowOnError extends boolean = false>(
+  options?: Options<GetKbStatusData, ThrowOnError>
+) => RequestResult<GetKbStatusResponses, GetKbStatusErrors, ThrowOnError, 'fields'>;
+/**
+ * Trigger Kb Sync
+ *
+ * Trigger Knowledge Base re-indexing.
+ *
+ * Starts a Bedrock ingestion job. If a job is already running, returns the existing job ID.
+ */
+declare const triggerKbSync: <ThrowOnError extends boolean = false>(
+  options: Options<TriggerKbSyncData, ThrowOnError>
+) => RequestResult<TriggerKbSyncResponses, TriggerKbSyncErrors, ThrowOnError, 'fields'>;
+/**
  * Query Knowledge Base
  *
  * DEPRECATED: Use POST /ocxp/context/discover instead.
@@ -9687,6 +9917,14 @@ declare class OCXPClient {
    */
   kbRag(query: string, sessionId?: string): Promise<KbRagResponse>;
   /**
+   * Get status of all Knowledge Bases (code, docs, visual)
+   */
+  kbStatus(): Promise<KbStatusResponse>;
+  /**
+   * Trigger KB re-indexing
+   */
+  kbSync(options?: { kbType?: string; force?: boolean }): Promise<TriggerSyncResponse>;
+  /**
    * List all missions in workspace with pagination support
    * @param options - Filtering, pagination, and sorting options
    * @returns Paginated mission list with total count
@@ -10542,6 +10780,16 @@ declare class KBNamespace {
    * @example ocxp.kb.rag('What is OCXP?')
    */
   rag(query: string, sessionId?: string): Promise<KbRagResponse>;
+  /**
+   * Get status of all Knowledge Bases (code, docs, visual)
+   * @example ocxp.kb.status()
+   */
+  status(): Promise<KbStatusResponse>;
+  /**
+   * Trigger KB re-indexing
+   * @example ocxp.kb.sync({ kbType: 'code' })
+   */
+  sync(options?: { kbType?: string; force?: boolean }): Promise<TriggerSyncResponse>;
 }
 /**
  * Prototype namespace for convenient prototype chat operations
@@ -10942,7 +11190,8 @@ type WebSocketMessageType =
   | 'notification'
   | 'sync_event'
   | 'prototype_sync_progress'
-  | 'prototype_sync_complete';
+  | 'prototype_sync_complete'
+  | 'kb_indexing_status';
 interface WebSocketMessage {
   type: WebSocketMessageType;
   [key: string]: unknown;
@@ -10996,6 +11245,17 @@ interface PrototypeSyncCompleteMessage extends WebSocketMessage {
   job_id: string;
   content_links: string[];
   stored_versions: string[];
+}
+interface KBIndexingStatusMessage extends WebSocketMessage {
+  type: 'kb_indexing_status';
+  status: string;
+  documents_count: number;
+  indexed: number;
+  failed: number;
+  error?: string;
+  kb_type?: string;
+  kb_id?: string;
+  job_id?: string;
 }
 interface WebSocketServiceOptions {
   /** WebSocket endpoint (wss://...) */
@@ -11074,6 +11334,10 @@ declare class WebSocketService {
    * Subscribe to prototype sync complete notifications
    */
   onPrototypeSyncComplete(handler: WebSocketEventHandler<PrototypeSyncCompleteMessage>): () => void;
+  /**
+   * Subscribe to KB indexing status updates
+   */
+  onKBIndexingStatus(handler: WebSocketEventHandler<KBIndexingStatusMessage>): () => void;
   /**
    * Subscribe to connection state changes
    */
@@ -15351,6 +15615,8 @@ export {
   type GetCurrentUserResponses,
   type GetDatabaseData,
   type GetDatabaseResponses,
+  type GetKbStatusData,
+  type GetKbStatusResponses,
   type GetMemoData,
   type GetMemoForSourceData,
   type GetMemoForSourceResponse,
@@ -15432,6 +15698,7 @@ export {
   type JobProgressMessage,
   type KBDocument,
   KBDocumentSchema,
+  type KBIndexingStatusMessage,
   type KBIngestData,
   KBIngestDataSchema,
   type KBIngestResponse,
@@ -15441,7 +15708,11 @@ export {
   type KBListResponse,
   KBListResponseSchema,
   KBNamespace,
+  type KbIngestionJob,
+  type KbOverview,
   type KbQueryRequest,
+  type KbRepoStatus,
+  type KbStatusResponse,
   type LinkPrototypeChatData,
   type LinkPrototypeChatResponses,
   type LinkedRepoResponse,
@@ -15692,6 +15963,10 @@ export {
   TreeNodeSchema,
   type TreeResponse,
   TreeResponseSchema,
+  type TriggerKbSyncData,
+  type TriggerKbSyncResponses,
+  type TriggerSyncRequest,
+  type TriggerSyncResponse,
   type UnlockContentData,
   type UnlockContentResponses,
   type UpdateDatabaseData,
@@ -15799,6 +16074,7 @@ export {
   getContextRepos,
   getCurrentUser,
   getDatabase,
+  getKbStatus,
   getMemo,
   getMemoForSource,
   getMissionContext,
@@ -15871,6 +16147,7 @@ export {
   testDatabaseConnection,
   toolCreateMission,
   toolUpdateMission,
+  triggerKbSync,
   unlockContent,
   updateDatabase,
   updateProject,

@@ -6536,6 +6536,134 @@
         ]
       }
     },
+    "/ocxp/kb/status": {
+      "get": {
+        "tags": [
+          "KB"
+        ],
+        "summary": "Get Kb Status",
+        "description": "Get status of all Knowledge Bases (code, docs, visual).\n\nReturns health, repo counts, running jobs, and recent ingestion history.",
+        "operationId": "getKbStatus",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KBStatusResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/kb/sync": {
+      "post": {
+        "tags": [
+          "KB"
+        ],
+        "summary": "Trigger Kb Sync",
+        "description": "Trigger Knowledge Base re-indexing.\n\nStarts a Bedrock ingestion job. If a job is already running, returns the existing job ID.",
+        "operationId": "triggerKbSync",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerSyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerSyncResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/kb/query": {
       "post": {
         "tags": [
@@ -11387,6 +11515,24 @@
               "title": "Project"
             },
             "description": "Filter by project ID (scopes to linked repos)"
+          },
+          {
+            "name": "repo_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by repo ID (scopes search to specific repo)",
+              "title": "Repo Id"
+            },
+            "description": "Filter by repo ID (scopes search to specific repo)"
           },
           {
             "name": "limit",
@@ -17451,6 +17597,131 @@
         "title": "IngestResult",
         "description": "Result for a single document ingestion."
       },
+      "KBIngestionJob": {
+        "properties": {
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "documents_scanned": {
+            "type": "integer",
+            "title": "Documents Scanned",
+            "default": 0
+          },
+          "documents_indexed": {
+            "type": "integer",
+            "title": "Documents Indexed",
+            "default": 0
+          },
+          "documents_failed": {
+            "type": "integer",
+            "title": "Documents Failed",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "KBIngestionJob"
+      },
+      "KBOverview": {
+        "properties": {
+          "kb_type": {
+            "type": "string",
+            "title": "Kb Type"
+          },
+          "kb_id": {
+            "type": "string",
+            "title": "Kb Id"
+          },
+          "ds_id": {
+            "type": "string",
+            "title": "Ds Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "repos_count": {
+            "type": "integer",
+            "title": "Repos Count",
+            "default": 0
+          },
+          "repos": {
+            "items": {
+              "$ref": "#/components/schemas/KBRepoStatus"
+            },
+            "type": "array",
+            "title": "Repos",
+            "default": []
+          },
+          "running_job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Running Job Id"
+          },
+          "recent_jobs": {
+            "items": {
+              "$ref": "#/components/schemas/KBIngestionJob"
+            },
+            "type": "array",
+            "title": "Recent Jobs",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "kb_type",
+          "kb_id",
+          "ds_id",
+          "status"
+        ],
+        "title": "KBOverview"
+      },
       "KBQueryRequest": {
         "properties": {
           "query": {
@@ -17634,6 +17905,72 @@
         "title": "KBRagResponse",
         "description": "Response for POST /ocxp/kb/rag."
       },
+      "KBRepoStatus": {
+        "properties": {
+          "repo_id": {
+            "type": "string",
+            "title": "Repo Id"
+          },
+          "github_url": {
+            "type": "string",
+            "title": "Github Url"
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "default": "main"
+          },
+          "indexed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indexed At"
+          },
+          "files_count": {
+            "type": "integer",
+            "title": "Files Count",
+            "default": 0
+          },
+          "bedrock_synced": {
+            "type": "boolean",
+            "title": "Bedrock Synced",
+            "default": false
+          },
+          "last_ingestion_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Ingestion Status"
+          },
+          "last_ingestion_job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Ingestion Job Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "repo_id",
+          "github_url"
+        ],
+        "title": "KBRepoStatus"
+      },
       "KBResultItem": {
         "properties": {
           "content": {
@@ -17702,6 +18039,22 @@
         ],
         "title": "KBResultItem",
         "description": "Single KB search result."
+      },
+      "KBStatusResponse": {
+        "properties": {
+          "knowledge_bases": {
+            "items": {
+              "$ref": "#/components/schemas/KBOverview"
+            },
+            "type": "array",
+            "title": "Knowledge Bases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "knowledge_bases"
+        ],
+        "title": "KBStatusResponse"
       },
       "LinkedRepoResponse": {
         "properties": {
@@ -22929,6 +23282,52 @@
         ],
         "title": "TokenResponse",
         "description": "Token response with camelCase output for plugin compatibility."
+      },
+      "TriggerSyncRequest": {
+        "properties": {
+          "kb_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kb Type",
+            "description": "KB type to sync: code | docs | visual. If omitted, syncs all."
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "Force sync even if a job is already running",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "TriggerSyncRequest"
+      },
+      "TriggerSyncResponse": {
+        "properties": {
+          "triggered": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Triggered"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "triggered",
+          "message"
+        ],
+        "title": "TriggerSyncResponse"
       },
       "UserResponse": {
         "properties": {

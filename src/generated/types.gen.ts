@@ -2653,6 +2653,78 @@ export type IngestResult = {
 };
 
 /**
+ * KBIngestionJob
+ */
+export type KbIngestionJob = {
+  /**
+   * Job Id
+   */
+  job_id?: string | null;
+  /**
+   * Status
+   */
+  status?: string | null;
+  /**
+   * Started At
+   */
+  started_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+  /**
+   * Documents Scanned
+   */
+  documents_scanned?: number;
+  /**
+   * Documents Indexed
+   */
+  documents_indexed?: number;
+  /**
+   * Documents Failed
+   */
+  documents_failed?: number;
+};
+
+/**
+ * KBOverview
+ */
+export type KbOverview = {
+  /**
+   * Kb Type
+   */
+  kb_type: string;
+  /**
+   * Kb Id
+   */
+  kb_id: string;
+  /**
+   * Ds Id
+   */
+  ds_id: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Repos Count
+   */
+  repos_count?: number;
+  /**
+   * Repos
+   */
+  repos?: Array<KbRepoStatus>;
+  /**
+   * Running Job Id
+   */
+  running_job_id?: string | null;
+  /**
+   * Recent Jobs
+   */
+  recent_jobs?: Array<KbIngestionJob>;
+};
+
+/**
  * KBQueryRequest
  */
 export type KbQueryRequest = {
@@ -2769,6 +2841,44 @@ export type KbRagResponse = {
 };
 
 /**
+ * KBRepoStatus
+ */
+export type KbRepoStatus = {
+  /**
+   * Repo Id
+   */
+  repo_id: string;
+  /**
+   * Github Url
+   */
+  github_url: string;
+  /**
+   * Branch
+   */
+  branch?: string;
+  /**
+   * Indexed At
+   */
+  indexed_at?: string | null;
+  /**
+   * Files Count
+   */
+  files_count?: number;
+  /**
+   * Bedrock Synced
+   */
+  bedrock_synced?: boolean;
+  /**
+   * Last Ingestion Status
+   */
+  last_ingestion_status?: string | null;
+  /**
+   * Last Ingestion Job Id
+   */
+  last_ingestion_job_id?: string | null;
+};
+
+/**
  * KBResultItem
  *
  * Single KB search result.
@@ -2804,6 +2914,16 @@ export type KbResultItem = {
    * Which KB returned this result: 'code' or 'docs'
    */
   kb_source?: string | null;
+};
+
+/**
+ * KBStatusResponse
+ */
+export type KbStatusResponse = {
+  /**
+   * Knowledge Bases
+   */
+  knowledge_bases: Array<KbOverview>;
 };
 
 /**
@@ -6149,6 +6269,40 @@ export type TokenResponse = {
    * Refreshtoken
    */
   refreshToken: string;
+};
+
+/**
+ * TriggerSyncRequest
+ */
+export type TriggerSyncRequest = {
+  /**
+   * Kb Type
+   *
+   * KB type to sync: code | docs | visual. If omitted, syncs all.
+   */
+  kb_type?: string | null;
+  /**
+   * Force
+   *
+   * Force sync even if a job is already running
+   */
+  force?: boolean;
+};
+
+/**
+ * TriggerSyncResponse
+ */
+export type TriggerSyncResponse = {
+  /**
+   * Triggered
+   */
+  triggered: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * Message
+   */
+  message: string;
 };
 
 /**
@@ -10496,6 +10650,76 @@ export type GetProvenanceResponses = {
 
 export type GetProvenanceResponse = GetProvenanceResponses[keyof GetProvenanceResponses];
 
+export type GetKbStatusData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/kb/status';
+};
+
+export type GetKbStatusErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetKbStatusError = GetKbStatusErrors[keyof GetKbStatusErrors];
+
+export type GetKbStatusResponses = {
+  /**
+   * Successful Response
+   */
+  200: KbStatusResponse;
+};
+
+export type GetKbStatusResponse = GetKbStatusResponses[keyof GetKbStatusResponses];
+
+export type TriggerKbSyncData = {
+  body: TriggerSyncRequest;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: never;
+  url: '/ocxp/kb/sync';
+};
+
+export type TriggerKbSyncErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type TriggerKbSyncError = TriggerKbSyncErrors[keyof TriggerKbSyncErrors];
+
+export type TriggerKbSyncResponses = {
+  /**
+   * Successful Response
+   */
+  202: TriggerSyncResponse;
+};
+
+export type TriggerKbSyncResponse = TriggerKbSyncResponses[keyof TriggerKbSyncResponses];
+
 export type QueryKnowledgeBaseData = {
   body: KbQueryRequest;
   headers?: {
@@ -13180,6 +13404,12 @@ export type SearchContentData = {
      * Filter by project ID (scopes to linked repos)
      */
     project?: string | null;
+    /**
+     * Repo Id
+     *
+     * Filter by repo ID (scopes search to specific repo)
+     */
+    repo_id?: string | null;
     /**
      * Limit
      *

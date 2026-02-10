@@ -91,6 +91,8 @@ export {
   // Knowledge Base
   queryKnowledgeBase,
   ragKnowledgeBase,
+  getKbStatus,
+  triggerKbSync,
 
   // GitHub
   githubCheckAccess,
@@ -286,6 +288,16 @@ export type {
   QueryKnowledgeBaseResponses,
   RagKnowledgeBaseData,
   RagKnowledgeBaseResponses,
+  GetKbStatusData,
+  GetKbStatusResponses,
+  TriggerKbSyncData,
+  TriggerKbSyncResponses,
+  KbStatusResponse,
+  KbOverview,
+  KbRepoStatus,
+  KbIngestionJob,
+  TriggerSyncRequest,
+  TriggerSyncResponse,
 
   // GitHub
   GithubCheckAccessData,
@@ -529,6 +541,7 @@ export {
   type SyncEventMessage,
   type PrototypeSyncProgressMessage,
   type PrototypeSyncCompleteMessage,
+  type KBIndexingStatusMessage,
 } from './websocket';
 
 // Error types

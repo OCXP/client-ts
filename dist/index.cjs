@@ -1137,6 +1137,20 @@ var regenerateMission = (options) => (options.client ?? client).post({
     ...options.headers
   }
 });
+var getKbStatus = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/kb/status",
+  ...options
+});
+var triggerKbSync = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/kb/sync",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var queryKnowledgeBase = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/kb/query",
@@ -1832,6 +1846,33 @@ var OCXPClient = class {
     const response = await ragKnowledgeBase({
       client: this.client,
       body: { query, session_id: sessionId },
+      headers
+    });
+    return extractData(response);
+  }
+  // ============== KB Status Operations ==============
+  /**
+   * Get status of all Knowledge Bases (code, docs, visual)
+   */
+  async kbStatus() {
+    const headers = await this.getHeaders();
+    const response = await getKbStatus({
+      client: this.client,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Trigger KB re-indexing
+   */
+  async kbSync(options) {
+    const headers = await this.getHeaders();
+    const response = await triggerKbSync({
+      client: this.client,
+      body: {
+        kb_type: options?.kbType ?? null,
+        force: options?.force ?? false
+      },
       headers
     });
     return extractData(response);
@@ -3262,6 +3303,20 @@ var KBNamespace = class {
   async rag(query, sessionId) {
     return this.client.kbRag(query, sessionId);
   }
+  /**
+   * Get status of all Knowledge Bases (code, docs, visual)
+   * @example ocxp.kb.status()
+   */
+  async status() {
+    return this.client.kbStatus();
+  }
+  /**
+   * Trigger KB re-indexing
+   * @example ocxp.kb.sync({ kbType: 'code' })
+   */
+  async sync(options) {
+    return this.client.kbSync(options);
+  }
 };
 var PrototypeNamespace = class {
   constructor(client2) {
@@ -3756,6 +3811,12 @@ var WebSocketService = class {
    */
   onPrototypeSyncComplete(handler) {
     return this.on("prototype_sync_complete", handler);
+  }
+  /**
+   * Subscribe to KB indexing status updates
+   */
+  onKBIndexingStatus(handler) {
+    return this.on("kb_indexing_status", handler);
   }
   /**
    * Subscribe to connection state changes
@@ -4809,6 +4870,7 @@ exports.getContentTypes = getContentTypes;
 exports.getContextRepos = getContextRepos;
 exports.getCurrentUser = getCurrentUser;
 exports.getDatabase = getDatabase;
+exports.getKbStatus = getKbStatus;
 exports.getMemo = getMemo;
 exports.getMemoForSource = getMemoForSource;
 exports.getMissionContext = getMissionContext;
@@ -4881,6 +4943,7 @@ exports.syncRepo = syncRepo;
 exports.testDatabaseConnection = testDatabaseConnection;
 exports.toolCreateMission = toolCreateMission;
 exports.toolUpdateMission = toolUpdateMission;
+exports.triggerKbSync = triggerKbSync;
 exports.unlockContent = unlockContent;
 exports.updateDatabase = updateDatabase;
 exports.updateProject = updateProject;

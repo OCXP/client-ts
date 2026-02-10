@@ -1296,6 +1296,76 @@ type HttpValidationError = {
     detail?: Array<ValidationError>;
 };
 /**
+ * KBIngestionJob
+ */
+type KbIngestionJob = {
+    /**
+     * Job Id
+     */
+    job_id?: string | null;
+    /**
+     * Status
+     */
+    status?: string | null;
+    /**
+     * Started At
+     */
+    started_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    /**
+     * Documents Scanned
+     */
+    documents_scanned?: number;
+    /**
+     * Documents Indexed
+     */
+    documents_indexed?: number;
+    /**
+     * Documents Failed
+     */
+    documents_failed?: number;
+};
+/**
+ * KBOverview
+ */
+type KbOverview = {
+    /**
+     * Kb Type
+     */
+    kb_type: string;
+    /**
+     * Kb Id
+     */
+    kb_id: string;
+    /**
+     * Ds Id
+     */
+    ds_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Repos Count
+     */
+    repos_count?: number;
+    /**
+     * Repos
+     */
+    repos?: Array<KbRepoStatus>;
+    /**
+     * Running Job Id
+     */
+    running_job_id?: string | null;
+    /**
+     * Recent Jobs
+     */
+    recent_jobs?: Array<KbIngestionJob>;
+};
+/**
  * KBQueryRequest
  */
 type KbQueryRequest = {
@@ -1409,6 +1479,43 @@ type KbRagResponse = {
     session_id?: string | null;
 };
 /**
+ * KBRepoStatus
+ */
+type KbRepoStatus = {
+    /**
+     * Repo Id
+     */
+    repo_id: string;
+    /**
+     * Github Url
+     */
+    github_url: string;
+    /**
+     * Branch
+     */
+    branch?: string;
+    /**
+     * Indexed At
+     */
+    indexed_at?: string | null;
+    /**
+     * Files Count
+     */
+    files_count?: number;
+    /**
+     * Bedrock Synced
+     */
+    bedrock_synced?: boolean;
+    /**
+     * Last Ingestion Status
+     */
+    last_ingestion_status?: string | null;
+    /**
+     * Last Ingestion Job Id
+     */
+    last_ingestion_job_id?: string | null;
+};
+/**
  * KBResultItem
  *
  * Single KB search result.
@@ -1444,6 +1551,15 @@ type KbResultItem = {
      * Which KB returned this result: 'code' or 'docs'
      */
     kb_source?: string | null;
+};
+/**
+ * KBStatusResponse
+ */
+type KbStatusResponse = {
+    /**
+     * Knowledge Bases
+     */
+    knowledge_bases: Array<KbOverview>;
 };
 /**
  * LinkedRepoResponse
@@ -3835,6 +3951,38 @@ type TokenResponse = {
     refreshToken: string;
 };
 /**
+ * TriggerSyncRequest
+ */
+type TriggerSyncRequest = {
+    /**
+     * Kb Type
+     *
+     * KB type to sync: code | docs | visual. If omitted, syncs all.
+     */
+    kb_type?: string | null;
+    /**
+     * Force
+     *
+     * Force sync even if a job is already running
+     */
+    force?: boolean;
+};
+/**
+ * TriggerSyncResponse
+ */
+type TriggerSyncResponse = {
+    /**
+     * Triggered
+     */
+    triggered: Array<{
+        [key: string]: unknown;
+    }>;
+    /**
+     * Message
+     */
+    message: string;
+};
+/**
  * UserResponse
  *
  * User info response.
@@ -5487,6 +5635,62 @@ type RegenerateMissionResponses = {
      * Regeneration started successfully
      */
     200: RegenerateMissionResponse;
+};
+type GetKbStatusData = {
+    body?: never;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/kb/status';
+};
+type GetKbStatusErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type GetKbStatusResponses = {
+    /**
+     * Successful Response
+     */
+    200: KbStatusResponse;
+};
+type TriggerKbSyncData = {
+    body: TriggerSyncRequest;
+    headers?: {
+        /**
+         * X-Workspace
+         */
+        'X-Workspace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ocxp/kb/sync';
+};
+type TriggerKbSyncErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+    /**
+     * Rate limit exceeded
+     */
+    429: unknown;
+};
+type TriggerKbSyncResponses = {
+    /**
+     * Successful Response
+     */
+    202: TriggerSyncResponse;
 };
 type QueryKnowledgeBaseData = {
     body: KbQueryRequest;
@@ -7294,6 +7498,12 @@ type SearchContentData = {
          */
         project?: string | null;
         /**
+         * Repo Id
+         *
+         * Filter by repo ID (scopes search to specific repo)
+         */
+        repo_id?: string | null;
+        /**
          * Limit
          *
          * Maximum results to return
@@ -8428,6 +8638,22 @@ declare const setDefaultDatabase: <ThrowOnError extends boolean = false>(options
  */
 declare const regenerateMission: <ThrowOnError extends boolean = false>(options: Options<RegenerateMissionData, ThrowOnError>) => RequestResult<RegenerateMissionResponses, RegenerateMissionErrors, ThrowOnError, "fields">;
 /**
+ * Get Kb Status
+ *
+ * Get status of all Knowledge Bases (code, docs, visual).
+ *
+ * Returns health, repo counts, running jobs, and recent ingestion history.
+ */
+declare const getKbStatus: <ThrowOnError extends boolean = false>(options?: Options<GetKbStatusData, ThrowOnError>) => RequestResult<GetKbStatusResponses, GetKbStatusErrors, ThrowOnError, "fields">;
+/**
+ * Trigger Kb Sync
+ *
+ * Trigger Knowledge Base re-indexing.
+ *
+ * Starts a Bedrock ingestion job. If a job is already running, returns the existing job ID.
+ */
+declare const triggerKbSync: <ThrowOnError extends boolean = false>(options: Options<TriggerKbSyncData, ThrowOnError>) => RequestResult<TriggerKbSyncResponses, TriggerKbSyncErrors, ThrowOnError, "fields">;
+/**
  * Query Knowledge Base
  *
  * DEPRECATED: Use POST /ocxp/context/discover instead.
@@ -9232,6 +9458,17 @@ declare class OCXPClient {
      */
     kbRag(query: string, sessionId?: string): Promise<KbRagResponse>;
     /**
+     * Get status of all Knowledge Bases (code, docs, visual)
+     */
+    kbStatus(): Promise<KbStatusResponse>;
+    /**
+     * Trigger KB re-indexing
+     */
+    kbSync(options?: {
+        kbType?: string;
+        force?: boolean;
+    }): Promise<TriggerSyncResponse>;
+    /**
      * List all missions in workspace with pagination support
      * @param options - Filtering, pagination, and sorting options
      * @returns Paginated mission list with total count
@@ -9992,6 +10229,19 @@ declare class KBNamespace {
      * @example ocxp.kb.rag('What is OCXP?')
      */
     rag(query: string, sessionId?: string): Promise<KbRagResponse>;
+    /**
+     * Get status of all Knowledge Bases (code, docs, visual)
+     * @example ocxp.kb.status()
+     */
+    status(): Promise<KbStatusResponse>;
+    /**
+     * Trigger KB re-indexing
+     * @example ocxp.kb.sync({ kbType: 'code' })
+     */
+    sync(options?: {
+        kbType?: string;
+        force?: boolean;
+    }): Promise<TriggerSyncResponse>;
 }
 /**
  * Prototype namespace for convenient prototype chat operations
@@ -10375,7 +10625,7 @@ declare function createPathService(options: OCXPPathServiceOptions): OCXPPathSer
  * WebSocket service for OCXP real-time communication
  * Provides push notifications for job progress, sync events, etc.
  */
-type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event' | 'prototype_sync_progress' | 'prototype_sync_complete';
+type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event' | 'prototype_sync_progress' | 'prototype_sync_complete' | 'kb_indexing_status';
 interface WebSocketMessage {
     type: WebSocketMessageType;
     [key: string]: unknown;
@@ -10429,6 +10679,17 @@ interface PrototypeSyncCompleteMessage extends WebSocketMessage {
     job_id: string;
     content_links: string[];
     stored_versions: string[];
+}
+interface KBIndexingStatusMessage extends WebSocketMessage {
+    type: 'kb_indexing_status';
+    status: string;
+    documents_count: number;
+    indexed: number;
+    failed: number;
+    error?: string;
+    kb_type?: string;
+    kb_id?: string;
+    job_id?: string;
 }
 interface WebSocketServiceOptions {
     /** WebSocket endpoint (wss://...) */
@@ -10504,6 +10765,10 @@ declare class WebSocketService {
      * Subscribe to prototype sync complete notifications
      */
     onPrototypeSyncComplete(handler: WebSocketEventHandler<PrototypeSyncCompleteMessage>): () => void;
+    /**
+     * Subscribe to KB indexing status updates
+     */
+    onKBIndexingStatus(handler: WebSocketEventHandler<KBIndexingStatusMessage>): () => void;
     /**
      * Subscribe to connection state changes
      */
@@ -13142,4 +13407,4 @@ declare const GithubCommitsResponseSchema: z.ZodObject<{
 }, z.core.$strip>;
 type GithubCommitsResponse = z.infer<typeof GithubCommitsResponseSchema>;
 
-export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type AddTaskData, type AddTaskResponses, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkUpdateTasksData, type BulkUpdateTasksResponses, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateWorkflowData, type CreateWorkflowResponses, DOCUMENT_TYPE_INFO, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DeleteTaskData, type DeleteTaskResponses, type DeleteWorkflowData, type DeleteWorkflowResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, DocumentType, type DocumentTypeInfo, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GenerateOutputResponse, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetPrototypeChatData, type GetPrototypeChatResponses, type GetRepoCommitsData, type GetRepoCommitsResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetStoredVersionsData, type GetStoredVersionsResponses, type GetSyncStatusData, type GetSyncStatusResponses, type GetTaskData, type GetTaskResponses, type GetWorkflowData, type GetWorkflowResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbQueryRequest, type LinkPrototypeChatData, type LinkPrototypeChatResponses, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListOptions, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListPrototypeChatsData, type ListPrototypeChatsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListTasksData, type ListTasksResponses, type ListWorkflowsData, type ListWorkflowsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type OutputStatusResponse, type PaginatedResponse, type Pagination, type PaginationParams, PaginationParamsSchema, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type PreviewPrototypeChatData, type PreviewPrototypeChatResponses, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type PrototypeChatGetResponse, type PrototypeChatLinkRequest, type PrototypeChatLinkResponse, type PrototypeChatListItem, type PrototypeChatListResponse, type PrototypeChatMessage, type PrototypeChatPreviewRequest, type PrototypeChatPreviewResponse, type PrototypeChatSyncAsyncRequest, type PrototypeChatSyncAsyncResponse, type PrototypeChatSyncRequest, type PrototypeChatSyncResponse, type PrototypeChatVersion, PrototypeNamespace, type PrototypePageInfo, type PrototypeStoredVersionsResponse, type PrototypeSyncCompleteMessage, type PrototypeSyncJobStatusResponse, type PrototypeSyncProgressMessage, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoCommitInfo, type RepoCommitStatusResponse, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type RepoSyncAllResponse, type RepoSyncResponse, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StartWorkflowData, type StartWorkflowResponses, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncAllReposData, type SyncAllReposResponses, type SyncEventMessage, type SyncPrototypeChatAsyncData, type SyncPrototypeChatAsyncResponses, type SyncPrototypeChatData, type SyncPrototypeChatResponses, type SyncRepoData, type SyncRepoResponses, type TaskResponse, type TaskStatus, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UpdateTaskData, type UpdateTaskResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type Workflow, type WorkflowActionResponse, type WorkflowCreate, type WorkflowListResponse, type WorkflowResponse, type WorkflowStatus, type WorkflowTaskCreate, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, addTask, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkUpdateTasks, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPaginatedResponseSchema, createPathService, createProject, createResponseSchema, createWebSocketService, createWorkflow, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, deleteTask, deleteWorkflow, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getPrototypeChat, getRepoCommits, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getStoredVersions, getSyncStatus, getTask, getWorkflow, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, linkPrototypeChat, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listPrototypeChats, listSessions, listTables, listTasks, listWorkflows, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, previewPrototypeChat, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, startWorkflow, syncAllRepos, syncPrototypeChat, syncPrototypeChatAsync, syncRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, unlockContent, updateDatabase, updateProject, updateSessionMetadata, updateTask, writeContent };
+export { type AcknowledgeMemoData, type AcknowledgeMemoResponses, type AddDatabaseData, type AddDatabaseResponses, type AddLinkedRepoData, type AddLinkedRepoResponses, type AddMissionData, type AddMissionRequest, type AddMissionResponses, type AddProjectRepoData, AddProjectRepoDataSchema, type AddProjectRepoResponse, AddProjectRepoResponseSchema, type AddRepoRequest, type AddTaskData, type AddTaskResponses, type ArchiveSessionData, type ArchiveSessionResponses, type AuthConfig, type AuthTokenData, AuthTokenDataSchema, type AuthTokenResponse, AuthTokenResponseSchema, type AuthUserInfo, type AuthUserInfoResponse, AuthUserInfoResponseSchema, AuthUserInfoSchema, type AuthValidateData, AuthValidateDataSchema, type AuthValidateResponse, AuthValidateResponseSchema, type BulkDeleteContentData, type BulkDeleteContentResponses, type BulkReadContentData, type BulkReadContentResponses, type BulkReadRequest, type BulkUpdateTasksData, type BulkUpdateTasksResponses, type BulkWriteContentData, type BulkWriteContentResponses, type BulkWriteRequest, type CheckAccessRequest, type Client, type ClientOptions, type Config, type ConnectionState, type ContentType, type ContentTypeInfo, ContentTypeInfoSchema, ContentTypeSchema, type ContentTypeValue, type ContentTypesData, ContentTypesDataSchema, type ContentTypesResponse, ContentTypesResponseSchema, type ContentTypesResult, type ContextReposData, ContextReposDataSchema, type ContextReposResponse, ContextReposResponseSchema, type CreateDatabaseData, type CreateDatabaseResponses, type CreateMemoData, type CreateMemoRequest, type CreateMemoResponse, type CreateMemoResponses, type CreateProjectData, CreateProjectDataSchema, type CreateProjectResponse, CreateProjectResponseSchema, type CreateProjectResponses, type CreateSessionData, CreateSessionDataSchema, type CreateSessionResponse, CreateSessionResponseSchema, type CreateWorkflowData, type CreateWorkflowResponses, DOCUMENT_TYPE_INFO, type DatabaseConfigResponse, type DatabaseCreate, type DatabaseListResponse, type DatabaseSampleResponse, type DatabaseSchemaResponse, type DatabaseUpdate, type DeleteContentData, type DeleteContentResponses, type DeleteData, DeleteDataSchema, type DeleteDatabaseData, type DeleteDatabaseResponses, type DeleteMemoData, type DeleteMemoResponse, type DeleteMemoResponses, type DeleteProjectData, DeleteProjectDataSchema, type DeleteProjectResponse, DeleteProjectResponseSchema, type DeleteProjectResponses, type DeleteRepoData, type DeleteRepoResponses, type DeleteResponse, DeleteResponseSchema, type DeleteResult, type DeleteTaskData, type DeleteTaskResponses, type DeleteWorkflowData, type DeleteWorkflowResponses, type DiscoveryData, DiscoveryDataSchema, type DiscoveryEndpoint, DiscoveryEndpointSchema, type DiscoveryResponse, DiscoveryResponseSchema, DocumentType, type DocumentTypeInfo, type DownloadRepositoryData, type DownloadRepositoryResponses, type DownloadRequest, type ErrorResponse, ErrorResponseSchema, type ForkRequest, type ForkSessionData, ForkSessionDataSchema, type ForkSessionResponse, ForkSessionResponseSchema, type ForkSessionResponses, type GenerateOutputResponse, type GetAuthConfigData, type GetAuthConfigResponses, type GetContentStatsData, type GetContentStatsResponses, type GetContentTreeData, type GetContentTreeResponses, type GetContentTypesData, type GetContentTypesResponses, type GetContentsRequest, type GetContextReposData, type GetContextReposResponses, type GetCurrentUserData, type GetCurrentUserResponses, type GetDatabaseData, type GetDatabaseResponses, type GetKbStatusData, type GetKbStatusResponses, type GetMemoData, type GetMemoForSourceData, type GetMemoForSourceResponse, type GetMemoForSourceResponses, type GetMemoResponse, type GetMemoResponses, type GetMissionContextData, type GetMissionContextResponses, type GetProjectData, GetProjectDataSchema, type GetProjectDatabasesData, type GetProjectDatabasesResponses, type GetProjectResponse, GetProjectResponseSchema, type GetProjectResponses, type GetPrototypeChatData, type GetPrototypeChatResponses, type GetRepoCommitsData, type GetRepoCommitsResponses, type GetRepoDownloadStatusData, type GetRepoDownloadStatusResponses, type GetSampleData, type GetSampleResponses, type GetSchemaData, type GetSchemaResponses, type GetSessionMessagesData, GetSessionMessagesDataSchema, type GetSessionMessagesResponse, GetSessionMessagesResponseSchema, type GetSessionMessagesResponses, type GetStoredVersionsData, type GetStoredVersionsResponses, type GetSyncStatusData, type GetSyncStatusResponses, type GetTaskData, type GetTaskResponses, type GetWorkflowData, type GetWorkflowResponses, type GithubBranchInfo, GithubBranchInfoSchema, type GithubBranchesData, GithubBranchesDataSchema, type GithubBranchesResponse, GithubBranchesResponseSchema, type GithubCheckAccessData, type GithubCheckAccessResponses, type GithubCommitInfo, GithubCommitInfoSchema, type GithubCommitsData, GithubCommitsDataSchema, type GithubCommitsResponse, GithubCommitsResponseSchema, type GithubDirectoryData, GithubDirectoryDataSchema, type GithubDirectoryResponse, GithubDirectoryResponseSchema, type GithubFileData, GithubFileDataSchema, type GithubFileInfo, GithubFileInfoSchema, type GithubFileResponse, GithubFileResponseSchema, type GithubGetContentsData, type GithubGetContentsResponses, type GithubListBranchesData, type GithubListBranchesResponses, type GithubRepoData, GithubRepoDataSchema, type GithubRepoInfo, GithubRepoInfoSchema, type GithubRepoResponse, GithubRepoResponseSchema, type IgnoreMemoData, type IgnoreMemoResponses, type IngestionJob, type IngestionJobResponse, IngestionJobResponseSchema, IngestionJobSchema, type JobProgressMessage, type KBDocument, KBDocumentSchema, type KBIndexingStatusMessage, type KBIngestData, KBIngestDataSchema, type KBIngestResponse, KBIngestResponseSchema, type KBListData, KBListDataSchema, type KBListResponse, KBListResponseSchema, KBNamespace, type KbIngestionJob, type KbOverview, type KbQueryRequest, type KbRepoStatus, type KbStatusResponse, type LinkPrototypeChatData, type LinkPrototypeChatResponses, type LinkedRepoResponse, type ListBranchesRequest, type ListContentData, type ListContentResponses, type ListData, ListDataSchema, type ListDatabasesData, type ListDatabasesResponses, type ListDownloadedReposData, type ListDownloadedReposResponses, type ListEntry, ListEntrySchema, type ListMemosData, type ListMemosResponse, type ListMemosResponses, type ListOptions, type ListProjectsData, ListProjectsDataSchema, type ListProjectsResponse, ListProjectsResponseSchema, type ListProjectsResponses, type ListPrototypeChatsData, type ListPrototypeChatsResponses, type ListResponse, ListResponseSchema, type ListResult, type ListSessionsData, ListSessionsDataSchema, type ListSessionsResponse, ListSessionsResponseSchema, type ListSessionsResponses, type ListTablesData, type ListTablesResponses, type ListTasksData, type ListTasksResponses, type ListWorkflowsData, type ListWorkflowsResponses, type ListWorkspacesData, type ListWorkspacesResponses, type LockContentData, type LockContentResponses, type LoginData, type LoginForAccessTokenData, type LoginForAccessTokenResponses, type LoginRequest, type LoginResponses, type Memo, type MemoActionResponse, type MemoCategory, type MemoSeverity, type MemoStatus, type MessageResponse, type Meta, MetaSchema, type MissionCreateRequest, MissionNamespace, type MoveContentData, type MoveContentResponses, type MoveRequest, type NotificationMessage, OCXPAuthError, OCXPClient, type OCXPClientOptions, OCXPConflictError, OCXPError, OCXPErrorCode, OCXPNetworkError, OCXPNotFoundError, OCXPPathService, type OCXPPathServiceOptions, OCXPRateLimitError, type OCXPResponse, OCXPResponseSchema, OCXPTimeoutError, OCXPValidationError, type Options, type OutputStatusResponse, type PaginatedResponse, type Pagination, type PaginationParams, PaginationParamsSchema, PaginationSchema, type ParsedPath, type PathEntry, type PathFileInfo, type PathListResult, type PathMoveResult, type PathReadResult, type PathWriteOptions, type PathWriteResult, type PresignedUrlData, PresignedUrlDataSchema, type PresignedUrlResponse, PresignedUrlResponseSchema, type PreviewPrototypeChatData, type PreviewPrototypeChatResponses, type Project, type ProjectCreate, type ProjectListResponse, type ProjectMission, ProjectMissionSchema, ProjectNamespace, type ProjectRepo, ProjectRepoSchema, type ProjectResponse, ProjectSchema, type ProjectUpdate, type PrototypeChatGetResponse, type PrototypeChatLinkRequest, type PrototypeChatLinkResponse, type PrototypeChatListItem, type PrototypeChatListResponse, type PrototypeChatMessage, type PrototypeChatPreviewRequest, type PrototypeChatPreviewResponse, type PrototypeChatSyncAsyncRequest, type PrototypeChatSyncAsyncResponse, type PrototypeChatSyncRequest, type PrototypeChatSyncResponse, type PrototypeChatVersion, PrototypeNamespace, type PrototypePageInfo, type PrototypeStoredVersionsResponse, type PrototypeSyncCompleteMessage, type PrototypeSyncJobStatusResponse, type PrototypeSyncProgressMessage, type QueryContentData, type QueryContentResponses, type QueryData, QueryDataSchema, type QueryFilter, QueryFilterSchema, type QueryKnowledgeBaseData, type QueryKnowledgeBaseResponses, type QueryResponse, QueryResponseSchema, type RagKnowledgeBaseData, type RagKnowledgeBaseResponses, type ReadContentData, type ReadContentResponses, type ReadData, ReadDataSchema, type ReadResponse, ReadResponseSchema, type ReadResult, type RefreshRequest, type RefreshResponse, type RefreshTokensData, type RefreshTokensResponses, type RegenerateMissionData, type RegenerateMissionRequest, type RegenerateMissionResponse, type RegenerateMissionResponses, type RemoveDatabaseData, type RemoveDatabaseResponses, type RemoveLinkedRepoData, type RemoveLinkedRepoResponses, type RemoveMissionData, type RemoveMissionResponses, type RepoCommitInfo, type RepoCommitStatusResponse, type RepoDeleteData, RepoDeleteDataSchema, type RepoDeleteResponse, RepoDeleteResponseSchema, type RepoDownloadData, RepoDownloadDataSchema, type RepoDownloadRequest, RepoDownloadRequestSchema, type RepoDownloadResponse, RepoDownloadResponseSchema, type RepoExistsData, RepoExistsDataSchema, type RepoExistsResponse, RepoExistsResponseSchema, type RepoInfo, type RepoListData, RepoListDataSchema, type RepoListItem, RepoListItemSchema, type RepoListResponse, RepoListResponseSchema, type RepoStatus, type RepoStatusData, RepoStatusDataSchema, RepoStatusEnum, type RepoStatusMessage, type RepoStatusResponse, RepoStatusResponseSchema, type RepoSyncAllResponse, type RepoSyncResponse, type ResolveMemoData, type ResolveMemoResponses, type SearchContentData, type SearchContentResponses, type SearchData, SearchDataSchema, type SearchResponse, SearchResponseSchema, type SearchResultItem, SearchResultItemSchema, type Session, type SessionForkResponse, type SessionListResponse, type SessionMessage, SessionMessageSchema, type SessionMessagesResponse, type SessionMetadataUpdate, SessionNamespace, type SessionResponse, SessionSchema, type SetDefaultDatabaseData, type SetDefaultDatabaseResponses, type SetDefaultRepoData, type SetDefaultRepoRequest, type SetDefaultRepoResponses, type SourceType, type StartWorkflowData, type StartWorkflowResponses, type StatsData, StatsDataSchema, type StatsResponse, StatsResponseSchema, type SyncAllReposData, type SyncAllReposResponses, type SyncEventMessage, type SyncPrototypeChatAsyncData, type SyncPrototypeChatAsyncResponses, type SyncPrototypeChatData, type SyncPrototypeChatResponses, type SyncRepoData, type SyncRepoResponses, type TaskResponse, type TaskStatus, type TestDatabaseConnectionData, type TestDatabaseConnectionResponses, type TokenProvider, type TokenResponse, type ToolCreateMissionData, type ToolCreateMissionResponses, type ToolUpdateMissionData, type ToolUpdateMissionResponses, type TreeData, TreeDataSchema, type TreeNode, TreeNodeSchema, type TreeResponse, TreeResponseSchema, type TriggerKbSyncData, type TriggerKbSyncResponses, type TriggerSyncRequest, type TriggerSyncResponse, type UnlockContentData, type UnlockContentResponses, type UpdateDatabaseData, type UpdateDatabaseResponses, type UpdateProjectData, UpdateProjectDataSchema, type UpdateProjectResponse, UpdateProjectResponseSchema, type UpdateProjectResponses, type UpdateSessionMetadataData, UpdateSessionMetadataDataSchema, type UpdateSessionMetadataResponse, UpdateSessionMetadataResponseSchema, type UpdateSessionMetadataResponses, type UpdateTaskData, type UpdateTaskResponses, type UserResponse, VALID_CONTENT_TYPES, type VectorSearchData, VectorSearchDataSchema, type VectorSearchResponse, VectorSearchResponseSchema, type WSBaseMessage, WSBaseMessageSchema, type WSChatMessage, WSChatMessageSchema, type WSChatResponse, WSChatResponseSchema, type WSConnected, WSConnectedSchema, type WSErrorMessage, WSErrorMessageSchema, type WSMessage, WSMessageSchema, type WSMessageType, WSMessageTypeSchema, type WSParseResult, type WSPingPong, WSPingPongSchema, type WSStatus, WSStatusSchema, type WSStreamChunk, WSStreamChunkSchema, type WSStreamEnd, WSStreamEndSchema, type WSStreamStart, WSStreamStartSchema, type WebSocketEventHandler, type WebSocketMessage, type WebSocketMessageType, WebSocketService, type WebSocketServiceOptions, type Workflow, type WorkflowActionResponse, type WorkflowCreate, type WorkflowListResponse, type WorkflowResponse, type WorkflowStatus, type WorkflowTaskCreate, type WorkspacesResponse, type WriteContentData, type WriteContentResponses, type WriteData, WriteDataSchema, type WriteRequest, type WriteResponse, WriteResponseSchema, type WriteResult, acknowledgeMemo, addDatabase, addLinkedRepo, addMission, addTask, archiveSession, buildPath, bulkDeleteContent, bulkReadContent, bulkUpdateTasks, bulkWriteContent, createClient, createConfig, createDatabase, createMemo, createOCXPClient, createPaginatedResponseSchema, createPathService, createProject, createResponseSchema, createWebSocketService, createWorkflow, deleteContent, deleteDatabase, deleteMemo, deleteProject, deleteRepo, deleteTask, deleteWorkflow, downloadRepository, forkSession, getAuthConfig, getCanonicalType, getContentStats, getContentTree, getContentTypes, getContextRepos, getCurrentUser, getDatabase, getKbStatus, getMemo, getMemoForSource, getMissionContext, getProject, getProjectDatabases, getPrototypeChat, getRepoCommits, getRepoDownloadStatus, getSample, getSchema, getSessionMessages, getStoredVersions, getSyncStatus, getTask, getWorkflow, githubCheckAccess, githubGetContents, githubListBranches, ignoreMemo, isOCXPAuthError, isOCXPConflictError, isOCXPError, isOCXPNetworkError, isOCXPNotFoundError, isOCXPRateLimitError, isOCXPTimeoutError, isOCXPValidationError, isValidContentType, linkPrototypeChat, listContent, listContextDatabases, listDatabases, listDownloadedRepos, listMemos, listProjects, listPrototypeChats, listSessions, listTables, listTasks, listWorkflows, listWorkspaces, lockContent, login, loginForAccessToken, mapHttpError, moveContent, normalizePath, parsePath, parseWSMessage, previewPrototypeChat, queryContent, queryKnowledgeBase, ragKnowledgeBase, readContent, refreshTokens, regenerateMission, removeDatabase, removeLinkedRepo, removeMission, resolveMemo, safeParseWSMessage, searchContent, setDefaultDatabase, setDefaultRepo, startWorkflow, syncAllRepos, syncPrototypeChat, syncPrototypeChatAsync, syncRepo, testDatabaseConnection, toolCreateMission, toolUpdateMission, triggerKbSync, unlockContent, updateDatabase, updateProject, updateSessionMetadata, updateTask, writeContent };

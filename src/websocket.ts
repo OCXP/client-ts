@@ -3,7 +3,14 @@
  * Provides push notifications for job progress, sync events, etc.
  */
 
-export type WebSocketMessageType = 'job_progress' | 'repo_status' | 'notification' | 'sync_event' | 'prototype_sync_progress' | 'prototype_sync_complete';
+export type WebSocketMessageType =
+  | 'job_progress'
+  | 'repo_status'
+  | 'notification'
+  | 'sync_event'
+  | 'prototype_sync_progress'
+  | 'prototype_sync_complete'
+  | 'kb_indexing_status';
 
 export interface WebSocketMessage {
   type: WebSocketMessageType;
@@ -64,6 +71,18 @@ export interface PrototypeSyncCompleteMessage extends WebSocketMessage {
   job_id: string;
   content_links: string[];
   stored_versions: string[];
+}
+
+export interface KBIndexingStatusMessage extends WebSocketMessage {
+  type: 'kb_indexing_status';
+  status: string;
+  documents_count: number;
+  indexed: number;
+  failed: number;
+  error?: string;
+  kb_type?: string;
+  kb_id?: string;
+  job_id?: string;
 }
 
 export interface WebSocketServiceOptions {
@@ -280,15 +299,26 @@ export class WebSocketService {
   /**
    * Subscribe to prototype sync progress updates
    */
-  onPrototypeSyncProgress(handler: WebSocketEventHandler<PrototypeSyncProgressMessage>): () => void {
+  onPrototypeSyncProgress(
+    handler: WebSocketEventHandler<PrototypeSyncProgressMessage>
+  ): () => void {
     return this.on('prototype_sync_progress', handler);
   }
 
   /**
    * Subscribe to prototype sync complete notifications
    */
-  onPrototypeSyncComplete(handler: WebSocketEventHandler<PrototypeSyncCompleteMessage>): () => void {
+  onPrototypeSyncComplete(
+    handler: WebSocketEventHandler<PrototypeSyncCompleteMessage>
+  ): () => void {
     return this.on('prototype_sync_complete', handler);
+  }
+
+  /**
+   * Subscribe to KB indexing status updates
+   */
+  onKBIndexingStatus(handler: WebSocketEventHandler<KBIndexingStatusMessage>): () => void {
+    return this.on('kb_indexing_status', handler);
   }
 
   /**

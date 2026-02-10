@@ -67,6 +67,9 @@ import type {
   PrototypeChatSyncAsyncResponse,
   PrototypeSyncJobStatusResponse,
   PrototypeStoredVersionsResponse,
+  // KB Status types
+  KbStatusResponse,
+  TriggerSyncResponse,
 } from './generated/types.gen';
 
 // Clean return types for SDK methods
@@ -518,6 +521,36 @@ export class OCXPClient {
     const response = await sdk.ragKnowledgeBase({
       client: this.client,
       body: { query, session_id: sessionId },
+      headers,
+    });
+    return extractData(response);
+  }
+
+  // ============== KB Status Operations ==============
+
+  /**
+   * Get status of all Knowledge Bases (code, docs, visual)
+   */
+  async kbStatus(): Promise<KbStatusResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getKbStatus({
+      client: this.client,
+      headers,
+    });
+    return extractData(response);
+  }
+
+  /**
+   * Trigger KB re-indexing
+   */
+  async kbSync(options?: { kbType?: string; force?: boolean }): Promise<TriggerSyncResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.triggerKbSync({
+      client: this.client,
+      body: {
+        kb_type: options?.kbType ?? null,
+        force: options?.force ?? false,
+      },
       headers,
     });
     return extractData(response);
@@ -2287,6 +2320,22 @@ export class KBNamespace {
    */
   async rag(query: string, sessionId?: string) {
     return this.client.kbRag(query, sessionId);
+  }
+
+  /**
+   * Get status of all Knowledge Bases (code, docs, visual)
+   * @example ocxp.kb.status()
+   */
+  async status(): Promise<KbStatusResponse> {
+    return this.client.kbStatus();
+  }
+
+  /**
+   * Trigger KB re-indexing
+   * @example ocxp.kb.sync({ kbType: 'code' })
+   */
+  async sync(options?: { kbType?: string; force?: boolean }): Promise<TriggerSyncResponse> {
+    return this.client.kbSync(options);
   }
 }
 
