@@ -3733,6 +3733,65 @@
         ]
       }
     },
+    "/ocxp/project/cleanup-dead-repos": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Remove dead repository links",
+        "description": "Scans all projects in the workspace and removes links to repositories that no longer exist in the registry.",
+        "operationId": "cleanupDeadRepos",
+        "parameters": [
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cleanup completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CleanupDeadReposResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/project/{project_id}/default-repo": {
       "put": {
         "tags": [
@@ -5855,6 +5914,124 @@
                   "detail": "Rate limit exceeded. Please try again later.",
                   "retry_after": 60
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/documents/create": {
+      "post": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Generate specific document types for a mission",
+        "description": "Request on-demand generation of documents (e.g., PRD, implementation guide) using existing mission research and synthesis. Sends message to active agentcore session.",
+        "operationId": "createMissionDocuments",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Mission Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentGenerationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document generation initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentGenerationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mission or session not found"
+          },
+          "422": {
+            "description": "Invalid document types or request"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/mission/{mission_id}/documents/status": {
+      "get": {
+        "tags": [
+          "Mission"
+        ],
+        "summary": "Get document generation status",
+        "description": "Check the status of document generation for a mission.",
+        "operationId": "getDocumentsStatus",
+        "parameters": [
+          {
+            "name": "mission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Mission Id"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -9510,6 +9687,91 @@
         ]
       }
     },
+    "/ocxp/repo/{repo_id}/pulls": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Get repository pull requests",
+        "description": "Returns recent pull requests for the repository from GitHub.",
+        "operationId": "getRepoPulls",
+        "parameters": [
+          {
+            "name": "repo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repo Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Maximum number of PRs to return",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Maximum number of PRs to return"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pull requests returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepoPullRequestsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Repository not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/github/check-access": {
       "post": {
         "tags": [
@@ -10898,6 +11160,24 @@
             "description": "Filter by path prefix"
           },
           {
+            "name": "project",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID (scopes to linked repos)",
+              "title": "Project"
+            },
+            "description": "Filter by project ID (scopes to linked repos)"
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -11091,6 +11371,24 @@
             "description": "Search query string"
           },
           {
+            "name": "project",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID (scopes to linked repos)",
+              "title": "Project"
+            },
+            "description": "Filter by project ID (scopes to linked repos)"
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -11206,6 +11504,24 @@
               "title": "Path"
             },
             "description": "Root path for tree"
+          },
+          {
+            "name": "project",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID (scopes to linked repos)",
+              "title": "Project"
+            },
+            "description": "Filter by project ID (scopes to linked repos)"
           },
           {
             "name": "depth",
@@ -13217,7 +13533,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "password"
+                "pattern": "^password$"
               },
               {
                 "type": "null"
@@ -13231,6 +13547,7 @@
           },
           "password": {
             "type": "string",
+            "format": "password",
             "title": "Password"
           },
           "scope": {
@@ -13258,6 +13575,7 @@
                 "type": "null"
               }
             ],
+            "format": "password",
             "title": "Client Secret"
           }
         },
@@ -14361,6 +14679,33 @@
         ],
         "title": "CheckpointResponse",
         "description": "Single checkpoint response."
+      },
+      "CleanupDeadReposResponse": {
+        "properties": {
+          "projects_scanned": {
+            "type": "integer",
+            "title": "Projects Scanned"
+          },
+          "dead_links_removed": {
+            "type": "integer",
+            "title": "Dead Links Removed"
+          },
+          "details": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "projects_scanned",
+          "dead_links_removed"
+        ],
+        "title": "CleanupDeadReposResponse",
+        "description": "Response model for dead repo cleanup operation."
       },
       "ColumnOverview": {
         "properties": {
@@ -16210,6 +16555,117 @@
         "title": "DatabaseUpdate",
         "description": "Request body for updating a database config."
       },
+      "DiscoverMetrics": {
+        "properties": {
+          "internal_total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Internal Total",
+            "description": "Total results from internal KB",
+            "default": 0
+          },
+          "internal_max_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Internal Max Score",
+            "description": "Highest relevance score from internal KB",
+            "default": 0.0
+          },
+          "internal_avg_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Internal Avg Score",
+            "description": "Average relevance score from internal KB",
+            "default": 0.0
+          },
+          "internal_code_hits": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Internal Code Hits",
+            "description": "Results from code KB",
+            "default": 0
+          },
+          "internal_docs_hits": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Internal Docs Hits",
+            "description": "Results from docs KB",
+            "default": 0
+          },
+          "external_total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "External Total",
+            "description": "Total results from external sources (Context7, AWS docs)",
+            "default": 0
+          },
+          "external_max_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "External Max Score",
+            "description": "Highest relevance score from external sources",
+            "default": 0.0
+          },
+          "fallback_triggered": {
+            "type": "boolean",
+            "title": "Fallback Triggered",
+            "description": "Whether fallback to external sources was triggered",
+            "default": false
+          },
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason",
+            "description": "Why fallback was triggered: low_score, no_results, null if not triggered",
+            "examples": [
+              "low_score",
+              "no_results",
+              null
+            ]
+          },
+          "fallback_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Source",
+            "description": "External source used: context7, aws_docs",
+            "examples": [
+              "context7",
+              "aws_docs"
+            ]
+          },
+          "query_decomposed": {
+            "type": "boolean",
+            "title": "Query Decomposed",
+            "description": "Whether query was decomposed into sub-queries",
+            "default": false
+          },
+          "sub_query_count": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Sub Query Count",
+            "description": "Number of sub-queries executed",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "title": "DiscoverMetrics",
+        "description": "Metrics for context discovery - used for Langfuse dashboard.\n\nTracks source attribution and quality scores for evaluation."
+      },
       "DiscoverOptions": {
         "properties": {
           "content_type": {
@@ -16474,6 +16930,17 @@
             "type": "array",
             "title": "Citations",
             "description": "Citations for RAG answer"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiscoverMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Discovery metrics for Langfuse evaluation dashboard"
           }
         },
         "type": "object",
@@ -16484,6 +16951,75 @@
         ],
         "title": "DiscoverResponse",
         "description": "Response from POST /ocxp/context/discover.\n\nContains search results and optional RAG-generated answer."
+      },
+      "DocumentGenerationRequest": {
+        "properties": {
+          "doc_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Doc Types",
+            "description": "List of document types to generate (e.g., ['implementation-guide', 'prd', 'architecture-decisions'])"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Optional specific agentcore session to use. If not provided, uses most recent active session."
+          }
+        },
+        "type": "object",
+        "required": [
+          "doc_types"
+        ],
+        "title": "DocumentGenerationRequest",
+        "description": "Request to generate specific document types for a mission."
+      },
+      "DocumentGenerationResponse": {
+        "properties": {
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "doc_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Doc Types"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "initiated"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mission_id",
+          "doc_types",
+          "session_id",
+          "message"
+        ],
+        "title": "DocumentGenerationResponse",
+        "description": "Response for document generation request."
       },
       "DownloadRequest": {
         "properties": {
@@ -21263,6 +21799,125 @@
         "title": "RepoListResponse",
         "description": "Response for GET /ocxp/repo/list with offset-based pagination."
       },
+      "RepoPullRequestInfo": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number",
+            "description": "PR number",
+            "examples": [
+              123
+            ]
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "PR title",
+            "examples": [
+              "Add new feature"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "title": "State",
+            "description": "PR state: open, closed, or merged",
+            "examples": [
+              "open"
+            ]
+          },
+          "author": {
+            "type": "string",
+            "title": "Author",
+            "description": "Author username",
+            "examples": [
+              "octocat"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "Creation date ISO timestamp",
+            "examples": [
+              "2025-01-15T10:30:00Z"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "Last update date ISO timestamp",
+            "examples": [
+              "2025-01-16T14:00:00Z"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "GitHub URL for the PR",
+            "examples": [
+              "https://github.com/owner/repo/pull/123"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "title",
+          "state",
+          "author",
+          "created_at",
+          "updated_at",
+          "url"
+        ],
+        "title": "RepoPullRequestInfo",
+        "description": "Pull request information from GitHub."
+      },
+      "RepoPullRequestsResponse": {
+        "properties": {
+          "repo_id": {
+            "type": "string",
+            "title": "Repo Id",
+            "description": "Repository identifier",
+            "examples": [
+              "owner/my-app"
+            ]
+          },
+          "pull_requests": {
+            "items": {
+              "$ref": "#/components/schemas/RepoPullRequestInfo"
+            },
+            "type": "array",
+            "title": "Pull Requests",
+            "description": "List of pull requests"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total number of PRs returned",
+            "default": 0,
+            "examples": [
+              5
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if lookup failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "repo_id"
+        ],
+        "title": "RepoPullRequestsResponse",
+        "description": "Response for GET /ocxp/repo/{id}/pulls."
+      },
       "RepoStatusResponse": {
         "properties": {
           "job_id": {
@@ -23409,5 +24064,10 @@
         }
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+    }
+  ]
 }

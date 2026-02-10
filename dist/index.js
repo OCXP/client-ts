@@ -983,6 +983,13 @@ var removeLinkedRepo = (options) => (options.client ?? client).delete({
   url: "/ocxp/project/{project_id}/repos/{repo_id}",
   ...options
 });
+var cleanupDeadRepos = (options) => (options?.client ?? client).post(
+  {
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/ocxp/project/cleanup-dead-repos",
+    ...options
+  }
+);
 var setDefaultRepo = (options) => (options.client ?? client).put({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/project/{project_id}/default-repo",
@@ -2381,6 +2388,17 @@ var OCXPClient = class {
     return extractData(response);
   }
   /**
+   * Scan all projects and remove links to repos that no longer exist in the index
+   */
+  async cleanupDeadRepos() {
+    const headers = await this.getHeaders();
+    const response = await cleanupDeadRepos({
+      client: this.client,
+      headers
+    });
+    return extractData(response);
+  }
+  /**
    * Set default repository for project
    */
   async setDefaultRepo(projectId, repoId) {
@@ -3067,12 +3085,12 @@ var MissionNamespace = class {
   /**
    * Generate mission output (documents, reports, etc.)
    * General endpoint for all output types using existing research.
-   * 
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
    * @returns Output response with session_id for tracking
-   * 
+   *
    * @example
    * await ocxp.mission.generateOutput('mission-id', 'documents', {
    *   doc_types: ['implementation-guide', 'prd'],
@@ -3085,11 +3103,11 @@ var MissionNamespace = class {
   /**
    * Get output generation status
    * Check progress and status of output generation.
-   * 
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output to check (default: 'documents')
    * @returns Current output status with progress
-   * 
+   *
    * @example
    * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
    */
@@ -3145,6 +3163,12 @@ var ProjectNamespace = class {
    */
   async removeRepo(projectId, repoId) {
     return this.client.removeProjectRepo(projectId, repoId);
+  }
+  /**
+   * Remove dead repo links from all projects in the workspace
+   */
+  async cleanupDeadRepos() {
+    return this.client.cleanupDeadRepos();
   }
   /**
    * Set the default repository for a project

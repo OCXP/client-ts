@@ -83,6 +83,9 @@ import type {
   CaptureScreenshotData,
   CaptureScreenshotErrors,
   CaptureScreenshotResponses,
+  CleanupDeadReposData,
+  CleanupDeadReposErrors,
+  CleanupDeadReposResponses,
   ComparePagesData,
   ComparePagesErrors,
   ComparePagesResponses,
@@ -96,6 +99,9 @@ import type {
   CreateMemoErrors,
   CreateMemoResponses,
   CreateMissionData,
+  CreateMissionDocumentsData,
+  CreateMissionDocumentsErrors,
+  CreateMissionDocumentsResponses,
   CreateMissionErrors,
   CreateMissionResponses,
   CreateProjectData,
@@ -187,6 +193,9 @@ import type {
   GetDatabaseOverviewErrors,
   GetDatabaseOverviewResponses,
   GetDatabaseResponses,
+  GetDocumentsStatusData,
+  GetDocumentsStatusErrors,
+  GetDocumentsStatusResponses,
   GetGithubTokenStatusData,
   GetGithubTokenStatusErrors,
   GetGithubTokenStatusResponses,
@@ -223,6 +232,9 @@ import type {
   GetRepoDownloadStatusData,
   GetRepoDownloadStatusErrors,
   GetRepoDownloadStatusResponses,
+  GetRepoPullsData,
+  GetRepoPullsErrors,
+  GetRepoPullsResponses,
   GetSampleData,
   GetSampleErrors,
   GetSampleResponses,
@@ -1890,6 +1902,22 @@ export const removeLinkedRepo = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Remove dead repository links
+ *
+ * Scans all projects in the workspace and removes links to repositories that no longer exist in the registry.
+ */
+export const cleanupDeadRepos = <ThrowOnError extends boolean = false>(
+  options?: Options<CleanupDeadReposData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<CleanupDeadReposResponses, CleanupDeadReposErrors, ThrowOnError>(
+    {
+      security: [{ scheme: 'bearer', type: 'http' }],
+      url: '/ocxp/project/cleanup-dead-repos',
+      ...options,
+    }
+  );
+
+/**
  * Set default repository
  *
  * Sets the default repository for the project. Used for integration and primary context.
@@ -2319,6 +2347,46 @@ export const downloadMissionPack = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/mission/{mission_id}/download',
+    ...options,
+  });
+
+/**
+ * Generate specific document types for a mission
+ *
+ * Request on-demand generation of documents (e.g., PRD, implementation guide) using existing mission research and synthesis. Sends message to active agentcore session.
+ */
+export const createMissionDocuments = <ThrowOnError extends boolean = false>(
+  options: Options<CreateMissionDocumentsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateMissionDocumentsResponses,
+    CreateMissionDocumentsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/documents/create',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get document generation status
+ *
+ * Check the status of document generation for a mission.
+ */
+export const getDocumentsStatus = <ThrowOnError extends boolean = false>(
+  options: Options<GetDocumentsStatusData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetDocumentsStatusResponses,
+    GetDocumentsStatusErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/mission/{mission_id}/documents/status',
     ...options,
   });
 
@@ -3051,6 +3119,20 @@ export const syncRepo = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Get repository pull requests
+ *
+ * Returns recent pull requests for the repository from GitHub.
+ */
+export const getRepoPulls = <ThrowOnError extends boolean = false>(
+  options: Options<GetRepoPullsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetRepoPullsResponses, GetRepoPullsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/repo/{repo_id}/pulls',
+    ...options,
   });
 
 /**

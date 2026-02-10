@@ -47,6 +47,7 @@ import type {
   TokenResponse,
   RefreshResponse,
   ContentTreeResponse,
+  CleanupDeadReposResponse,
   // Database types
   DatabaseCreate,
   DatabaseUpdate,
@@ -1179,6 +1180,18 @@ export class OCXPClient {
   }
 
   /**
+   * Scan all projects and remove links to repos that no longer exist in the index
+   */
+  async cleanupDeadRepos(): Promise<CleanupDeadReposResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.cleanupDeadRepos({
+      client: this.client,
+      headers,
+    });
+    return extractData(response);
+  }
+
+  /**
    * Set default repository for project
    */
   async setDefaultRepo(projectId: string, repoId: string | null): Promise<ProjectResponse> {
@@ -2137,6 +2150,13 @@ export class ProjectNamespace {
    */
   async removeRepo(projectId: string, repoId: string): Promise<ProjectResponse> {
     return this.client.removeProjectRepo(projectId, repoId);
+  }
+
+  /**
+   * Remove dead repo links from all projects in the workspace
+   */
+  async cleanupDeadRepos(): Promise<CleanupDeadReposResponse> {
+    return this.client.cleanupDeadRepos();
   }
 
   /**

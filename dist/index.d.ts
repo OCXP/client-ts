@@ -714,6 +714,27 @@ type CheckAccessRequest = {
   repo_url: string;
 };
 /**
+ * CleanupDeadReposResponse
+ *
+ * Response model for dead repo cleanup operation.
+ */
+type CleanupDeadReposResponse = {
+  /**
+   * Projects Scanned
+   */
+  projects_scanned: number;
+  /**
+   * Dead Links Removed
+   */
+  dead_links_removed: number;
+  /**
+   * Details
+   */
+  details?: Array<{
+    [key: string]: unknown;
+  }>;
+};
+/**
  * ContentDeleteResponse
  *
  * Response for DELETE /ocxp/{type}/{id}.
@@ -7294,6 +7315,12 @@ type ListContentData = {
      */
     path?: string | null;
     /**
+     * Project
+     *
+     * Filter by project ID (scopes to linked repos)
+     */
+    project?: string | null;
+    /**
      * Limit
      *
      * Maximum items to return
@@ -7385,6 +7412,12 @@ type SearchContentData = {
      */
     q: string;
     /**
+     * Project
+     *
+     * Filter by project ID (scopes to linked repos)
+     */
+    project?: string | null;
+    /**
      * Limit
      *
      * Maximum results to return
@@ -7436,6 +7469,12 @@ type GetContentTreeData = {
      * Root path for tree
      */
     path?: string | null;
+    /**
+     * Project
+     *
+     * Filter by project ID (scopes to linked repos)
+     */
+    project?: string | null;
     /**
      * Depth
      *
@@ -9935,6 +9974,10 @@ declare class OCXPClient {
    */
   removeProjectRepo(projectId: string, repoId: string): Promise<ProjectResponse>;
   /**
+   * Scan all projects and remove links to repos that no longer exist in the index
+   */
+  cleanupDeadRepos(): Promise<CleanupDeadReposResponse>;
+  /**
    * Set default repository for project
    */
   setDefaultRepo(projectId: string, repoId: string | null): Promise<ProjectResponse>;
@@ -10409,6 +10452,10 @@ declare class ProjectNamespace {
    * Remove a repository from a project
    */
   removeRepo(projectId: string, repoId: string): Promise<ProjectResponse>;
+  /**
+   * Remove dead repo links from all projects in the workspace
+   */
+  cleanupDeadRepos(): Promise<CleanupDeadReposResponse>;
   /**
    * Set the default repository for a project
    */
