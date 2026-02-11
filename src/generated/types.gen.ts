@@ -2000,6 +2000,22 @@ export type DatabaseDiagramResponse = {
    * Diagram format
    */
   format?: string;
+  /**
+   * Mock Data
+   *
+   * Mock data keyed by table name
+   */
+  mock_data?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Schema Summary
+   *
+   * Simplified schema for rendering
+   */
+  schema_summary?: Array<{
+    [key: string]: unknown;
+  }> | null;
 };
 
 /**
@@ -13518,6 +13534,18 @@ export type GetDatabaseDiagramData = {
      * Comma-separated list of tables to include (omit for all)
      */
     tables?: string | null;
+    /**
+     * Include Mock Data
+     *
+     * Include generated mock data in response
+     */
+    include_mock_data?: boolean;
+    /**
+     * Mock Rows
+     *
+     * Number of mock rows per table
+     */
+    mock_rows?: number;
   };
   url: '/ocxp/context/database/diagram';
 };

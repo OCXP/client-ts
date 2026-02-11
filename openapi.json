@@ -11361,6 +11361,32 @@
             "description": "Comma-separated list of tables to include (omit for all)"
           },
           {
+            "name": "include_mock_data",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include generated mock data in response",
+              "default": false,
+              "title": "Include Mock Data"
+            },
+            "description": "Include generated mock data in response"
+          },
+          {
+            "name": "mock_rows",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "description": "Number of mock rows per table",
+              "default": 5,
+              "title": "Mock Rows"
+            },
+            "description": "Number of mock rows per table"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -16827,6 +16853,35 @@
             "title": "Format",
             "description": "Diagram format",
             "default": "mermaid"
+          },
+          "mock_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mock Data",
+            "description": "Mock data keyed by table name"
+          },
+          "schema_summary": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Summary",
+            "description": "Simplified schema for rendering"
           }
         },
         "type": "object",

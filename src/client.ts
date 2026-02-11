@@ -1094,11 +1094,21 @@ export class OCXPClient {
   /**
    * Get database ER diagram in Mermaid syntax
    */
-  async getDatabaseDiagram(databaseId?: string, tables?: string): Promise<DatabaseDiagramResponse> {
+  async getDatabaseDiagram(
+    databaseId?: string,
+    tables?: string,
+    includeMockData?: boolean,
+    mockRows?: number
+  ): Promise<DatabaseDiagramResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.getDatabaseDiagram({
       client: this.client,
-      query: { database_id: databaseId, tables },
+      query: {
+        database_id: databaseId,
+        tables,
+        include_mock_data: includeMockData,
+        mock_rows: mockRows,
+      },
       headers,
     });
     return extractData(response);
