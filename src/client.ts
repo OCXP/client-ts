@@ -55,6 +55,7 @@ import type {
   DatabaseListResponse,
   DatabaseSchemaResponse,
   DatabaseSampleResponse,
+  DatabaseDiagramResponse,
   // Prototype types
   PrototypeChatListResponse,
   PrototypeChatPreviewResponse,
@@ -1085,6 +1086,19 @@ export class OCXPClient {
       client: this.client,
       path: { table_name: tableName },
       query: { database_id: databaseId, limit },
+      headers,
+    });
+    return extractData(response);
+  }
+
+  /**
+   * Get database ER diagram in Mermaid syntax
+   */
+  async getDatabaseDiagram(databaseId?: string, tables?: string): Promise<DatabaseDiagramResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getDatabaseDiagram({
+      client: this.client,
+      query: { database_id: databaseId, tables },
       headers,
     });
     return extractData(response);

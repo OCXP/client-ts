@@ -1416,6 +1416,11 @@ var listContextDatabases = (options) => (options?.client ?? client).get({
   url: "/ocxp/context/database/databases",
   ...options
 });
+var getDatabaseDiagram = (options) => (options?.client ?? client).get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/ocxp/context/database/diagram",
+  ...options
+});
 var getContentTypes = (options) => (options?.client ?? client).get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/ocxp/context/types",
@@ -2313,6 +2318,18 @@ var OCXPClient = class {
       client: this.client,
       path: { table_name: tableName },
       query: { database_id: databaseId, limit },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Get database ER diagram in Mermaid syntax
+   */
+  async getDatabaseDiagram(databaseId, tables) {
+    const headers = await this.getHeaders();
+    const response = await getDatabaseDiagram({
+      client: this.client,
+      query: { database_id: databaseId, tables },
       headers
     });
     return extractData(response);

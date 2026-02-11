@@ -2110,6 +2110,24 @@
             "description": "Filter by status: active, archived"
           },
           {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID",
+              "title": "Project Id"
+            },
+            "description": "Filter by project ID"
+          },
+          {
             "name": "order_by",
             "in": "query",
             "required": false,
@@ -11297,6 +11315,104 @@
         ]
       }
     },
+    "/ocxp/context/database/diagram": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "Generate ER diagram",
+        "description": "Returns a Mermaid erDiagram of the database schema with entity definitions and relationships.",
+        "operationId": "getDatabaseDiagram",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Database ID (default: amc-default)",
+              "title": "Database Id"
+            },
+            "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "tables",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated list of tables to include (omit for all)",
+              "title": "Tables"
+            },
+            "description": "Comma-separated list of tables to include (omit for all)"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ER diagram generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseDiagramResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/context/types": {
       "get": {
         "tags": [
@@ -15976,10 +16092,29 @@
             "minLength": 1,
             "title": "Session Id"
           },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "Parent project ID"
+          },
           "mission_id": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Mission Id"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id",
+            "description": "Parent mission ID"
           },
           "title": {
             "anyOf": [
@@ -16000,11 +16135,10 @@
         },
         "type": "object",
         "required": [
-          "session_id",
-          "mission_id"
+          "session_id"
         ],
         "title": "CreateSessionRequest",
-        "description": "Request body for POST /ocxp/session - create new session linked to mission."
+        "description": "Request body for POST /ocxp/session - create new session.\n\nSupports both mission-scoped and project-scoped sessions.\nAt least one of project_id or mission_id should be provided."
       },
       "CredentialActionResponse": {
         "properties": {
@@ -16645,6 +16779,63 @@
         "title": "DatabaseCreate",
         "description": "Request body for creating a database config."
       },
+      "DatabaseDiagramResponse": {
+        "properties": {
+          "diagram": {
+            "type": "string",
+            "title": "Diagram",
+            "description": "Mermaid erDiagram syntax"
+          },
+          "database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "database_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Name",
+            "examples": [
+              "Production DB"
+            ]
+          },
+          "table_count": {
+            "type": "integer",
+            "title": "Table Count",
+            "default": 0,
+            "examples": [
+              15
+            ]
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Diagram format",
+            "default": "mermaid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "diagram"
+        ],
+        "title": "DatabaseDiagramResponse",
+        "description": "Response for GET /ocxp/context/database/diagram."
+      },
       "DatabaseListResponse": {
         "properties": {
           "databases": {
@@ -16853,6 +17044,18 @@
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Informational message (e.g. why no tables were found)"
           }
         },
         "type": "object",
@@ -16884,6 +17087,18 @@
               }
             ],
             "title": "Description"
+          },
+          "db_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Db Type",
+            "description": "postgres|postgres_lambda|supabase|terraform|mysql|mariadb"
           },
           "lambda_function_name": {
             "anyOf": [
@@ -23222,6 +23437,20 @@
             "default": "active",
             "examples": [
               "active"
+            ]
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
             ]
           },
           "mission_id": {

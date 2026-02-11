@@ -2110,6 +2110,24 @@
             "description": "Filter by status: active, archived"
           },
           {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by project ID",
+              "title": "Project Id"
+            },
+            "description": "Filter by project ID"
+          },
+          {
             "name": "order_by",
             "in": "query",
             "required": false,
@@ -9128,6 +9146,125 @@
         ]
       }
     },
+    "/ocxp/chat/completions": {
+      "post": {
+        "tags": [
+          "Chat Completions"
+        ],
+        "summary": "OpenAI-compatible chat completions",
+        "description": "Translates OpenAI Chat Completions requests to AgentCore invocations.",
+        "operationId": "createChatCompletion",
+        "parameters": [
+          {
+            "name": "X-Mission",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Mission"
+            }
+          },
+          {
+            "name": "X-Project",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Project"
+            }
+          },
+          {
+            "name": "X-Session",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session"
+            }
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat completion (streaming or non-streaming)",
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/event-stream": {}
+            }
+          },
+          "503": {
+            "description": "AgentCore unavailable"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/ocxp/agent/invoke": {
       "post": {
         "tags": [
@@ -11142,6 +11279,104 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DatabaseOverviewResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/ocxp/context/database/diagram": {
+      "get": {
+        "tags": [
+          "Database Context"
+        ],
+        "summary": "Generate ER diagram",
+        "description": "Returns a Mermaid erDiagram of the database schema with entity definitions and relationships.",
+        "operationId": "getDatabaseDiagram",
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Database ID (default: amc-default)",
+              "title": "Database Id"
+            },
+            "description": "Database ID (default: amc-default)"
+          },
+          {
+            "name": "tables",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated list of tables to include (omit for all)",
+              "title": "Tables"
+            },
+            "description": "Comma-separated list of tables to include (omit for all)"
+          },
+          {
+            "name": "X-Workspace",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "X-Workspace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ER diagram generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseDiagramResponse"
                 }
               }
             }
@@ -13679,7 +13914,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "^password$"
+                "pattern": "password"
               },
               {
                 "type": "null"
@@ -13693,7 +13928,6 @@
           },
           "password": {
             "type": "string",
-            "format": "password",
             "title": "Password"
           },
           "scope": {
@@ -13721,7 +13955,6 @@
                 "type": "null"
               }
             ],
-            "format": "password",
             "title": "Client Secret"
           }
         },
@@ -14692,6 +14925,108 @@
         "title": "CapturePageScreenshotsResponse",
         "description": "Response from capturing page screenshots.\n\nReturns the OCXP links for each captured screenshot, mapped by route."
       },
+      "ChatCompletionRequest": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "Model identifier"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "type": "array",
+            "title": "Messages",
+            "description": "Conversation messages"
+          },
+          "stream": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream",
+            "description": "Stream response",
+            "default": true
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          },
+          "max_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Tokens"
+          },
+          "top_p": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top P"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "model",
+          "messages"
+        ],
+        "title": "ChatCompletionRequest",
+        "description": "OpenAI-compatible chat completion request."
+      },
+      "ChatMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Message role: system, user, assistant"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContentPart"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Content",
+            "description": "Message content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage",
+        "description": "Single message in OpenAI chat format."
+      },
       "CheckAccessRequest": {
         "properties": {
           "repo_url": {
@@ -15108,6 +15443,33 @@
         ],
         "title": "ContentListResponse",
         "description": "Response for GET /ocxp/{type}/list."
+      },
+      "ContentPart": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Content type: text, image_url, etc."
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Text content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "ContentPart",
+        "description": "Single content part in multimodal message."
       },
       "ContentReadResponse": {
         "properties": {
@@ -15730,10 +16092,29 @@
             "minLength": 1,
             "title": "Session Id"
           },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "Parent project ID"
+          },
           "mission_id": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Mission Id"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mission Id",
+            "description": "Parent mission ID"
           },
           "title": {
             "anyOf": [
@@ -15754,11 +16135,10 @@
         },
         "type": "object",
         "required": [
-          "session_id",
-          "mission_id"
+          "session_id"
         ],
         "title": "CreateSessionRequest",
-        "description": "Request body for POST /ocxp/session - create new session linked to mission."
+        "description": "Request body for POST /ocxp/session - create new session.\n\nSupports both mission-scoped and project-scoped sessions.\nAt least one of project_id or mission_id should be provided."
       },
       "CredentialActionResponse": {
         "properties": {
@@ -16119,7 +16499,7 @@
           "db_type": {
             "type": "string",
             "title": "Db Type",
-            "description": "postgres|postgres_lambda|mysql|mariadb",
+            "description": "postgres|postgres_lambda|supabase|terraform|mysql|mariadb",
             "examples": [
               "postgres_lambda"
             ]
@@ -16186,6 +16566,21 @@
             "title": "Database Name",
             "examples": [
               "myapp_prod"
+            ]
+          },
+          "terraform_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terraform Path",
+            "description": "Terraform directory path relative to repo root (for terraform type)",
+            "examples": [
+              "infrastructure/terraform/modules/dynamodb/"
             ]
           },
           "allowed_tables": {
@@ -16313,7 +16708,7 @@
           "db_type": {
             "type": "string",
             "title": "Db Type",
-            "description": "postgres|postgres_lambda|supabase|mysql|mariadb",
+            "description": "postgres|postgres_lambda|supabase|terraform|mysql|mariadb",
             "default": "postgres_lambda"
           },
           "lambda_function_name": {
@@ -16345,6 +16740,18 @@
             "title": "Secret Arn",
             "description": "AWS Secrets Manager ARN for credentials"
           },
+          "terraform_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terraform Path",
+            "description": "Path to Terraform directory relative to repo root"
+          },
           "allowed_tables": {
             "items": {
               "type": "string"
@@ -16371,6 +16778,63 @@
         ],
         "title": "DatabaseCreate",
         "description": "Request body for creating a database config."
+      },
+      "DatabaseDiagramResponse": {
+        "properties": {
+          "diagram": {
+            "type": "string",
+            "title": "Diagram",
+            "description": "Mermaid erDiagram syntax"
+          },
+          "database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "database_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Database Name",
+            "examples": [
+              "Production DB"
+            ]
+          },
+          "table_count": {
+            "type": "integer",
+            "title": "Table Count",
+            "default": 0,
+            "examples": [
+              15
+            ]
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Diagram format",
+            "default": "mermaid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "diagram"
+        ],
+        "title": "DatabaseDiagramResponse",
+        "description": "Response for GET /ocxp/context/database/diagram."
       },
       "DatabaseListResponse": {
         "properties": {
@@ -16580,6 +17044,18 @@
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Informational message (e.g. why no tables were found)"
           }
         },
         "type": "object",
@@ -16611,6 +17087,18 @@
               }
             ],
             "title": "Description"
+          },
+          "db_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Db Type",
+            "description": "postgres|postgres_lambda|supabase|terraform|mysql|mariadb"
           },
           "lambda_function_name": {
             "anyOf": [
@@ -16645,6 +17133,18 @@
             ],
             "title": "Secret Arn",
             "description": "AWS Secrets Manager ARN for credentials"
+          },
+          "terraform_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terraform Path",
+            "description": "Path to Terraform directory relative to repo root"
           },
           "allowed_tables": {
             "anyOf": [
@@ -16926,11 +17426,11 @@
           },
           "max_results": {
             "type": "integer",
-            "maximum": 20.0,
+            "maximum": 50.0,
             "minimum": 1.0,
             "title": "Max Results",
             "description": "Maximum results to return",
-            "default": 5
+            "default": 10
           },
           "min_score": {
             "type": "number",
@@ -16938,7 +17438,7 @@
             "minimum": 0.0,
             "title": "Min Score",
             "description": "Minimum relevance score threshold",
-            "default": 0.3
+            "default": 0.15
           },
           "search_type": {
             "type": "string",
@@ -17657,6 +18157,26 @@
             "type": "integer",
             "title": "Documents Failed",
             "default": 0
+          },
+          "documents_modified": {
+            "type": "integer",
+            "title": "Documents Modified",
+            "default": 0
+          },
+          "documents_deleted": {
+            "type": "integer",
+            "title": "Documents Deleted",
+            "default": 0
+          },
+          "metadata_scanned": {
+            "type": "integer",
+            "title": "Metadata Scanned",
+            "default": 0
+          },
+          "metadata_modified": {
+            "type": "integer",
+            "title": "Metadata Modified",
+            "default": 0
           }
         },
         "type": "object",
@@ -18055,6 +18575,35 @@
           "knowledge_bases"
         ],
         "title": "KBStatusResponse"
+      },
+      "LinkedDatabaseResponse": {
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Priority",
+            "default": 50
+          },
+          "auto_include": {
+            "type": "boolean",
+            "title": "Auto Include",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "database_id"
+        ],
+        "title": "LinkedDatabaseResponse",
+        "description": "Linked database in a project."
       },
       "LinkedRepoResponse": {
         "properties": {
@@ -19659,6 +20208,13 @@
             "type": "array",
             "title": "Linked Repos"
           },
+          "linked_databases": {
+            "items": {
+              "$ref": "#/components/schemas/LinkedDatabaseResponse"
+            },
+            "type": "array",
+            "title": "Linked Databases"
+          },
           "mission_ids": {
             "items": {
               "type": "string"
@@ -19684,6 +20240,20 @@
             "title": "Default Repo Id",
             "examples": [
               "my-app"
+            ]
+          },
+          "default_database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
             ]
           },
           "created_at": {
@@ -19786,6 +20356,15 @@
             "default": 0,
             "examples": [
               3
+            ]
+          },
+          "database_count": {
+            "type": "integer",
+            "title": "Database Count",
+            "description": "Linked databases",
+            "default": 0,
+            "examples": [
+              2
             ]
           },
           "memo_count": {
@@ -22860,6 +23439,20 @@
               "active"
             ]
           },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
           "mission_id": {
             "anyOf": [
               {
@@ -24463,10 +25056,5 @@
         }
       }
     }
-  },
-  "servers": [
-    {
-      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
-    }
-  ]
+  }
 }

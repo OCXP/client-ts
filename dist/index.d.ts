@@ -1217,6 +1217,37 @@ type DatabaseCreate = {
   max_rows?: number;
 };
 /**
+ * DatabaseDiagramResponse
+ *
+ * Response for GET /ocxp/context/database/diagram.
+ */
+type DatabaseDiagramResponse = {
+  /**
+   * Diagram
+   *
+   * Mermaid erDiagram syntax
+   */
+  diagram: string;
+  /**
+   * Database Id
+   */
+  database_id?: string | null;
+  /**
+   * Database Name
+   */
+  database_name?: string | null;
+  /**
+   * Table Count
+   */
+  table_count?: number;
+  /**
+   * Format
+   *
+   * Diagram format
+   */
+  format?: string;
+};
+/**
  * DatabaseListResponse
  *
  * Response for GET /ocxp/database with offset-based pagination.
@@ -1306,6 +1337,12 @@ type DatabaseSchemaResponse = {
    * Database Id
    */
   database_id?: string | null;
+  /**
+   * Message
+   *
+   * Informational message (e.g. why no tables were found)
+   */
+  message?: string | null;
 };
 /**
  * DatabaseUpdate
@@ -1321,6 +1358,12 @@ type DatabaseUpdate = {
    * Description
    */
   description?: string | null;
+  /**
+   * Db Type
+   *
+   * postgres|postgres_lambda|supabase|terraform|mysql|mariadb
+   */
+  db_type?: string | null;
   /**
    * Lambda Function Name
    */
@@ -3960,6 +4003,10 @@ type SessionResponse = {
    */
   status?: string;
   /**
+   * Project Id
+   */
+  project_id?: string | null;
+  /**
    * Mission Id
    */
   mission_id?: string | null;
@@ -4990,6 +5037,12 @@ type ListSessionsData = {
      * Filter by status: active, archived
      */
     status?: string;
+    /**
+     * Project Id
+     *
+     * Filter by project ID
+     */
+    project_id?: string | null;
     /**
      * Order By
      *
@@ -10235,6 +10288,10 @@ declare class OCXPClient {
     databaseId?: string,
     limit?: number
   ): Promise<DatabaseSampleResponse>;
+  /**
+   * Get database ER diagram in Mermaid syntax
+   */
+  getDatabaseDiagram(databaseId?: string, tables?: string): Promise<DatabaseDiagramResponse>;
   /**
    * List all tables in database
    */

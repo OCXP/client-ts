@@ -1627,7 +1627,10 @@ export type CreateMemoRequest = {
 /**
  * CreateSessionRequest
  *
- * Request body for POST /ocxp/session - create new session linked to mission.
+ * Request body for POST /ocxp/session - create new session.
+ *
+ * Supports both mission-scoped and project-scoped sessions.
+ * At least one of project_id or mission_id should be provided.
  */
 export type CreateSessionRequest = {
   /**
@@ -1635,9 +1638,17 @@ export type CreateSessionRequest = {
    */
   session_id: string;
   /**
-   * Mission Id
+   * Project Id
+   *
+   * Parent project ID
    */
-  mission_id: string;
+  project_id?: string | null;
+  /**
+   * Mission Id
+   *
+   * Parent mission ID
+   */
+  mission_id?: string | null;
   /**
    * Title
    */
@@ -1960,6 +1971,38 @@ export type DatabaseCreate = {
 };
 
 /**
+ * DatabaseDiagramResponse
+ *
+ * Response for GET /ocxp/context/database/diagram.
+ */
+export type DatabaseDiagramResponse = {
+  /**
+   * Diagram
+   *
+   * Mermaid erDiagram syntax
+   */
+  diagram: string;
+  /**
+   * Database Id
+   */
+  database_id?: string | null;
+  /**
+   * Database Name
+   */
+  database_name?: string | null;
+  /**
+   * Table Count
+   */
+  table_count?: number;
+  /**
+   * Format
+   *
+   * Diagram format
+   */
+  format?: string;
+};
+
+/**
  * DatabaseListResponse
  *
  * Response for GET /ocxp/database with offset-based pagination.
@@ -2091,6 +2134,12 @@ export type DatabaseSchemaResponse = {
    * Database Id
    */
   database_id?: string | null;
+  /**
+   * Message
+   *
+   * Informational message (e.g. why no tables were found)
+   */
+  message?: string | null;
 };
 
 /**
@@ -2107,6 +2156,12 @@ export type DatabaseUpdate = {
    * Description
    */
   description?: string | null;
+  /**
+   * Db Type
+   *
+   * postgres|postgres_lambda|supabase|terraform|mysql|mariadb
+   */
+  db_type?: string | null;
   /**
    * Lambda Function Name
    */
@@ -6175,6 +6230,10 @@ export type SessionResponse = {
    */
   status?: string;
   /**
+   * Project Id
+   */
+  project_id?: string | null;
+  /**
    * Mission Id
    */
   mission_id?: string | null;
@@ -8276,6 +8335,12 @@ export type ListSessionsData = {
      * Filter by status: active, archived
      */
     status?: string;
+    /**
+     * Project Id
+     *
+     * Filter by project ID
+     */
+    project_id?: string | null;
     /**
      * Order By
      *
@@ -13430,6 +13495,59 @@ export type GetDatabaseOverviewResponses = {
 
 export type GetDatabaseOverviewResponse =
   GetDatabaseOverviewResponses[keyof GetDatabaseOverviewResponses];
+
+export type GetDatabaseDiagramData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Workspace
+     */
+    'X-Workspace'?: string;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Database Id
+     *
+     * Database ID (default: amc-default)
+     */
+    database_id?: string | null;
+    /**
+     * Tables
+     *
+     * Comma-separated list of tables to include (omit for all)
+     */
+    tables?: string | null;
+  };
+  url: '/ocxp/context/database/diagram';
+};
+
+export type GetDatabaseDiagramErrors = {
+  /**
+   * Database not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+  /**
+   * Rate limit exceeded
+   */
+  429: unknown;
+};
+
+export type GetDatabaseDiagramError = GetDatabaseDiagramErrors[keyof GetDatabaseDiagramErrors];
+
+export type GetDatabaseDiagramResponses = {
+  /**
+   * ER diagram generated successfully
+   */
+  200: DatabaseDiagramResponse;
+};
+
+export type GetDatabaseDiagramResponse =
+  GetDatabaseDiagramResponses[keyof GetDatabaseDiagramResponses];
 
 export type GetContentTypesData = {
   body?: never;

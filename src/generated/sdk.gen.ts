@@ -191,6 +191,9 @@ import type {
   GetCurrentUserErrors,
   GetCurrentUserResponses,
   GetDatabaseData,
+  GetDatabaseDiagramData,
+  GetDatabaseDiagramErrors,
+  GetDatabaseDiagramResponses,
   GetDatabaseErrors,
   GetDatabaseOverviewData,
   GetDatabaseOverviewErrors,
@@ -3464,6 +3467,24 @@ export const getDatabaseOverview = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/context/database/overview',
+    ...options,
+  });
+
+/**
+ * Generate ER diagram
+ *
+ * Returns a Mermaid erDiagram of the database schema with entity definitions and relationships.
+ */
+export const getDatabaseDiagram = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDatabaseDiagramData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetDatabaseDiagramResponses,
+    GetDatabaseDiagramErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/context/database/diagram',
     ...options,
   });
 
