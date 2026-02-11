@@ -89,6 +89,9 @@ import type {
   ComparePagesData,
   ComparePagesErrors,
   ComparePagesResponses,
+  CreateChatCompletionData,
+  CreateChatCompletionErrors,
+  CreateChatCompletionResponses,
   CreateDatabaseData,
   CreateDatabaseErrors,
   CreateDatabaseResponses,
@@ -2992,6 +2995,28 @@ export const updateTask = <ThrowOnError extends boolean = false>(
   (options.client ?? client).patch<UpdateTaskResponses, UpdateTaskErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/ocxp/workflow/{workflow_id}/tasks/{task_id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * OpenAI-compatible chat completions
+ *
+ * Translates OpenAI Chat Completions requests to AgentCore invocations.
+ */
+export const createChatCompletion = <ThrowOnError extends boolean = false>(
+  options: Options<CreateChatCompletionData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateChatCompletionResponses,
+    CreateChatCompletionErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/ocxp/chat/completions',
     ...options,
     headers: {
       'Content-Type': 'application/json',

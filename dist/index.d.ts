@@ -1097,7 +1097,7 @@ type DatabaseConfigResponse = {
   /**
    * Db Type
    *
-   * postgres|postgres_lambda|mysql|mariadb
+   * postgres|postgres_lambda|supabase|terraform|mysql|mariadb
    */
   db_type: string;
   /**
@@ -1120,6 +1120,12 @@ type DatabaseConfigResponse = {
    * Database Name
    */
   database_name?: string | null;
+  /**
+   * Terraform Path
+   *
+   * Terraform directory path relative to repo root (for terraform type)
+   */
+  terraform_path?: string | null;
   /**
    * Allowed Tables
    */
@@ -1172,7 +1178,7 @@ type DatabaseCreate = {
   /**
    * Db Type
    *
-   * postgres|postgres_lambda|supabase|mysql|mariadb
+   * postgres|postgres_lambda|supabase|terraform|mysql|mariadb
    */
   db_type?: string;
   /**
@@ -1191,6 +1197,12 @@ type DatabaseCreate = {
    * AWS Secrets Manager ARN for credentials
    */
   secret_arn?: string | null;
+  /**
+   * Terraform Path
+   *
+   * Path to Terraform directory relative to repo root
+   */
+  terraform_path?: string | null;
   /**
    * Allowed Tables
    */
@@ -1324,6 +1336,12 @@ type DatabaseUpdate = {
    */
   secret_arn?: string | null;
   /**
+   * Terraform Path
+   *
+   * Path to Terraform directory relative to repo root
+   */
+  terraform_path?: string | null;
+  /**
    * Allowed Tables
    */
   allowed_tables?: Array<string> | null;
@@ -1440,6 +1458,22 @@ type KbIngestionJob = {
    * Documents Failed
    */
   documents_failed?: number;
+  /**
+   * Documents Modified
+   */
+  documents_modified?: number;
+  /**
+   * Documents Deleted
+   */
+  documents_deleted?: number;
+  /**
+   * Metadata Scanned
+   */
+  metadata_scanned?: number;
+  /**
+   * Metadata Modified
+   */
+  metadata_modified?: number;
 };
 /**
  * KBOverview
