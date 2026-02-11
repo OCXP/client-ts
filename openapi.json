@@ -18361,6 +18361,35 @@
         ],
         "title": "KBStatusResponse"
       },
+      "LinkedDatabaseResponse": {
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "title": "Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Priority",
+            "default": 50
+          },
+          "auto_include": {
+            "type": "boolean",
+            "title": "Auto Include",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "database_id"
+        ],
+        "title": "LinkedDatabaseResponse",
+        "description": "Linked database in a project."
+      },
       "LinkedRepoResponse": {
         "properties": {
           "repo_id": {
@@ -19964,6 +19993,13 @@
             "type": "array",
             "title": "Linked Repos"
           },
+          "linked_databases": {
+            "items": {
+              "$ref": "#/components/schemas/LinkedDatabaseResponse"
+            },
+            "type": "array",
+            "title": "Linked Databases"
+          },
           "mission_ids": {
             "items": {
               "type": "string"
@@ -19989,6 +20025,20 @@
             "title": "Default Repo Id",
             "examples": [
               "my-app"
+            ]
+          },
+          "default_database_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Database Id",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
             ]
           },
           "created_at": {
@@ -20091,6 +20141,15 @@
             "default": 0,
             "examples": [
               3
+            ]
+          },
+          "database_count": {
+            "type": "integer",
+            "title": "Database Count",
+            "description": "Linked databases",
+            "default": 0,
+            "examples": [
+              2
             ]
           },
           "memo_count": {

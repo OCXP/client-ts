@@ -2425,6 +2425,60 @@ var OCXPClient = class {
     return extractData(response);
   }
   /**
+   * Link a database to a project
+   */
+  async addProjectDatabase(projectId, databaseId, options) {
+    const headers = await this.getHeaders();
+    const response = await addDatabase({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+      body: {
+        database_id: databaseId,
+        priority: options?.priority ?? 50,
+        auto_include: options?.autoInclude ?? true
+      }
+    });
+    return extractData(response);
+  }
+  /**
+   * Remove a database from a project
+   */
+  async removeProjectDatabase(projectId, databaseId) {
+    const headers = await this.getHeaders();
+    const response = await removeDatabase({
+      client: this.client,
+      path: { project_id: projectId, database_id: databaseId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
+   * Set the default database for a project
+   */
+  async setProjectDefaultDatabase(projectId, databaseId) {
+    const headers = await this.getHeaders();
+    const response = await setDefaultDatabase({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+      body: { database_id: databaseId }
+    });
+    return extractData(response);
+  }
+  /**
+   * Get all databases linked to a project
+   */
+  async getProjectDatabases(projectId) {
+    const headers = await this.getHeaders();
+    const response = await getProjectDatabases({
+      client: this.client,
+      path: { project_id: projectId },
+      headers
+    });
+    return extractData(response);
+  }
+  /**
    * Scan all projects and remove links to repos that no longer exist in the index
    */
   async cleanupDeadRepos() {
@@ -3230,6 +3284,30 @@ var ProjectNamespace = class {
    */
   async removeMission(projectId, missionId) {
     return this.client.removeProjectMission(projectId, missionId);
+  }
+  /**
+   * Link a database to a project
+   */
+  async addDatabase(projectId, databaseId, options) {
+    return this.client.addProjectDatabase(projectId, databaseId, options);
+  }
+  /**
+   * Remove a database from a project
+   */
+  async removeDatabase(projectId, databaseId) {
+    return this.client.removeProjectDatabase(projectId, databaseId);
+  }
+  /**
+   * Set the default database for a project
+   */
+  async setDefaultDatabase(projectId, databaseId) {
+    return this.client.setProjectDefaultDatabase(projectId, databaseId);
+  }
+  /**
+   * Get all databases linked to a project
+   */
+  async getProjectDatabases(projectId) {
+    return this.client.getProjectDatabases(projectId);
   }
   /**
    * Get project content tree structure from S3

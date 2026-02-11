@@ -714,6 +714,7 @@ export type {
   KbRepoStatus,
   KbResultItem,
   KbStatusResponse,
+  LinkedDatabaseResponse,
   LinkedRepoResponse,
   LinkPrototypeChatData,
   LinkPrototypeChatError,

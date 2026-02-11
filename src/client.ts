@@ -1213,6 +1213,89 @@ export class OCXPClient {
   }
 
   /**
+   * Link a database to a project
+   */
+  async addProjectDatabase(
+    projectId: string,
+    databaseId: string,
+    options?: { priority?: number; autoInclude?: boolean }
+  ): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.addDatabase({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+      body: {
+        database_id: databaseId,
+        priority: options?.priority ?? 50,
+        auto_include: options?.autoInclude ?? true,
+      },
+    });
+    return extractData(response);
+  }
+
+  /**
+   * Remove a database from a project
+   */
+  async removeProjectDatabase(projectId: string, databaseId: string): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.removeDatabase({
+      client: this.client,
+      path: { project_id: projectId, database_id: databaseId },
+      headers,
+    });
+    return extractData(response);
+  }
+
+  /**
+   * Set the default database for a project
+   */
+  async setProjectDefaultDatabase(
+    projectId: string,
+    databaseId: string | null
+  ): Promise<ProjectResponse> {
+    const headers = await this.getHeaders();
+    const response = await sdk.setDefaultDatabase({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+      body: { database_id: databaseId },
+    });
+    return extractData(response);
+  }
+
+  /**
+   * Get all databases linked to a project
+   */
+  async getProjectDatabases(projectId: string): Promise<{
+    databases: Array<{
+      database_id: string;
+      priority: number;
+      auto_include: boolean;
+      is_default: boolean;
+    }>;
+    default_database: string | null;
+    count: number;
+  }> {
+    const headers = await this.getHeaders();
+    const response = await sdk.getProjectDatabases({
+      client: this.client,
+      path: { project_id: projectId },
+      headers,
+    });
+    return extractData(response) as {
+      databases: Array<{
+        database_id: string;
+        priority: number;
+        auto_include: boolean;
+        is_default: boolean;
+      }>;
+      default_database: string | null;
+      count: number;
+    };
+  }
+
+  /**
    * Scan all projects and remove links to repos that no longer exist in the index
    */
   async cleanupDeadRepos(): Promise<CleanupDeadReposResponse> {
@@ -2218,6 +2301,47 @@ export class ProjectNamespace {
    */
   async removeMission(projectId: string, missionId: string): Promise<ProjectResponse> {
     return this.client.removeProjectMission(projectId, missionId);
+  }
+
+  /**
+   * Link a database to a project
+   */
+  async addDatabase(
+    projectId: string,
+    databaseId: string,
+    options?: { priority?: number; autoInclude?: boolean }
+  ): Promise<ProjectResponse> {
+    return this.client.addProjectDatabase(projectId, databaseId, options);
+  }
+
+  /**
+   * Remove a database from a project
+   */
+  async removeDatabase(projectId: string, databaseId: string): Promise<ProjectResponse> {
+    return this.client.removeProjectDatabase(projectId, databaseId);
+  }
+
+  /**
+   * Set the default database for a project
+   */
+  async setDefaultDatabase(projectId: string, databaseId: string | null): Promise<ProjectResponse> {
+    return this.client.setProjectDefaultDatabase(projectId, databaseId);
+  }
+
+  /**
+   * Get all databases linked to a project
+   */
+  async getProjectDatabases(projectId: string): Promise<{
+    databases: Array<{
+      database_id: string;
+      priority: number;
+      auto_include: boolean;
+      is_default: boolean;
+    }>;
+    default_database: string | null;
+    count: number;
+  }> {
+    return this.client.getProjectDatabases(projectId);
   }
 
   /**

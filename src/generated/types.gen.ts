@@ -3052,6 +3052,26 @@ export type KbStatusResponse = {
 };
 
 /**
+ * LinkedDatabaseResponse
+ *
+ * Linked database in a project.
+ */
+export type LinkedDatabaseResponse = {
+  /**
+   * Database Id
+   */
+  database_id: string;
+  /**
+   * Priority
+   */
+  priority?: number;
+  /**
+   * Auto Include
+   */
+  auto_include?: boolean;
+};
+
+/**
  * LinkedRepoResponse
  *
  * Linked repository in a project.
@@ -4054,6 +4074,10 @@ export type ProjectResponse = {
    */
   linked_repos?: Array<LinkedRepoResponse>;
   /**
+   * Linked Databases
+   */
+  linked_databases?: Array<LinkedDatabaseResponse>;
+  /**
    * Mission Ids
    */
   mission_ids?: Array<string>;
@@ -4061,6 +4085,10 @@ export type ProjectResponse = {
    * Default Repo Id
    */
   default_repo_id?: string | null;
+  /**
+   * Default Database Id
+   */
+  default_database_id?: string | null;
   /**
    * Created At
    */
@@ -4112,6 +4140,12 @@ export type ProjectStats = {
    * Linked repositories
    */
   repo_count?: number;
+  /**
+   * Database Count
+   *
+   * Linked databases
+   */
+  database_count?: number;
   /**
    * Memo Count
    *
