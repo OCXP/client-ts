@@ -2430,7 +2430,8 @@ var OCXPClient = class {
       category: options?.category,
       priority: options?.priority,
       auto_include: options?.autoInclude,
-      branch: options?.branch
+      branch: options?.branch,
+      prompt: options?.prompt
     };
     const response = await addLinkedRepo({
       client: this.client,
@@ -2464,7 +2465,8 @@ var OCXPClient = class {
       body: {
         database_id: databaseId,
         priority: options?.priority ?? 50,
-        auto_include: options?.autoInclude ?? true
+        auto_include: options?.autoInclude ?? true,
+        prompt: options?.prompt
       }
     });
     return extractData(response);

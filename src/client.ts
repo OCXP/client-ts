@@ -1204,7 +1204,13 @@ export class OCXPClient {
   async addProjectRepo(
     projectId: string,
     repoId: string,
-    options?: { category?: string; priority?: number; autoInclude?: boolean; branch?: string }
+    options?: {
+      category?: string;
+      priority?: number;
+      autoInclude?: boolean;
+      branch?: string;
+      prompt?: string;
+    }
   ): Promise<ProjectResponse> {
     const headers = await this.getHeaders();
     const body: AddRepoRequest = {
@@ -1213,6 +1219,7 @@ export class OCXPClient {
       priority: options?.priority,
       auto_include: options?.autoInclude,
       branch: options?.branch,
+      prompt: options?.prompt,
     };
     const response = await sdk.addLinkedRepo({
       client: this.client,
@@ -1242,7 +1249,7 @@ export class OCXPClient {
   async addProjectDatabase(
     projectId: string,
     databaseId: string,
-    options?: { priority?: number; autoInclude?: boolean }
+    options?: { priority?: number; autoInclude?: boolean; prompt?: string }
   ): Promise<ProjectResponse> {
     const headers = await this.getHeaders();
     const response = await sdk.addDatabase({
@@ -1253,6 +1260,7 @@ export class OCXPClient {
         database_id: databaseId,
         priority: options?.priority ?? 50,
         auto_include: options?.autoInclude ?? true,
+        prompt: options?.prompt,
       },
     });
     return extractData(response);
@@ -2232,7 +2240,13 @@ export class ProjectNamespace {
   async addRepo(
     projectId: string,
     repoId: string,
-    options?: { category?: string; priority?: number; autoInclude?: boolean; branch?: string }
+    options?: {
+      category?: string;
+      priority?: number;
+      autoInclude?: boolean;
+      branch?: string;
+      prompt?: string;
+    }
   ): Promise<ProjectResponse> {
     return this.client.addProjectRepo(projectId, repoId, options);
   }
@@ -2285,7 +2299,7 @@ export class ProjectNamespace {
   async addDatabase(
     projectId: string,
     databaseId: string,
-    options?: { priority?: number; autoInclude?: boolean }
+    options?: { priority?: number; autoInclude?: boolean; prompt?: string }
   ): Promise<ProjectResponse> {
     return this.client.addProjectDatabase(projectId, databaseId, options);
   }

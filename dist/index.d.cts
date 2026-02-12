@@ -332,6 +332,12 @@ type AddDatabaseRequest = {
      * Automatically include in agent context
      */
     auto_include?: boolean;
+    /**
+     * Prompt
+     *
+     * Markdown context and guardrails for the agent
+     */
+    prompt?: string;
 };
 /**
  * AddMissionRequest
@@ -368,6 +374,12 @@ type AddRepoRequest = {
      * Branch
      */
     branch?: string;
+    /**
+     * Prompt
+     *
+     * Markdown context and guardrails for the agent
+     */
+    prompt?: string;
 };
 /**
  * AuthConfig
@@ -1678,6 +1690,12 @@ type LinkedDatabaseResponse = {
      * Auto Include
      */
     auto_include?: boolean;
+    /**
+     * Prompt
+     *
+     * Markdown context and guardrails for the agent
+     */
+    prompt?: string;
 };
 /**
  * LinkedRepoResponse
@@ -1707,6 +1725,12 @@ type LinkedRepoResponse = {
      * Branch
      */
     branch: string;
+    /**
+     * Prompt
+     *
+     * Markdown context and guardrails for the agent
+     */
+    prompt?: string;
 };
 /**
  * ListBranchesRequest
@@ -7537,6 +7561,12 @@ type ListContentData = {
          */
         path?: string | null;
         /**
+         * Recursive
+         *
+         * List recursively
+         */
+        recursive?: boolean;
+        /**
          * Project
          *
          * Filter by project ID (scopes to linked repos)
@@ -9849,6 +9879,7 @@ declare class OCXPClient {
         priority?: number;
         autoInclude?: boolean;
         branch?: string;
+        prompt?: string;
     }): Promise<ProjectResponse>;
     /**
      * Remove repository from project
@@ -9860,6 +9891,7 @@ declare class OCXPClient {
     addProjectDatabase(projectId: string, databaseId: string, options?: {
         priority?: number;
         autoInclude?: boolean;
+        prompt?: string;
     }): Promise<ProjectResponse>;
     /**
      * Remove a database from a project
@@ -10283,6 +10315,7 @@ declare class ProjectNamespace {
         priority?: number;
         autoInclude?: boolean;
         branch?: string;
+        prompt?: string;
     }): Promise<ProjectResponse>;
     /**
      * Remove a repository from a project
@@ -10314,6 +10347,7 @@ declare class ProjectNamespace {
     addDatabase(projectId: string, databaseId: string, options?: {
         priority?: number;
         autoInclude?: boolean;
+        prompt?: string;
     }): Promise<ProjectResponse>;
     /**
      * Remove a database from a project
