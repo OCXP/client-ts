@@ -1853,13 +1853,17 @@ export class OCXPClient {
     }
   }
 
-  // ============== Document Generation ==============
+  // ============== Document Generation (Workflow-based) ==============
 
   /**
-   * Generate mission output (documents, reports, etc.)
+   * Generate mission output by creating a workflow with doc tasks.
+   * Returns the workflow_id so the client can open WorkflowDetailView
+   * for real-time progress tracking.
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
+   * @returns OutputGenerationResponse with workflow_id for tracking
    */
   async generateMissionOutput(
     missionId: string,
@@ -1868,11 +1872,10 @@ export class OCXPClient {
       doc_types?: string[];
       strategy?: string;
       session_id?: string;
-      options?: Record<string, unknown>;
     }
-  ): Promise<GenerateOutputResponse> {
+  ): Promise<OutputGenerationResponse> {
     const headers = await this.getHeaders();
-    const response = await this.client.request<GenerateOutputResponse, unknown>({
+    const response = await this.client.request<OutputGenerationResponse, unknown>({
       method: 'POST',
       url: `/ocxp/mission/${missionId}/output`,
       headers,
@@ -1881,32 +1884,10 @@ export class OCXPClient {
         doc_types: options?.doc_types,
         strategy: options?.strategy || 'generate_all',
         session_id: options?.session_id,
-        options: options?.options,
       },
     });
     if (response.error) {
       throw new Error(`Failed to generate output: ${JSON.stringify(response.error)}`);
-    }
-    return response.data!;
-  }
-
-  /**
-   * Get output generation status
-   * @param missionId - Mission UUID
-   * @param outputType - Type of output to check (default: 'documents')
-   */
-  async getMissionOutputStatus(
-    missionId: string,
-    outputType: string = 'documents'
-  ): Promise<OutputStatusResponse> {
-    const headers = await this.getHeaders();
-    const response = await this.client.request<OutputStatusResponse, unknown>({
-      method: 'GET',
-      url: `/ocxp/mission/${missionId}/output/status?output_type=${outputType}`,
-      headers,
-    });
-    if (response.error) {
-      throw new Error(`Failed to get output status: ${JSON.stringify(response.error)}`);
     }
     return response.data!;
   }
@@ -2038,23 +2019,13 @@ export const DOCUMENT_TYPE_INFO: Record<DocumentType, DocumentTypeInfo> = {
   },
 };
 
-/** Response from generateOutput */
-export interface GenerateOutputResponse {
+/** Response from generateOutput -- returns workflow for tracking */
+export interface OutputGenerationResponse {
+  workflow_id: string;
+  mission_id: string;
   session_id: string;
-  status: string;
-  output_type: string;
-  doc_types?: string[];
-  message?: string;
-}
-
-/** Response from getOutputStatus */
-export interface OutputStatusResponse {
-  status: 'pending' | 'generating' | 'ready' | 'failed';
-  output_type: string;
-  generated_docs: string[];
-  progress?: number;
-  message?: string;
-  error?: string;
+  total_tasks: number;
+  message: string;
 }
 
 /**
@@ -2184,19 +2155,19 @@ export class MissionNamespace {
   }
 
   /**
-   * Generate mission output (documents, reports, etc.)
-   * General endpoint for all output types using existing research.
+   * Generate mission output by creating a workflow.
+   * Returns workflow_id for tracking via WorkflowDetailView.
    *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
-   * @returns Output response with session_id for tracking
+   * @returns OutputGenerationResponse with workflow_id
    *
    * @example
-   * await ocxp.mission.generateOutput('mission-id', 'documents', {
+   * const result = await ocxp.mission.generateOutput('mission-id', 'documents', {
    *   doc_types: ['implementation-guide', 'prd'],
-   *   strategy: 'generate_all'
-   * })
+   * });
+   * // Open WorkflowDetailView with result.workflow_id
    */
   async generateOutput(
     missionId: string,
@@ -2205,28 +2176,9 @@ export class MissionNamespace {
       doc_types?: string[];
       strategy?: string;
       session_id?: string;
-      options?: Record<string, unknown>;
     }
-  ): Promise<GenerateOutputResponse> {
+  ): Promise<OutputGenerationResponse> {
     return this.client.generateMissionOutput(missionId, outputType, options);
-  }
-
-  /**
-   * Get output generation status
-   * Check progress and status of output generation.
-   *
-   * @param missionId - Mission UUID
-   * @param outputType - Type of output to check (default: 'documents')
-   * @returns Current output status with progress
-   *
-   * @example
-   * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
-   */
-  async getOutputStatus(
-    missionId: string,
-    outputType: string = 'documents'
-  ): Promise<OutputStatusResponse> {
-    return this.client.getMissionOutputStatus(missionId, outputType);
   }
 }
 

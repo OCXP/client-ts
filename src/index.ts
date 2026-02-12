@@ -31,8 +31,7 @@ export {
   DocumentType,
   DOCUMENT_TYPE_INFO,
   type DocumentTypeInfo,
-  type GenerateOutputResponse,
-  type OutputStatusResponse,
+  type OutputGenerationResponse,
 } from './client';
 
 // Path utilities

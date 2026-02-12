@@ -1246,6 +1246,22 @@ type DatabaseDiagramResponse = {
    * Diagram format
    */
   format?: string;
+  /**
+   * Mock Data
+   *
+   * Mock data keyed by table name
+   */
+  mock_data?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Schema Summary
+   *
+   * Simplified schema for rendering
+   */
+  schema_summary?: Array<{
+    [key: string]: unknown;
+  }> | null;
 };
 /**
  * DatabaseListResponse
@@ -1316,6 +1332,12 @@ type DatabaseSampleResponse = {
    * Database Id
    */
   database_id?: string | null;
+  /**
+   * Is Mock
+   *
+   * True when rows are generated mock data (e.g. Terraform DBs)
+   */
+  is_mock?: boolean;
 };
 /**
  * DatabaseSchemaResponse
@@ -10291,7 +10313,12 @@ declare class OCXPClient {
   /**
    * Get database ER diagram in Mermaid syntax
    */
-  getDatabaseDiagram(databaseId?: string, tables?: string): Promise<DatabaseDiagramResponse>;
+  getDatabaseDiagram(
+    databaseId?: string,
+    tables?: string,
+    includeMockData?: boolean,
+    mockRows?: number
+  ): Promise<DatabaseDiagramResponse>;
   /**
    * List all tables in database
    */
@@ -10572,10 +10599,14 @@ declare class OCXPClient {
    */
   deleteProjectCredentials(projectId: string): Promise<void>;
   /**
-   * Generate mission output (documents, reports, etc.)
+   * Generate mission output by creating a workflow with doc tasks.
+   * Returns the workflow_id so the client can open WorkflowDetailView
+   * for real-time progress tracking.
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
+   * @returns OutputGenerationResponse with workflow_id for tracking
    */
   generateMissionOutput(
     missionId: string,
@@ -10584,15 +10615,8 @@ declare class OCXPClient {
       doc_types?: string[];
       strategy?: string;
       session_id?: string;
-      options?: Record<string, unknown>;
     }
-  ): Promise<GenerateOutputResponse>;
-  /**
-   * Get output generation status
-   * @param missionId - Mission UUID
-   * @param outputType - Type of output to check (default: 'documents')
-   */
-  getMissionOutputStatus(missionId: string, outputType?: string): Promise<OutputStatusResponse>;
+  ): Promise<OutputGenerationResponse>;
   private _mission?;
   private _project?;
   private _session?;
@@ -10642,22 +10666,13 @@ interface DocumentTypeInfo {
 }
 /** Map of document type to display info */
 declare const DOCUMENT_TYPE_INFO: Record<DocumentType, DocumentTypeInfo>;
-/** Response from generateOutput */
-interface GenerateOutputResponse {
+/** Response from generateOutput -- returns workflow for tracking */
+interface OutputGenerationResponse {
+  workflow_id: string;
+  mission_id: string;
   session_id: string;
-  status: string;
-  output_type: string;
-  doc_types?: string[];
-  message?: string;
-}
-/** Response from getOutputStatus */
-interface OutputStatusResponse {
-  status: 'pending' | 'generating' | 'ready' | 'failed';
-  output_type: string;
-  generated_docs: string[];
-  progress?: number;
-  message?: string;
-  error?: string;
+  total_tasks: number;
+  message: string;
 }
 /**
  * Mission namespace for convenient mission operations
@@ -10763,19 +10778,19 @@ declare class MissionNamespace {
    */
   tree(path?: string, depth?: number, includeVersions?: boolean): Promise<ContentTreeResponse>;
   /**
-   * Generate mission output (documents, reports, etc.)
-   * General endpoint for all output types using existing research.
+   * Generate mission output by creating a workflow.
+   * Returns workflow_id for tracking via WorkflowDetailView.
    *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
-   * @returns Output response with session_id for tracking
+   * @returns OutputGenerationResponse with workflow_id
    *
    * @example
-   * await ocxp.mission.generateOutput('mission-id', 'documents', {
+   * const result = await ocxp.mission.generateOutput('mission-id', 'documents', {
    *   doc_types: ['implementation-guide', 'prd'],
-   *   strategy: 'generate_all'
-   * })
+   * });
+   * // Open WorkflowDetailView with result.workflow_id
    */
   generateOutput(
     missionId: string,
@@ -10784,21 +10799,8 @@ declare class MissionNamespace {
       doc_types?: string[];
       strategy?: string;
       session_id?: string;
-      options?: Record<string, unknown>;
     }
-  ): Promise<GenerateOutputResponse>;
-  /**
-   * Get output generation status
-   * Check progress and status of output generation.
-   *
-   * @param missionId - Mission UUID
-   * @param outputType - Type of output to check (default: 'documents')
-   * @returns Current output status with progress
-   *
-   * @example
-   * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
-   */
-  getOutputStatus(missionId: string, outputType?: string): Promise<OutputStatusResponse>;
+  ): Promise<OutputGenerationResponse>;
 }
 /**
  * Project namespace for convenient project operations
@@ -15787,7 +15789,6 @@ export {
   type ForkSessionResponse,
   ForkSessionResponseSchema,
   type ForkSessionResponses,
-  type GenerateOutputResponse,
   type GetAuthConfigData,
   type GetAuthConfigResponses,
   type GetContentStatsData,
@@ -15979,7 +15980,7 @@ export {
   OCXPTimeoutError,
   OCXPValidationError,
   type Options,
-  type OutputStatusResponse,
+  type OutputGenerationResponse,
   type PaginatedResponse,
   type Pagination,
   type PaginationParams,

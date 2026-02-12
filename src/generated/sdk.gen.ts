@@ -102,9 +102,6 @@ import type {
   CreateMemoErrors,
   CreateMemoResponses,
   CreateMissionData,
-  CreateMissionDocumentsData,
-  CreateMissionDocumentsErrors,
-  CreateMissionDocumentsResponses,
   CreateMissionErrors,
   CreateMissionResponses,
   CreateProjectData,
@@ -167,6 +164,9 @@ import type {
   ForkSessionData,
   ForkSessionErrors,
   ForkSessionResponses,
+  GenerateMissionOutputData,
+  GenerateMissionOutputErrors,
+  GenerateMissionOutputResponses,
   GetAuthConfigData,
   GetAuthConfigResponses,
   GetCheckpointData,
@@ -199,9 +199,6 @@ import type {
   GetDatabaseOverviewErrors,
   GetDatabaseOverviewResponses,
   GetDatabaseResponses,
-  GetDocumentsStatusData,
-  GetDocumentsStatusErrors,
-  GetDocumentsStatusResponses,
   GetGithubTokenStatusData,
   GetGithubTokenStatusErrors,
   GetGithubTokenStatusResponses,
@@ -2363,43 +2360,25 @@ export const downloadMissionPack = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Generate specific document types for a mission
+ * Generate mission output (creates workflow)
  *
- * Request on-demand generation of documents (e.g., PRD, implementation guide) using existing mission research and synthesis. Sends message to active agentcore session.
+ * Creates a workflow with tasks for each requested document type and triggers AgentCore to execute. Returns workflow_id for real-time progress tracking via WorkflowDetailView.
  */
-export const createMissionDocuments = <ThrowOnError extends boolean = false>(
-  options: Options<CreateMissionDocumentsData, ThrowOnError>
+export const generateMissionOutput = <ThrowOnError extends boolean = false>(
+  options: Options<GenerateMissionOutputData, ThrowOnError>
 ) =>
   (options.client ?? client).post<
-    CreateMissionDocumentsResponses,
-    CreateMissionDocumentsErrors,
+    GenerateMissionOutputResponses,
+    GenerateMissionOutputErrors,
     ThrowOnError
   >({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/mission/{mission_id}/documents/create',
+    url: '/ocxp/mission/{mission_id}/output',
     ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
     },
-  });
-
-/**
- * Get document generation status
- *
- * Check the status of document generation for a mission.
- */
-export const getDocumentsStatus = <ThrowOnError extends boolean = false>(
-  options: Options<GetDocumentsStatusData, ThrowOnError>
-) =>
-  (options.client ?? client).get<
-    GetDocumentsStatusResponses,
-    GetDocumentsStatusErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/ocxp/mission/{mission_id}/documents/status',
-    ...options,
   });
 
 /**

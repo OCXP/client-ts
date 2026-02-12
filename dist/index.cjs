@@ -813,7 +813,11 @@ var createClient = (config = {}) => {
 };
 
 // src/generated/client.gen.ts
-var client = createClient(createConfig());
+var client = createClient(
+  createConfig({
+    baseUrl: "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+  })
+);
 
 // src/generated/sdk.gen.ts
 var bulkReadContent = (options) => (options.client ?? client).post({
@@ -2325,11 +2329,16 @@ var OCXPClient = class {
   /**
    * Get database ER diagram in Mermaid syntax
    */
-  async getDatabaseDiagram(databaseId, tables) {
+  async getDatabaseDiagram(databaseId, tables, includeMockData, mockRows) {
     const headers = await this.getHeaders();
     const response = await getDatabaseDiagram({
       client: this.client,
-      query: { database_id: databaseId, tables },
+      query: {
+        database_id: databaseId,
+        tables,
+        include_mock_data: includeMockData,
+        mock_rows: mockRows
+      },
       headers
     });
     return extractData(response);
@@ -2966,12 +2975,16 @@ var OCXPClient = class {
       throw new Error(`Failed to delete credentials: ${JSON.stringify(response.error)}`);
     }
   }
-  // ============== Document Generation ==============
+  // ============== Document Generation (Workflow-based) ==============
   /**
-   * Generate mission output (documents, reports, etc.)
+   * Generate mission output by creating a workflow with doc tasks.
+   * Returns the workflow_id so the client can open WorkflowDetailView
+   * for real-time progress tracking.
+   *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
+   * @returns OutputGenerationResponse with workflow_id for tracking
    */
   async generateMissionOutput(missionId, outputType, options) {
     const headers = await this.getHeaders();
@@ -2983,29 +2996,11 @@ var OCXPClient = class {
         output_type: outputType,
         doc_types: options?.doc_types,
         strategy: options?.strategy || "generate_all",
-        session_id: options?.session_id,
-        options: options?.options
+        session_id: options?.session_id
       }
     });
     if (response.error) {
       throw new Error(`Failed to generate output: ${JSON.stringify(response.error)}`);
-    }
-    return response.data;
-  }
-  /**
-   * Get output generation status
-   * @param missionId - Mission UUID
-   * @param outputType - Type of output to check (default: 'documents')
-   */
-  async getMissionOutputStatus(missionId, outputType = "documents") {
-    const headers = await this.getHeaders();
-    const response = await this.client.request({
-      method: "GET",
-      url: `/ocxp/mission/${missionId}/output/status?output_type=${outputType}`,
-      headers
-    });
-    if (response.error) {
-      throw new Error(`Failed to get output status: ${JSON.stringify(response.error)}`);
     }
     return response.data;
   }
@@ -3193,36 +3188,22 @@ var MissionNamespace = class {
     return this.client.tree("mission", path, depth, includeVersions);
   }
   /**
-   * Generate mission output (documents, reports, etc.)
-   * General endpoint for all output types using existing research.
+   * Generate mission output by creating a workflow.
+   * Returns workflow_id for tracking via WorkflowDetailView.
    *
    * @param missionId - Mission UUID
    * @param outputType - Type of output: 'documents', 'report', 'summary', etc.
    * @param options - Output options (doc_types, strategy, etc.)
-   * @returns Output response with session_id for tracking
+   * @returns OutputGenerationResponse with workflow_id
    *
    * @example
-   * await ocxp.mission.generateOutput('mission-id', 'documents', {
+   * const result = await ocxp.mission.generateOutput('mission-id', 'documents', {
    *   doc_types: ['implementation-guide', 'prd'],
-   *   strategy: 'generate_all'
-   * })
+   * });
+   * // Open WorkflowDetailView with result.workflow_id
    */
   async generateOutput(missionId, outputType, options) {
     return this.client.generateMissionOutput(missionId, outputType, options);
-  }
-  /**
-   * Get output generation status
-   * Check progress and status of output generation.
-   *
-   * @param missionId - Mission UUID
-   * @param outputType - Type of output to check (default: 'documents')
-   * @returns Current output status with progress
-   *
-   * @example
-   * const status = await ocxp.mission.getOutputStatus('mission-id', 'documents')
-   */
-  async getOutputStatus(missionId, outputType = "documents") {
-    return this.client.getMissionOutputStatus(missionId, outputType);
   }
 };
 var ProjectNamespace = class {

@@ -5953,14 +5953,15 @@
         ]
       }
     },
-    "/ocxp/mission/{mission_id}/documents/create": {
+    "/ocxp/mission/{mission_id}/output": {
       "post": {
         "tags": [
-          "Mission"
+          "Mission Output",
+          "mission-output"
         ],
-        "summary": "Generate specific document types for a mission",
-        "description": "Request on-demand generation of documents (e.g., PRD, implementation guide) using existing mission research and synthesis. Sends message to active agentcore session.",
-        "operationId": "createMissionDocuments",
+        "summary": "Generate mission output (creates workflow)",
+        "description": "Creates a workflow with tasks for each requested document type and triggers AgentCore to execute. Returns workflow_id for real-time progress tracking via WorkflowDetailView.",
+        "operationId": "generateMissionOutput",
         "parameters": [
           {
             "name": "mission_id",
@@ -5969,6 +5970,22 @@
             "schema": {
               "type": "string",
               "title": "Mission Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
             }
           },
           {
@@ -5986,79 +6003,35 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DocumentGenerationRequest"
+                "$ref": "#/components/schemas/OutputGenerationRequest"
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Document generation initiated",
+          "201": {
+            "description": "Workflow created and generation started",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DocumentGenerationResponse"
+                  "$ref": "#/components/schemas/OutputGenerationResponse"
                 }
               }
             }
           },
           "404": {
-            "description": "Mission or session not found"
+            "description": "Mission not found"
           },
           "422": {
-            "description": "Invalid document types or request"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/ocxp/mission/{mission_id}/documents/status": {
-      "get": {
-        "tags": [
-          "Mission"
-        ],
-        "summary": "Get document generation status",
-        "description": "Check the status of document generation for a mission.",
-        "operationId": "getDocumentsStatus",
-        "parameters": [
-          {
-            "name": "mission_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Mission Id"
-            }
+            "description": "Validation error"
           },
-          {
-            "name": "X-Workspace",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "title": "X-Workspace"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
+          "429": {
+            "description": "Rate limit exceeded",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                "example": {
+                  "detail": "Rate limit exceeded. Please try again later.",
+                  "retry_after": 60
                 }
               }
             }
@@ -11361,6 +11334,32 @@
             "description": "Comma-separated list of tables to include (omit for all)"
           },
           {
+            "name": "include_mock_data",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include generated mock data in response",
+              "default": false,
+              "title": "Include Mock Data"
+            },
+            "description": "Include generated mock data in response"
+          },
+          {
+            "name": "mock_rows",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "description": "Number of mock rows per table",
+              "default": 5,
+              "title": "Mock Rows"
+            },
+            "description": "Number of mock rows per table"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -13914,7 +13913,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "pattern": "password"
+                "pattern": "^password$"
               },
               {
                 "type": "null"
@@ -13928,6 +13927,7 @@
           },
           "password": {
             "type": "string",
+            "format": "password",
             "title": "Password"
           },
           "scope": {
@@ -13955,6 +13955,7 @@
                 "type": "null"
               }
             ],
+            "format": "password",
             "title": "Client Secret"
           }
         },
@@ -16827,6 +16828,35 @@
             "title": "Format",
             "description": "Diagram format",
             "default": "mermaid"
+          },
+          "mock_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mock Data",
+            "description": "Mock data keyed by table name"
+          },
+          "schema_summary": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Summary",
+            "description": "Simplified schema for rendering"
           }
         },
         "type": "object",
@@ -17004,6 +17034,12 @@
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
+          },
+          "is_mock": {
+            "type": "boolean",
+            "title": "Is Mock",
+            "description": "True when rows are generated mock data (e.g. Terraform DBs)",
+            "default": false
           }
         },
         "type": "object",
@@ -17597,75 +17633,6 @@
         ],
         "title": "DiscoverResponse",
         "description": "Response from POST /ocxp/context/discover.\n\nContains search results and optional RAG-generated answer."
-      },
-      "DocumentGenerationRequest": {
-        "properties": {
-          "doc_types": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "maxItems": 10,
-            "minItems": 1,
-            "title": "Doc Types",
-            "description": "List of document types to generate (e.g., ['implementation-guide', 'prd', 'architecture-decisions'])"
-          },
-          "session_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Session Id",
-            "description": "Optional specific agentcore session to use. If not provided, uses most recent active session."
-          }
-        },
-        "type": "object",
-        "required": [
-          "doc_types"
-        ],
-        "title": "DocumentGenerationRequest",
-        "description": "Request to generate specific document types for a mission."
-      },
-      "DocumentGenerationResponse": {
-        "properties": {
-          "mission_id": {
-            "type": "string",
-            "title": "Mission Id"
-          },
-          "doc_types": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Doc Types"
-          },
-          "session_id": {
-            "type": "string",
-            "title": "Session Id"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "default": "initiated"
-          },
-          "message": {
-            "type": "string",
-            "title": "Message"
-          }
-        },
-        "type": "object",
-        "required": [
-          "mission_id",
-          "doc_types",
-          "session_id",
-          "message"
-        ],
-        "title": "DocumentGenerationResponse",
-        "description": "Response for document generation request."
       },
       "DownloadRequest": {
         "properties": {
@@ -20033,6 +20000,101 @@
         ],
         "title": "OCXPValidateResponse",
         "description": "Response model for OCXP URI validation."
+      },
+      "OutputGenerationRequest": {
+        "properties": {
+          "output_type": {
+            "type": "string",
+            "title": "Output Type",
+            "description": "Type of output: 'documents', 'report', 'summary', etc."
+          },
+          "doc_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doc Types",
+            "description": "For output_type='documents': which document types to generate"
+          },
+          "strategy": {
+            "type": "string",
+            "title": "Strategy",
+            "description": "Generation strategy: 'generate_all', 'regenerate_changed', 'auto_select'",
+            "default": "generate_all"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Optional: specific agentcore session to use"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options",
+            "description": "Output-type specific options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "output_type"
+        ],
+        "title": "OutputGenerationRequest",
+        "description": "Request to generate mission output via workflow."
+      },
+      "OutputGenerationResponse": {
+        "properties": {
+          "workflow_id": {
+            "type": "string",
+            "title": "Workflow Id"
+          },
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "total_tasks": {
+            "type": "integer",
+            "title": "Total Tasks"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workflow_id",
+          "mission_id",
+          "session_id",
+          "total_tasks",
+          "message"
+        ],
+        "title": "OutputGenerationResponse",
+        "description": "Response from output generation -- returns workflow for tracking."
       },
       "ProjectCreate": {
         "properties": {
@@ -25056,5 +25118,10 @@
         }
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://ix8b43sg3j.execute-api.us-west-2.amazonaws.com"
+    }
+  ]
 }
