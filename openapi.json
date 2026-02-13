@@ -10887,6 +10887,20 @@
             "description": "Database ID (default: amc-default)"
           },
           {
+            "name": "cache_ttl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 86400,
+              "minimum": 0,
+              "description": "Cache TTL in seconds (0=no cache)",
+              "default": 86400,
+              "title": "Cache Ttl"
+            },
+            "description": "Cache TTL in seconds (0=no cache)"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -10990,6 +11004,20 @@
             "description": "Database ID (default: amc-default)"
           },
           {
+            "name": "cache_ttl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 86400,
+              "minimum": 0,
+              "description": "Cache TTL in seconds (0=no cache)",
+              "default": 86400,
+              "title": "Cache Ttl"
+            },
+            "description": "Cache TTL in seconds (0=no cache)"
+          },
+          {
             "name": "X-Workspace",
             "in": "header",
             "required": false,
@@ -11078,10 +11106,10 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 3600,
+              "maximum": 86400,
               "minimum": 0,
               "description": "Cache TTL in seconds (0=no cache)",
-              "default": 300,
+              "default": 86400,
               "title": "Cache Ttl"
             },
             "description": "Cache TTL in seconds (0=no cache)"
@@ -11227,10 +11255,10 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 3600,
+              "maximum": 86400,
               "minimum": 0,
               "description": "Cache TTL in seconds (0=no cache)",
-              "default": 300,
+              "default": 86400,
               "title": "Cache Ttl"
             },
             "description": "Cache TTL in seconds (0=no cache)"
@@ -11358,6 +11386,20 @@
               "title": "Mock Rows"
             },
             "description": "Number of mock rows per table"
+          },
+          {
+            "name": "cache_ttl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 86400,
+              "minimum": 0,
+              "description": "Cache TTL in seconds (0=no cache)",
+              "default": 86400,
+              "title": "Cache Ttl"
+            },
+            "description": "Cache TTL in seconds (0=no cache)"
           },
           {
             "name": "X-Workspace",
@@ -11520,6 +11562,18 @@
               "title": "Path"
             },
             "description": "Filter by path prefix"
+          },
+          {
+            "name": "recursive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "List recursively",
+              "default": false,
+              "title": "Recursive"
+            },
+            "description": "List recursively"
           },
           {
             "name": "project",
@@ -13605,6 +13659,13 @@
             "title": "Auto Include",
             "description": "Automatically include in agent context",
             "default": true
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Prompt",
+            "description": "Markdown context and guardrails for the agent",
+            "default": ""
           }
         },
         "type": "object",
@@ -13657,6 +13718,13 @@
             "type": "string",
             "title": "Branch",
             "default": "main"
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Prompt",
+            "description": "Markdown context and guardrails for the agent",
+            "default": ""
           }
         },
         "type": "object",
@@ -17433,6 +17501,39 @@
               ]
             ]
           },
+          "domain_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain Type",
+            "description": "Filter by domain type: research, gaps, docs, sop, etc.",
+            "examples": [
+              "research"
+            ]
+          },
+          "max_age_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 365.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Age Days",
+            "description": "Only return content created within the last N days",
+            "examples": [
+              30,
+              90
+            ]
+          },
           "doc_id": {
             "anyOf": [
               {
@@ -18563,6 +18664,12 @@
             "type": "boolean",
             "title": "Auto Include",
             "default": true
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Markdown context and guardrails for the agent",
+            "default": ""
           }
         },
         "type": "object",
@@ -18611,6 +18718,12 @@
             "examples": [
               "main"
             ]
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Markdown context and guardrails for the agent",
+            "default": ""
           }
         },
         "type": "object",

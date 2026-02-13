@@ -7476,6 +7476,12 @@ type GetSchemaData = {
      * Database ID (default: amc-default)
      */
     database_id?: string | null;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
   };
   url: '/ocxp/context/database/schema';
 };
@@ -7526,6 +7532,12 @@ type GetSampleData = {
      * Database ID (default: amc-default)
      */
     database_id?: string | null;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
   };
   url: '/ocxp/context/database/sample/{table_name}';
 };

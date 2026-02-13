@@ -26,6 +26,12 @@ export type AddDatabaseRequest = {
    * Automatically include in agent context
    */
   auto_include?: boolean;
+  /**
+   * Prompt
+   *
+   * Markdown context and guardrails for the agent
+   */
+  prompt?: string;
 };
 
 /**
@@ -64,6 +70,12 @@ export type AddRepoRequest = {
    * Branch
    */
   branch?: string;
+  /**
+   * Prompt
+   *
+   * Markdown context and guardrails for the agent
+   */
+  prompt?: string;
 };
 
 /**
@@ -2345,6 +2357,18 @@ export type DiscoverOptions = {
    */
   repos?: Array<string> | null;
   /**
+   * Domain Type
+   *
+   * Filter by domain type: research, gaps, docs, sop, etc.
+   */
+  domain_type?: string | null;
+  /**
+   * Max Age Days
+   *
+   * Only return content created within the last N days
+   */
+  max_age_days?: number | null;
+  /**
    * Doc Id
    *
    * Filter to specific document ID
@@ -3098,6 +3122,12 @@ export type LinkedDatabaseResponse = {
    * Auto Include
    */
   auto_include?: boolean;
+  /**
+   * Prompt
+   *
+   * Markdown context and guardrails for the agent
+   */
+  prompt?: string;
 };
 
 /**
@@ -3128,6 +3158,12 @@ export type LinkedRepoResponse = {
    * Branch
    */
   branch: string;
+  /**
+   * Prompt
+   *
+   * Markdown context and guardrails for the agent
+   */
+  prompt?: string;
 };
 
 /**
@@ -13284,6 +13320,12 @@ export type GetSchemaData = {
      * Database ID (default: amc-default)
      */
     database_id?: string | null;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
   };
   url: '/ocxp/context/database/schema';
 };
@@ -13341,6 +13383,12 @@ export type GetSampleData = {
      * Database ID (default: amc-default)
      */
     database_id?: string | null;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
   };
   url: '/ocxp/context/database/sample/{table_name}';
 };
@@ -13546,6 +13594,12 @@ export type GetDatabaseDiagramData = {
      * Number of mock rows per table
      */
     mock_rows?: number;
+    /**
+     * Cache Ttl
+     *
+     * Cache TTL in seconds (0=no cache)
+     */
+    cache_ttl?: number;
   };
   url: '/ocxp/context/database/diagram';
 };
@@ -13642,6 +13696,12 @@ export type ListContentData = {
      * Filter by path prefix
      */
     path?: string | null;
+    /**
+     * Recursive
+     *
+     * List recursively
+     */
+    recursive?: boolean;
     /**
      * Project
      *
