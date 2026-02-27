@@ -9464,6 +9464,8 @@ interface OCXPClientOptions {
     workspace?: string;
     /** Static token or async function to get token */
     token?: string | (() => Promise<string>);
+    /** Custom fetch function (e.g., Obsidian's requestUrl wrapper for CORS bypass) */
+    fetch?: typeof globalThis.fetch;
 }
 /**
  * Standard pagination options for all list methods

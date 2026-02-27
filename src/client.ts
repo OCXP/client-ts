@@ -137,6 +137,8 @@ export interface OCXPClientOptions {
   workspace?: string;
   /** Static token or async function to get token */
   token?: string | (() => Promise<string>);
+  /** Custom fetch function (e.g., Obsidian's requestUrl wrapper for CORS bypass) */
+  fetch?: typeof globalThis.fetch;
 }
 
 /**
@@ -181,6 +183,7 @@ export class OCXPClient {
     const config = createConfig<ClientOptions>({
       baseUrl: options.endpoint.replace(/\/$/, ''),
       throwOnError: true,
+      fetch: options.fetch,
     });
 
     this.client = createClient(config);

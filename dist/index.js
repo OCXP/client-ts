@@ -1588,7 +1588,8 @@ var OCXPClient = class {
     this.tokenProvider = options.token;
     const config = createConfig({
       baseUrl: options.endpoint.replace(/\/$/, ""),
-      throwOnError: true
+      throwOnError: true,
+      fetch: options.fetch
     });
     this.client = createClient(config);
   }
